@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../lib/store';
-import { PROGRAMS } from '../../lib/programs';
+import { usePrograms } from '../../lib/usePrograms';
 import { matchProfile } from '../../lib/api';
 import { MatchResponse } from '../../lib/types';
 import { StatusChip } from '../../components/StatusChip';
 
 export default function ReportPage() {
   const { t, profile } = useApp();
+  const { programs } = usePrograms();
   const [data, setData] = useState<MatchResponse | null>(null);
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function ReportPage() {
       </div>
       <div className="mt-6 space-y-4">
         {(data?.results ?? []).map((r) => {
-          const p = PROGRAMS.find((x) => x.id === r.programId);
+          const p = programs.find((x) => x.id === r.programId);
           if (!p) return null;
           return (
             <section key={r.programId} className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm">

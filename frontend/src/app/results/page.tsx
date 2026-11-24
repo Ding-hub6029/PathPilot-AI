@@ -2,15 +2,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../lib/store';
-import { PROGRAMS } from '../../lib/programs';
+import { usePrograms } from '../../lib/usePrograms';
 import { matchProfile, simulate } from '../../lib/api';
 import { MatchResponse, Profile } from '../../lib/types';
 import { StatusChip } from '../../components/StatusChip';
+import { EvidenceDrawer } from '../../components/EvidenceDrawer';
 
 type Filter = 'all' | 'met' | 'notmet' | 'unknown';
 
 export default function ResultsPage() {
   const { t, profile } = useApp();
+  const { programs, live: programsLive, loading: programsLoading } = usePrograms();
   const [data, setData] = useState<MatchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -61,6 +63,7 @@ export default function ResultsPage() {
       {profile.sample && <p className="mt-2 inline-block rounded-lg bg-amber/25 px-3 py-1 text-sm font-semibold">{t('common.synthetic')}</p>}
       {data && !data.live && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('common.offline')}: {t('results.offlineNote')}</p>}
       {data && data.live && <p className="mt-3 rounded-lg bg-teal/10 p-3 text-sm font-semibold text-teal-dark" role="status">{t('common.online')}</p>}
+      {!programsLoading && !programsLive && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('programs.offlineNote')}</p>}
 
       <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filters">
         {([['all', t('results.filterAll')], ['met', t('results.filterMet')], ['notmet', t('results.filterNotMet')], ['unknown', t('results.filterUnknown')]] as [Filter, string][]).map(([f, label]) => (
@@ -74,7 +77,7 @@ export default function ResultsPage() {
         {error && <p role="alert" className="rounded-lg bg-red-50 p-3 font-semibold text-red-800">{error}</p>}
         <div className="grid gap-4 md:grid-cols-2">
           {shown.map((r, i) => {
-            const p = PROGRAMS.find((x) => x.id === r.programId);
+            const p = programs.find((x) => x.id === r.programId);
             if (!p) return null;
             const unknowns = r.ruleResults.filter((x) => x.status === 'UNKNOWN').length;
             const blockers = r.ruleResults.filter((x) => x.status === 'NOT_MET');
@@ -101,6 +104,14 @@ export default function ResultsPage() {
                         </ul>
                       </div>
                     )}
+                    <div className="mt-3 space-y-2">
+                      {r.ruleResults.map((rule) => (
+                        <div key={rule.ruleId} className="border-t border-navy/5 pt-2">
+                          <p className="text-sm font-semibold">{rule.expected}</p>
+                          <EvidenceDrawer program={p} rule={rule} />
+                        </div>
+                      ))}
+                    </div>
                     {sim && (
                       <div className="mt-3 rounded-lg bg-teal/10 p-3 text-sm" aria-live="polite">
                         <p className="font-bold">{t('sim.scenario')}</p>
