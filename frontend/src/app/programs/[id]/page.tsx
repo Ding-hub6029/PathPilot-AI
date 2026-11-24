@@ -2,16 +2,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../../lib/store';
-import { PROGRAMS } from '../../../lib/programs';
+import { usePrograms } from '../../../lib/usePrograms';
 import { matchProfile } from '../../../lib/api';
 import { MatchResponse } from '../../../lib/types';
 import { StatusChip } from '../../../components/StatusChip';
+import { EvidenceDrawer } from '../../../components/EvidenceDrawer';
 
 export default function ProgramDetail({ params }: { params: { id: string } }) {
   const { t, profile } = useApp();
+  const { programs } = usePrograms();
   const [data, setData] = useState<MatchResponse | null>(null);
-  const [openSource, setOpenSource] = useState<string | null>(null);
-  const program = PROGRAMS.find((p) => p.id === params.id);
+  const program = programs.find((p) => p.id === params.id);
 
   useEffect(() => {
     if (!program || !profile.track) return;
@@ -41,7 +42,6 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
         {result && !result.trackMismatch && (
           <ul className="mt-4 space-y-3">
             {result.ruleResults.map((rule) => {
-              const srcs = program.sources.filter((s) => rule.evidenceIds.includes(s.id));
               return (
                 <li key={rule.ruleId} className="card-lift rounded-2xl border border-navy/10 bg-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -50,21 +50,7 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
                   </div>
                   <p className="mt-1 text-sm text-navy/75">{rule.observed}</p>
                   {rule.status === 'UNKNOWN' && <p className="mt-1 text-sm font-semibold text-amber-dark">{rule.unknownReason ?? t('program.unknownNote')}</p>}
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {srcs.map((s) => (
-                      <button key={s.id} type="button" onClick={() => setOpenSource(openSource === s.id ? null : s.id)} aria-expanded={openSource === s.id}
-                        className="btn-press rounded-full border border-teal px-3 py-1 text-xs font-semibold text-teal-dark">
-                        {s.label} · {t('program.sourceVerified')} {s.verifiedDate}
-                      </button>
-                    ))}
-                  </div>
-                  {srcs.map((s) => openSource === s.id && (
-                    <div key={s.id} className="anim-fade-in mt-3 rounded-lg bg-paper p-3 text-sm">
-                      <p className="italic">“{s.excerpt}”</p>
-                      <a href={s.url} target="_blank" rel="noreferrer" className="mt-2 inline-block break-all font-semibold text-teal-dark underline">{s.url}</a>
-                      <p className="mt-1 text-xs text-navy/60">{t('program.sourceVerified')}: {s.verifiedDate}</p>
-                    </div>
-                  ))}
+                  <EvidenceDrawer program={program} rule={rule} />
                 </li>
               );
             })}
@@ -79,7 +65,8 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
           {program.sources.map((s) => (
             <li key={s.id} className="rounded-lg border border-navy/10 bg-white p-3 text-sm">
               <a href={s.url} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{s.label}</a>
-              <span className="ms-2 text-navy/60">· {t('program.sourceVerified')} {s.verifiedDate}</span>
+              <span className="ms-2 text-navy/60">· {t('program.sourceVerified')} {s.verifiedDate} · {t('evidence.intakeApplies')}: {s.appliesTo || program.intakeLabel}</span>
+              {s.excerpt && <p className="mt-1 italic text-navy/75" lang="en" dir="ltr">“{s.excerpt}” <span className="not-italic text-xs font-semibold text-navy/60">— {t('evidence.englishOnly')}</span></p>}
             </li>
           ))}
         </ul>

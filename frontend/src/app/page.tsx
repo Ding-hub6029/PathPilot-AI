@@ -2,11 +2,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../lib/store';
-import { PROGRAMS } from '../lib/programs';
+import { usePrograms } from '../lib/usePrograms';
 import { sampleUndergrad, sampleMasters } from '../lib/types';
 
 export default function HomePage() {
   const { t, setProfile } = useApp();
+  const { programs, live: programsLive, loading: programsLoading } = usePrograms();
   const router = useRouter();
 
   const trySample = (which: 'ug' | 'pg') => {
@@ -59,8 +60,10 @@ export default function HomePage() {
       {/* Programmes */}
       <section className="mt-10">
         <h2 className="text-2xl font-bold">{t('home.programsTitle')}</h2>
+        {programsLoading && <p className="mt-2 text-sm text-navy/60">{t('programs.loading')}</p>}
+        {!programsLoading && !programsLive && <p className="mt-2 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('programs.offlineNote')}</p>}
         <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {PROGRAMS.map((p, i) => (
+          {programs.map((p, i) => (
             <article key={p.id} className={`card-lift anim-fade-up stagger-${i + 1} rounded-2xl border border-navy/10 bg-white p-5 shadow-sm`}>
               <p className="text-sm font-semibold text-teal">{p.institution} · {p.country}</p>
               <h3 className="mt-1 text-lg font-bold">{p.officialName}</h3>
