@@ -49,7 +49,7 @@ offline evaluator — start the backend first for live results.
 
 ```bash
 .venv/bin/python -m pytest tests/ -v
-# real run 2026-11-24: 19 passed, 0 failed (13 engine/API + 6 frontend-contract)
+# real run 2026-11-24: 25 passed, 0 failed (19 original + 6 Day 1 audit-fix tests)
 cd frontend && npm run build   # real run 2026-11-24: pass (locale check + all routes)
 ```
 
