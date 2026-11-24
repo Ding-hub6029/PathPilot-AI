@@ -12,9 +12,9 @@
 - [x] `POST /simulate` baseline vs patched verified live.
 - [x] Track mismatch returns 422 `TRACK_MISMATCH` (verified live).
 - [x] `POST /explain` works with no AI key (`ai_status=unavailable`, template explanation).
-- [x] Pytest: 13 passed, 0 failed (real run, command in TASKS.md).
+- [x] Pytest: 25 passed, 0 failed (real run 2026-11-24, after the Day 1 audit fixes; command in TASKS.md).
 - [x] No secrets in code; `.env.example` placeholders only.
 - [x] No fabricated data; unknowns listed, not guessed.
-- [ ] Frontend built (other agent's scope — not a Day-1 backend release item).
-- [ ] GitHub repository created + pushed (Day 2–3).
+- [x] Frontend built (`npm run build` pass 2026-11-24, locale check 6×98 keys, all routes; all 6 pages HTTP 200 live).
+- [x] GitHub repository created + pushed (public repo, HEAD ccf8aba, 14 commits, 2026-11-24; the audit fixes of 2026-11-24 still need a push).
 - [ ] Submission to Devpost before Nov 28 15:00 PST / Nov 29 07:00 Beijing (competition deadline).
