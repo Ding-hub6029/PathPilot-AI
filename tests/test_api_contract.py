@@ -34,8 +34,11 @@ PG_FLAT = {
 def test_programs_has_items():
     r = client.get("/api/v1/programs")
     assert r.status_code == 200
-    assert len(r.json()["items"]) == 2
-    assert {p["id"] for p in r.json()["items"]} == {"ucl-cs-bsc-2026", "nus-mcomp-cs"}
+    assert len(r.json()["items"]) == 8
+    assert {p["id"] for p in r.json()["items"]} == {
+        "ucl-cs-bsc-2026", "nus-mcomp-cs", "imperial-comp-beng-2027",
+        "imperial-msc-computing-2027", "ucl-cs-msc-2027", "nus-bcomp-cs-2027",
+        "ntu-bcomp-cs-2027", "ntu-msai-2027"}
 
 
 def test_match_flat_ug_writing_below():
