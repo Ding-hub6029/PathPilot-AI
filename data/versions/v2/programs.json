@@ -1,0 +1,832 @@
+{
+  "data_version": "v2",
+  "programs": [
+    {
+      "application_deadline": "14 Jan 2026",
+      "city": "London Bloomsbury",
+      "country": "GB",
+      "degree_level": "undergraduate",
+      "duration": "3 academic years",
+      "fees": {
+        "currency": "GBP",
+        "notes": "Fees for 2026/27. Overseas GBP 46,700 per year; UK GBP 9,790 per year.",
+        "overseas_per_year_gbp": 46700,
+        "period": "per_year",
+        "uk_per_year_gbp": 9790
+      },
+      "id": "ucl-cs-bsc-2026",
+      "institution": "University College London",
+      "intake_year": 2026,
+      "official_name": "Computer Science BSc",
+      "requirements": [
+        {
+          "category": "academic",
+          "description": "A*A*A at A level, with A* in Mathematics or Further Mathematics. Contextual offer A*AB.",
+          "id": "ucl-academic-alevel",
+          "source_ids": [
+            "ucl-bsc"
+          ],
+          "threshold": {
+            "grades": [
+              "A*",
+              "A*",
+              "A"
+            ],
+            "maths_grade": "A*"
+          }
+        },
+        {
+          "category": "academic",
+          "description": "IB 40 points total, 20 points in three Higher Level subjects including grade 7 in Mathematics. Contextual offer IB 38.",
+          "id": "ucl-academic-ib",
+          "source_ids": [
+            "ucl-bsc"
+          ],
+          "threshold": {
+            "hl_maths_grade": 7,
+            "total": 40
+          }
+        },
+        {
+          "category": "language",
+          "description": "English Level 1: IELTS Academic overall 6.5, minimum 6.0 in each component.",
+          "id": "ucl-language-ielts",
+          "source_ids": [
+            "ucl-english"
+          ],
+          "threshold": {
+            "each_component": 6.0,
+            "overall": 6.5
+          }
+        },
+        {
+          "category": "test",
+          "description": "TARA required for the 2026 cycle. No score threshold stated on the page.",
+          "id": "ucl-test-tara",
+          "source_ids": [
+            "ucl-bsc"
+          ],
+          "threshold": null
+        }
+      ],
+      "sources": [
+        {
+          "bytes": null,
+          "fetch_note": "Direct curl of this page failed (exit 18) on 2026-11-23; facts were retrieved via browser crawl at 18:39-18:40 UTC and are recorded in QUALITY_REPORT.md. No hash available for this page.",
+          "fetch_status": "failed",
+          "id": "ucl-bsc",
+          "retrieved_at": "2026-11-23T18:39:00Z",
+          "sha256": null,
+          "title": "Computer Science BSc",
+          "url": "https://www.ucl.ac.uk/prospective-students/undergraduate/degrees/computer-science-bsc-2026"
+        },
+        {
+          "bytes": 5725,
+          "fetch_status": "ok",
+          "id": "ucl-english",
+          "retrieved_at": "2026-11-23T18:39:00Z",
+          "sha256": "eb7a740ae5b0e6c89f6ff8ada343c723daa9fcdebee626873fc7c7af531ce524",
+          "title": "English language requirements",
+          "url": "https://www.ucl.ac.uk/prospective-students/study-abroad-at-ucl/how-apply/english-language-requirements/"
+        }
+      ],
+      "start": "September 2026",
+      "study_mode": "full-time",
+      "subject": "computer science",
+      "synthetic": false,
+      "ucas_code": "G400"
+    },
+    {
+      "application_deadline": null,
+      "country": "SG",
+      "degree_level": "taught_masters",
+      "duration": null,
+      "fees": {
+        "application_fee_sgd": 109,
+        "currency": "SGD",
+        "notes": "SGD 69,215 total tuition including 9% GST, up to 40 units. Application fee SGD 109.",
+        "period": "total",
+        "total_sgd_incl_gst": 69215
+      },
+      "id": "nus-mcomp-cs",
+      "institution": "National University of Singapore",
+      "intake": "August 2027, AY2027/2028 Semester 1",
+      "official_name": "Master of Computing (Computer Science specialisation)",
+      "requirements": [
+        {
+          "category": "academic",
+          "description": "Good honours degree in computing; OR good honours in a related discipline + 2 years IT industry experience; OR good bachelor's in computing + 2 years IT experience; OR good bachelor's/honours in a business-related discipline + 2 years IT experience. Admission is competitive.",
+          "id": "nus-academic",
+          "source_ids": [
+            "nus-admissions"
+          ],
+          "threshold": {
+            "it_experience_years": 2
+          }
+        },
+        {
+          "category": "language",
+          "description": "IELTS minimum 6.0 overall. No component minimum stated.",
+          "id": "nus-language-ielts",
+          "source_ids": [
+            "nus-admissions"
+          ],
+          "threshold": {
+            "overall": 6.0
+          }
+        },
+        {
+          "category": "language",
+          "description": "TOEFL iBT minimum 90.",
+          "id": "nus-language-toefl",
+          "source_ids": [
+            "nus-admissions"
+          ],
+          "threshold": {
+            "overall": 90
+          }
+        },
+        {
+          "category": "test",
+          "description": "GRE minimum 320 (verbal & quantitative) and 3.5 analytical, OR GMAT 650+. GRE/GMAT valid 5 years, TOEFL/IELTS 2 years. The admissions page lists GRE/GMAT as evidence to submit but states no rejection rule for a missing or low score — missing/low GRE/GMAT is UNKNOWN, never NOT_MET.",
+          "id": "nus-test-gre-gmat",
+          "source_ids": [
+            "nus-admissions"
+          ],
+          "threshold": {
+            "gmat_total": 650,
+            "gre_analytical": 3.5,
+            "gre_total": 320
+          }
+        }
+      ],
+      "school": "School of Computing",
+      "sources": [
+        {
+          "bytes": null,
+          "fetch_status": "ok",
+          "id": "nus-admissions",
+          "retrieved_at": "2026-11-23T18:39:00Z",
+          "sha256": "e3d6eb80713349628e21931b071546b4b6c8c096d827ca2f5bec543b697c3b22",
+          "title": "Admissions — Master of Computing",
+          "url": "https://www.comp.nus.edu.sg/programmes/pg/misc/admissions/"
+        },
+        {
+          "bytes": null,
+          "fetch_status": "ok",
+          "id": "nus-scholarships",
+          "retrieved_at": "2026-11-23T18:39:00Z",
+          "sha256": "38b9787584b90b81faefa3b6fc3c05e9a74ce0b579f4d1e438b2aac2cb052253",
+          "title": "Scholarships — Master of Computing",
+          "url": "https://www.comp.nus.edu.sg/programmes/pg/mcs/scholarships/"
+        }
+      ],
+      "study_mode": "full-time",
+      "subject": "computer science",
+      "synthetic": false
+    },
+    {
+      "application_deadline": "13 January 2027 (18:00 UK time)",
+      "city": "London South Kensington",
+      "country": "GB",
+      "degree_level": "undergraduate",
+      "duration": "3 years",
+      "fees": {
+        "currency": "GBP",
+        "notes": "Fees for October 2027 entry. Home GBP 10,050 per year; Overseas GBP 47,800 per year. Applications via UCAS; no Imperial application fee stated.",
+        "overseas_per_year_gbp": 47800,
+        "period": "per_year",
+        "uk_per_year_gbp": 10050
+      },
+      "id": "imperial-comp-beng-2027",
+      "institution": "Imperial College London",
+      "intake_year": 2027,
+      "official_name": "Computing BEng",
+      "requirements": [
+        {
+          "category": "academic",
+          "description": "A*A*A or A*AAA at A level, to include A* in Mathematics; A*A in two further subjects or AAA in three further subjects. ICT, Business Studies, General Studies and Critical Thinking are not accepted. Further Maths at A2 strongly encouraged.",
+          "id": "imperial-beng-academic-alevel",
+          "source_ids": [
+            "imperial-beng",
+            "imperial-beng-spec"
+          ],
+          "threshold": {
+            "grades": [
+              "A*",
+              "A*",
+              "A"
+            ],
+            "maths_grade": "A*"
+          }
+        },
+        {
+          "category": "academic",
+          "description": "IB 41 points overall, to include grade 7 in Mathematics at Higher Level and grade 7 in another relevant subject at Higher Level. Mathematics Analysis and Approaches or Applications and Interpretation accepted at HL; applicants taking Applications and Interpretation at HL will also be required to take STEP.",
+          "id": "imperial-beng-academic-ib",
+          "source_ids": [
+            "imperial-beng",
+            "imperial-beng-spec"
+          ],
+          "threshold": {
+            "hl_maths_grade": 7,
+            "hl_other_relevant_grade": 7,
+            "total": 41
+          }
+        },
+        {
+          "category": "language",
+          "description": "English Language Requirement: Standard requirement. IELTS Academic 6.5 overall (minimum 6.0 in all elements); TOEFL iBT 92 overall (minimum 20 in all elements) for tests taken before 21 January 2026, or 4.5 (minimum 4.5 in all elements) on the new 1-6 scale for tests from 21 January 2026.",
+          "id": "imperial-beng-language",
+          "source_ids": [
+            "imperial-beng-spec",
+            "imperial-english"
+          ],
+          "threshold": {
+            "each_component": 6.0,
+            "overall": 6.5,
+            "toefl_overall": 92,
+            "toefl_each": 20
+          }
+        },
+        {
+          "category": "test",
+          "description": "You must sit the Test for Mathematics for University Admission (TMUA) as part of the application process for this course. No TMUA score threshold stated on the pages fetched. Applicants who are shortlisted will be invited for interview.",
+          "id": "imperial-beng-test-tmua",
+          "source_ids": [
+            "imperial-beng-spec"
+          ],
+          "threshold": null
+        }
+      ],
+      "school": "Department of Computing",
+      "sources": [
+        {
+          "bytes": null,
+          "fetch_note": "Course page fetched via browser crawl 2026-11-24 16:28 UTC; entry-requirement detail sections are collapsed on the page and were verified against the official programme specification PDF instead.",
+          "fetch_status": "ok",
+          "id": "imperial-beng",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Computing BEng | Study | Imperial College London",
+          "url": "https://www.imperial.ac.uk/study/courses/undergraduate/computing-beng/?removeCourse=1221138"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Programme Specification 2026-27 (G400) fetched via browser crawl 2026-11-24 16:28 UTC. Covers 2026-27 entry; course page is October 2027 entry and states the same minimum entry standard (A*A*A or A*AAA; IB 41).",
+          "fetch_status": "ok",
+          "id": "imperial-beng-spec",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Programme Specification 2026-27 — Computing G400",
+          "url": "https://www.Imperial.ac.UK/media/imperial-college/study/programme-specifications/computing/2627/G400-BEng-Computing-2026-27.pdf"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:28 UTC. Defines Standard vs Higher levels for all Imperial courses.",
+          "fetch_status": "ok",
+          "id": "imperial-english",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "English language requirements | Imperial College London",
+          "url": "https://www.imperial.ac.uk/study/apply/english-language/"
+        }
+      ],
+      "start": "October 2027",
+      "study_mode": "full-time",
+      "subject": "computer science",
+      "synthetic": false,
+      "ucas_code": "G400"
+    },
+    {
+      "application_deadline": "Round 2 closes 6 January 2027",
+      "city": "London South Kensington",
+      "country": "GB",
+      "degree_level": "taught_masters",
+      "duration": "1 year (1 calendar year)",
+      "fees": {
+        "currency": "GBP",
+        "notes": "Fees for October 2027 entry. Home GBP 25,850; Overseas GBP 48,300. Application fee not stated on the course page.",
+        "overseas_per_year_gbp": 48300,
+        "period": "per_year",
+        "uk_per_year_gbp": 25850
+      },
+      "id": "imperial-msc-computing-2027",
+      "institution": "Imperial College London",
+      "intake_year": 2027,
+      "official_name": "Computing MSc",
+      "requirements": [
+        {
+          "category": "academic",
+          "description": "First-Class degree in a subject without substantial Computing content (conversion MSc). Programme specification: normally a non-computing First Class Honours degree from UK (or equivalent overseas qualification) with sufficient quantitative or analytical elements and a demonstrable background/motivation for this conversion degree. At least an A in Mathematics at A-level (or equivalent) is required at a minimum for non-STEM degrees.",
+          "id": "imperial-msc-academic",
+          "source_ids": [
+            "imperial-msc",
+            "imperial-msc-spec"
+          ],
+          "threshold": {
+            "degree_class": "First-Class",
+            "maths_alevel_grade": "A"
+          }
+        },
+        {
+          "category": "language",
+          "description": "English Language Requirement: Higher requirement (PG). IELTS Academic 7.0 overall (minimum 6.5 in all elements); TOEFL iBT 100 overall (minimum 22 in all elements) for tests taken before 21 January 2026, or 5.0 (minimum 5.0 in all elements) on the new 1-6 scale for tests from 21 January 2026.",
+          "id": "imperial-msc-language",
+          "source_ids": [
+            "imperial-msc-spec",
+            "imperial-english"
+          ],
+          "threshold": {
+            "each_component": 6.5,
+            "overall": 7.0,
+            "toefl_overall": 100,
+            "toefl_each": 22
+          }
+        },
+        {
+          "category": "test",
+          "description": "There are normally no admissions tests or interviews. No GRE/GMAT requirement stated.",
+          "id": "imperial-msc-test",
+          "source_ids": [
+            "imperial-msc-spec"
+          ],
+          "threshold": null
+        }
+      ],
+      "school": "Department of Computing",
+      "sources": [
+        {
+          "bytes": null,
+          "fetch_note": "Course page fetched via browser crawl 2026-11-24 16:28 UTC. States 'Round 2 closes on Wednesday 6 January 2027' and fees; entry-requirement detail sections are collapsed on the page and were verified against the official programme specification PDF instead.",
+          "fetch_status": "ok",
+          "id": "imperial-msc",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Computing MSc | Study | Imperial College London",
+          "url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/computing/"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Programme Specification (2026-27), Computing G5U6, fetched via browser crawl 2026-11-24 16:29 UTC.",
+          "fetch_status": "ok",
+          "id": "imperial-msc-spec",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Programme Specification (2026-27) — Computing G5U6 (MSc Computing)",
+          "url": "https://www.imperial.ac.uk/media/imperial-college/study/programme-specifications/computing/G5U6-MSc-Computing-2026-27.pdf"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Same source as imperial-beng English levels; see imperial-english.",
+          "fetch_status": "ok",
+          "id": "imperial-english",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "English language requirements | Imperial College London",
+          "url": "https://www.imperial.ac.uk/study/apply/english-language/"
+        }
+      ],
+      "start": "October 2027",
+      "study_mode": "full-time",
+      "subject": "computer science",
+      "synthetic": false
+    },
+    {
+      "application_deadline": "Visa-required applicants: 19 Oct 2026 - 22 Mar 2027 (close 5pm UK time). Applicants who do not require a visa: 19 Oct 2026 - 27 Aug 2027 (close 10am UK time).",
+      "city": "London Bloomsbury",
+      "country": "GB",
+      "degree_level": "taught_masters",
+      "duration": "1 calendar year",
+      "fees": {
+        "application_fee_gbp": 90,
+        "currency": "GBP",
+        "notes": "Fees for 2027/28 entrants. UK GBP 21,500 per year; International GBP 44,400 per year. Cohort guarantee applies. Application processing fee GBP 90 for online applications. Fee deposit: 2.5% of first-year fee (UK fee status) / 10% (Overseas fee status).",
+        "overseas_per_year_gbp": 44400,
+        "period": "per_year",
+        "uk_per_year_gbp": 21500
+      },
+      "id": "ucl-cs-msc-2027",
+      "institution": "University College London",
+      "intake_year": 2027,
+      "official_name": "Computer Science MSc",
+      "requirements": [
+        {
+          "category": "academic",
+          "description": "A minimum of an upper second-class UK Bachelor's degree (or international qualification of an equivalent standard) in a subject OTHER than computer science or information technology (including subfields such as AI, Machine Learning and Software Engineering). Evidence must demonstrate suitable mathematical skills (to at least Mathematics A-level standard) and analytical skills. Applicants must have standard computational thinking skills, as programming is a core part of the programme. Applications missing evidence such as A level in mathematics will not be processed unless the evidence is submitted before the closing deadline.",
+          "id": "ucl-msc-academic",
+          "source_ids": [
+            "ucl-msc"
+          ],
+          "threshold": {
+            "degree_class": "upper second-class",
+            "maths_level": "A-level standard"
+          }
+        },
+        {
+          "category": "language",
+          "description": "UNKNOWN — the course page fetched does not state which UCL English language level applies to this programme. The official UCL graduate English requirements page defines Levels 1-5 (Level 2 = IELTS Academic 7.0 overall, minimum 6.5 in each component; TOEFL iBT from 21 Jan 2026: 5.0 overall, 4.5 in each subtest; before 21 Jan 2026: 96 overall with 24/30 reading and writing and 22/30 speaking and listening) but does not map this course to a level. Do NOT assume Level 2.",
+          "id": "ucl-msc-language",
+          "source_ids": [
+            "ucl-msc",
+            "ucl-english-grad"
+          ],
+          "threshold": null
+        },
+        {
+          "category": "test",
+          "description": "No admissions test stated on the course page.",
+          "id": "ucl-msc-test",
+          "source_ids": [
+            "ucl-msc"
+          ],
+          "threshold": null
+        }
+      ],
+      "school": "Department of Computer Science",
+      "sources": [
+        {
+          "bytes": null,
+          "fetch_note": "Course page fetched via browser crawl 2026-11-24 16:28 UTC. No English language level is stated anywhere in the fetched page text (checked with find for 'Level 2' — no match).",
+          "fetch_status": "ok",
+          "id": "ucl-msc",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Computer Science MSc | Study at UCL",
+          "url": "https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/computer-science-msc"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Official UCL graduate English language requirements page, fetched via browser crawl 2026-11-24 16:29 UTC. Defines Levels 1-5 and their IELTS/TOEFL/PTE scores; does not state which level applies to the Computer Science MSc.",
+          "fetch_status": "ok",
+          "id": "ucl-english-grad",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "English Language requirements | Study at UCL (graduate)",
+          "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/how-apply/english-language-requirements"
+        }
+      ],
+      "start": "September 2027",
+      "study_mode": "full-time",
+      "subject": "computer science",
+      "synthetic": false
+    },
+    {
+      "application_deadline": "IB Diploma and International Qualifications (except IB): 16 December 2026 to 17 February 2027. Singapore-Cambridge GCE A-Level: 18 February 2027 (late afternoon) to 19 March 2027.",
+      "country": "SG",
+      "degree_level": "undergraduate",
+      "duration": "4 years (Bachelor's with Honours, 160 units)",
+      "fees": {
+        "application_fee_sgd": 20,
+        "currency": "SGD",
+        "notes": "AY2026/2027 cohort rates (latest published; AY2027/2028 fees not yet published). Computing per annum: Singapore Citizens S$8,300; Singapore PR S$11,600; international students with MOE Tuition Grant ASEAN S$18,050 / all other international S$21,400; international students NOT in receipt of the grant S$39,700. Subsidised international fees and non-subsidised fees are inclusive of 9% GST. Application fee S$20 for international students with international qualifications, S$10 for all other applicants.",
+        "international_with_grant_asean_per_year_sgd": 18050,
+        "international_with_grant_other_per_year_sgd": 21400,
+        "international_without_grant_per_year_sgd": 39700,
+        "period": "per_year",
+        "singapore_citizen_per_year_sgd": 8300,
+        "singapore_pr_per_year_sgd": 11600
+      },
+      "id": "nus-bcomp-cs-2027",
+      "institution": "National University of Singapore",
+      "intake": "August 2027, AY2027/2028 Semester 1",
+      "official_name": "Bachelor of Computing (Computer Science)",
+      "requirements": [
+        {
+          "category": "academic",
+          "description": "No fixed minimum grade threshold is published by NUS. Indicative Grade Profile (AY2025/2026 admitted students, Singapore-Cambridge GCE A-Level): Common Computer Science Programmes AAA/A at both the 10th and 90th percentiles (3H2/1H1); polytechnic GPA 3.81 (10th) to 3.98 (90th). Meeting the previous year's profile does not guarantee admission. From AY2025/26, students are admitted to a common pool for Bachelor of Computing (Computer Science) and Bachelor of Computing (Artificial Intelligence) and declare their major at the end of the fourth semester; students who do not choose are placed in CS. Students without A-level or H2 Mathematics or equivalent must complete bridging course MA1301/X.",
+          "id": "nus-bcomp-academic",
+          "source_ids": [
+            "nus-igp",
+            "nus-bcomp-cs-curr"
+          ],
+          "threshold": {
+            "igp_10th": "AAA/A",
+            "igp_90th": "AAA/A",
+            "poly_gpa_10th": 3.81,
+            "poly_gpa_90th": 3.98
+          }
+        },
+        {
+          "category": "language",
+          "description": "IELTS 6.5 overall with 6.5 in Reading and Writing components; TOEFL iBT 92-93 (single test date only, MyBestScores not accepted); PTE Academic 62 overall with 62 in Reading and Writing; C1 Advanced 180. Scores valid 2 years. Applies where an English test is required in addition to the high-school qualification.",
+          "id": "nus-bcomp-language",
+          "source_ids": [
+            "nus-english"
+          ],
+          "threshold": {
+            "each_component": null,
+            "ielts_reading": 6.5,
+            "ielts_writing": 6.5,
+            "overall": 6.5,
+            "toefl_overall": "92-93"
+          }
+        },
+        {
+          "category": "test",
+          "description": "No admissions test or interview stated for the Common Computer Science Programmes (the IGP marks programmes requiring interviews/tests with an asterisk; Computer Science is not marked).",
+          "id": "nus-bcomp-test",
+          "source_ids": [
+            "nus-igp"
+          ],
+          "threshold": null
+        }
+      ],
+      "school": "School of Computing",
+      "sources": [
+        {
+          "bytes": null,
+          "fetch_note": "Programme page fetched via browser crawl 2026-11-24 16:29 UTC.",
+          "fetch_status": "ok",
+          "id": "nus-bcomp-cs",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Computer Science - NUS Computing",
+          "url": "https://www.comp.nus.edu.sg/programmes/ug/cs/"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Curriculum page fetched via browser crawl 2026-11-24 16:31 UTC. States BComp(CS) requires at least 160 units and the common admission pool with AI from AY2025/26.",
+          "fetch_status": "ok",
+          "id": "nus-bcomp-cs-curr",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Curriculum (Prospective Students) - NUS Computing (BComp CS)",
+          "url": "https://www.comp.nus.edu.sg/programmes/ug/cs/curr/"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:31 UTC. A Bachelor's with Honours requires a minimum of 160 units and usually takes about 4 years.",
+          "fetch_status": "ok",
+          "id": "nus-bcomp-degree",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Degree Requirements | NUS Registrar",
+          "url": "https://nus.edu.sg/registrar/academic-information-policies/undergraduate-students/degree-requirements"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:29 UTC. Table 1: Common Computer Science Programmes AAA/A AAA/A (AY2025/2026); Table 2: polytechnic GPA 3.81-3.98.",
+          "fetch_status": "ok",
+          "id": "nus-igp",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Indicative Grade Profile | NUS Office of Admissions",
+          "url": "https://nus.edu.sg/oam/admissions/indicative-grade-profile"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Official OAM English test scores PDF fetched via browser crawl 2026-11-24 16:29 UTC.",
+          "fetch_status": "ok",
+          "id": "nus-english",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "English Language Test Scores | NUS Office of Admissions",
+          "url": "https://www.nus.edu.sg/oam/docs/default-source/international-qualifications/english-test-scores.pdf"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Registrar tuition fees PDF (March 2026) fetched via browser crawl 2026-11-24 16:30 UTC. Computing row, new students admitted AY2026/2027: 8,300 / 11,600 / 18,050 / 21,400 / 39,700.",
+          "fetch_status": "ok",
+          "id": "nus-fees",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Tuition Fees Per Annum (AY2026/2027) — Undergraduate Students | NUS Registrar",
+          "url": "https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?shortlink=c3555dc2&"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:30 UTC.",
+          "fetch_status": "ok",
+          "id": "nus-dates",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Important Dates | NUS Office of Admissions",
+          "url": "https://nus.edu.sg/oam/admissions/important-dates"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:32 UTC. Application fee S$10 (all except international students with international qualifications) or S$20 (international students with international qualifications), incl. GST.",
+          "fetch_status": "ok",
+          "id": "nus-appfee",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Application Overview | NUS Office of Admissions",
+          "url": "https://www.nus.edu.sg/oam/admissions/application-overview"
+        }
+      ],
+      "study_mode": "full-time",
+      "subject": "computer science",
+      "synthetic": false
+    },
+    {
+      "application_deadline": "IB Diploma: 15 October 2026 - 19 March 2027. Singapore-Cambridge GCE A-Level: day of results release to 19 March 2027. Polytechnic diploma: 1 - 21 February 2027. Other international qualifications: window varies by qualification (close date not verified on the official pages fetched — see unknowns).",
+      "country": "SG",
+      "degree_level": "undergraduate",
+      "duration": "4 years, direct honours",
+      "fees": {
+        "application_fee_sgd": 25,
+        "currency": "SGD",
+        "notes": "AY2026/2027 rates (latest published; AY2027/2028 fees not yet published). All programmes except listed ones, per annum: Singapore Citizens S$8,300; Singapore PR S$11,600; ASEAN international students S$18,050; all other international students S$21,400 (subsidised, incl. 9% GST); non-subsidised students lab-based S$40,600 / non-lab-based S$36,350 (incl. GST). The NTU table does not label Computer Science explicitly as lab-based, so the S$40,600 figure is an assumption, not a verified fact. Application fee S$25 for international students, S$15 for Singapore citizens/PRs.",
+        "international_with_grant_asean_per_year_sgd": 18050,
+        "international_with_grant_other_per_year_sgd": 21400,
+        "international_without_grant_lab_per_year_sgd": 40600,
+        "international_without_grant_nonlab_per_year_sgd": 36350,
+        "period": "per_year",
+        "singapore_citizen_per_year_sgd": 8300,
+        "singapore_pr_per_year_sgd": 11600
+      },
+      "id": "ntu-bcomp-cs-2027",
+      "institution": "Nanyang Technological University",
+      "intake": "AY2027/28",
+      "intake_year": 2027,
+      "official_name": "Bachelor of Computing (Hons) in Computer Science",
+      "requirements": [
+        {
+          "category": "academic",
+          "description": "No fixed minimum grade threshold is published by NTU. Indicative Grade Profile (AY2025-26 admitted students, Singapore-Cambridge GCE A-Level): Computer Science AAB/C (10th percentile) to AAA/A (90th percentile) (3H2/1H1); polytechnic GPA 3.78 (10th) to 3.98 (90th); 487 places taken up in AY2025-26. Minimum subject requirement (international qualifications): Mathematics at Senior High School Level, or Physics at Senior High School Level (UK CIE A Level Computer Science is acceptable in place of Physics). Programme page: good academic results in GCE A-Levels, IB Diploma, NUS High School Diploma or Polytechnic Diploma (or equivalent), plus a strong foundation in Mathematics or Physics or Computing.",
+          "id": "ntu-bcomp-academic",
+          "source_ids": [
+            "ntu-igp",
+            "ntu-msr",
+            "ntu-bcomp-cs"
+          ],
+          "threshold": {
+            "igp_10th": "AAB/C",
+            "igp_90th": "AAA/A",
+            "poly_gpa_10th": 3.78,
+            "poly_gpa_90th": 3.98
+          }
+        },
+        {
+          "category": "language",
+          "description": "Required if English is not the medium of instruction in high-school studies, or English is presented as a Second/Additional Language. IELTS Academic overall 6.5, Writing 6.5, Speaking 6.5; TOEFL / TOEFL iBT Home Edition total 90 or 4.5, Writing 25 or 4.5, Verbal/Speaking 25 or 4.5; PTE Academic overall 55, Speaking 55, Writing 59. IELTS/TOEFL/PTE scores valid 2 years prior to the application deadline.",
+          "id": "ntu-bcomp-language",
+          "source_ids": [
+            "ntu-english"
+          ],
+          "threshold": {
+            "ielts_speaking": 6.5,
+            "ielts_writing": 6.5,
+            "overall": 6.5,
+            "toefl_overall": "90 or 4.5"
+          }
+        },
+        {
+          "category": "test",
+          "description": "No selection test or interview is listed for Computer Science in the NTU minimum subject requirements table (the table has a Selection Test/Interview column; no test/interview is shown for CS).",
+          "id": "ntu-bcomp-test",
+          "source_ids": [
+            "ntu-msr"
+          ],
+          "threshold": null
+        }
+      ],
+      "school": "College of Computing and Data Science",
+      "sources": [
+        {
+          "bytes": null,
+          "fetch_note": "Programme page fetched via browser crawl 2026-11-24 16:30 UTC.",
+          "fetch_status": "ok",
+          "id": "ntu-bcomp-cs",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Bachelor of Computing (Hons) in Computer Science | NTU Singapore",
+          "url": "https://www.ntu.edu.sg/computing/admissions/undergraduate-programmes/detail/bachelor-of-computing-in-computer-science"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Minimum Subject Requirements for Students with International Qualifications PDF fetched via browser crawl 2026-11-24 16:32 UTC. CS row: Mathematics at Senior High School Level, or Physics at Senior High School Level; UK CIE A Level Computer Science acceptable in place of Physics.",
+          "fetch_status": "ok",
+          "id": "ntu-msr",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Minimum Subject Requirements for Students with International Qualifications | NTU",
+          "url": "https://www.ntu.edu.sg/docs/default-source/undergraduate-admissions/msr/emsr_intnl.pdf?sfvrsn=35f52b2c_4"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:30 UTC. Computer Science AAB/C (10th) | AAA/A (90th); polytechnic GPA 3.78-3.98; 487 places AY2025-26.",
+          "fetch_status": "ok",
+          "id": "ntu-igp",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Indicative Grade Profile | Undergraduate Admissions | NTU Singapore",
+          "url": "https://www.ntu.edu.sg/admissions/undergraduate/important-links/indicative-grade-profile"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:30 UTC. AY2026/2027 table, 'All Programmes (except for those listed below)' row.",
+          "fetch_status": "ok",
+          "id": "ntu-fees",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Tuition fees & grants | Undergraduate Admissions | NTU Singapore",
+          "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:31 UTC. IB 15 Oct 2026-19 Mar 2027; SG A-Level results day-19 Mar 2027; polytechnic 1-21 Feb 2027. The 'International and other qualifications' section gives outcome estimates only, not application windows.",
+          "fetch_status": "ok",
+          "id": "ntu-dates",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Important dates | Undergraduate Admissions | NTU Singapore",
+          "url": "https://www.ntu.edu.sg/admissions/undergraduate/important-links"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:31 UTC. Application fee S$15 for Singapore citizens/PRs and S$25 for international students, non-refundable.",
+          "fetch_status": "ok",
+          "id": "ntu-appfee",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Application Process | Undergraduate Admissions | NTU Singapore",
+          "url": "https://www.ntu.edu.sg/admissions/undergraduate/admissions/application-process"
+        },
+        {
+          "bytes": null,
+          "fetch_note": "Fetched via browser crawl 2026-11-24 16:31 UTC. English Language Requirements table for applicants whose high-school medium of instruction is not English or who present English as ESL/EAL.",
+          "fetch_status": "ok",
+          "id": "ntu-english",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Other International Qualifications | Undergraduate Admissions | NTU Singapore",
+          "url": "https://www.ntu.edu.sg/admissions/undergraduate/admissions/general-admission-requirements/international-qualifications/other-international-qualifications"
+        }
+      ],
+      "study_mode": "full-time",
+      "subject": "computer science",
+      "synthetic": false
+    },
+    {
+      "application_deadline": null,
+      "country": "SG",
+      "degree_level": "taught_masters",
+      "duration": "1 year full-time (2 years part-time); 30 Academic Units; minimum/maximum candidature full-time 12/30 months",
+      "fees": {
+        "application_fee_sgd": 50,
+        "currency": "SGD",
+        "deposit_sgd": 5000,
+        "notes": "Tuition fees for Academic Year 2027/2028 and after: S$65,748.80, inclusive of 9% GST, based on the shortest candidature period. Deposit S$5,000 on acceptance (deducted from first billing, non-refundable and non-transferable). Application fee S$50. Full-time students billed in 2 semesters.",
+        "period": "total",
+        "total_sgd_incl_gst": 65748.8
+      },
+      "id": "ntu-msai-2027",
+      "institution": "Nanyang Technological University",
+      "intake": "AY2027/28",
+      "intake_year": 2027,
+      "official_name": "Master of Science in Artificial Intelligence (MSAI)",
+      "requirements": [
+        {
+          "category": "academic",
+          "description": "A) A good honours degree in computer science, computer engineering or a related discipline with solid mathematical training; OR B) A good bachelor's degree in computer science, computer engineering or a related discipline with solid mathematical training and 2 years relevant industry experience. Related disciplines include but are not limited to bachelor's programmes offered by NTU's College of Engineering. The following are minimum admission requirements; meeting them does not guarantee admission, as selection is competitive.",
+          "id": "ntu-msai-academic",
+          "source_ids": [
+            "ntu-msai"
+          ],
+          "threshold": {
+            "it_experience_years": 2
+          }
+        },
+        {
+          "category": "language",
+          "description": "TOEFL (iBT >= 100 / >= 5.0) / IELTS (>= 6.5) OR certification of English as medium of instruction (MOI). No component minimums stated on the page.",
+          "id": "ntu-msai-language",
+          "source_ids": [
+            "ntu-msai"
+          ],
+          "threshold": {
+            "ielts_overall": 6.5,
+            "toefl_overall": "100 or 5.0"
+          }
+        },
+        {
+          "category": "test",
+          "description": "GRE scores are listed as 'Optional' among the required documents ('Optional - GRE scores and reference letters'). The page states no rejection rule for a missing or low GRE score — missing/low GRE is UNKNOWN, never NOT_MET.",
+          "id": "ntu-msai-test-gre",
+          "source_ids": [
+            "ntu-msai"
+          ],
+          "threshold": null
+        }
+      ],
+      "school": "College of Computing and Data Science",
+      "sources": [
+        {
+          "bytes": null,
+          "fetch_note": "Programme page fetched via browser crawl 2026-11-24 16:30 UTC. No application deadline or intake start month is stated on this page.",
+          "fetch_status": "ok",
+          "id": "ntu-msai",
+          "retrieved_at": "2026-11-24T16:32:00Z",
+          "sha256": null,
+          "title": "Master of Science in Artificial Intelligence (MSAI) | NTU Singapore",
+          "url": "https://www.ntu.edu.sg/engineering/coe-programmes/graduate/coe-programme-detail/master-of-science-in-artificial-intelligence"
+        }
+      ],
+      "study_mode": "full-time",
+      "subject": "computer science",
+      "synthetic": false
+    }
+  ]
+}
