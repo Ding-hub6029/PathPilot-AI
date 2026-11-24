@@ -43,7 +43,7 @@ Generated: 2026-11-24 (data retrieved 2026-11-23 18:39–18:40 UTC / 2026-11-24 
 | Application fee | SGD 109 | nus-admissions |
 | Academic | Good honours in computing; OR good honours in a related discipline + 2 years IT industry experience; OR good bachelor's in computing + 2 years IT experience; OR good bachelor's/honours in a business-related discipline + 2 years IT experience; admission competitive | nus-admissions |
 | Language | IELTS minimum 6.0 overall (no component minimum stated); TOEFL iBT minimum 90 | nus-admissions |
-| GRE/GMAT | GRE minimum 320 (verbal & quantitative) and 3.5 analytical, OR GMAT 650+; valid 5 years; TOEFL/IELTS valid 2 years. FAQ: GRE/GMAT not mandatory — a good score strengthens the application, so missing GRE/GMAT is UNKNOWN, never NOT_MET | nus-admissions |
+| GRE/GMAT | GRE minimum 320 (verbal & quantitative) and 3.5 analytical, OR GMAT 650+; valid 5 years; TOEFL/IELTS valid 2 years. The admissions page lists GRE/GMAT as evidence to submit but states no rejection rule for a missing or low score, so missing/low GRE/GMAT is UNKNOWN, never NOT_MET | nus-admissions |
 
 ## Explicit unknowns (never guessed)
 
@@ -52,7 +52,7 @@ Generated: 2026-11-24 (data retrieved 2026-11-23 18:39–18:40 UTC / 2026-11-24 
 3. NUS IELTS component minimums — only overall 6.0 stated.
 4. Living costs for both courses — not in the verified sources; excluded from all fee rules.
 5. UCL non-A-level/IB equivalence — no equivalence evidence; other qualifications evaluate to UNKNOWN.
-6. UCL TOEFL mapping — no UCL TOEFL threshold in the verified sources; TOEFL for UCL evaluates to UNKNOWN, never converted.
+6. UCL TOEFL mapping — a TOEFL Level 1 mapping exists on the UCL Study Abroad English page (92 old iBT scale; 4.5 new scale for tests from 21 Jan 2026), but the degree page points to the Undergraduate English requirements page and the scale change makes it date-dependent; not yet modelled, so TOEFL for UCL evaluates to UNKNOWN, never converted. (Corrected 2026-11-24 audit: the earlier claim that no TOEFL threshold exists in the verified sources was wrong — the cited page does list one.)
 
 ## What is NOT in the data
 

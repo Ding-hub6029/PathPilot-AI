@@ -34,9 +34,13 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
         results.append(_r("ucl-ielts-overall", "UNKNOWN",
                           "No language test supplied.", ["f-ucl-ielts"]))
     elif lang.exam == "toefl":
-        # No UCL TOEFL mapping in our sources — never convert.
+        # A TOEFL Level 1 mapping exists on the UCL Study Abroad English page
+        # (92 on the old iBT scale; 4.5 on the new scale for tests from 21 Jan
+        # 2026), but the degree page points to the Undergraduate English
+        # requirements page and the Jan 2026 scale change makes the mapping
+        # date-dependent. Not modelled yet — never convert.
         results.append(_r("ucl-ielts-overall", "UNKNOWN",
-                          "TOEFL supplied but no UCL TOEFL mapping exists in the verified sources; IELTS not supplied.",
+                          "TOEFL supplied. A UCL TOEFL Level 1 mapping exists on the Study Abroad English page but is date-dependent (old/new iBT scale from 21 Jan 2026) and not yet modelled; IELTS not supplied.",
                           ["f-ucl-ielts"], observed={"exam": "toefl", "overall": lang.overall}))
     elif lang.exam == "ielts":
         if lang.overall is None:
@@ -60,7 +64,7 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
                           "No language test supplied.", ["f-ucl-ielts"]))
     elif lang.exam != "ielts":
         results.append(_r("ucl-ielts-components", "UNKNOWN",
-                          "No UCL TOEFL mapping in the verified sources; components cannot be assessed.",
+                          "TOEFL supplied; the UCL TOEFL mapping is date-dependent and not yet modelled, so components cannot be assessed.",
                           ["f-ucl-ielts"]))
     else:
         comps = _components(lang)
@@ -87,9 +91,18 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
         rank = {"A*": 5, "A": 4, "B": 3, "C": 2, "D": 1, "E": 0}
         top = sorted((rank.get(g, -1) for g in grades), reverse=True)[:3]
         grades_ok = len(top) == 3 and top[0] >= 5 and top[1] >= 5 and top[2] >= 4
+        # Contextual offer A*AB with A* in Mathematics is a real alternative
+        # route on the official page. Without evidence of contextual
+        # eligibility it cannot be MET, but it is not a failure either.
+        contextual_ok = len(top) == 3 and top[0] >= 5 and top[1] >= 4 and top[2] >= 3 and maths_ok
         if grades_ok and maths_ok:
             results.append(_r("ucl-academic", "MET",
                               "A-level grades A*A*A with A* in Mathematics.", ["f-ucl-alevel"],
+                              observed={"grades": grades, "maths": ug.a_level_maths_grade}))
+        elif contextual_ok:
+            results.append(_r("ucl-academic", "UNKNOWN",
+                              "A-level grades meet the UCL contextual offer (A*AB with A* in Mathematics), but contextual eligibility is not confirmed for this applicant.",
+                              ["f-ucl-alevel"],
                               observed={"grades": grades, "maths": ug.a_level_maths_grade}))
         else:
             results.append(_r("ucl-academic", "NOT_MET",
@@ -103,6 +116,14 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
         elif ug.ib_total >= 40 and ug.ib_hl_maths_grade == 7:
             results.append(_r("ucl-academic", "MET",
                               "IB total 40+ with HL Mathematics grade 7.", ["f-ucl-ib"],
+                              observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade}))
+        elif ug.ib_total >= 38 and ug.ib_hl_maths_grade == 7:
+            # Contextual offer is IB 38 (18 points in three HL subjects incl.
+            # grade 7 in Maths). HL total points are not recorded, so this
+            # cannot be decided — it is not a failure.
+            results.append(_r("ucl-academic", "UNKNOWN",
+                              "IB total 38-39 with HL Mathematics grade 7 is within the UCL contextual offer (IB 38), but HL total points are not recorded, so this cannot be decided.",
+                              ["f-ucl-ib"],
                               observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade}))
         else:
             results.append(_r("ucl-academic", "NOT_MET",
@@ -160,8 +181,9 @@ def evaluate_nus(profile: StudentProfile, program: dict) -> list[RuleResult]:
         else:
             results.append(_r("nus-language", "NOT_MET", f"IELTS overall {lang.overall} is below 6.0.",
                               ["f-nus-ielts"], observed=lang.overall, threshold={"overall": 6.0}))
-        results.append(_r("nus-language-components", "UNKNOWN",
-                          "NUS states no IELTS component minimum.", ["f-nus-ielts"]))
+        results.append(_r("nus-language-components", "NOT_APPLICABLE",
+                          "NUS states no IELTS component minimum (overall 6.0 only); there is no component requirement to check.",
+                          ["f-nus-ielts"]))
     elif lang.exam == "toefl":
         if lang.overall is None:
             results.append(_r("nus-language", "UNKNOWN", "TOEFL score not supplied.", ["f-nus-toefl"]))
@@ -176,23 +198,41 @@ def evaluate_nus(profile: StudentProfile, program: dict) -> list[RuleResult]:
     else:
         results.append(_r("nus-language", "UNKNOWN", f"Unrecognised exam type: {lang.exam}.",
                           ["f-nus-ielts", "f-nus-toefl"]))
+        results.append(_r("nus-language-components", "UNKNOWN",
+                          "Exam type unrecognised; components cannot be assessed.", ["f-nus-ielts"]))
 
     # --- Academic ---
     field = mp.degree_field
     exp = mp.it_experience_years
     honours = mp.honours
+    # Official routes (NUS admissions page): honours in computing; honours in a
+    # related discipline + 2y IT experience; bachelor's in computing + 2y;
+    # bachelor's OR honours in a business-related discipline + 2y. The related
+    # route requires honours — a related bachelor's + 2y is not a listed route.
     if field == "computing" and honours:
         results.append(_r("nus-academic", "MET", "Good honours degree in computing.",
                           ["f-nus-academic"], observed={"field": field, "honours": honours}))
-    elif field in ("related", "business", "computing") and exp is not None and exp >= 2:
+    elif field == "computing" and exp is not None and exp >= 2:
         results.append(_r("nus-academic", "MET",
-                          f"Degree in {field} with {exp:g} years of IT industry experience.",
+                          "Bachelor's degree in computing with 2+ years of IT industry experience.",
+                          ["f-nus-academic"], observed={"field": field, "experience_years": exp}))
+    elif field == "business" and exp is not None and exp >= 2:
+        results.append(_r("nus-academic", "MET",
+                          "Bachelor's or honours degree in a business-related discipline with 2+ years of IT industry experience.",
+                          ["f-nus-academic"], observed={"field": field, "experience_years": exp}))
+    elif field == "related" and honours and exp is not None and exp >= 2:
+        results.append(_r("nus-academic", "MET",
+                          "Good honours degree in a related discipline with 2+ years of IT industry experience.",
                           ["f-nus-academic"], observed={"field": field, "experience_years": exp}))
     elif field in ("related", "business", "computing") and (exp is None or exp < 2):
         # Insufficient evidence to call this NOT_MET: the source lists
         # experience-based routes without stating a hard rejection.
         results.append(_r("nus-academic", "UNKNOWN",
                           "Degree field/experience do not clearly meet a stated route, and the source gives no hard rejection rule.",
+                          ["f-nus-academic"], observed={"field": field, "experience_years": exp}))
+    elif field == "related" and not honours and exp is not None and exp >= 2:
+        results.append(_r("nus-academic", "UNKNOWN",
+                          "A related-discipline bachelor's degree with 2+ years of experience is not a listed route (the related route requires honours); insufficient evidence to reject.",
                           ["f-nus-academic"], observed={"field": field, "experience_years": exp}))
     elif field == "other":
         results.append(_r("nus-academic", "UNKNOWN",
@@ -213,7 +253,7 @@ def evaluate_nus(profile: StudentProfile, program: dict) -> list[RuleResult]:
                                     "gmat_total": mp.gmat_total}))
     else:
         results.append(_r("nus-gre-gmat", "UNKNOWN",
-                          "GRE/GMAT not supplied or below the stated minimums; the FAQ says GRE/GMAT is not mandatory, so this is UNKNOWN, not NOT_MET.",
+                          "GRE/GMAT not supplied or below the stated minimums. The admissions page lists GRE/GMAT as evidence to submit but states no rejection rule for a missing or low score, so this is UNKNOWN, not NOT_MET.",
                           ["f-nus-gre"],
                           observed={"gre_total": mp.gre_total, "gre_analytical": mp.gre_analytical,
                                     "gmat_total": mp.gmat_total}))
