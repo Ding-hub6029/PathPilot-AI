@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 
-DATA_VERSION = "v1"
+DATA_VERSION = "v2"
 
 # backend/app/data.py -> project root is ../../ from this file.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

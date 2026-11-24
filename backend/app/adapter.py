@@ -32,27 +32,63 @@ from app.data import DATA_DIR, DATA_VERSION
 from app.schemas import (Budget, Language, MastersProfile, RuleResult,
                          StudentProfile, UndergradProfile)
 
-RULES_VERSION = "rules-v1-2026-11-24"
+RULES_VERSION = "rules-v2-2026-11-25"
 
 # Verified expected text per rule id (same facts as data/versions/v1).
 EXPECTED: dict[str, str] = {
     "ucl-ielts-overall": "IELTS overall 6.5",
     "ucl-ielts-components": "IELTS minimum 6.0 in each component",
-    "ucl-academic": "A*A*A with A* in Maths/Further Maths, or IB 40 with HL Maths grade 7",
+    "ucl-toefl": "TOEFL iBT Level 1: 92 (tests before 21 Jan 2026) or 4.5 on the new scale (tests from 21 Jan 2026)",
+    "ucl-gcse": "GCSE English and Maths at grade C/4 or above",
+    "ucl-academic": "A*A*A with A* in Maths/Further Maths, or IB 40 with 20 HL points incl. HL Maths grade 7",
     "ucl-tara": "TARA required for the 2026 cycle (no score threshold stated)",
     "ucl-fee": "GBP 46,700 per year (overseas, 2026/27)",
     "nus-language": "IELTS min 6.0 overall (no component minimum stated) or TOEFL iBT min 90",
+    "nus-toefl": "TOEFL iBT minimum 90 (supplementary; IELTS also supplied)",
     "nus-language-components": "No IELTS component minimum stated",
     "nus-academic": "Good honours degree in computing, or related/business degree + 2 years IT experience",
     "nus-gre-gmat": "GRE 320 + 3.5 analytical or GMAT 650+ (no rejection rule stated for a missing or low score)",
     "nus-fee": "SGD 69,215 total incl. 9% GST",
     "fixture-writing": "IELTS writing 6.0 (fixture, synthetic)",
+    "imp-beng-academic": "A*A*A or A*AAA at A level incl. A* in Maths, or IB 41 with HL Maths 7 and another HL 7",
+    "imp-beng-language": "IELTS 6.5 overall, min 6.0 in all elements (Standard)",
+    "imp-beng-language-components": "IELTS minimum 6.0 in all elements",
+    "imp-beng-toefl": "TOEFL iBT 92 overall, min 20 in all elements (before 21 Jan 2026) or 4.5 on the new scale",
+    "imp-beng-tmua": "TMUA required (no score threshold stated)",
+    "imp-beng-fee": "Home GBP 10,050/yr or overseas GBP 47,800/yr (Oct 2027)",
+    "imp-msc-academic": "First-Class degree in a subject without substantial Computing content",
+    "imp-msc-language": "IELTS 7.0 overall, min 6.5 in all elements (Higher, PG)",
+    "imp-msc-language-components": "IELTS minimum 6.5 in all elements",
+    "imp-msc-toefl": "TOEFL iBT 100 overall, min 22 in all elements (before 21 Jan 2026) or 5.0 on the new scale",
+    "imp-msc-test": "Normally no admissions tests or interviews",
+    "imp-msc-fee": "Home GBP 25,850 or overseas GBP 48,300 per year (Oct 2027)",
+    "ucl-msc-academic": "Upper second-class degree in a subject other than CS/IT, maths to A-level standard",
+    "ucl-msc-language": "No English language level stated on the course page",
+    "ucl-msc-fee": "UK GBP 21,500/yr or international GBP 44,400/yr (2027/28)",
+    "nus-bcomp-academic": "No fixed minimum published; Indicative Grade Profile AAA/A (admitted students)",
+    "nus-bcomp-language": "IELTS 6.5 overall, 6.5 in Reading and Writing",
+    "nus-bcomp-language-components": "IELTS 6.5 in Reading and Writing (Listening/Speaking minima not stated)",
+    "nus-bcomp-toefl": "TOEFL iBT 92-93",
+    "nus-bcomp-fee": "AY2026/27 rates: SC S$8,300; SPR S$11,600; IS with grant S$18,050 (ASEAN) / S$21,400; IS without grant S$39,700",
+    "ntu-bcomp-academic": "No fixed minimum published; Indicative Grade Profile AAB/C (10th) to AAA/A (90th)",
+    "ntu-bcomp-language": "IELTS 6.5 overall, 6.5 Writing, 6.5 Speaking",
+    "ntu-bcomp-language-components": "IELTS 6.5 in Writing and Speaking",
+    "ntu-bcomp-toefl": "TOEFL total 90 (before 21 Jan 2026) or 4.5 on the new scale",
+    "ntu-bcomp-fee": "AY2026/27 rates: SC S$8,300; SPR S$11,600; ASEAN IS S$18,050; other IS S$21,400",
+    "ntu-msai-academic": "Good honours in CS/CE/related with solid maths, or good bachelor's + 2 years industry experience",
+    "ntu-msai-language": "IELTS >= 6.5 or TOEFL iBT >= 100 / >= 5.0 or MOI certification; no component minimums",
+    "ntu-msai-toefl": "TOEFL iBT >= 100 (before 21 Jan 2026) or >= 5.0 on the new scale",
+    "ntu-msai-gre": "GRE optional; no rejection rule for a missing or low score",
+    "ntu-msai-fee": "SGD 65,748.80 total incl. 9% GST",
 }
 
 # Manifest fact id -> frontend source id (frontend/src/lib/programs.ts).
 FACT_TO_SOURCE: dict[str, str] = {
     "f-ucl-alevel": "ucl-cs-entry",
     "f-ucl-ib": "ucl-cs-entry",
+    "f-ucl-gcse": "ucl-cs-entry",  # forward reference; v1 manifest has no
+    # dedicated GCSE fact yet (DECISIONS #45) — the requirement is on the
+    # ucl-bsc page; the v2 manifest must add f-ucl-gcse.
     "f-ucl-tara": "ucl-cs-entry",
     "f-ucl-ielts": "ucl-cs-english",
     "f-ucl-fee-overseas": "ucl-cs-fees",
@@ -69,6 +105,58 @@ FACT_TO_SOURCE: dict[str, str] = {
     "f-nus-deadline-unknown": "nus-mcomp-admissions",
     "f-nus-name": "nus-mcomp-admissions",
     "f-nus-intake": "nus-mcomp-admissions",
+    "f-imperial-beng-name": "imperial-beng-entry",
+    "f-imperial-beng-deadline": "imperial-beng-entry",
+    "f-imperial-beng-fee-overseas": "imperial-beng-fees",
+    "f-imperial-beng-fee-uk": "imperial-beng-fees",
+    "f-imperial-beng-alevel": "imperial-beng-entry",
+    "f-imperial-beng-ib": "imperial-beng-entry",
+    "f-imperial-beng-english-level": "imperial-beng-english",
+    "f-imperial-beng-ielts": "imperial-beng-english",
+    "f-imperial-beng-tmua": "imperial-beng-entry",
+    "f-imperial-msc-name": "imperial-msc-entry",
+    "f-imperial-msc-deadline": "imperial-msc-entry",
+    "f-imperial-msc-fee-overseas": "imperial-msc-fees",
+    "f-imperial-msc-fee-uk": "imperial-msc-fees",
+    "f-imperial-msc-academic": "imperial-msc-entry",
+    "f-imperial-msc-academic-detail": "imperial-msc-entry",
+    "f-imperial-msc-english-level": "imperial-msc-english",
+    "f-imperial-msc-ielts": "imperial-msc-english",
+    "f-imperial-msc-test": "imperial-msc-entry",
+    "f-imperial-msc-appfee-unknown": "imperial-msc-entry",
+    "f-ucl-msc-name": "ucl-msc-entry",
+    "f-ucl-msc-deadline": "ucl-msc-entry",
+    "f-ucl-msc-fee-overseas": "ucl-msc-fees",
+    "f-ucl-msc-fee-uk": "ucl-msc-fees",
+    "f-ucl-msc-appfee": "ucl-msc-fees",
+    "f-ucl-msc-academic": "ucl-msc-entry",
+    "f-ucl-msc-maths": "ucl-msc-entry",
+    "f-ucl-msc-english-unknown": "ucl-msc-english",
+    "f-ucl-msc-level2-definition": "ucl-msc-english",
+    "f-nus-bcomp-name": "nus-bcomp-entry",
+    "f-nus-bcomp-duration": "nus-bcomp-entry",
+    "f-nus-bcomp-deadline": "nus-bcomp-entry",
+    "f-nus-bcomp-fee-nogrant": "nus-bcomp-fees",
+    "f-nus-bcomp-fee-grant": "nus-bcomp-fees",
+    "f-nus-bcomp-appfee": "nus-bcomp-fees",
+    "f-nus-bcomp-igp": "nus-bcomp-entry",
+    "f-nus-bcomp-common-pool": "nus-bcomp-entry",
+    "f-nus-bcomp-ielts": "nus-bcomp-english",
+    "f-ntu-bcomp-name": "ntu-bcomp-entry",
+    "f-ntu-bcomp-deadline": "ntu-bcomp-entry",
+    "f-ntu-bcomp-fee-grant": "ntu-bcomp-fees",
+    "f-ntu-bcomp-fee-nogrant": "ntu-bcomp-fees",
+    "f-ntu-bcomp-appfee": "ntu-bcomp-fees",
+    "f-ntu-bcomp-igp": "ntu-bcomp-entry",
+    "f-ntu-bcomp-subject": "ntu-bcomp-entry",
+    "f-ntu-bcomp-ielts": "ntu-bcomp-english",
+    "f-ntu-msai-name": "ntu-msai-entry",
+    "f-ntu-msai-duration": "ntu-msai-entry",
+    "f-ntu-msai-deadline-unknown": "ntu-msai-entry",
+    "f-ntu-msai-fee": "ntu-msai-fees",
+    "f-ntu-msai-academic": "ntu-msai-entry",
+    "f-ntu-msai-ielts": "ntu-msai-english",
+    "f-ntu-msai-gre": "ntu-msai-entry",
 }
 
 
@@ -107,37 +195,116 @@ def _classify_degree(text: Any) -> str | None:
     return "other"
 
 
+def _residency(value: Any) -> str | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    v = value.strip().lower()
+    if v in ("uk", "home", "domestic"):
+        return "uk"
+    if v in ("overseas", "international"):
+        return "overseas"
+    if v in ("sg_citizen", "sg-citizen", "singapore citizen", "sc"):
+        return "sg_citizen"
+    if v in ("sg_pr", "sg-pr", "singapore pr", "spr"):
+        return "sg_pr"
+    if v in ("sg_intl_asean", "sg-intl-asean", "asean"):
+        return "sg_intl_asean"
+    if v in ("sg_intl_other", "sg-intl-other"):
+        return "sg_intl_other"
+    if v in ("sg_intl_nogrant", "sg-intl-nogrant", "no grant", "non-subsidised", "nonsubsidised"):
+        return "sg_intl_nogrant"
+    return None
+
+
+def _degree_class(text: Any, explicit: Any = None) -> str | None:
+    if isinstance(explicit, str) and explicit.strip():
+        v = explicit.strip().lower()
+        if v in ("first", "upper_second", "lower_second", "third", "other"):
+            return v
+    if not isinstance(text, str) or not text.strip():
+        return None
+    t = text.lower()
+    if re.search(r"first[- ]class|\b1st\b|first honours", t):
+        return "first"
+    if re.search(r"upper second|2:1|\b2\.1\b|second class upper", t):
+        return "upper_second"
+    if re.search(r"lower second|2:2|\b2\.2\b", t):
+        return "lower_second"
+    if re.search(r"third|\b3rd\b", t):
+        return "third"
+    return None
+
+
+def _grade_str(value: Any) -> str | None:
+    if value is None:
+        return None
+    s = str(value).strip().upper()
+    return s or None
+
+
+def _int_or_none(value: Any) -> int | None:
+    n = _num(value)
+    return int(n) if n is not None else None
+
+
 def flat_to_student(d: dict) -> StudentProfile:
-    """Convert the frontend wizard's flat profile to a StudentProfile."""
+    """Convert the frontend wizard's flat profile to a StudentProfile.
+
+    Day 2: maps the new wizard fields (ibTotal, ibHlMaths, ibHlTotal,
+    gcseEnglish, gcseMaths, residency, intakeYear, testDate,
+    graduationStatus, itExperienceYears, toefl). IELTS and TOEFL are BOTH
+    passed through when both are present — TOEFL is never silently dropped
+    (DECISIONS #36).
+    """
     track = d.get("track") or ""
     ielts_fields = ("ieltsOverall", "ieltsListening", "ieltsReading", "ieltsWriting", "ieltsSpeaking")
     has_ielts = any(_num(d.get(k)) is not None for k in ielts_fields)
     has_toefl = _num(d.get("toefl")) is not None
+    test_date = d.get("testDate") or d.get("ieltsTestDate") or d.get("toeflTestDate") or None
+    if isinstance(test_date, str):
+        test_date = test_date.strip() or None
+    else:
+        test_date = None
     if has_ielts:
         language = Language(exam="ielts", overall=_num(d.get("ieltsOverall")),
                             listening=_num(d.get("ieltsListening")),
                             reading=_num(d.get("ieltsReading")),
                             writing=_num(d.get("ieltsWriting")),
-                            speaking=_num(d.get("ieltsSpeaking")))
+                            speaking=_num(d.get("ieltsSpeaking")),
+                            test_date=test_date,
+                            toefl_overall=_num(d.get("toefl")) if has_toefl else None)
     elif has_toefl:
-        language = Language(exam="toefl", overall=_num(d.get("toefl")))
+        language = Language(exam="toefl", overall=_num(d.get("toefl")),
+                            test_date=test_date)
     else:
-        language = Language(exam="none")
+        language = Language(exam="none", test_date=test_date)
 
     budget_amount = _num(d.get("budget"))
     budget = Budget(amount=budget_amount,
                     currency=d.get("budgetCurrency") or ("GBP" if track == "undergraduate" else "SGD"),
                     period="per_year" if track == "undergraduate" else "total")
 
+    intake_year = _int_or_none(d.get("intakeYear") or d.get("targetIntake"))
     undergrad = None
     masters = None
     if track == "undergraduate":
         grades = _parse_alevels(d.get("alevels"))
         maths = (d.get("mathsGrade") or "").strip().upper() or None
+        ib_total = _int_or_none(d.get("ibTotal"))
+        qualification = "a_level" if grades else ("ib" if ib_total is not None else None)
         undergrad = UndergradProfile(
-            qualification_type="a_level" if grades else None,
+            qualification_type=qualification,
             a_level_grades=grades or None,
             a_level_maths_grade=maths,
+            ib_total=ib_total,
+            ib_hl_maths_grade=_int_or_none(d.get("ibHlMaths")),
+            ib_hl_total=_int_or_none(d.get("ibHlTotal")),
+            gcse_english_grade=_grade_str(d.get("gcseEnglish")),
+            gcse_maths_grade=_grade_str(d.get("gcseMaths")),
+            residency=_residency(d.get("residency")),
+            intake_year=intake_year,
+            graduation_status=(str(d.get("graduationStatus")).strip()
+                               if d.get("graduationStatus") else None),
             tara_taken=None)
     elif track == "taught_masters":
         degree = d.get("degree") or ""
@@ -145,13 +312,16 @@ def flat_to_student(d: dict) -> StudentProfile:
         masters = MastersProfile(
             degree_field=_classify_degree(degree),
             honours=honours,
-            it_experience_years=None,
+            degree_class=_degree_class(degree, d.get("degreeClass")),
+            maths_alevel_grade=_grade_str(d.get("mastersMathsGrade")),
+            it_experience_years=_num(d.get("itExperienceYears")),
             gre_total=_num(d.get("greTotal")),
             gre_analytical=_num(d.get("greAw")),
             gmat_total=_num(d.get("gmat")))
 
     return StudentProfile(application_track=track, undergrad_profile=undergrad,
-                          masters_profile=masters, language=language, budget=budget)
+                          masters_profile=masters, language=language, budget=budget,
+                          target_intake=intake_year)
 
 
 def _fmt_observed(r: RuleResult) -> str:
@@ -174,9 +344,10 @@ def _fmt_observed(r: RuleResult) -> str:
 def _reason_code(rule_id: str, status: str) -> str:
     if status == "UNKNOWN":
         return "MISSING_OR_UNVERIFIED"
-    if rule_id.startswith("ucl-ielts") or rule_id.startswith("nus-language"):
+    if rule_id.startswith("ucl-ielts") or rule_id.startswith("nus-language") \
+            or rule_id in ("ucl-toefl", "nus-toefl"):
         return "SCORE_MEETS" if status == "MET" else "SCORE_BELOW"
-    if rule_id in ("ucl-academic", "nus-academic"):
+    if rule_id in ("ucl-academic", "nus-academic", "ucl-gcse"):
         return "REQUIREMENT_MET" if status == "MET" else "REQUIREMENT_NOT_MET"
     if rule_id.endswith("-fee"):
         return "BUDGET_COVERS" if status == "MET" else "BUDGET_BELOW"
