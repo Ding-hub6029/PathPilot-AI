@@ -1,7 +1,8 @@
 # Locale Coverage — PathPilot AI frontend (Day 1)
 
-All UI copy lives in `messages/{locale}.json` (98 keys each). No hardcoded UI
-copy in components. `npm run build` runs `scripts/check-locales.mjs`, which
+All UI copy lives in `messages/{locale}.json` (98 keys each), except a few
+hardcoded bits: the Header 🌐/☰ icons, the program-detail "←" back link, and
+the wizard placeholders "A*A*A"/"A*". `npm run build` runs `scripts/check-locales.mjs`, which
 fails if any locale is missing a key, has an extra key, or has an empty value.
 
 | Locale | File | Keys | Status |

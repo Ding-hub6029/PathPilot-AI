@@ -55,14 +55,15 @@ Two real bugs were found and fixed by these tests:
 ## Source URLs
 
 - UCL CS BSc URL (`ucl.ac.uk/.../computer-science-bsc`) — fetched 2026-11-24;
-  URL resolves on ucl.ac.uk (fetched page returned the degree index, not the
-  full CS page body, so UCL excerpts are the brief's wording, not re-typed
-  from a live page read).
+  the Day 1 audit re-opened the official `-2026` page the same day and
+  confirmed the recorded facts (A*A*A with A* in Maths/Further Maths,
+  contextual A*AB, IB 40 / contextual 38, TARA required, £46,700 overseas,
+  14 Jan 2026 deadline).
 - NUS MComp admissions URL was corrected after a 404:
   `https://www.comp.nus.edu.sg/programmes/pg/misc/admissions/` — live search
   confirms the thresholds on it (GRE 320 + 3.5, GMAT 650+, TOEFL iBT 90,
   IELTS 6.0) and the fees page
-  `https://www.comp.nus.edu.sg/programmes/pg/mis/scholarships/` confirms
+  `https://www.comp.nus.edu.sg/programmes/pg/mcs/scholarships/` confirms
   S$69,215 incl. 9% GST, up to 40 units, AY2027/2028 Aug 2027 intake.
   Excerpts in `src/lib/programs.ts` now quote that verified text.
 
@@ -79,8 +80,8 @@ Two real bugs were found and fixed by these tests:
 - **Correction:** the NUS fees URL in `src/lib/programs.ts` was
   `.../pg/mis/scholarships/` — a typo, not the verified page. Fixed to
   `https://www.comp.nus.edu.sg/programmes/pg/mcs/scholarships/` (the page
-  actually opened and hashed during research). The line 65 reference to the
-  `/mis/` URL above is superseded by this note. UCL source URLs were also
+  actually opened and hashed during research). The `/mis/` URL that used to
+  appear above was corrected in place by the Day 1 audit (2026-11-24). UCL source URLs were also
   fixed to the verified `-2026` page and the UCL English Level 1 page, and
   the A-level excerpt corrected (the draft's "A*AA" alternative is not on
   the official page).

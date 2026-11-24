@@ -6,8 +6,7 @@ Day 1 of 3 for the Global AI Builder's Challenge 2026 (event Nov 21–28 2026;
 submissions due **Nov 28 15:00 PST = Nov 29 07:00 Beijing**).
 Product: evidence-based university selection, UK & Singapore, computer-related
 undergraduate + taught masters, two independent tracks.
-Day 1 scope: **backend + data + schemas + tests + tracking docs only**.
-No frontend (another agent owns `frontend/`), no GitHub push.
+Day 1 scope: **backend + data + schemas + tests + tracking docs + frontend (integrated 2026-11-24) + GitHub push (completed 2026-11-24, HEAD ccf8aba)**. (Original scope was backend-only with no frontend and no push; the frontend was integrated and the code pushed the same day after the user selected PathPilot-AI in the GitHub App installation.)
 
 ## Eligibility checklist (NOT verified — user to confirm)
 
@@ -27,7 +26,11 @@ python -m venv .venv
 .venv/bin/uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
 ```
 
-Frontend (port 3000) is the other agent's job; its run command belongs in `frontend/`.
+Frontend (port 3000):
+
+```bash
+cd frontend && npm install && npm run dev   # http://localhost:3000
+```
 
 Tests:
 
