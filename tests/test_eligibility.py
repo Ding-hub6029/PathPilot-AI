@@ -250,11 +250,13 @@ def test_fixture_writing_5_5_is_not_met():
     assert status_of(evaluate(profile_ok, fixture), "fixture-writing") == "MET"
 
 
-def test_programs_endpoint_has_two_real_programs_no_fixtures():
+def test_programs_endpoint_has_real_programs_no_fixtures():
     resp = client.get("/api/v1/programs")
     assert resp.status_code == 200
     ids = [p["id"] for p in resp.json()["programs"]]
-    assert ids == ["ucl-cs-bsc-2026", "nus-mcomp-cs"]
+    assert ids == ["ucl-cs-bsc-2026", "nus-mcomp-cs", "imperial-comp-beng-2027",
+                   "imperial-msc-computing-2027", "ucl-cs-msc-2027", "nus-bcomp-cs-2027",
+                   "ntu-bcomp-cs-2027", "ntu-msai-2027"]
     assert not any(p.get("synthetic") for p in resp.json()["programs"])
     assert "fixture-p01" not in ids
 
