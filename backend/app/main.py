@@ -1,27 +1,45 @@
-"""PathPilot AI Day-1 backend — FastAPI. Run from backend/ so that
+"""PathPilot AI Day-2 backend — FastAPI. Run from backend/ so that
 `app`, `domain` and `ai` are importable top-level packages.
 
     uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+Day 2 changes (see DECISIONS.md #43-#50):
+- POST /explain recomputes server-side from {profile, program_ids, locale};
+  a client-supplied Evaluation is rejected with 422 EXPLAIN_REQUIRES_PROFILE.
+- GET /programs supports country/subject/intake/degree_level filtering and
+  cursor pagination (limit default 20, max 20).
+- POST /profile/validate returns {valid, application_track,
+  normalized_profile, warnings, field_errors}.
+- In-memory per-IP rate limiting (60/min general, 10/min on /explain) with
+  429 + the standard error body; /health and /ready are exempt.
+- Security headers on every response (nosniff, DENY, no-referrer) plus the
+  existing X-Request-Id.
+- Money uses Decimal (see app/schemas.py); /openapi.json is generated into
+  docs/openapi.json by tools/generate_openapi.py.
 """
 from __future__ import annotations
 
+import base64
 import copy
+import time
 import uuid
+from decimal import Decimal
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from ai.explain import explain as build_explanation
+from ai.explain import explain_with_status
 from ai.provider import ProviderAdapter
-from app.adapter import (flat_to_student, match_response, rule_to_frontend,
-                         summary_for)
+from app.adapter import (RULES_VERSION, flat_to_student, match_response,
+                         rule_to_frontend, source_manifest_hash, summary_for)
 from app.data import DATA_VERSION, PROGRAMS
 from app.schemas import (ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
                          MatchRequest, SimulateRequest, StudentProfile)
-from domain.eligibility import evaluate, overall_status, track_mismatch
+from domain.eligibility import (_parse_test_date, evaluate, overall_status,
+                                track_mismatch)
 
-app = FastAPI(title="PathPilot AI — Day 1 backend", version="0.1.0")
+app = FastAPI(title="PathPilot AI — Day 2 backend", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +49,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- Rate limiting (in-memory, per IP, sliding 60 s window) ----------------
+# General: 60 req/min. /api/v1/explain: 10 req/min (its own bucket; the
+# spec's anonymous-AI-call budget is 10/min/IP, Ch15). /health and /ready
+# are exempt so liveness probes never 429. reset_rate_limits() exists so
+# tests can isolate bursts; it is not an endpoint.
+RATE_LIMIT_GENERAL_PER_MIN = 60
+RATE_LIMIT_EXPLAIN_PER_MIN = 10
+_RATE_WINDOW_S = 60.0
+_rate_buckets: dict[str, list[float]] = {}
+
+
+def reset_rate_limits() -> None:
+    """Clear all rate-limit buckets (test isolation only)."""
+    _rate_buckets.clear()
+
+
+def _rate_limited(client_ip: str, bucket: str, limit: int) -> bool:
+    now = time.monotonic()
+    key = f"{client_ip}:{bucket}"
+    hits = [t for t in _rate_buckets.get(key, []) if now - t < _RATE_WINDOW_S]
+    if len(hits) >= limit:
+        _rate_buckets[key] = hits
+        return True
+    hits.append(now)
+    _rate_buckets[key] = hits
+    return False
+
+
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+}
+
 
 def _err(request_id: str, code: str, message: str, status: int,
          field_errors: list[dict] | None = None, retryable: bool = False) -> JSONResponse:
@@ -38,15 +90,30 @@ def _err(request_id: str, code: str, message: str, status: int,
         error=ErrorBody(code=code, message=message,
                         field_errors=field_errors or [], retryable=retryable),
         request_id=request_id).model_dump()
-    return JSONResponse(status_code=status, content=body)
+    resp = JSONResponse(status_code=status, content=body)
+    resp.headers.update(SECURITY_HEADERS)
+    resp.headers["X-Request-Id"] = request_id
+    return resp
 
 
 @app.middleware("http")
-async def _request_id(request: Request, call_next):
+async def _request_id_and_limits(request: Request, call_next):
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
+    path = request.url.path
+    client_ip = request.client.host if request.client else "unknown"
+    if path not in ("/api/v1/health", "/api/v1/ready"):
+        if path == "/api/v1/explain":
+            bucket, limit = "explain", RATE_LIMIT_EXPLAIN_PER_MIN
+        else:
+            bucket, limit = "general", RATE_LIMIT_GENERAL_PER_MIN
+        if _rate_limited(client_ip, bucket, limit):
+            return _err(request_id, "RATE_LIMITED",
+                        f"Rate limit exceeded: {limit} requests per minute for {bucket}.",
+                        429, retryable=True)
     response = await call_next(request)
     response.headers["X-Request-Id"] = request_id
+    response.headers.update(SECURITY_HEADERS)
     return response
 
 
@@ -73,14 +140,38 @@ def _validate_profile(profile: StudentProfile) -> str | None:
     return None
 
 
-def _evaluate(profile: StudentProfile, program: dict) -> Evaluation:
+def _evaluate(profile: StudentProfile, program: dict):
     results = evaluate(profile, program)
     provider = ProviderAdapter()
     ev = Evaluation(program_id=program["id"], data_version=DATA_VERSION,
                     overall_status=overall_status(results), results=results,
                     ai_status=provider.ai_status)
-    ev.explanation = build_explanation(ev, provider)
+    ev.explanation, ev.ai_status = explain_with_status(ev, provider)
     return ev
+
+
+def _profile_from_raw(raw_profile: dict) -> StudentProfile:
+    """Nested StudentProfile dict or flat wizard profile -> StudentProfile."""
+    if "application_track" in raw_profile:
+        return StudentProfile(**raw_profile)
+    return flat_to_student(raw_profile)
+
+
+def _encode_cursor(offset: int) -> str:
+    return base64.urlsafe_b64encode(str(offset).encode()).decode()
+
+
+def _decode_cursor(cursor: str | None) -> int:
+    if cursor is None:
+        return 0
+    try:
+        raw = base64.urlsafe_b64decode(cursor.encode()).decode()
+        offset = int(raw)
+    except Exception:
+        raise ValueError(f"Invalid cursor: {cursor!r}")
+    if offset < 0:
+        raise ValueError(f"Invalid cursor: {cursor!r}")
+    return offset
 
 
 @app.get("/api/v1/health")
@@ -94,12 +185,57 @@ def ready():
             "programs": sorted(PROGRAMS.keys()), "ai_status": ProviderAdapter().ai_status}
 
 
+@app.get("/api/v1/openapi.json")
+def openapi_v1():
+    """The generated OpenAPI spec under the /api/v1 prefix (the default
+    FastAPI /openapi.json stays enabled too). docs/openapi.json is a copy
+    of this, produced by tools/generate_openapi.py."""
+    return app.openapi()
+
+
 @app.get("/api/v1/programs")
-def list_programs():
+def list_programs(request: Request,
+                  country: str | None = Query(default=None),
+                  subject: str | None = Query(default=None),
+                  intake: str | None = Query(default=None),
+                  degree_level: str | None = Query(default=None),
+                  cursor: str | None = Query(default=None),
+                  limit: int = Query(default=20, ge=1)):
+    """Filter + cursor pagination (spec Ch12).
+
+    Filters are exact for country/degree_level (case-insensitive) and
+    substring for subject (case-insensitive). ``intake`` matches the
+    program's intake_year, or the intake string when it holds a year
+    (NUS stores "August 2027, AY2027/2028 Semester 1"). ``cursor`` is an
+    opaque offset token; ``limit`` defaults to 20 and is capped at 20.
+    Response keeps the Day-1 "programs" key for backward compatibility.
+    """
+    rid = request.state.request_id
+    try:
+        offset = _decode_cursor(cursor)
+    except ValueError as exc:
+        return _err(rid, "VALIDATION_ERROR", str(exc), 400)
+    limit = min(limit, 20)
     items = list(PROGRAMS.values())
-    # "items" is what the frontend contract expects; "programs" kept for
-    # the Day-1 spec contract.
-    return {"data_version": DATA_VERSION, "programs": items, "items": items}
+    if country:
+        items = [p for p in items if str(p.get("country", "")).upper() == country.strip().upper()]
+    if subject:
+        needle = subject.strip().lower()
+        items = [p for p in items if needle in str(p.get("subject", "")).lower()]
+    if intake:
+        needle = intake.strip()
+        def _intake_match(p: dict) -> bool:
+            if p.get("intake_year") is not None and str(p["intake_year"]) == needle:
+                return True
+            return needle in str(p.get("intake") or "")
+        items = [p for p in items if _intake_match(p)]
+    if degree_level:
+        items = [p for p in items if str(p.get("degree_level", "")) == degree_level.strip()]
+    page = items[offset:offset + limit]
+    next_offset = offset + len(page)
+    next_cursor = _encode_cursor(next_offset) if next_offset < len(items) else None
+    return {"data_version": DATA_VERSION, "items": page, "programs": page,
+            "next_cursor": next_cursor}
 
 
 @app.get("/api/v1/programs/{program_id}")
@@ -111,13 +247,134 @@ def get_program(program_id: str, request: Request):
     return program
 
 
+def _profile_field_errors(profile: StudentProfile) -> list[dict]:
+    """Out-of-range / malformed values. Grades are never silently rescaled;
+    bad values are reported here instead (spec FR01/Ch12)."""
+    errors: list[dict] = []
+
+    def add(field: str, message: str):
+        errors.append({"field": field, "message": message})
+
+    lang = profile.language
+    if lang is not None:
+        for name, value in (("language.overall", lang.overall),
+                            ("language.listening", lang.listening),
+                            ("language.reading", lang.reading),
+                            ("language.writing", lang.writing),
+                            ("language.speaking", lang.speaking)):
+            if value is not None and (value < 0 or value > 9):
+                add(name, f"IELTS score {value} is out of range 0-9.")
+        if lang.toefl_overall is not None and (lang.toefl_overall < 0 or lang.toefl_overall > 120):
+            add("language.toefl_overall", f"TOEFL score {lang.toefl_overall} is out of range 0-120.")
+        if lang.exam == "toefl" and lang.overall is not None and (lang.overall < 0 or lang.overall > 120):
+            add("language.overall", f"TOEFL score {lang.overall} is out of range 0-120.")
+        if lang.test_date is not None and _parse_test_date(lang.test_date) is None:
+            add("language.test_date", f"Test date {lang.test_date!r} is not a valid ISO date (YYYY-MM-DD).")
+    ug = profile.undergrad_profile
+    if ug is not None:
+        if ug.ib_total is not None and (ug.ib_total < 0 or ug.ib_total > 45):
+            add("undergrad_profile.ib_total", f"IB total {ug.ib_total} is out of range 0-45.")
+        if ug.ib_hl_total is not None and (ug.ib_hl_total < 0 or ug.ib_hl_total > 21):
+            add("undergrad_profile.ib_hl_total", f"IB HL total {ug.ib_hl_total} is out of range 0-21 (three HL subjects, max 7 each).")
+        if ug.ib_hl_maths_grade is not None and (ug.ib_hl_maths_grade < 1 or ug.ib_hl_maths_grade > 7):
+            add("undergrad_profile.ib_hl_maths_grade", f"IB HL Maths grade {ug.ib_hl_maths_grade} is out of range 1-7.")
+        for field, grades in (("undergrad_profile.a_level_grades", ug.a_level_grades or []),
+                              ("undergrad_profile.a_level_maths_grade",
+                               [ug.a_level_maths_grade] if ug.a_level_maths_grade else [])):
+            for g in grades:
+                if str(g).upper() not in ("A*", "A", "B", "C", "D", "E", "U"):
+                    add(field, f"A-level grade {g!r} is not a recognised grade (A*-E, U).")
+        for field, grade in (("undergrad_profile.gcse_english_grade", ug.gcse_english_grade),
+                             ("undergrad_profile.gcse_maths_grade", ug.gcse_maths_grade)):
+            if grade is not None:
+                g = str(grade).strip().upper()
+                if not (g.isdigit() and 1 <= int(g) <= 9) and g not in ("A*", "A", "B", "C", "D", "E", "F", "G", "U"):
+                    add(field, f"GCSE grade {grade!r} is not a recognised grade (numeric 1-9 or A*-G, U).")
+        if ug.residency is not None and ug.residency not in ("uk", "overseas"):
+            add("undergrad_profile.residency", f"Residency {ug.residency!r} must be 'uk' or 'overseas'.")
+        if ug.intake_year is not None and (ug.intake_year < 2000 or ug.intake_year > 2100):
+            add("undergrad_profile.intake_year", f"Intake year {ug.intake_year} is out of range 2000-2100.")
+    mp = profile.masters_profile
+    if mp is not None:
+        if mp.it_experience_years is not None and mp.it_experience_years < 0:
+            add("masters_profile.it_experience_years", "IT experience years cannot be negative.")
+        if mp.gre_total is not None and (mp.gre_total < 0 or mp.gre_total > 340):
+            add("masters_profile.gre_total", f"GRE total {mp.gre_total} is out of range 0-340.")
+        if mp.gre_analytical is not None and (mp.gre_analytical < 0 or mp.gre_analytical > 6):
+            add("masters_profile.gre_analytical", f"GRE analytical {mp.gre_analytical} is out of range 0-6.")
+        if mp.gmat_total is not None and (mp.gmat_total < 200 or mp.gmat_total > 800):
+            add("masters_profile.gmat_total", f"GMAT total {mp.gmat_total} is out of range 200-800.")
+    if profile.budget is not None and profile.budget.amount is not None \
+            and profile.budget.amount < 0:
+        add("budget.amount", "Budget amount cannot be negative.")
+    if profile.target_intake is not None and (profile.target_intake < 2000 or profile.target_intake > 2100):
+        add("target_intake", f"Target intake {profile.target_intake} is out of range 2000-2100.")
+    return errors
+
+
+def _profile_warnings(profile: StudentProfile) -> list[str]:
+    """Missing optional fields that will make rules UNKNOWN later."""
+    warnings: list[str] = []
+    lang = profile.language
+    if lang is None or lang.exam in (None, "none"):
+        warnings.append("No language test supplied; language rules will be UNKNOWN.")
+    elif lang.exam == "toefl" and not lang.test_date:
+        warnings.append("TOEFL supplied without a test date; the UCL TOEFL rule will be UNKNOWN (Jan 2026 scale split needs the date).")
+    elif lang.exam == "ielts" and lang.toefl_overall is None:
+        pass  # TOEFL is optional alongside IELTS.
+    if profile.budget is None or profile.budget.amount is None:
+        warnings.append("No budget supplied; fee rules will be UNKNOWN.")
+    ug = profile.undergrad_profile
+    if ug is not None:
+        if not ug.qualification_type:
+            warnings.append("No qualification type supplied; the academic rule will be UNKNOWN.")
+        if ug.qualification_type == "ib" and ug.ib_hl_total is None:
+            warnings.append("IB HL total not supplied; the IB academic rule will be UNKNOWN.")
+        if ug.gcse_english_grade is None or ug.gcse_maths_grade is None:
+            warnings.append("GCSE English/Maths grade(s) not supplied; the GCSE rule will be UNKNOWN.")
+        if ug.residency is None:
+            warnings.append("Residency not supplied; the UCL fee rule assumes the overseas fee (£46,700/yr).")
+        if ug.intake_year is None and profile.target_intake is None:
+            warnings.append("Intake year not supplied.")
+        if not ug.graduation_status:
+            warnings.append("Graduation status not supplied.")
+    mp = profile.masters_profile
+    if mp is not None:
+        if mp.gre_total is None and mp.gmat_total is None:
+            warnings.append("No GRE/GMAT score supplied; the GRE/GMAT rule will be UNKNOWN.")
+        if mp.it_experience_years is None:
+            warnings.append("IT experience years not supplied; experience-based academic routes cannot be assessed.")
+    return warnings
+
+
+def _plain_json(value):
+    """Recursively turn Decimals into plain JSON numbers.
+
+    jsonable_encoder/model_dump(mode="json") render Decimal as a *string*,
+    so normalized_profile is built from model_dump() through here instead.
+    """
+    if isinstance(value, Decimal):
+        return int(value) if value == value.to_integral_value() else float(value)
+    if isinstance(value, dict):
+        return {k: _plain_json(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_plain_json(v) for v in value]
+    return value
+
+
 @app.post("/api/v1/profile/validate")
 def validate_profile(profile: StudentProfile, request: Request):
     problem = _validate_profile(profile)
     if problem:
         return _err(request.state.request_id, "TRACK_MISMATCH", problem, 422,
                     field_errors=[{"field": "application_track", "message": problem}])
-    return {"valid": True, "application_track": profile.application_track}
+    field_errors = _profile_field_errors(profile)
+    warnings = _profile_warnings(profile)
+    return {"valid": not field_errors,
+            "application_track": profile.application_track,
+            "normalized_profile": _plain_json(profile.model_dump()),
+            "warnings": warnings,
+            "field_errors": field_errors}
 
 
 @app.post("/api/v1/match")
@@ -134,7 +391,10 @@ async def match(request: Request):
     rid = request.state.request_id
     if isinstance(body, dict) and "program_ids" in body:
         raw_profile = body.get("profile") or {}
-        profile = flat_to_student(raw_profile) if "application_track" not in raw_profile else StudentProfile(**raw_profile)
+        try:
+            profile = _profile_from_raw(raw_profile)
+        except Exception as exc:
+            return _err(rid, "VALIDATION_ERROR", str(exc), 422)
         problem = _validate_profile(profile)
         if problem:
             return _err(rid, "TRACK_MISMATCH", problem, 422,
@@ -178,11 +438,64 @@ async def match(request: Request):
 
 
 @app.post("/api/v1/explain")
-def explain(req: ExplainRequest):
-    ev = req.evaluation
-    ev.explanation = build_explanation(ev, ProviderAdapter())
-    ev.ai_status = ProviderAdapter().ai_status
-    return ev
+async def explain(request: Request):
+    """Server-side recompute (spec Ch12). New shape:
+    {"profile": <nested StudentProfile | flat wizard profile>,
+     "program_ids": [...], "locale": "en"}.
+    A client-supplied Evaluation (the Day-1 shape {"evaluation": ...}) is
+    rejected with 422 EXPLAIN_REQUIRES_PROFILE — the server recomputes, it
+    never repeats a caller's verdict. Returns one recomputed explanation
+    per program, in the same multi-program shape as /match.
+    """
+    body = await request.json()
+    rid = request.state.request_id
+    if isinstance(body, dict) and "evaluation" in body:
+        return _err(rid, "EXPLAIN_REQUIRES_PROFILE",
+                    "POST /explain recomputes server-side from a profile; "
+                    "a client-supplied Evaluation is not accepted. Send "
+                    "{profile, program_ids, locale} instead.", 422,
+                    field_errors=[{"field": "evaluation",
+                                   "message": "Client-supplied evaluations are not accepted; the server recomputes."}])
+    try:
+        req = ExplainRequest(**body)
+    except Exception as exc:
+        return _err(rid, "VALIDATION_ERROR", str(exc), 422)
+    try:
+        profile = _profile_from_raw(req.profile)
+    except Exception as exc:
+        return _err(rid, "VALIDATION_ERROR", str(exc), 422)
+    problem = _validate_profile(profile)
+    if problem:
+        return _err(rid, "TRACK_MISMATCH", problem, 422,
+                    field_errors=[{"field": "application_track", "message": problem}])
+    ids = list(req.program_ids or [])
+    if req.program_id:
+        ids.append(req.program_id)
+    if not ids:
+        return _err(rid, "VALIDATION_ERROR", "program_ids must list at least one program.", 422)
+    results = []
+    for pid in ids:
+        program = PROGRAMS.get(pid)
+        if program is None:
+            return _err(rid, "PROGRAM_NOT_FOUND", f"No program with id '{pid}'.", 404)
+        mismatch = track_mismatch(profile, program)
+        if mismatch:
+            results.append({"programId": pid, "eligibilitySummary": "TRACK_MISMATCH",
+                            "ruleResults": [], "trackMismatch": True,
+                            "explanation": None, "ai_status": "unavailable"})
+            continue
+        ev = _evaluate(profile, program)
+        results.append({"programId": pid,
+                        "eligibilitySummary": summary_for(ev.overall_status),
+                        "ruleResults": [rule_to_frontend(r) for r in ev.results],
+                        "trackMismatch": False,
+                        "ai_status": ev.ai_status,
+                        "explanation": ev.explanation})
+    return {"evaluation_id": f"explain-{rid[:8]}", "results": results,
+            "rules_version": RULES_VERSION,
+            "source_manifest_hash": source_manifest_hash(),
+            "data_version": DATA_VERSION,
+            "locale": req.locale or "en"}
 
 
 @app.post("/api/v1/simulate")
@@ -203,7 +516,10 @@ async def simulate(request: Request):
     if isinstance(body, dict) and "baseline_profile" in body:
         raw_base = body.get("baseline_profile") or {}
         raw_patch = body.get("patch") or {}
-        base = flat_to_student(raw_base) if "application_track" not in raw_base else StudentProfile(**raw_base)
+        try:
+            base = _profile_from_raw(raw_base)
+        except Exception as exc:
+            return _err(rid, "VALIDATION_ERROR", str(exc), 422)
         problem = _validate_profile(base)
         if problem:
             return _err(rid, "TRACK_MISMATCH", problem, 422,
