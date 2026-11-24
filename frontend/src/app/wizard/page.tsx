@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../lib/store';
-import { PROGRAMS } from '../../lib/programs';
+import { usePrograms } from '../../lib/usePrograms';
 import { sampleUndergrad, sampleMasters, Profile } from '../../lib/types';
 
 const STEPS = ['track', 'target', 'academic', 'language', 'budget'] as const;
@@ -21,6 +21,7 @@ function NumField({ label, value, onChange, step = '0.1', min, max }: { label: s
 export default function WizardPage() {
   const { t, profile, setProfile, updateProfile } = useApp();
   const router = useRouter();
+  const { programs } = usePrograms();
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -38,7 +39,7 @@ export default function WizardPage() {
     if (!canNext()) { setError(t('wizard.required')); return; }
     setError('');
     if (step === 1 && profile.targetProgramIds.length === 0) {
-      const ids = PROGRAMS.filter((p) => p.degreeLevel === profile.track).map((p) => p.id);
+      const ids = programs.filter((p) => p.degreeLevel === profile.track).map((p) => p.id);
       updateProfile({ targetProgramIds: ids });
     }
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
@@ -68,7 +69,7 @@ export default function WizardPage() {
     r.readAsText(f);
   };
 
-  const trackPrograms = PROGRAMS.filter((p) => p.degreeLevel === profile.track);
+  const trackPrograms = programs.filter((p) => p.degreeLevel === profile.track);
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
@@ -124,6 +125,9 @@ export default function WizardPage() {
                 );
               })}
             </div>
+            <div className="mt-4 max-w-xs">
+              <NumField label={t('wizard.intakeYear')} value={profile.intakeYear} onChange={(v) => updateProfile({ intakeYear: v })} step="1" min={2026} max={2030} />
+            </div>
           </div>
         )}
 
@@ -136,11 +140,49 @@ export default function WizardPage() {
                   <input value={profile.alevels ?? ''} onChange={(e) => updateProfile({ alevels: e.target.value })} placeholder="A*A*A" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
                 <label className="block"><span className="text-sm font-semibold">{t('wizard.mathsLabel')}</span>
                   <input value={profile.mathsGrade ?? ''} onChange={(e) => updateProfile({ mathsGrade: e.target.value })} placeholder="A*" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
+                <p className="text-sm text-navy/60">{t('wizard.ibHint')}</p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <NumField label={t('wizard.ibTotal')} value={profile.ibTotal} onChange={(v) => updateProfile({ ibTotal: v })} step="1" min={0} max={45} />
+                  <NumField label={t('wizard.ibHlMaths')} value={profile.ibHlMaths} onChange={(v) => updateProfile({ ibHlMaths: v })} step="1" min={1} max={7} />
+                  <NumField label={t('wizard.ibHlTotal')} value={profile.ibHlTotal} onChange={(v) => updateProfile({ ibHlTotal: v })} step="1" min={0} max={21} />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block"><span className="text-sm font-semibold">{t('wizard.gcseEnglish')}</span>
+                    <input value={profile.gcseEnglish ?? ''} onChange={(e) => updateProfile({ gcseEnglish: e.target.value })} placeholder="C / 4" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
+                  <label className="block"><span className="text-sm font-semibold">{t('wizard.gcseMaths')}</span>
+                    <input value={profile.gcseMaths ?? ''} onChange={(e) => updateProfile({ gcseMaths: e.target.value })} placeholder="C / 4" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
+                </div>
+                <p className="text-sm text-navy/60">{t('wizard.gcseHint')}</p>
               </>
             ) : (
-              <label className="block"><span className="text-sm font-semibold">{t('wizard.degreeLabel')}</span>
-                <input value={profile.degree ?? ''} onChange={(e) => updateProfile({ degree: e.target.value })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" />
-                <span className="text-xs text-navy/60">{t('wizard.degreeHint')}</span></label>
+              <>
+                <label className="block"><span className="text-sm font-semibold">{t('wizard.degreeLabel')}</span>
+                  <input value={profile.degree ?? ''} onChange={(e) => updateProfile({ degree: e.target.value })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" />
+                  <span className="text-xs text-navy/60">{t('wizard.degreeHint')}</span></label>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block"><span className="text-sm font-semibold">{t('wizard.degreeClass')}</span>
+                    <select value={profile.degreeClass ?? ''} onChange={(e) => updateProfile({ degreeClass: (e.target.value || undefined) as Profile['degreeClass'] })} className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2">
+                      <option value="">{t('wizard.selectPlaceholder')}</option>
+                      <option value="first">{t('wizard.degreeClassFirst')}</option>
+                      <option value="upper_second">{t('wizard.degreeClassUpperSecond')}</option>
+                      <option value="lower_second">{t('wizard.degreeClassLowerSecond')}</option>
+                      <option value="third">{t('wizard.degreeClassThird')}</option>
+                      <option value="other">{t('wizard.degreeClassOther')}</option>
+                    </select></label>
+                  <label className="block"><span className="text-sm font-semibold">{t('wizard.mastersMathsGrade')}</span>
+                    <input value={profile.mastersMathsGrade ?? ''} onChange={(e) => updateProfile({ mastersMathsGrade: e.target.value })} placeholder="A" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block"><span className="text-sm font-semibold">{t('wizard.graduationStatus')}</span>
+                    <select value={profile.graduationStatus ?? ''} onChange={(e) => updateProfile({ graduationStatus: e.target.value })} className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2">
+                      <option value="">{t('wizard.selectPlaceholder')}</option>
+                      <option value="current">{t('wizard.graduationCurrent')}</option>
+                      <option value="graduating">{t('wizard.graduationGraduating')}</option>
+                      <option value="graduated">{t('wizard.graduationGraduated')}</option>
+                    </select></label>
+                  <NumField label={t('wizard.itExperienceYears')} value={profile.itExperienceYears} onChange={(v) => updateProfile({ itExperienceYears: v })} step="1" min={0} max={50} />
+                </div>
+              </>
             )}
           </div>
         )}
@@ -155,6 +197,12 @@ export default function WizardPage() {
               <NumField label={t('wizard.ieltsWriting')} value={profile.ieltsWriting} onChange={(v) => updateProfile({ ieltsWriting: v })} min={0} max={9} />
               <NumField label={t('wizard.ieltsSpeaking')} value={profile.ieltsSpeaking} onChange={(v) => updateProfile({ ieltsSpeaking: v })} min={0} max={9} />
               <NumField label={t('wizard.toeflLabel')} value={profile.toefl} onChange={(v) => updateProfile({ toefl: v })} step="1" min={0} max={120} />
+            </div>
+            <p className="text-sm text-navy/60">{t('wizard.languageBothHint')}</p>
+            <div className="max-w-xs">
+              <label className="block"><span className="text-sm font-semibold">{t('wizard.testDate')}</span>
+                <input type="date" value={profile.testDate ?? ''} onChange={(e) => updateProfile({ testDate: e.target.value })} className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2" /></label>
+              <p className="mt-1 text-xs text-navy/60">{t('wizard.testDateHint')}</p>
             </div>
             {profile.track === 'taught_masters' && (
               <div className="grid gap-4 sm:grid-cols-3">
@@ -176,6 +224,18 @@ export default function WizardPage() {
                   <option value="GBP">GBP</option><option value="SGD">SGD</option><option value="USD">USD</option>
                 </select></label>
             </div>
+            <label className="block max-w-xs"><span className="text-sm font-semibold">{t('wizard.residency')}</span>
+              <select value={profile.residency ?? ''} onChange={(e) => updateProfile({ residency: (e.target.value || undefined) as Profile['residency'] })} className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2">
+                <option value="">{t('wizard.residencySelect')}</option>
+                <option value="uk">{t('wizard.residencyUk')}</option>
+                <option value="overseas">{t('wizard.residencyOverseas')}</option>
+                <option value="sg_citizen">{t('wizard.residencySgCitizen')}</option>
+                <option value="sg_pr">{t('wizard.residencySgPr')}</option>
+                <option value="sg_intl_asean">{t('wizard.residencySgIntlAsean')}</option>
+                <option value="sg_intl_other">{t('wizard.residencySgIntlOther')}</option>
+                <option value="sg_intl_nogrant">{t('wizard.residencySgIntlNogrant')}</option>
+              </select></label>
+            <p className="text-sm text-navy/60">{t('wizard.residencyFeeNote')}</p>
             <p className="text-sm text-navy/60">{t('wizard.budgetHint')}</p>
             {profile.sample && <p className="rounded-lg bg-amber/20 p-3 text-sm font-semibold">{t('common.synthetic')}</p>}
           </div>
