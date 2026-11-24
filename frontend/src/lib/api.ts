@@ -137,6 +137,101 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
         unknownReason: b === null ? 'Budget not provided' : undefined,
       });
     }
+
+    // --- Day 2 (v2) programmes: offline mirror of the backend rules. ---
+    // Thresholds are the verified v2 facts; IGP-only programmes (NUS/NTU
+    // undergraduate) stay UNKNOWN academically, exactly like live.
+    const toeflDate = profile.testDate || undefined;
+    const toeflScore = num(profile.toefl);
+    const ieltsOv = num(profile.ieltsOverall);
+    const toeflStatus = (oldMin: number, newMin: number): RuleResult['status'] | null => {
+      if (toeflScore === null) return null;
+      if (!toeflDate) return 'UNKNOWN';
+      return toeflScore >= (toeflDate >= '2026-01-21' ? newMin : oldMin) ? 'MET' : 'NOT_MET';
+    };
+    const ieltsStatus = (overallMin: number, compMin: number): RuleResult['status'] => {
+      if (ieltsOv === null) return 'UNKNOWN';
+      const comps = [num(profile.ieltsListening), num(profile.ieltsReading), num(profile.ieltsWriting), num(profile.ieltsSpeaking)];
+      if (ieltsOv < overallMin) return 'NOT_MET';
+      if (comps.some((c) => c === null)) return 'UNKNOWN';
+      return comps.every((c) => (c as number) >= compMin) ? 'MET' : 'NOT_MET';
+    };
+    const feeStatus = (amount: number): RuleResult['status'] => {
+      const b = num(profile.budget);
+      if (b === null) return 'UNKNOWN';
+      return b >= amount ? 'MET' : 'NOT_MET';
+    };
+    const pushRule = (ruleId: string, status: RuleResult['status'], observed: string, expected: string, evidenceIds: string[], unknownReason?: string) => {
+      rules.push({ ruleId, status, observed, expected, evidenceIds,
+        reasonCode: status === 'UNKNOWN' ? 'MISSING_OR_UNVERIFIED' : status === 'MET' ? 'SCORE_MEETS' : 'SCORE_BELOW',
+        unknownReason: status === 'UNKNOWN' ? (unknownReason || 'Not enough information to decide') : undefined });
+    };
+    if (p.id === 'imperial-comp-beng-2027') {
+      const a = alevelMeets(profile.alevels, profile.mathsGrade);
+      pushRule('imp-beng-academic', a === 'UNKNOWN' ? 'UNKNOWN' : a, profile.alevels || 'Not provided', 'A*A*A or A*AAA with A* in Maths', ['imperial-beng-entry']);
+      pushRule('imp-beng-language', ieltsStatus(6.5, 6.0), ieltsOv === null ? 'Not provided' : `IELTS overall ${ieltsOv}`, 'IELTS 6.5 overall, min 6.0 in all elements', ['imperial-beng-english']);
+      const tf = toeflStatus(92, 4.5);
+      if (tf !== null) pushRule('imp-beng-toefl', tf, `TOEFL iBT ${toeflScore}`, 'TOEFL iBT 92 (before 21 Jan 2026) or 4.5 (new scale)', ['imperial-beng-english']);
+      pushRule('imp-beng-tmua', 'UNKNOWN', 'TMUA required; no threshold stated', 'TMUA required (no score threshold stated)', ['imperial-beng-entry'], 'TMUA is required but no score threshold is stated');
+      const feeAmt = profile.residency === 'uk' ? 10050 : 47800;
+      pushRule('imp-beng-fee', feeStatus(feeAmt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['imperial-beng-fees']);
+    }
+    if (p.id === 'imperial-msc-computing-2027') {
+      const deg = (profile.degree || '').toLowerCase();
+      const isComputing = /comput|software|information/.test(deg);
+      const dc = profile.degreeClass;
+      const acad: RuleResult['status'] = isComputing ? 'NOT_MET' : !dc ? 'UNKNOWN' : dc !== 'first' ? 'NOT_MET' : /business|management|economics|finance/.test(deg) ? (profile.mastersMathsGrade && ['A*', 'A'].includes(profile.mastersMathsGrade.toUpperCase()) ? 'MET' : profile.mastersMathsGrade ? 'NOT_MET' : 'UNKNOWN') : 'MET';
+      pushRule('imp-msc-academic', acad, profile.degree || 'Not provided', 'First-Class degree in a subject without substantial Computing content', ['imperial-msc-entry']);
+      pushRule('imp-msc-language', ieltsStatus(7.0, 6.5), ieltsOv === null ? 'Not provided' : `IELTS overall ${ieltsOv}`, 'IELTS 7.0 overall, min 6.5 in all elements', ['imperial-msc-english']);
+      const tf = toeflStatus(100, 5.0);
+      if (tf !== null) pushRule('imp-msc-toefl', tf, `TOEFL iBT ${toeflScore}`, 'TOEFL iBT 100 (before 21 Jan 2026) or 5.0 (new scale)', ['imperial-msc-english']);
+      pushRule('imp-msc-test', 'NOT_APPLICABLE', 'Normally no admissions tests or interviews', 'Normally no admissions tests or interviews', ['imperial-msc-entry']);
+      const feeAmt = profile.residency === 'uk' ? 25850 : 48300;
+      pushRule('imp-msc-fee', feeStatus(feeAmt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['imperial-msc-fees']);
+    }
+    if (p.id === 'ucl-cs-msc-2027') {
+      const deg = (profile.degree || '').toLowerCase();
+      const isComputing = /comput|software|information/.test(deg);
+      const dc = profile.degreeClass;
+      const acad: RuleResult['status'] = isComputing ? 'NOT_MET' : !dc ? 'UNKNOWN' : (dc === 'lower_second' || dc === 'third' || dc === 'other') ? 'NOT_MET' : profile.mastersMathsGrade ? 'MET' : 'UNKNOWN';
+      pushRule('ucl-msc-academic', acad, profile.degree || 'Not provided', "Upper second-class degree in a subject other than CS/IT, maths to A-level standard", ['ucl-msc-entry']);
+      pushRule('ucl-msc-language', 'UNKNOWN', 'No English level stated on the course page', 'No English language level stated on the course page', ['ucl-msc-english'], 'The course page does not state which UCL English level applies');
+      const feeAmt = profile.residency === 'uk' ? 21500 : 44400;
+      pushRule('ucl-msc-fee', feeStatus(feeAmt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['ucl-msc-fees']);
+    }
+    if (p.id === 'nus-bcomp-cs-2027') {
+      pushRule('nus-bcomp-academic', 'UNKNOWN', 'IGP AAA/A (admitted students) — not a threshold', 'No fixed minimum published; Indicative Grade Profile AAA/A', ['nus-bcomp-entry'], 'NUS publishes no fixed minimum; only the Indicative Grade Profile of admitted students');
+      const comps = [num(profile.ieltsReading), num(profile.ieltsWriting)];
+      const langSt: RuleResult['status'] = ieltsOv === null ? 'UNKNOWN' : ieltsOv < 6.5 ? 'NOT_MET' : comps.some((c) => c === null) ? 'UNKNOWN' : comps.every((c) => (c as number) >= 6.5) ? 'MET' : 'NOT_MET';
+      pushRule('nus-bcomp-language', langSt, ieltsOv === null ? 'Not provided' : `IELTS overall ${ieltsOv}`, 'IELTS 6.5 overall, 6.5 in Reading and Writing', ['nus-bcomp-english']);
+      if (toeflScore !== null) pushRule('nus-bcomp-toefl', toeflScore <= 6 ? 'UNKNOWN' : toeflScore >= 92 ? 'MET' : 'NOT_MET', `TOEFL iBT ${toeflScore}`, 'TOEFL iBT 92-93', ['nus-bcomp-english']);
+      const band: Record<string, number | null> = { sg_citizen: 8300, sg_pr: 11600, sg_intl_asean: 18050, sg_intl_other: 21400, sg_intl_nogrant: 39700 };
+      const amt = profile.residency ? band[profile.residency] ?? null : null;
+      pushRule('nus-bcomp-fee', amt === null ? 'UNKNOWN' : feeStatus(amt), profile.budget == null ? 'Not provided' : `Budget SGD ${profile.budget}/year`, amt === null ? 'AY2026/27 rates by residency band' : `SGD ${amt.toLocaleString()}/year`, ['nus-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, so the fee cannot be decided' : undefined);
+    }
+    if (p.id === 'ntu-bcomp-cs-2027') {
+      pushRule('ntu-bcomp-academic', 'UNKNOWN', 'IGP AAB/C (10th) to AAA/A (90th) — not a threshold', 'No fixed minimum published; Indicative Grade Profile AAB/C to AAA/A', ['ntu-bcomp-entry'], 'NTU publishes no fixed minimum; only the Indicative Grade Profile of admitted students');
+      const comps = [num(profile.ieltsWriting), num(profile.ieltsSpeaking)];
+      const langSt: RuleResult['status'] = ieltsOv === null ? 'UNKNOWN' : ieltsOv < 6.5 ? 'NOT_MET' : comps.some((c) => c === null) ? 'UNKNOWN' : comps.every((c) => (c as number) >= 6.5) ? 'MET' : 'NOT_MET';
+      pushRule('ntu-bcomp-language', langSt, ieltsOv === null ? 'Not provided' : `IELTS overall ${ieltsOv}`, 'IELTS 6.5 overall, 6.5 Writing, 6.5 Speaking', ['ntu-bcomp-english']);
+      const tf = toeflStatus(90, 4.5);
+      if (tf !== null) pushRule('ntu-bcomp-toefl', tf, `TOEFL iBT ${toeflScore}`, 'TOEFL total 90 (before 21 Jan 2026) or 4.5 (new scale)', ['ntu-bcomp-english']);
+      const band: Record<string, number | null> = { sg_citizen: 8300, sg_pr: 11600, sg_intl_asean: 18050, sg_intl_other: 21400, sg_intl_nogrant: null };
+      const amt = profile.residency ? band[profile.residency] ?? null : null;
+      pushRule('ntu-bcomp-fee', amt === null ? 'UNKNOWN' : feeStatus(amt), profile.budget == null ? 'Not provided' : `Budget SGD ${profile.budget}/year`, amt === null ? 'AY2026/27 rates by residency band' : `SGD ${amt.toLocaleString()}/year`, ['ntu-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, or the non-subsidised band is not labelled for CS' : undefined);
+    }
+    if (p.id === 'ntu-msai-2027') {
+      const deg = (profile.degree || '').toLowerCase();
+      const field = /comput|software|information/.test(deg) ? 'computing' : /engineer|math|statistic|physics|science/.test(deg) ? 'related' : 'other';
+      const exp = num(profile.itExperienceYears);
+      const honours = /honou?rs/.test(deg);
+      const acad: RuleResult['status'] = (field === 'computing' || field === 'related') && honours ? 'MET' : (field === 'computing' || field === 'related') && exp !== null && exp >= 2 ? 'MET' : 'UNKNOWN';
+      pushRule('ntu-msai-academic', acad, profile.degree || 'Not provided', 'Good honours in CS/CE/related, or good bachelor’s + 2 years industry experience', ['ntu-msai-entry']);
+      const langSt: RuleResult['status'] = ieltsOv !== null ? (ieltsOv >= 6.5 ? 'MET' : 'NOT_MET') : toeflScore !== null ? (toeflStatus(100, 5.0) ?? 'UNKNOWN') : 'UNKNOWN';
+      pushRule('ntu-msai-language', langSt, ieltsOv !== null ? `IELTS overall ${ieltsOv}` : toeflScore !== null ? `TOEFL iBT ${toeflScore}` : 'Not provided', 'IELTS >= 6.5 or TOEFL iBT >= 100 / >= 5.0', ['ntu-msai-english']);
+      pushRule('ntu-msai-gre', 'UNKNOWN', 'GRE optional; no rejection rule stated', 'GRE optional; no rejection rule for a missing or low score', ['ntu-msai-entry'], 'GRE scores are listed as Optional; no rejection rule for a missing or low score');
+      pushRule('ntu-msai-fee', feeStatus(65748.8), profile.budget == null ? 'Not provided' : `Budget SGD ${profile.budget} total`, 'SGD 65,748.80 total incl. 9% GST', ['ntu-msai-fees']);
+    }
     const summary = rules.some((r) => r.status === 'NOT_MET') ? 'NOT_MET' : rules.some((r) => r.status === 'UNKNOWN') ? 'PARTIAL_UNKNOWN' : 'MET';
     return { programId: id, eligibilitySummary: summary, ruleResults: rules };
   });
@@ -173,14 +268,135 @@ export async function matchProfile(profile: Profile): Promise<MatchResponse> {
   }
 }
 
-export async function fetchPrograms(): Promise<{ programs: Program[]; live: boolean }> {
+export async function fetchPrograms(opts?: { limit?: number; cursor?: string }): Promise<{ programs: Program[]; live: boolean; nextCursor?: string }> {
   try {
-    const data = await fetchJson<{ items: Program[]; data_version: string }>('/api/programs');
-    const items = Array.isArray(data.items) && data.items.length ? data.items : PROGRAMS;
-    return { programs: items, live: true };
+    const params = new URLSearchParams();
+    if (opts?.limit) params.set('limit', String(opts.limit));
+    if (opts?.cursor) params.set('cursor', opts.cursor);
+    const qs = params.toString();
+    const data = await fetchJson<{ items?: unknown[]; programs?: unknown[]; data_version?: string; next_cursor?: string | null }>(`/api/programs${qs ? `?${qs}` : ''}`);
+    const raw = Array.isArray(data.items) ? data.items : Array.isArray(data.programs) ? data.programs : [];
+    const items = raw.map((r) => normalizeApiProgram(r, data.data_version)).filter((p): p is Program => p !== null);
+    // Empty catalogue from the API is not usable — fall back to the local
+    // list rather than showing nothing, but still report live.
+    const programs = items.length ? items : PROGRAMS;
+    return { programs, live: true, nextCursor: data.next_cursor ?? undefined };
   } catch {
     return { programs: PROGRAMS, live: false };
   }
+}
+
+export async function fetchProgramById(id: string): Promise<{ program: Program | undefined; live: boolean }> {
+  try {
+    const raw = await fetchJson<unknown>(`/api/programs/${encodeURIComponent(id)}`);
+    const program = normalizeApiProgram(raw);
+    if (program) return { program, live: true };
+  } catch { /* fall through to the local list */ }
+  return { program: PROGRAMS.find((p) => p.id === id), live: false };
+}
+
+/**
+ * Normalise one programme from the API into the frontend Program shape.
+ * Accepts BOTH shapes: the frontend shape (feeItems + sources with
+ * excerpts, as in src/lib/programs.ts) and the backend shape (snake_case:
+ * official_name, degree_level, fees {overseas_per_year_gbp,
+ * uk_per_year_gbp, total_sgd_incl_gst}, sources {id, title, url,
+ * retrieved_at} with no excerpts). Returns null for anything unusable.
+ *
+ * Evidence sources: the API's sources carry no excerpts, so when the
+ * programme also exists in the local list (which holds the verified
+ * excerpts) the local sources win; API-only sources are kept with an
+ * empty excerpt so the drawer still shows label, URL and verified date.
+ */
+export function normalizeApiProgram(raw: unknown, dataVersion?: string): Program | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  const id = typeof r.id === 'string' ? r.id : '';
+  if (!id) return null;
+  const local = PROGRAMS.find((p) => p.id === id);
+  const str = (v: unknown): string => (typeof v === 'string' ? v : '');
+  const num = (v: unknown): number | undefined => (typeof v === 'number' && !Number.isNaN(v) ? v : undefined);
+
+  // Already frontend-shaped: keep it, filling gaps from the local entry.
+  if (Array.isArray(r.feeItems)) {
+    const feeItems = (r.feeItems as Record<string, unknown>[])
+      .map((f) => ({ label: str(f.label), amount: num(f.amount) ?? 0, currency: str(f.currency) || 'GBP', period: str(f.period) || 'per year' }))
+      .filter((f) => f.amount > 0 || local !== undefined);
+    const sources = normalizeSources(r.sources, local);
+    return {
+      id,
+      institution: str(r.institution) || local?.institution || '',
+      institutionId: str(r.institutionId) || local?.institutionId || id.split('-')[0],
+      officialName: str(r.officialName) || local?.officialName || id,
+      country: str(r.country) || local?.country || '',
+      degreeLevel: (r.degreeLevel === 'undergraduate' || r.degreeLevel === 'taught_masters' ? r.degreeLevel : local?.degreeLevel) ?? 'undergraduate',
+      subject: str(r.subject) || local?.subject || '',
+      intakeYear: num(r.intakeYear) ?? local?.intakeYear ?? 0,
+      intakeLabel: str(r.intakeLabel) || local?.intakeLabel || '',
+      duration: str(r.duration) || local?.duration || '',
+      feeItems: feeItems.length ? feeItems : local?.feeItems ?? [],
+      ucasCode: str(r.ucasCode) || local?.ucasCode,
+      status: str(r.status) || 'active',
+      datasetVersion: str(r.datasetVersion) || dataVersion || local?.datasetVersion || DATA_VERSION,
+      sources,
+    };
+  }
+
+  // Backend (snake_case) shape.
+  const fees = (r.fees ?? {}) as Record<string, unknown>;
+  const feeItems: Program['feeItems'] = [];
+  const currency = str(fees.currency) || 'GBP';
+  const overseas = num(fees.overseas_per_year_gbp);
+  const uk = num(fees.uk_per_year_gbp);
+  const total = num(fees.total_sgd_incl_gst) ?? num(fees.total) ?? num(fees.amount);
+  const period = str(fees.period);
+  if (overseas !== undefined) feeItems.push({ label: 'Overseas tuition fee', amount: overseas, currency, period: 'per year' });
+  if (uk !== undefined) feeItems.push({ label: 'UK tuition fee', amount: uk, currency, period: 'per year' });
+  if (total !== undefined && overseas === undefined) feeItems.push({ label: 'Total tuition incl. GST', amount: total, currency, period: period || 'total' });
+  if (period === 'per_year' && overseas === undefined && total !== undefined) {
+    // A per-year fee reported only as a single total: keep the amount with
+    // its stated period rather than inventing an overseas/UK split.
+    feeItems[0] = { label: 'Tuition fee', amount: total, currency, period: 'per year' };
+  }
+  const intakeYear = num(r.intake_year) ?? local?.intakeYear ?? 0;
+  const intakeLabel = str(r.start) || str(r.intake) || local?.intakeLabel || (intakeYear ? String(intakeYear) : '');
+  return {
+    id,
+    institution: str(r.institution) || local?.institution || '',
+    institutionId: local?.institutionId || id.split('-')[0],
+    officialName: str(r.official_name) || local?.officialName || id,
+    country: str(r.country) || local?.country || '',
+    degreeLevel: (r.degree_level === 'undergraduate' || r.degree_level === 'taught_masters' ? r.degree_level : local?.degreeLevel) ?? 'undergraduate',
+    subject: typeof r.subject === 'string' ? r.subject : local?.subject || '',
+    intakeYear,
+    intakeLabel,
+    duration: str(r.duration) || local?.duration || '',
+    feeItems: feeItems.length ? feeItems : local?.feeItems ?? [],
+    ucasCode: str(r.ucas_code) || local?.ucasCode,
+    status: 'active',
+    datasetVersion: dataVersion || local?.datasetVersion || DATA_VERSION,
+    sources: normalizeSources(r.sources, local),
+  };
+}
+
+function normalizeSources(rawSources: unknown, local: Program | undefined): Program['sources'] {
+  const apiSources: Program['sources'] = Array.isArray(rawSources)
+    ? (rawSources as Record<string, unknown>[]).map((s) => ({
+        id: typeof s.id === 'string' ? s.id : '',
+        url: typeof s.url === 'string' ? s.url : '',
+        label: typeof s.title === 'string' ? s.title : typeof s.label === 'string' ? s.label : '',
+        excerpt: typeof s.excerpt === 'string' ? s.excerpt : '',
+        verifiedDate: typeof s.retrieved_at === 'string' ? s.retrieved_at.slice(0, 10) : typeof s.verifiedDate === 'string' ? s.verifiedDate : '',
+      })).filter((s) => s.id && s.url)
+    : [];
+  if (!local) return apiSources;
+  // Local sources carry the verified excerpts; keep them, and append any
+  // API-only source the local list does not have yet.
+  const merged = [...local.sources];
+  for (const s of apiSources) {
+    if (!merged.some((m) => m.id === s.id)) merged.push(s);
+  }
+  return merged;
 }
 
 export async function simulate(profile: Profile, patch: Partial<Profile>): Promise<MatchResponse> {
