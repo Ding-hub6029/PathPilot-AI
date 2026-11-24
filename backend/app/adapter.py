@@ -44,7 +44,7 @@ EXPECTED: dict[str, str] = {
     "nus-language": "IELTS min 6.0 overall (no component minimum stated) or TOEFL iBT min 90",
     "nus-language-components": "No IELTS component minimum stated",
     "nus-academic": "Good honours degree in computing, or related/business degree + 2 years IT experience",
-    "nus-gre-gmat": "GRE 320 + 3.5 analytical or GMAT 650+ (not mandatory)",
+    "nus-gre-gmat": "GRE 320 + 3.5 analytical or GMAT 650+ (no rejection rule stated for a missing or low score)",
     "nus-fee": "SGD 69,215 total incl. 9% GST",
     "fixture-writing": "IELTS writing 6.0 (fixture, synthetic)",
 }
