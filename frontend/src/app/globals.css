@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+html { scroll-behavior: smooth; }
+body { background: #F7F5F0; color: #0B1F3A; }
+
+/* ---- Motion: compass / route theme ---- */
+@keyframes draw-route { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
+@keyframes fade-slide-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes needle-sway { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(10deg); } }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(242,165,65,.45); } 100% { box-shadow: 0 0 0 12px rgba(242,165,65,0); } }
+@keyframes chip-pop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
+
+.anim-route { stroke-dasharray: 600; animation: draw-route 1.6s ease-out forwards; }
+.anim-fade-up { animation: fade-slide-up .5s ease-out both; }
+.anim-fade-in { animation: fade-in .35s ease-out both; }
+.anim-needle { transform-origin: center; animation: needle-sway 4s ease-in-out infinite; }
+.anim-chip { animation: chip-pop .3s ease-out both; }
+.stagger-1 { animation-delay: .05s; } .stagger-2 { animation-delay: .15s; }
+.stagger-3 { animation-delay: .25s; } .stagger-4 { animation-delay: .35s; }
+
+/* Page transition wrapper */
+.page-enter { animation: fade-slide-up .35s ease-out both; }
+
+/* Click effects: ripple-free press scale + lift */
+.btn-press { transition: transform .12s ease, box-shadow .2s ease, background-color .2s ease; }
+.btn-press:active { transform: scale(.97); }
+.card-lift { transition: transform .2s ease, box-shadow .2s ease; }
+.card-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(11,31,58,.14); }
+.card-lift:focus-visible, .btn-press:focus-visible, a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid #F2A541; outline-offset: 2px;
+}
+
+/* Status chips */
+.chip { display: inline-flex; align-items: center; gap: .35rem; border-radius: 9999px; padding: .15rem .65rem; font-size: .8rem; font-weight: 600; }
+.chip-met { background: #DFF0EE; color: #0A5E5D; }
+.chip-notmet { background: #FBE3E0; color: #8C2B1F; }
+.chip-unknown { background: #F3E8CF; color: #6B4E00; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
