@@ -1,0 +1,781 @@
+{
+  "components": {
+    "schemas": {
+      "Budget": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period"
+          }
+        },
+        "title": "Budget",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Language": {
+        "properties": {
+          "exam": {
+            "default": "none",
+            "title": "Exam",
+            "type": "string"
+          },
+          "listening": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Listening"
+          },
+          "overall": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall"
+          },
+          "reading": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reading"
+          },
+          "speaking": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speaking"
+          },
+          "test_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Date"
+          },
+          "toefl_overall": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toefl Overall"
+          },
+          "writing": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Writing"
+          }
+        },
+        "title": "Language",
+        "type": "object"
+      },
+      "MastersProfile": {
+        "properties": {
+          "degree_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Degree Class"
+          },
+          "degree_field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Degree Field"
+          },
+          "gmat_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gmat Total"
+          },
+          "gre_analytical": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gre Analytical"
+          },
+          "gre_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gre Total"
+          },
+          "honours": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Honours"
+          },
+          "it_experience_years": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "It Experience Years"
+          },
+          "maths_alevel_grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maths Alevel Grade"
+          }
+        },
+        "title": "MastersProfile",
+        "type": "object"
+      },
+      "StudentProfile": {
+        "properties": {
+          "application_track": {
+            "title": "Application Track",
+            "type": "string"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Budget"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "language": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Language"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "masters_profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MastersProfile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "target_intake": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Intake"
+          },
+          "undergrad_profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UndergradProfile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "application_track"
+        ],
+        "title": "StudentProfile",
+        "type": "object"
+      },
+      "UndergradProfile": {
+        "properties": {
+          "a_level_grades": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "A Level Grades"
+          },
+          "a_level_maths_grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "A Level Maths Grade"
+          },
+          "gcse_english_grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gcse English Grade"
+          },
+          "gcse_maths_grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gcse Maths Grade"
+          },
+          "graduation_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Graduation Status"
+          },
+          "ib_hl_maths_grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ib Hl Maths Grade"
+          },
+          "ib_hl_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ib Hl Total"
+          },
+          "ib_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ib Total"
+          },
+          "intake_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intake Year"
+          },
+          "qualification_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualification Type"
+          },
+          "residency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Residency"
+          },
+          "tara_taken": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tara Taken"
+          }
+        },
+        "title": "UndergradProfile",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "PathPilot AI \u2014 Day 2 backend",
+    "version": "0.2.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/explain": {
+      "post": {
+        "description": "Server-side recompute (spec Ch12). New shape:\n{\"profile\": <nested StudentProfile | flat wizard profile>,\n \"program_ids\": [...], \"locale\": \"en\"}.\nA client-supplied Evaluation (the Day-1 shape {\"evaluation\": ...}) is\nrejected with 422 EXPLAIN_REQUIRES_PROFILE \u2014 the server recomputes, it\nnever repeats a caller's verdict. Returns one recomputed explanation\nper program, in the same multi-program shape as /match.",
+        "operationId": "explain_api_v1_explain_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Explain"
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/api/v1/match": {
+      "post": {
+        "description": "Two shapes, one engine.\n\nFrontend contract: {\"profile\": <flat wizard profile>, \"program_ids\": [...]}\n-> {\"evaluation_id\", \"results\": [{programId, eligibilitySummary,\nruleResults}], \"rules_version\", \"source_manifest_hash\"}.\nSpec/test contract: {\"profile\": <nested StudentProfile>, \"program_id\": str}\n-> single Evaluation (unchanged).",
+        "operationId": "match_api_v1_match_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Match"
+      }
+    },
+    "/api/v1/openapi.json": {
+      "get": {
+        "description": "The generated OpenAPI spec under the /api/v1 prefix (the default\nFastAPI /openapi.json stays enabled too). docs/openapi.json is a copy\nof this, produced by tools/generate_openapi.py.",
+        "operationId": "openapi_v1_api_v1_openapi_json_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Openapi V1"
+      }
+    },
+    "/api/v1/profile/validate": {
+      "post": {
+        "operationId": "validate_profile_api_v1_profile_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentProfile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Validate Profile"
+      }
+    },
+    "/api/v1/programs": {
+      "get": {
+        "description": "Filter + cursor pagination (spec Ch12).\n\nFilters are exact for country/degree_level (case-insensitive) and\nsubstring for subject (case-insensitive). ``intake`` matches the\nprogram's intake_year, or the intake string when it holds a year\n(NUS stores \"August 2027, AY2027/2028 Semester 1\"). ``cursor`` is an\nopaque offset token; ``limit`` defaults to 20 and is capped at 20.\nResponse keeps the Day-1 \"programs\" key for backward compatibility.",
+        "operationId": "list_programs_api_v1_programs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "country",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Country"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subject",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject"
+            }
+          },
+          {
+            "in": "query",
+            "name": "intake",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Intake"
+            }
+          },
+          {
+            "in": "query",
+            "name": "degree_level",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Degree Level"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Programs"
+      }
+    },
+    "/api/v1/programs/{program_id}": {
+      "get": {
+        "operationId": "get_program_api_v1_programs__program_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "program_id",
+            "required": true,
+            "schema": {
+              "title": "Program Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Program"
+      }
+    },
+    "/api/v1/ready": {
+      "get": {
+        "operationId": "ready_api_v1_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready"
+      }
+    },
+    "/api/v1/simulate": {
+      "post": {
+        "description": "Baseline vs patch, same rules and data version.\n\nFrontend contract: {\"baseline_profile\": <flat>, \"patch\": <flat partial>,\n\"program_ids\": [...]} -> {\"baseline\": <MatchResponse>,\n\"scenario\": <MatchResponse>, \"delta\": [{program_id, rule_id,\nbaseline_status, scenario_status}]}.\nSpec/test contract: {\"profile\": <nested>, \"program_id\": str,\n\"patch\": <nested dict>} -> {\"program_id\", \"baseline\", \"patched\"}.\nPatch is a deep-merge onto the profile dict. Changing language overall\nmust NOT change the component scores (they are separate fields).",
+        "operationId": "simulate_api_v1_simulate_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Simulate"
+      }
+    }
+  }
+}
