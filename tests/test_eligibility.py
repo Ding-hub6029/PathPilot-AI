@@ -87,8 +87,10 @@ def test_nus_ordinary_met_case():
     assert status_of(results, "nus-language") == "MET"
     assert status_of(results, "nus-academic") == "MET"
     assert status_of(results, "nus-fee") == "MET"
-    # GRE/GMAT missing is UNKNOWN, never NOT_MET; components UNKNOWN too.
+    # GRE/GMAT missing is UNKNOWN, never NOT_MET; IELTS components are
+    # NOT_APPLICABLE (no component minimum exists).
     assert status_of(results, "nus-gre-gmat") == "UNKNOWN"
+    assert status_of(results, "nus-language-components") == "NOT_APPLICABLE"
     assert overall_status(results) == "UNKNOWN"
 
 
@@ -124,6 +126,59 @@ def test_nus_missing_gre_is_unknown_not_not_met():
     results = evaluate(profile, BY_ID["nus-mcomp-cs"])
     assert status_of(results, "nus-gre-gmat") == "UNKNOWN"
     assert overall_status(results) != "NOT_MET"
+
+
+# --- Day 1 audit fixes: contextual offer + NUS routes + components ---------
+
+def test_ucl_contextual_alevel_is_unknown_not_not_met():
+    # A*AB with A* in Maths meets the official contextual offer; without
+    # evidence of contextual eligibility it is UNKNOWN, not a failure.
+    profile = StudentProfile(**ucl_profile(undergrad_profile={
+        "a_level_grades": ["A*", "A", "B"], "a_level_maths_grade": "A*"}))
+    results = evaluate(profile, BY_ID["ucl-cs-bsc-2026"])
+    assert status_of(results, "ucl-academic") == "UNKNOWN"
+    assert overall_status(results) == "UNKNOWN"
+
+
+def test_ucl_ib_contextual_is_unknown_not_not_met():
+    # IB 38 with HL Maths 7 is within the official contextual offer (IB 38);
+    # HL total points are not recorded, so it cannot be decided.
+    profile = StudentProfile(**ucl_profile(undergrad_profile={
+        "qualification_type": "ib", "ib_total": 38, "ib_hl_maths_grade": 7}))
+    results = evaluate(profile, BY_ID["ucl-cs-bsc-2026"])
+    assert status_of(results, "ucl-academic") == "UNKNOWN"
+
+
+def test_nus_related_bachelor_with_experience_is_unknown():
+    # The related-discipline route requires honours; a related bachelor's + 2y
+    # is not a listed route, so it must not be MET.
+    profile = StudentProfile(**nus_profile(masters_profile={
+        "degree_field": "related", "honours": False, "it_experience_years": 2}))
+    results = evaluate(profile, BY_ID["nus-mcomp-cs"])
+    assert status_of(results, "nus-academic") == "UNKNOWN"
+
+
+def test_nus_related_honours_with_experience_is_met():
+    profile = StudentProfile(**nus_profile(masters_profile={
+        "degree_field": "related", "honours": True, "it_experience_years": 2}))
+    results = evaluate(profile, BY_ID["nus-mcomp-cs"])
+    assert status_of(results, "nus-academic") == "MET"
+
+
+def test_nus_business_bachelor_with_experience_is_met():
+    # Business route accepts bachelor's OR honours + 2y.
+    profile = StudentProfile(**nus_profile(masters_profile={
+        "degree_field": "business", "honours": False, "it_experience_years": 2}))
+    results = evaluate(profile, BY_ID["nus-mcomp-cs"])
+    assert status_of(results, "nus-academic") == "MET"
+
+
+def test_nus_ielts_components_not_applicable():
+    # NUS states no IELTS component minimum, so there is no component
+    # requirement to check — NOT_APPLICABLE, not UNKNOWN.
+    profile = StudentProfile(**nus_profile())
+    results = evaluate(profile, BY_ID["nus-mcomp-cs"])
+    assert status_of(results, "nus-language-components") == "NOT_APPLICABLE"
 
 
 # --- Determinism ------------------------------------------------------------
