@@ -10,6 +10,15 @@ schemas + tests + tracking docs + frontend (Next.js, 6 languages, wizard,
 results, simulation, evidence drawer) + live end-to-end verification.
 Pushed to the public GitHub repo on Day 1.
 
+Day 2 scope (complete 2026-11-25, not yet pushed): 8 real programmes
+(2 per UK/SG × UG/taught-masters cell) on data version `v2`, server-side
+`/explain`, wizard fields (IB/HL total, GCSE, test date, graduation status,
+residency incl. Singapore bands, degree class), `/programs` filtering +
+pagination, rate limiting, security headers, OpenAPI, Decimal money,
+traceability.csv, 138 i18n keys × 6 locales, evidence drawer, 79 tests
+passing, live verification green. Deployment is ready but not live — see
+`DEPLOY.md` (needs the user's Vercel OAuth + a backend host).
+
 ## Quick start (one command per service; run backend first)
 
 ```bash
@@ -39,7 +48,7 @@ cd frontend && npm install && npm run dev   # or: npm run build && npm start
 Next.js 14 + TypeScript + Tailwind. Pages: `/` (home), `/wizard`
 (track first, then target / academic / language / budget), `/results`,
 `/programs/[id]` (evidence drawer), `/report` (print + JSON export).
-Six locales (en, zh-CN, es, fr, pt-BR, ar; 98 keys each, checked by
+Six locales (en, zh-CN, es, fr, pt-BR, ar; 138 keys each, checked by
 `npm run build`), RTL for Arabic, compass-theme motion (navy/teal/amber),
 `prefers-reduced-motion` respected. The frontend proxies `/api/*` to the
 backend; if the backend is down it falls back to a clearly-labelled
@@ -49,13 +58,26 @@ offline evaluator — start the backend first for live results.
 
 ```bash
 .venv/bin/python -m pytest tests/ -v
-# real run 2026-11-24: 25 passed, 0 failed (19 original + 6 Day 1 audit-fix tests)
-cd frontend && npm run build   # real run 2026-11-24: pass (locale check + all routes)
+# real run 2026-11-25: 79 passed, 0 failed (25 Day 1 + 6 contract + 36 Day 2 + 12 v2)
+cd frontend && npm run build   # real run 2026-11-25: pass (locale check 6 x 138 keys + all routes)
 ```
 
 Live end-to-end (2026-11-24): backend :8000 + frontend :3000, all 6 pages
 HTTP 200, proxy `/api/match` + `/api/simulate` verified — IELTS writing 5.5
 → component NOT_MET; patch to 6.5 → MET with delta recorded.
+Live end-to-end (2026-11-25, Day 2): backend `v2` (8 programmes) + frontend
+:3000, all 8 pages 200 (incl. `/programs/imperial-comp-beng-2027` and
+`/programs/ntu-msai-2027`), proxy `/api/programs` returns 8 items `v2`,
+`/match` Imperial BEng (A*A*A + IELTS 7.0 → academic/language MET,
+TMUA UNKNOWN) and NTU MSAI (honours CS + IELTS 7.0 → academic/language MET,
+GRE UNKNOWN), `/simulate` delta verified, forged `/explain` → 422.
+
+## Deploy preview
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Ding-hub6029/PathPilot-AI)
+
+Not live yet: deployment needs the user's Vercel OAuth authorisation and a
+backend host (Railway/Render free tier). Full steps in `DEPLOY.md`.
 
 ## API (all under `/api/v1`)
 

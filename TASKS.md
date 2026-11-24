@@ -33,17 +33,29 @@ curl -s http://127.0.0.1:8000/api/v1/health
 | D1-11 | Fix frontend source URLs (NUS fees `/pg/mis/` → `/pg/mcs/`; UCL pages → verified `-2026` URL; English → UCL Level 1 page; fix A-level excerpt) | D1-02 | `frontend/src/lib/programs.ts` | pass |
 | D1-12 | Live end-to-end verification: backend + frontend production build, all pages 200, proxy /api/match + /api/simulate | D1-10, D1-11 | this file + `frontend/VERIFICATION.md` (integration note) | pass |
 
+## Day 2 — frontend (this agent, 2026-11-25)
+
+| ID | Task | Depends on | Artefacts | Status |
+|---|---|---|---|---|
+| D2-F01 | Wizard Day-2 fields: IB total / HL Maths / HL total, GCSE English + Maths, residency (uk/overseas) + overseas-fee note (£46,700 vs £9,790), intake year, test date, graduation status, IT experience years; TOEFL kept separate from IELTS (both sendable) | D2-05 | `frontend/src/app/wizard/page.tsx`, `frontend/src/lib/types.ts` | pass |
+| D2-F02 | Data-driven programme list: GET /api/v1/programs with limit/cursor, backend-shape normaliser, local fallback; used by home, wizard, results, report, programme detail | D1-04, D2-06 | `frontend/src/lib/api.ts` (`fetchPrograms`, `fetchProgramById`, `normalizeApiProgram`), `frontend/src/lib/usePrograms.ts` | pass |
+| D2-F03 | Evidence drawer on programme detail + results: source label, clickable official URL, excerpt (labelled English-only), verified date, intake applicability; works for API-loaded programmes, unmatched evidence ids shown as unavailable | D2-05 | `frontend/src/components/EvidenceDrawer.tsx`, `frontend/src/app/programs/[id]/page.tsx`, `frontend/src/app/results/page.tsx` | pass |
+| D2-F04 | i18n: 28 new keys in all 6 locales (98 → 126 keys); locale check passes; default language stays en per DECISIONS #43, no browser detection | D2-07 | `frontend/messages/*.json` | pass (Day 2 integration, 2026-11-25: +12 keys — degree class + 5 options, masters maths grade, 5 SG residency options — 126 → 138 keys × 6 locales; `npm run build` locale check passes) |
+| D2-F05 | Live verification: build pass, all 6 pages 200, proxy /api/programs + /api/match + /api/simulate verified, incl. new-fields profiles | D2-F01–D2-F04 | `frontend/VERIFICATION.md` (Day 2 section) | pass |
+
+Notes (superseded 2026-11-25, Day 2 integration): `~/workspace/day2_courses.json` was merged into `data/versions/v2/` (8 programmes, 72 facts, 29 sources, 25 unknowns) and the 6 new courses ARE wired in — `frontend/src/lib/programs.ts` carries all 8 entries as the offline fallback and the API serves v2. The offline evaluator (`evaluateLocal` in `frontend/src/lib/api.ts`) now mirrors the new Day-2 rules (IB/HL total, GCSE, TOEFL date split, residency fees, all 6 new programmes) per DECISIONS #64.
+
 ## Day 2–3 (not this agent's scope)
 
 | ID | Task | Depends on | Status |
 |---|---|---|---|
 | D2-01 | Frontend (another agent owns `frontend/`) — 6-language framework, UI copy | D1-04 | pass |
-| D2-02 | GitHub repository creation + push (user's GitHub access, public repo) | D1-09 | pass (pushed 2026-11-24 ~13:22 after the user selected PathPilot-AI in the App installation; 11 batches, 65 files, HEAD ccf8aba, 14 commits — verified on the repo page; the 2026-11-24 audit fixes still need a push) |
-| D2-03 | Local demo recording / deployment only if needed | D1-09 | todo |
-| D2-04 | /explain must recompute server-side (spec Ch12), not accept a client-supplied Evaluation — forged KNOWN_MINIMUMS_MET demonstrated live in the Day 1 audit | D1-04 | todo (Day 2 API fix; endpoint unused by the frontend today) |
-| D2-05 | Wizard/engine fields missing from Day 1: IB total + HL Maths, IT experience years, intake year, test date, graduation status, residency/domicile, GCSEs, HL total points; adapter must not silently drop TOEFL when IELTS fields are present | D1-05 | todo (Day 2; engine already supports IB + experience) |
-| D2-06 | /programs filtering + pagination, /profile/validate full shape, rate limiting + security headers + OpenAPI, Decimal for money, traceability.csv, evidence translations | D1-04 | todo (Day 2, before the public preview link goes live) |
-| D2-07 | Real AI provider call (FR06) or explicit P0 deferral; browser-language first-visit default (spec FR11) once the user decides the default language | D1-06 | todo (Day 2; user decision open on the default language) |
+| D2-02 | GitHub repository creation + push (user's GitHub access, public repo) | D1-09 | pass (pushed 2026-11-24 ~13:22, 11 batches, 65 files, HEAD ccf8aba; Day 1 audit fixes pushed 2026-11-25 00:22–00:25 in 6 batches + README fix, HEAD 692950a, verified 0 local/repo differences) |
+| D2-03 | Local demo recording / deployment only if needed | D1-09 | blocked — user action needed (Day 2, 2026-11-25: app is deploy-ready — `DEPLOY.md`, `backend/Dockerfile`, env-driven `API_BASE_URL`, Vercel deploy button in README — but no public link: Vercel connector reports `not_connected`, no host account exists; needs the user's Vercel OAuth authorisation + a Railway/Render backend host. No account created, no money spent.) |
+| D2-04 | /explain must recompute server-side (spec Ch12), not accept a client-supplied Evaluation — forged KNOWN_MINIMUMS_MET demonstrated live in the Day 1 audit | D1-04 | pass (Day 2, 2026-11-25: new shape {profile, program_ids, locale}, nested or flat profile; old {evaluation} shape returns 422 EXPLAIN_REQUIRES_PROFILE; verified live + tests/test_day2.py::test_explain_forged_evaluation_422, test_explain_recomputes_from_profile) |
+| D2-05 | Wizard/engine fields missing from Day 1: IB total + HL Maths, IT experience years, intake year, test date, graduation status, residency/domicile, GCSEs, HL total points; adapter must not silently drop TOEFL when IELTS fields are present | D1-05 | pass (Day 2, 2026-11-25: backend schemas + adapter map all fields, IELTS + TOEFL both passed through; wizard has IB total/HL Maths/HL total, GCSE English/Maths, test date, graduation status, IT experience years, intake year, residency incl. SG bands, degree class + masters maths grade; UCL TOEFL Jan 2026 scale split fixed via test date; 6 new v2 evaluators in backend/domain/eligibility.py; offline evaluator mirrors them in frontend/src/lib/api.ts) |
+| D2-06 | /programs filtering + pagination, /profile/validate full shape, rate limiting + security headers + OpenAPI, Decimal for money, traceability.csv, evidence translations | D1-04 | pass (Day 2, 2026-11-25: filtering + cursor pagination, validate returns {valid, application_track, normalized_profile, warnings, field_errors}, 60/min + 10/min explain rate limits, security headers, docs/openapi.json generated, Budget.amount Decimal, data/versions/v2/traceability.csv generated; evidence translations NOT done — excerpts labelled English-only per DECISIONS #35; total 79 passed) |
+| D2-07 | Real AI provider call (FR06) or explicit P0 deferral; browser-language first-visit default (spec FR11) | D1-06 | pass (Day 2: default language DECIDED — English, first-open, no browser detection, DECISIONS #41/#54; AI provider explicitly deferred, DECISIONS #61 — no key, no spend authorisation, rules/template mode with citation-checked explain) |
 
 ## Test result (real run, 2026-11-24)
 
@@ -51,3 +63,17 @@ Command: `.venv/bin/python -m pytest tests/ -v`
 Result: **25 passed, 0 failed** (19 original + 6 Day 1 audit-fix tests; pytest 8.3.4, Python 3.12.3, re-run 2026-11-24 after the audit fixes).
 Frontend: `npm run build` **pass** (locale check 6×98 keys, all routes).
 Live: backend :8000 + frontend :3000, all 6 pages 200, proxy `/api/match` and `/api/simulate` verified (writing 5.5 → NOT_MET; patch to 6.5 → MET, delta recorded). Audit fixes re-verified live 2026-11-24: NUS related-bachelor's + 2y → UNKNOWN (was false MET), UCL contextual A*AB → UNKNOWN (was NOT_MET), NUS IELTS components → NOT_APPLICABLE.
+
+## Test result (real run, 2026-11-25, Day 2 backend)
+
+Command: `.venv/bin/python -m pytest tests/ -q`
+Result: **67 passed, 0 failed** (25 Day 1 + 6 contract + 36 new Day 2 in tests/test_day2.py; pytest 8.3.4, Python 3.12.3). No Day 1 test expectations changed — the IB HL-total change (DECISIONS #44) had no Day 1 test asserting IB MET without an HL total.
+Live: backend :8000 restarted with Day 2 code, curl /api/v1/health ok (data_version v1, 2 programs), /api/v1/programs?country=GB returns UCL only, /api/v1/openapi.json + /openapi.json + /docs all 200, security headers present on every response, forged /explain returns 422 EXPLAIN_REQUIRES_PROFILE, real /explain recomputes (writing 5.5 → NOT_MET).
+
+## Test result (real run, 2026-11-25, Day 2 final)
+
+Command: `.venv/bin/python -m pytest tests/ -q`
+Result: **79 passed, 0 failed** (25 Day 1 + 6 contract + 36 Day 2 + 12 v2 in tests/test_day2_v2.py; pytest 8.3.4, Python 3.12.3, 1 anyio deprecation warning). No Day 1 audit-fix regression.
+Frontend: `npm run build` **pass** (locale check 6 × 138 keys, all routes).
+Live: backend :8000 restarted with Day 2 v2 code — `GET /api/v1/health` → `{"status":"ok","data_version":"v2","programs":8}`; `GET /api/v1/programs?limit=20` → 8 items; frontend :3000 — all 8 pages 200 (`/`, `/wizard`, `/results`, `/programs/ucl-cs-bsc-2026`, `/programs/nus-mcomp-cs`, `/programs/imperial-comp-beng-2027`, `/programs/ntu-msai-2027`, `/report`); proxy `/api/programs` → 8 items v2; `/api/match` Imperial BEng (A*A*A + IELTS 7.0 → academic/language MET, TMUA UNKNOWN) and NTU MSAI (honours CS + IELTS 7.0 → academic/language MET, GRE UNKNOWN); `/api/simulate` IELTS writing 5.5 → 6.5 delta `ucl-ielts-components NOT_MET → MET`; forged `/explain` → 422; real `/explain` recomputes (writing 5.5 → NOT_MET); security headers present on every response.
+Deployment: NOT live — blocked on the user's Vercel OAuth + backend host; see D2-03 and `DEPLOY.md`.

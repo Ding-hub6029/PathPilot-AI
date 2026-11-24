@@ -34,11 +34,24 @@ def template_explanation(evaluation: Evaluation) -> str:
 
 
 def explain(evaluation: Evaluation, provider: ProviderAdapter | None = None) -> str:
+    text, _status = explain_with_status(evaluation, provider)
+    return text
+
+
+def explain_with_status(evaluation: Evaluation,
+                         provider: ProviderAdapter | None = None) -> tuple[str, str]:
+    """Template explanation plus the honest ai_status.
+
+    If no provider is configured, or a configured provider fails/times out,
+    the result is the template text with ai_status="unavailable" — the rule
+    results are always kept (spec FR06/NFR02: model failure never loses the
+    rules). Callers must use this, not explain(), when they report ai_status.
+    """
     provider = provider or ProviderAdapter()
     if not provider.available:
-        return template_explanation(evaluation)
+        return template_explanation(evaluation), "unavailable"
     try:
-        # No provider is wired in on Day 1; generate() raises and we fall back.
-        return provider.generate(template_explanation(evaluation))
+        # No provider is wired in on Day 2; generate() raises and we fall back.
+        return provider.generate(template_explanation(evaluation)), "available"
     except Exception:
-        return template_explanation(evaluation)
+        return template_explanation(evaluation), "unavailable"
