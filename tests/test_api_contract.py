@@ -63,8 +63,8 @@ def test_match_flat_pg_sample():
     assert rules["nus-academic"]["status"] == "MET"
     assert rules["nus-gre-gmat"]["status"] == "MET"
     assert rules["nus-fee"]["status"] == "MET"
-    # NUS states no IELTS component minimum.
-    assert rules["nus-language-components"]["status"] == "UNKNOWN"
+    # NUS states no IELTS component minimum, so the rule is NOT_APPLICABLE.
+    assert rules["nus-language-components"]["status"] == "NOT_APPLICABLE"
 
 
 def test_match_flat_track_mismatch_is_per_program():

@@ -23,7 +23,12 @@ function alevelMeets(alevels: string | undefined, maths: string | undefined): Ru
   const required = [6, 6, 5]; // A*, A*, A
   const top = grades.map(gradeRank).sort((a, b) => b - a);
   const mathsOk = gradeRank(maths) >= 6;
-  return required.every((r, i) => top[i] >= r) && mathsOk ? 'MET' : 'NOT_MET';
+  if (required.every((r, i) => top[i] >= r) && mathsOk) return 'MET';
+  // Contextual offer A*AB with A* in Maths is a real alternative route;
+  // without evidence of contextual eligibility it is UNKNOWN, not a failure.
+  const contextual = [6, 5, 4]; // A*, A, B
+  if (contextual.every((r, i) => top[i] >= r) && mathsOk) return 'UNKNOWN';
+  return 'NOT_MET';
 }
 
 export function evaluateLocal(profile: Profile, programIds: string[]): MatchResponse {
@@ -39,10 +44,10 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
     if (p.id === 'ucl-cs-bsc-2026') {
       const a = alevelMeets(profile.alevels, profile.mathsGrade);
       rules.push({
-        ruleId: 'ucl-alevel', status: a, observed: profile.alevels ? `${profile.alevels} (Maths ${profile.mathsGrade || '?'})` : 'Not provided',
+        ruleId: 'ucl-academic', status: a, observed: profile.alevels ? `${profile.alevels} (Maths ${profile.mathsGrade || '?'})` : 'Not provided',
         expected: "A*A*A with A* in Maths/Further Maths", evidenceIds: ['ucl-cs-entry'],
-        reasonCode: a === 'UNKNOWN' ? 'MISSING_GRADES' : a === 'MET' ? 'GRADES_MEET' : 'GRADES_BELOW',
-        unknownReason: a === 'UNKNOWN' ? 'A-level grades or Maths grade not provided' : undefined,
+        reasonCode: a === 'UNKNOWN' ? (profile.alevels && profile.mathsGrade ? 'GRADES_CONTEXTUAL' : 'MISSING_GRADES') : a === 'MET' ? 'GRADES_MEET' : 'GRADES_BELOW',
+        unknownReason: a === 'UNKNOWN' ? (profile.alevels && profile.mathsGrade ? 'Grades meet the UCL contextual offer (A*AB) but contextual eligibility is not confirmed' : 'A-level grades or Maths grade not provided') : undefined,
       });
       const ov = num(profile.ieltsOverall);
       rules.push({
@@ -61,9 +66,18 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
         reasonCode: compStatus === 'UNKNOWN' ? 'MISSING_SCORE' : compStatus === 'MET' ? 'SCORE_MEETS' : 'SCORE_BELOW',
         unknownReason: compStatus === 'UNKNOWN' ? 'One or more IELTS component scores not provided' : undefined,
       });
+      // TARA is required for the 2026 cycle with no stated threshold, so the
+      // offline evaluator can never confirm it — same as the backend.
+      rules.push({
+        ruleId: 'ucl-tara', status: 'UNKNOWN',
+        observed: 'TARA required for 2026 cycle; no threshold stated',
+        expected: 'TARA required (no score threshold stated)', evidenceIds: ['ucl-cs-entry'],
+        reasonCode: 'MISSING_SCORE',
+        unknownReason: 'TARA is required but no score threshold is stated on the page',
+      });
       const b = num(profile.budget);
       rules.push({
-        ruleId: 'ucl-budget', status: b === null ? 'UNKNOWN' : b >= 46700 ? 'MET' : 'NOT_MET',
+        ruleId: 'ucl-fee', status: b === null ? 'UNKNOWN' : b >= 46700 ? 'MET' : 'NOT_MET',
         observed: b === null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${b}/year`,
         expected: 'GBP 46,700/year', evidenceIds: ['ucl-cs-fees'],
         reasonCode: b === null ? 'MISSING_BUDGET' : b >= 46700 ? 'BUDGET_COVERS' : 'BUDGET_BELOW',
@@ -74,7 +88,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       const deg = (profile.degree || '').toLowerCase();
       const degStatus: RuleResult['status'] = !profile.degree ? 'UNKNOWN' : /comput|computer science|cs\b|software|information/.test(deg) ? 'MET' : 'UNKNOWN';
       rules.push({
-        ruleId: 'nus-degree', status: degStatus,
+        ruleId: 'nus-academic', status: degStatus,
         observed: profile.degree || 'Not provided',
         expected: 'Good honours degree in computing or related discipline', evidenceIds: ['nus-mcomp-admissions'],
         reasonCode: degStatus === 'MET' ? 'DEGREE_MATCHES' : 'DEGREE_UNVERIFIED',
@@ -84,26 +98,39 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       const tf = num(profile.toefl);
       const eng: RuleResult['status'] = ov !== null ? (ov >= 6.0 ? 'MET' : 'NOT_MET') : tf !== null ? (tf >= 90 ? 'MET' : 'NOT_MET') : 'UNKNOWN';
       rules.push({
-        ruleId: 'nus-english', status: eng,
+        ruleId: 'nus-language', status: eng,
         observed: ov !== null ? `IELTS overall ${ov}` : tf !== null ? `TOEFL iBT ${tf}` : 'Not provided',
         expected: 'IELTS min 6.0 overall (no component minimum stated) or TOEFL iBT min 90', evidenceIds: ['nus-mcomp-admissions'],
         reasonCode: eng === 'UNKNOWN' ? 'MISSING_SCORE' : eng === 'MET' ? 'SCORE_MEETS' : 'SCORE_BELOW',
         unknownReason: eng === 'UNKNOWN' ? 'No IELTS or TOEFL score provided' : undefined,
       });
+      // NUS states no IELTS component minimum, so there is no component
+      // requirement to check — NOT_APPLICABLE, not UNKNOWN.
+      const compStatus: RuleResult['status'] = ov !== null || tf !== null ? 'NOT_APPLICABLE' : 'UNKNOWN';
+      rules.push({
+        ruleId: 'nus-language-components', status: compStatus,
+        observed: compStatus === 'NOT_APPLICABLE' ? 'No component minimum stated by NUS' : 'Not provided',
+        expected: 'No component minimum stated (overall only)', evidenceIds: ['nus-mcomp-admissions'],
+        reasonCode: compStatus === 'UNKNOWN' ? 'MISSING_SCORE' : 'NOT_APPLICABLE',
+        unknownReason: compStatus === 'UNKNOWN' ? 'No IELTS or TOEFL score provided' : undefined,
+      });
       const gre = num(profile.greTotal), aw = num(profile.greAw), gmat = num(profile.gmat);
       const greOk = gre !== null && aw !== null && gre >= 320 && aw >= 3.5;
       const gmatOk = gmat !== null && gmat >= 650;
-      const greStatus: RuleResult['status'] = greOk || gmatOk ? 'MET' : gre === null && aw === null && gmat === null ? 'UNKNOWN' : 'NOT_MET';
+      // Backend rule: a missing or below-minimum GRE/GMAT is UNKNOWN, never
+      // NOT_MET — the admissions page states no rejection rule for it.
+      const greStatus: RuleResult['status'] = greOk || gmatOk ? 'MET' : 'UNKNOWN';
+      const greSupplied = gre !== null || aw !== null || gmat !== null;
       rules.push({
         ruleId: 'nus-gre-gmat', status: greStatus,
         observed: gre !== null ? `GRE ${gre} / AW ${aw ?? '–'}` : gmat !== null ? `GMAT ${gmat}` : 'Not provided',
         expected: 'GRE 320 + 3.5 analytical or GMAT 650+', evidenceIds: ['nus-mcomp-gre'],
-        reasonCode: greStatus === 'UNKNOWN' ? 'MISSING_SCORE' : greStatus === 'MET' ? 'SCORE_MEETS' : 'SCORE_BELOW',
-        unknownReason: greStatus === 'UNKNOWN' ? 'No GRE or GMAT score provided — requirement status cannot be confirmed from the profile alone' : undefined,
+        reasonCode: greStatus === 'MET' ? 'SCORE_MEETS' : 'MISSING_SCORE',
+        unknownReason: greStatus === 'UNKNOWN' ? (greSupplied ? 'GRE/GMAT supplied but below the stated minimums; the admissions page states no rejection rule for a low score' : 'No GRE or GMAT score provided — requirement status cannot be confirmed from the profile alone') : undefined,
       });
       const b = num(profile.budget);
       rules.push({
-        ruleId: 'nus-budget', status: b === null ? 'UNKNOWN' : b >= 69215 ? 'MET' : 'NOT_MET',
+        ruleId: 'nus-fee', status: b === null ? 'UNKNOWN' : b >= 69215 ? 'MET' : 'NOT_MET',
         observed: b === null ? 'Not provided' : `Budget SGD ${b} total`,
         expected: 'SGD 69,215 total incl. 9% GST', evidenceIds: ['nus-mcomp-fees'],
         reasonCode: b === null ? 'MISSING_BUDGET' : b >= 69215 ? 'BUDGET_COVERS' : 'BUDGET_BELOW',

@@ -74,7 +74,7 @@ export interface MatchResponse {
   live: boolean;
 }
 
-export const DATA_VERSION = 'pathpilot-day1-2026-11-24';
+export const DATA_VERSION = 'v1';
 export const RULES_VERSION = 'rules-v1-2026-11-24';
 
 export const emptyProfile: Profile = {
