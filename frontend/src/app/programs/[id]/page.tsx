@@ -10,6 +10,7 @@ import { RankingCards } from '../../../components/RankingCards';
 import { PROGRAM_RULES, ruleExpected } from '../../../lib/ruleText';
 import { formatDuration, formatFeeItems, formatIntake } from '../../../lib/format';
 import { institutionIdForProgram, displayCountryCode, displayProgramInstitutionName } from '../../../lib/rankings';
+import { displayProgramName } from '../../../lib/programs';
 
 export default function ProgramDetail({ params }: { params: { id: string } }) {
   const { t, tf, locale, profile } = useApp();
@@ -34,7 +35,7 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
   return (
     <div className="page-enter mx-auto max-w-4xl px-4 py-8">
       <Link href="/" className="btn-press inline-block rounded-full border border-navy/25 bg-white px-4 py-2 text-sm font-semibold">← {t('program.back')}</Link>
-      <h1 className="mt-4 text-2xl font-bold">{displayProgramInstitutionName(program.institution, locale)} — {program.officialName}</h1>
+      <h1 className="mt-4 text-2xl font-bold">{displayProgramInstitutionName(program.institution, locale)} — {displayProgramName(program, locale)}</h1>
       <p className="mt-1 text-navy/70">{displayCountryCode(program.country, program.country, t)} · {formatIntake(program, t)} · {formatDuration(program, t)}</p>
       <div className="mt-4 grid gap-3 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:grid-cols-3">
         <div><p className="text-sm font-semibold text-navy/60">{t('program.fee')}</p><p className="font-bold">{formatFeeItems(program, t, locale)}</p></div>

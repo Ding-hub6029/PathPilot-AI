@@ -410,5 +410,8 @@
   "wizard.trackTitle": "Primeiro, escolha sua trilha",
   "wizard.trackUndergrad": "Graduação",
   "wizard.trackUndergradDesc": "Bacharelados, ex.: BSc em Ciência da Computação",
-  "wizard.usaNote": "Nota: a Imperial publica um padrão de AP; a UCL não publica nenhuma equivalência americana para estes programas, por isso essa verificação será marcada como desconhecida."
+  "wizard.usaNote": "Nota: a Imperial publica um padrão de AP; a UCL não publica nenhuma equivalência americana para estes programas, por isso essa verificação será marcada como desconhecida.",
+  "pet.suggestNone": "{level} · {country}: ainda não há programas verificados nesta área; não sei.",
+  "pet.noProgrammesRank": "Diga qual universidade; só consulto o top 100 verificado.",
+  "pet.suggestUnknown2": "Inicie a verificação de elegibilidade para revisar seu perfil regra por regra."
 }

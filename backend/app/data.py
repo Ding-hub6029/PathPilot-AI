@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 
 DATA_VERSION = "v2"
@@ -122,3 +123,102 @@ RANKINGS: dict = load_rankings()
 
 # Loaded once at import / startup.
 PROGRAMS: dict[str, dict] = load_programs()
+
+
+# --- Expansion catalogue (Day 3, v3; see data/expansions/README.md) ---------
+# Listed, not matchable: expansion programmes carry verified facts and
+# sources but no engine rules yet, so /match, /explain and /simulate keep
+# using the 8 v2 programmes only. The merged file is data/expansions/
+# expansion.json; band files in collectors/ are merged into it only after
+# tools/validate_expansion.py prints OK. A missing file means "no
+# expansion data yet" (empty catalogue); invalid content refuses to start,
+# same as v2.
+EXPANSION_PATH = PROJECT_ROOT / "data" / "expansions" / "expansion.json"
+
+# v2 programmes have no institution_id field; this explicit mapping is the
+# only place that derives one (never guessed from the programme id).
+V2_PROGRAM_INSTITUTION: dict[str, str] = {
+    "ucl-cs-bsc-2026": "ucl",
+    "ucl-cs-msc-2027": "ucl",
+    "imperial-comp-beng-2027": "imperial",
+    "imperial-msc-computing-2027": "imperial",
+    "nus-mcomp-cs": "nus",
+    "nus-bcomp-cs-2027": "nus",
+    "ntu-bcomp-cs-2027": "ntu",
+    "ntu-msai-2027": "ntu",
+}
+
+_EXPANSION_FIELDS = {
+    "artificial-intelligence", "computer-engineering", "computer-science",
+    "computational-biology", "cybersecurity", "data-science",
+    "human-computer-interaction", "information-systems", "other-computing",
+    "robotics", "software-engineering",
+}
+_BANNED_RE = re.compile(r"u\.?\s?s\.?\s?news", re.IGNORECASE)
+
+
+def validate_expansion_data(data: dict, ranking_ids: set[str],
+                            v2_ids: set[str]) -> list[str]:
+    """Same core checks as tools/validate_expansion.py (kept in sync by
+    tests/test_expansion.py). Returns a list of error strings (empty = ok)."""
+    errors: list[str] = []
+    if _BANNED_RE.search(json.dumps(data, ensure_ascii=False)):
+        errors.append("expansion data contains a U.S. News reference (forbidden)")
+    if data.get("data_version") != "v3":
+        errors.append(f"expansion data_version must be 'v3', got {data.get('data_version')!r}")
+    source_ids = {s.get("id") for s in data.get("sources", [])}
+    for inst in data.get("institutions", []):
+        iid = inst.get("institution_id")
+        if iid not in ranking_ids:
+            errors.append(f"expansion institution {iid!r} not in v2 rankings")
+    seen: set[str] = set()
+    for prog in data.get("programs", []):
+        pid = prog.get("id")
+        if not pid:
+            errors.append("expansion program without id")
+            continue
+        if pid in seen:
+            errors.append(f"duplicate expansion program id {pid!r}")
+        seen.add(pid)
+        if pid in v2_ids:
+            errors.append(f"expansion program {pid!r} collides with a v2 program id")
+        if prog.get("synthetic") is True:
+            errors.append(f"expansion program {pid!r}: synthetic=true is forbidden")
+        if prog.get("matchable") is not False:
+            errors.append(f"expansion program {pid!r}: matchable must be false")
+        if prog.get("catalogue") != "expansion":
+            errors.append(f"expansion program {pid!r}: catalogue must be 'expansion'")
+        if prog.get("institution_id") not in ranking_ids:
+            errors.append(f"expansion program {pid!r}: institution_id not in v2 rankings")
+        if prog.get("field") not in _EXPANSION_FIELDS:
+            errors.append(f"expansion program {pid!r}: field not in the controlled list")
+        if not (prog.get("name_localized") or {}).get("zh-CN"):
+            errors.append(f"expansion program {pid!r}: name_localized.zh-CN is required")
+        for s in prog.get("sources", []):
+            if s.get("id") not in source_ids:
+                errors.append(f"expansion program {pid!r}: unknown source {s.get('id')!r}")
+        for req in prog.get("requirements", []):
+            for sid in req.get("source_ids", []):
+                if sid not in source_ids:
+                    errors.append(f"expansion program {pid!r}: requirement references unknown source {sid!r}")
+    return errors
+
+
+def load_expansion() -> dict:
+    if not EXPANSION_PATH.exists():
+        return {"data_version": "v3", "institutions": [], "programs": [],
+                "sources": [], "traceability": []}
+    data = _load_json(EXPANSION_PATH)
+    ranking_ids = {i["id"] for i in RANKINGS.get("institutions", [])}
+    v2_ids = set(PROGRAMS.keys())
+    errors = validate_expansion_data(data, ranking_ids, v2_ids)
+    if errors:
+        raise ValueError(f"expansion.json failed validation: {'; '.join(errors)}")
+    return data
+
+
+EXPANSION: dict = load_expansion()
+EXPANSION_INSTITUTIONS: dict[str, dict] = {
+    i["institution_id"]: i for i in EXPANSION.get("institutions", [])}
+EXPANSION_PROGRAMS: dict[str, dict] = {
+    p["id"]: p for p in EXPANSION.get("programs", [])}

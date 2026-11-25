@@ -31,7 +31,12 @@ See TASKS.md (Fix section) and DECISIONS.md #66–#80.
 
 Day 3 rankings (complete 2026-11-25, not yet pushed): `/rankings` page +
 ranking cards on programme detail pages + institution detail pages
-(`/institutions/[id]`). Three providers (QS 2027, THE 2027, ARWU 2026),
+(`/institutions/[id]`). The rankings page is a single-column vertical list,
+top-to-bottom by rank, each row showing the rank, the university crest
+(19 real crests from Wikimedia Commons, the rest an explicit navy monogram
+badge — never a fake crest; sources + licences in
+`docs/RANKINGS_SOURCES.md` §5), the localised name, the country and the
+provider ranks. Three providers (QS 2027, THE 2027, ARWU 2026),
 top 100 institutions each = 300 entries across 148 institutions, world
 ranks only, verified one by one from each provider's official source on
 2026-11-25 (`data/versions/v2/rankings.json`,
@@ -49,21 +54,31 @@ National Taiwan University and Korea University verified on their official
 sites; the 21 QS-only institutions without one fall back to English) and
 country names are localised in all 6 locales — in zh-CN the institution
 and programme pages show the Chinese names, everywhere else the English
-official names. The `/rankings` page itself still renders English names
-until the same display helpers are applied there (see DECISIONS.md #97).
+official names. Programme titles also follow the locale since 2026-11-25:
+each of the 8 programmes carries a `name_localized` display name (degree
+part, 5 locales incl. zh-CN, standard degree-name convention) while the
+official English title is never overwritten. The `/rankings` page renders
+localised names everywhere, including the country-filter dropdown
+(`displayCountryCode`).
 
 Day 3 desktop-pet assistant 小罗盘 (complete 2026-11-25, not yet pushed):
 a small round compass mascot floating bottom-end on every page; click opens
 a chat panel with at most 3 opening questions (undergraduate/masters,
-UK/Singapore, budget — one-tap quick replies), then a short route
+country, budget — one-tap quick replies), then a short route
 suggestion (max 3 lines, conclusion first, ONE evidence link) plus
 direct next-step buttons (start eligibility check, view programme).
+The country question is data-driven from the verified catalogue (the
+product is global, not UK/Singapore only); a country with no verified
+programmes yet gets an honest "not in the catalogue yet" answer, never
+an invented route. All panel text follows the current locale — switching
+locale mid-conversation re-renders (and re-fetches live answers) in the
+new language, with no stale-language text.
 Rules/template mode only — no model is connected (`ai_status=unavailable`,
 panel says so); unknown stays unknown, no admission probabilities, no
 personal data collected. Free text answers programme fee / IELTS /
 deadline questions and rank lookups from the verified catalogue only.
-125 tests passing, 386 i18n keys × 6 locales, `npm run build` pass.
-See TASKS.md (pet section) and DECISIONS.md #93–#96.
+146 tests passing, 415 i18n keys × 6 locales, `npm run build` pass.
+See TASKS.md (pet section) and DECISIONS.md #93–#96, #99.
 
 ## Quick start (one command per service; run backend first)
 
@@ -144,7 +159,9 @@ backend host (Railway/Render free tier). Full steps in `DEPLOY.md`.
 | Endpoint | Purpose |
 |---|---|
 | `GET /health`, `GET /ready` | Liveness / readiness (`ai_status` included) |
-| `GET /programs`, `GET /programs/{id}` | The 8 verified real programmes (no fixtures) |
+| `GET /programs`, `GET /programs/{id}` | The 8 verified real programmes (no fixtures); `?institution=`, `?field=`, `?catalogue=v2|expansion|all` (default v2, byte-identical) |
+| `GET /institutions`, `GET /institutions/{id}` | All 148 ranking institutions (country/query filters + cursor pagination); detail = ranking record + stats profile (or null — never invented) + provider ranks + programmes (v2 matchable first, then expansion listed) |
+| `GET /institutions/{id}/rankings` | That institution's QS/THE/ARWU records |
 | `POST /assistant/suggest` | 小罗盘 3-question answer: degree + country + budget band -> route suggestion (max 3 lines, one evidence link, `ai_status=unavailable`) |
 | `POST /assistant/ask` | 小罗盘 free-text question: fee / IELTS / deadline / rank from verified data only; personal data refused, never echoed |
 | `POST /profile/validate` | Cross-track validation (422 `TRACK_MISMATCH` on mismatch) |

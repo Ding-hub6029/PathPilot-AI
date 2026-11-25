@@ -410,5 +410,8 @@
   "wizard.trackTitle": "D’abord, choisissez votre voie",
   "wizard.trackUndergrad": "Licence",
   "wizard.trackUndergradDesc": "Diplômes de licence, p. ex. BSc en informatique",
-  "wizard.usaNote": "Remarque : Imperial publie une norme AP ; UCL ne publie aucune équivalence américaine pour ces programmes, cette vérification sera donc marquée inconnue."
+  "wizard.usaNote": "Remarque : Imperial publie une norme AP ; UCL ne publie aucune équivalence américaine pour ces programmes, cette vérification sera donc marquée inconnue.",
+  "pet.suggestNone": "{level} · {country} : aucun programme vérifié dans cette voie pour l'instant ; je ne sais pas.",
+  "pet.noProgrammesRank": "Dites-moi quelle université ; je ne consulte que le top 100 vérifié.",
+  "pet.suggestUnknown2": "Lancez la vérification d'éligibilité pour revoir votre profil règle par règle."
 }

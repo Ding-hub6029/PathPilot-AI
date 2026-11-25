@@ -1,4 +1,5 @@
 import { Program, DATA_VERSION } from './types';
+import { displayProgramInstitutionName } from './rankings';
 
 // The Day-1 dataset (2 programmes) plus the 6 Day-2 programmes from
 // ~/workspace/day2_courses.json (researched 2026-11-24 from official
@@ -15,6 +16,7 @@ export const PROGRAMS: Program[] = [
     institution: 'University College London',
     institutionId: 'ucl',
     officialName: 'Computer Science BSc',
+    nameLocalized: {'zh-CN': '计算机科学理学学士', 'es': 'Grado en Ciencias de la Computación', 'fr': 'Licence en informatique', 'pt-BR': 'Bacharelado em Ciência da Computação', 'ar': 'بكالوريوس علوم الحاسوب'},
     country: 'GB',
     degreeLevel: 'undergraduate',
     subject: 'Computer Science',
@@ -38,6 +40,7 @@ export const PROGRAMS: Program[] = [
     institution: 'National University of Singapore',
     institutionId: 'nus',
     officialName: 'Master of Computing (Computer Science specialisation)',
+    nameLocalized: {'zh-CN': '计算机硕士（计算机科学方向）', 'es': 'Máster en Informática (especialización en Ciencias de la Computación)', 'fr': 'Master en informatique (spécialisation en informatique)', 'pt-BR': 'Mestrado em Computação (especialização em Ciência da Computação)', 'ar': 'ماجستير في الحوسبة (تخصص علوم الحاسوب)'},
     country: 'SG',
     degreeLevel: 'taught_masters',
     subject: 'Computer Science',
@@ -58,6 +61,7 @@ export const PROGRAMS: Program[] = [
     institution: 'Imperial College London',
     institutionId: 'imperial',
     officialName: 'Computing BEng',
+    nameLocalized: {'zh-CN': '计算机工程学士', 'es': 'Grado en Ingeniería Informática', 'fr': 'Licence en ingénierie informatique', 'pt-BR': 'Bacharelado em Engenharia da Computação', 'ar': 'بكالوريوس هندسة الحاسوب'},
     country: 'GB',
     degreeLevel: 'undergraduate',
     subject: 'Computer Science',
@@ -80,6 +84,7 @@ export const PROGRAMS: Program[] = [
     institution: 'Imperial College London',
     institutionId: 'imperial',
     officialName: 'Computing MSc',
+    nameLocalized: {'zh-CN': '计算机理学硕士', 'es': 'Máster en Informática', 'fr': 'Master en informatique', 'pt-BR': 'Mestrado em Computação', 'ar': 'ماجستير في الحاسوب'},
     country: 'GB',
     degreeLevel: 'taught_masters',
     subject: 'Computer Science',
@@ -100,6 +105,7 @@ export const PROGRAMS: Program[] = [
     institution: 'University College London',
     institutionId: 'ucl',
     officialName: 'Computer Science MSc',
+    nameLocalized: {'zh-CN': '计算机科学理学硕士', 'es': 'Máster en Ciencias de la Computación', 'fr': 'Master en informatique', 'pt-BR': 'Mestrado em Ciência da Computação', 'ar': 'ماجستير علوم الحاسوب'},
     country: 'GB',
     degreeLevel: 'taught_masters',
     subject: 'Computer Science',
@@ -120,6 +126,7 @@ export const PROGRAMS: Program[] = [
     institution: 'National University of Singapore',
     institutionId: 'nus',
     officialName: 'Bachelor of Computing (Computer Science)',
+    nameLocalized: {'zh-CN': '计算机学士（计算机科学）', 'es': 'Grado en Informática (Ciencias de la Computación)', 'fr': 'Licence en informatique (sciences informatiques)', 'pt-BR': 'Bacharelado em Computação (Ciência da Computação)', 'ar': 'بكالوريوس في الحوسبة (علوم الحاسوب)'},
     country: 'SG',
     degreeLevel: 'undergraduate',
     subject: 'Computer Science',
@@ -140,6 +147,7 @@ export const PROGRAMS: Program[] = [
     institution: 'Nanyang Technological University',
     institutionId: 'ntu',
     officialName: 'Bachelor of Computing (Hons) in Computer Science',
+    nameLocalized: {'zh-CN': '计算机学士（荣誉，计算机科学）', 'es': 'Grado con Honores en Informática (Ciencias de la Computación)', 'fr': 'Licence avec mention en informatique (sciences informatiques)', 'pt-BR': 'Bacharelado com Honras em Computação (Ciência da Computação)', 'ar': 'بكالوريوس مع مرتبة الشرف في الحوسبة (علوم الحاسوب)'},
     country: 'SG',
     degreeLevel: 'undergraduate',
     subject: 'Computer Science',
@@ -160,6 +168,7 @@ export const PROGRAMS: Program[] = [
     institution: 'Nanyang Technological University',
     institutionId: 'ntu',
     officialName: 'Master of Science in Artificial Intelligence (MSAI)',
+    nameLocalized: {'zh-CN': '人工智能理学硕士', 'es': 'Máster en Ciencias de la Inteligencia Artificial', 'fr': 'Master en sciences de l’intelligence artificielle', 'pt-BR': 'Mestrado em Ciências da Inteligência Artificial', 'ar': 'ماجستير العلوم في الذكاء الاصطناعي'},
     country: 'SG',
     degreeLevel: 'taught_masters',
     subject: 'Computer Science',
@@ -176,3 +185,20 @@ export const PROGRAMS: Program[] = [
     ],
   },
 ];
+
+/**
+ * Localised programme display names (presentation layer only).
+ * The degree part comes from Program.nameLocalized; the institution part
+ * reuses displayProgramInstitutionName() from lib/rankings.ts so the
+ * institution follows the same locale rule (zh-CN shows name_zh, other
+ * locales show the English official name). officialName is never
+ * overwritten; a locale without a nameLocalized entry falls back to it.
+ */
+
+export function displayProgramName(program: Program, locale: string): string {
+  return program.nameLocalized?.[locale] ?? program.officialName;
+}
+
+export function displayProgramTitle(program: Program, locale: string): string {
+  return `${displayProgramInstitutionName(program.institution, locale)} — ${displayProgramName(program, locale)}`;
+}

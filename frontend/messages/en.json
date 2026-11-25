@@ -410,5 +410,8 @@
   "wizard.trackTitle": "First, choose your track",
   "wizard.trackUndergrad": "Undergraduate",
   "wizard.trackUndergradDesc": "Bachelor's degrees, e.g. Computer Science BSc",
-  "wizard.usaNote": "Note: Imperial publishes an AP standard; UCL publishes no US equivalence for these programmes, so that check will be marked unknown."
+  "wizard.usaNote": "Note: Imperial publishes an AP standard; UCL publishes no US equivalence for these programmes, so that check will be marked unknown.",
+  "pet.suggestNone": "{level} · {country}: no verified programme in this track yet, so I don't know.",
+  "pet.noProgrammesRank": "Tell me which institution — I only look up the verified top 100.",
+  "pet.suggestUnknown2": "Start the eligibility check to go through your background rule by rule."
 }

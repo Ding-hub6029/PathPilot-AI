@@ -1,0 +1,185 @@
+// Crest manifest for the rankings page (Day 3).
+//
+// Real crests are freely-usable official logos from Wikimedia Commons:
+// the local copy in frontend/public/crests/ is used, and source_url is the
+// stable Commons file page (never a tokenised or expiring URL). Licences
+// were read from the Commons API (extmetadata LicenseShortName) on
+// 2026-11-25; every real crest below is Public domain, CC BY 3.0 or
+// CC BY-SA 3.0, i.e. redistribution is allowed. CC BY / CC BY-SA files
+// (Imperial, Cambridge) are attributed in docs/RANKINGS_SOURCES.md §5.
+// Where no freely-usable crest was found on Commons, the entry is an
+// explicit monogram fallback — never a fake crest or invented logo.
+// The monogram is rendered from the institution's official name by
+// monogramFor() in the theme colours (navy #0B1F3A, teal #0E7C7B,
+// amber #F2A541). No rank value, score or sort order lives here.
+
+export type CrestEntry =
+  | { src: string; source_url: string; licence: string }
+  | { monogram: true };
+
+export const CRESTS: Record<string, CrestEntry> = {
+  'aarhus-university': { monogram: true },
+  'adelaide-university': { monogram: true },
+  'australian-national-university': { monogram: true },
+  'boston-university': { monogram: true },
+  'brown-university': { monogram: true },
+  'california-institute-of-technology': { monogram: true },
+  'carnegie-mellon-university': { monogram: true },
+  'central-south-university': { monogram: true },
+  'charite-universitatsmedizin-berlin': { monogram: true },
+  'chinese-university-of-hong-kong': { src: '/crests/chinese-university-of-hong-kong.png', source_url: 'https://commons.wikimedia.org/wiki/File:Emblem_of_CU.png', licence: 'Public domain' },
+  'city-university-of-hong-kong': { monogram: true },
+  'columbia-university': { src: '/crests/columbia-university.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Columbia_University_Shield.svg', licence: 'Public domain' },
+  'cornell-university': { src: '/crests/cornell-university.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Cornell_University_seal.svg', licence: 'Public domain' },
+  'delft-university-of-technology': { monogram: true },
+  'duke-university': { monogram: true },
+  'durham-university': { monogram: true },
+  'ecole-polytechnique-federale-de-lausanne': { monogram: true },
+  'eth-zurich': { src: '/crests/eth-zurich.svg', source_url: 'https://commons.wikimedia.org/wiki/File:ETH_Zürich_Logo.svg', licence: 'Public domain' },
+  'freie-universitat-berlin': { monogram: true },
+  'fudan-university': { monogram: true },
+  'georgia-institute-of-technology': { monogram: true },
+  'ghent-university': { monogram: true },
+  'harbin-institute-of-technology': { monogram: true },
+  'harvard-university': { src: '/crests/harvard-university.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Harvard_University_shield.svg', licence: 'Public domain' },
+  'hebrew-university-of-jerusalem': { monogram: true },
+  'heidelberg-university': { monogram: true },
+  'hong-kong-polytechnic-university': { monogram: true },
+  'hong-kong-university-of-science-and-technology': { monogram: true },
+  'huazhong-university-of-science-and-technology': { monogram: true },
+  'humboldt-university-of-berlin': { monogram: true },
+  'imperial': { src: '/crests/imperial.png', source_url: 'https://commons.wikimedia.org/wiki/File:Arms_of_Imperial_College_London.svg', licence: 'CC BY 3.0' },
+  'institut-polytechnique-de-paris': { monogram: true },
+  'institute-of-science-tokyo': { monogram: true },
+  'johns-hopkins-university': { monogram: true },
+  'karolinska-institute': { monogram: true },
+  'king-fahd-university-of-petroleum-minerals': { monogram: true },
+  'king-s-college-london': { monogram: true },
+  'korea-advanced-institute-of-science-and-technology': { monogram: true },
+  'korea-university': { monogram: true },
+  'kth-royal-institute-of-technology': { monogram: true },
+  'ku-leuven': { monogram: true },
+  'kyoto-university': { monogram: true },
+  'leiden-university': { monogram: true },
+  'lmu-munich': { monogram: true },
+  'london-school-of-economics-and-political-science': { monogram: true },
+  'lund-university': { monogram: true },
+  'massachusetts-institute-of-technology': { src: '/crests/massachusetts-institute-of-technology.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Massachusetts_Institute_of_Technology_logo.svg', licence: 'Public domain' },
+  'mcgill-university': { monogram: true },
+  'michigan-state-university': { monogram: true },
+  'monash-university': { monogram: true },
+  'nanjing-university': { monogram: true },
+  'national-taiwan-university': { monogram: true },
+  'new-york-university': { monogram: true },
+  'northwestern-university': { monogram: true },
+  'ntu': { monogram: true },
+  'nus': { monogram: true },
+  'ohio-state-university': { monogram: true },
+  'osaka-university': { monogram: true },
+  'peking-university': { src: '/crests/peking-university.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Peking_University_seal.svg', licence: 'Public domain' },
+  'pennsylvania-state-university': { monogram: true },
+  'politecnico-di-milano': { monogram: true },
+  'princeton-university': { src: '/crests/princeton-university.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Princeton_University_Shield.svg', licence: 'Public domain' },
+  'purdue-university': { monogram: true },
+  'rockefeller-university': { monogram: true },
+  'rwth-aachen-university': { monogram: true },
+  'seoul-national-university': { monogram: true },
+  'shanghai-jiao-tong-university': { monogram: true },
+  'sichuan-university': { monogram: true },
+  'sorbonne-university': { monogram: true },
+  'southeast-university': { monogram: true },
+  'stanford-university': { src: '/crests/stanford-university.png', source_url: 'https://commons.wikimedia.org/wiki/File:Seal_of_Leland_Stanford_Junior_University.svg', licence: 'Public domain' },
+  'sun-yat-sen-university': { monogram: true },
+  'sungkyunkwan-university': { monogram: true },
+  'technical-university-of-munich': { monogram: true },
+  'tianjin-university': { monogram: true },
+  'trinity-college-dublin': { monogram: true },
+  'tsinghua-university': { src: '/crests/tsinghua-university.png', source_url: 'https://commons.wikimedia.org/wiki/File:Tsinghua_University_Logo.svg', licence: 'Public domain' },
+  'ucl': { monogram: true },
+  'universidad-de-buenos-aires': { monogram: true },
+  'universite-paris-cite': { monogram: true },
+  'universite-paris-saclay': { src: '/crests/universite-paris-saclay.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Logo_Université_Paris-Saclay_2019-12.svg', licence: 'Public domain' },
+  'universite-psl': { monogram: true },
+  'universiti-malaya': { monogram: true },
+  'university-of-alberta': { monogram: true },
+  'university-of-amsterdam': { monogram: true },
+  'university-of-auckland': { monogram: true },
+  'university-of-basel': { monogram: true },
+  'university-of-birmingham': { monogram: true },
+  'university-of-bonn': { monogram: true },
+  'university-of-bristol': { monogram: true },
+  'university-of-british-columbia': { monogram: true },
+  'university-of-california-berkeley': { src: '/crests/university-of-california-berkeley.png', source_url: 'https://commons.wikimedia.org/wiki/File:Seal_of_University_of_California,_Berkeley.svg', licence: 'Public domain' },
+  'university-of-california-davis': { monogram: true },
+  'university-of-california-irvine': { monogram: true },
+  'university-of-california-los-angeles': { src: '/crests/university-of-california-los-angeles.svg', source_url: 'https://commons.wikimedia.org/wiki/File:The_University_of_California_UCLA.svg', licence: 'Public domain' },
+  'university-of-california-san-diego': { src: '/crests/university-of-california-san-diego.png', source_url: 'https://commons.wikimedia.org/wiki/File:Seal_of_the_University_of_California,_San_Diego.svg', licence: 'Public domain' },
+  'university-of-california-san-francisco': { monogram: true },
+  'university-of-california-santa-barbara': { monogram: true },
+  'university-of-cambridge': { src: '/crests/university-of-cambridge.png', source_url: 'https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_the_University_of_Cambridge.svg', licence: 'CC BY-SA 3.0' },
+  'university-of-chicago': { monogram: true },
+  'university-of-colorado-boulder': { monogram: true },
+  'university-of-copenhagen': { monogram: true },
+  'university-of-edinburgh': { monogram: true },
+  'university-of-geneva': { monogram: true },
+  'university-of-glasgow': { monogram: true },
+  'university-of-groningen': { monogram: true },
+  'university-of-hong-kong': { monogram: true },
+  'university-of-illinois-urbana-champaign': { monogram: true },
+  'university-of-leeds': { monogram: true },
+  'university-of-manchester': { monogram: true },
+  'university-of-maryland-college-park': { monogram: true },
+  'university-of-melbourne': { monogram: true },
+  'university-of-michigan-ann-arbor': { monogram: true },
+  'university-of-minnesota-twin-cities': { monogram: true },
+  'university-of-new-south-wales': { monogram: true },
+  'university-of-north-carolina-at-chapel-hill': { monogram: true },
+  'university-of-nottingham': { monogram: true },
+  'university-of-oslo': { monogram: true },
+  'university-of-oxford': { src: '/crests/university-of-oxford.png', source_url: 'https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_the_University_of_Oxford.svg', licence: 'Public domain' },
+  'university-of-pennsylvania': { src: '/crests/university-of-pennsylvania.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Shield_of_the_University_of_Pennsylvania.svg', licence: 'Public domain' },
+  'university-of-queensland': { monogram: true },
+  'university-of-science-and-technology-of-china': { monogram: true },
+  'university-of-sheffield': { monogram: true },
+  'university-of-southern-california': { monogram: true },
+  'university-of-sydney': { monogram: true },
+  'university-of-technology-sydney': { monogram: true },
+  'university-of-texas-at-austin': { monogram: true },
+  'university-of-texas-md-anderson-cancer-center': { monogram: true },
+  'university-of-texas-southwestern-medical-center': { monogram: true },
+  'university-of-tokyo': { monogram: true },
+  'university-of-toronto': { monogram: true },
+  'university-of-vienna': { monogram: true },
+  'university-of-warwick': { monogram: true },
+  'university-of-washington': { monogram: true },
+  'university-of-western-australia': { monogram: true },
+  'university-of-wisconsin-madison': { monogram: true },
+  'university-of-zurich': { monogram: true },
+  'uppsala-university': { monogram: true },
+  'utrecht-university': { monogram: true },
+  'vanderbilt-university': { monogram: true },
+  'wageningen-university-research': { monogram: true },
+  'washington-university-in-st-louis': { monogram: true },
+  'weizmann-institute-of-science': { monogram: true },
+  'wuhan-university': { monogram: true },
+  'xi-an-jiaotong-university': { monogram: true },
+  'yale-university': { src: '/crests/yale-university.svg', source_url: 'https://commons.wikimedia.org/wiki/File:Yale_University_logo.svg', licence: 'Public domain' },
+  'yonsei-university': { monogram: true },
+  'zhejiang-university': { monogram: true },
+};
+
+/** Crest for an institution id; unknown ids fall back to a monogram. */
+export function crestFor(institutionId: string): CrestEntry {
+  return CRESTS[institutionId] ?? { monogram: true };
+}
+
+/**
+ * Monogram letters for the fallback badge: first letters of the first
+ * two words of the official name, ignoring a leading 'The'.
+ * e.g. 'University of Oxford' -> 'UO', 'Harvard University' -> 'HU'.
+ */
+export function monogramFor(officialName: string): string {
+  const words = officialName.replace(/^The\s+/i, '').split(/[\s\u2013\u2014-]+/).filter(Boolean);
+  const letters = words.slice(0, 2).map((w) => w[0] ?? '').join('');
+  return letters.toUpperCase() || '?';
+}

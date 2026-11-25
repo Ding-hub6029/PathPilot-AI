@@ -1,10 +1,11 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useApp } from '../lib/store';
+import { useApp, type Locale } from '../lib/store';
 import { fetchJson } from '../lib/api';
-import { PROGRAMS } from '../lib/programs';
+import { PROGRAMS, displayProgramTitle } from '../lib/programs';
 import { RANKING_ENTRIES, RANKING_INSTITUTIONS } from '../lib/rankings';
+import enMessages from '../../messages/en.json';
 
 /**
  * 小罗盘 (Little Compass) — desktop-pet AI assistant (Day 3).
@@ -20,11 +21,62 @@ import { RANKING_ENTRIES, RANKING_INSTITUTIONS } from '../lib/rankings';
  * no admission probabilities, no personal data is ever asked for or kept.
  * The panel's open state is remembered in sessionStorage only
  * ('pp-pet-open'); closing it forgets it for the session.
+ *
+ * Locale safety (fix 2026-11-25): message state stores ONLY structured
+ * data — prompt keys, chosen values, the user's own verbatim text, and
+ * whole backend answer payloads plus the locale they were answered in
+ * (replyLocale). No rendered string (no t()/tf() result, no backend
+ * line) is ever stored as a bubble. Every visible string is produced
+ * at render time from the current locale: prompts/choices through t(),
+ * offline suggestions through t()/tf() + displayProgramTitle(), and
+ * live backend turns only when replyLocale === locale — otherwise the
+ * turn shows the thinking line and is re-fetched in the new locale
+ * (see the [locale, messages] effect below), so switching locale
+ * mid-conversation leaves no stale-language text anywhere in the panel.
+ *
+ * Global scope (2026-11-25): the product covers universities worldwide,
+ * not just the UK and Singapore. The country question (Q2) is therefore
+ * data-driven, not hardcoded: its options are the countries present in
+ * the verified data the frontend already ships (programmes' countries
+ * first, then the rankings institutions' countries), rendered with the
+ * existing `country.*` locale keys — the list follows automatically as
+ * new countries are added. Only GB/SG have verified programmes so far;
+ * picking any other country answers honestly after Q2 (no verified
+ * programme in that track yet, plus what the pet CAN do there: a rank
+ * lookup or the eligibility check) and never asks a budget question
+ * whose answer would be discarded, never invents a programme or route.
  */
 
 type Degree = 'undergraduate' | 'taught_masters';
-type Country = 'GB' | 'SG';
+/** Any country code from the verified data; only GB/SG have verified
+ * programmes (and budget bands) so far. */
+type Country = string;
 type Band = 'low' | 'mid' | 'high';
+
+/** Countries the pet can ask about, derived from the verified data the
+ * frontend already ships — no country is hardcoded here and no new
+ * country or programme data is added. Programme countries first (they
+ * have verified routes), then every other country in the verified
+ * rankings data, sorted by English name. Codes without a `country.*`
+ * locale key are left out so a chip never renders a raw key. */
+const PET_COUNTRY_CODES: string[] = (() => {
+  const programmeCountries = [...new Set(PROGRAMS.map((p) => p.country))];
+  const rankingCountries = [...new Set(RANKING_INSTITUTIONS.map((i) => i.country))];
+  const withKey = [...new Set([...programmeCountries, ...rankingCountries])]
+    .filter((code) => `country.${code}` in enMessages);
+  const rest = withKey.filter((code) => !programmeCountries.includes(code));
+  rest.sort((a, b) => {
+    const nameA = (enMessages as Record<string, string>)[`country.${a}`] ?? a;
+    const nameB = (enMessages as Record<string, string>)[`country.${b}`] ?? b;
+    return nameA.localeCompare(nameB);
+  });
+  return [...programmeCountries.filter((code) => withKey.includes(code)), ...rest];
+})();
+
+/** True when the verified catalogue holds a programme in this country. */
+function hasVerifiedProgrammes(country: string): boolean {
+  return PROGRAMS.some((p) => p.country === country);
+}
 
 interface AssistantReply {
   lines: string[];
@@ -37,11 +89,39 @@ interface AssistantReply {
   next_steps?: { wizard?: string; program?: string | null; institution?: string | null };
 }
 
-interface ChatMsg {
-  role: 'pet' | 'user';
-  lines: string[];
-  reply?: AssistantReply;
-}
+/** One conversation turn, stored as structured data only. */
+type ChatTurn =
+  | { kind: 'prompt'; key: 'pet.greeting' | 'pet.q1' | 'pet.q2' | 'pet.q3' }
+  | { kind: 'choice'; step: 0 | 1 | 2; value: string; degree?: Degree; country?: Country }
+  | { kind: 'freeText'; text: string }
+  | {
+      kind: 'suggest';
+      degree: Degree; country: Country; band: Band;
+      /** Live backend payload + the locale it was answered in. */
+      reply: AssistantReply | null;
+      replyLocale: Locale | null;
+      /** True when the live call failed and the offline catalogue is used. */
+      offline: boolean;
+      offlineProgramId: string | null;
+      offlineEvidenceUrl: string | null;
+      offlineFee: { currency: string; amount: number; period: string } | null;
+      offlineFit: 'within' | 'above' | null;
+    }
+  | {
+      kind: 'ask';
+      message: string;
+      /** Live backend payload + the locale it was answered in. */
+      reply: AssistantReply | null;
+      replyLocale: Locale | null;
+      /** True when the live call failed and the offline catalogue is used. */
+      offline: boolean;
+      /** Offline rank lookup hit (locale-independent lines). */
+      offlineRankId: string | null;
+    }
+  | {
+      kind: 'noProgrammes';
+      degree: Degree; country: string;
+    };
 
 /** Budget-band ceilings, mirrored from backend/ai/assistant.py _BANDS.
  * GB bands are per-year GBP; SG UG bands are per-year SGD; SG TM bands
@@ -60,10 +140,11 @@ function money(n: number): string {
 /** Offline suggestion from the built-in catalogue (same bands as the
  * backend). Only GB (overseas fee item) and SG taught masters (total
  * fee item) carry a usable offline fee; SG undergraduate has no
- * without-grant fee in the offline list, so it honestly returns null. */
+ * without-grant fee in the offline list, so it honestly returns null.
+ * Returns structured data only — the programme name is rendered at
+ * render time via displayProgramTitle(), never stored as a string. */
 interface OfflineSuggestion {
   programId: string;
-  programName: string;
   evidenceUrl: string | null;
   fee: { currency: string; amount: number; period: string } | null;
   fit: 'within' | 'above';
@@ -87,7 +168,6 @@ function suggestOffline(degree: Degree, country: Country, band: Band): OfflineSu
   const fit = ceiling === null || item.amount <= ceiling ? 'within' : 'above';
   return {
     programId: picked.p.id,
-    programName: `${picked.p.institution} — ${picked.p.officialName}`,
     evidenceUrl: picked.p.sources[0]?.url ?? null,
     fee: { currency: item.currency, amount: item.amount, period: item.period },
     fit,
@@ -95,7 +175,9 @@ function suggestOffline(degree: Degree, country: Country, band: Band): OfflineSu
 }
 
 /** Offline rank lookup from the built-in 300 entries. Matches the same
- * short aliases the backend knows; anything else stays unknown. */
+ * short aliases the backend knows; anything else stays unknown. The
+ * lines it builds are locale-independent (official names, provider
+ * codes and rank numbers only), so they are safe to render as-is. */
 const OFFLINE_RANK_ALIASES: Record<string, string> = {
   ucl: 'ucl', '伦敦大学学院': 'ucl', imperial: 'imperial', '帝国理工': 'imperial',
   nus: 'nus', '新加坡国立': 'nus', ntu: 'ntu', '南洋理工': 'ntu',
@@ -160,17 +242,23 @@ export function CompassPet() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<{ degree?: Degree; country?: Country; budget?: Band }>({});
-  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [messages, setMessages] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [offline, setOffline] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  /** Bumped on every restart so late re-fetch responses are ignored. */
+  const convRef = useRef(0);
+  /** Indices of backend turns currently being re-fetched for a locale. */
+  const inFlightRef = useRef<Set<number>>(new Set());
 
   const greet = () => {
+    convRef.current += 1;
+    inFlightRef.current.clear();
     setMessages([
-      { role: 'pet', lines: [t('pet.greeting')] },
-      { role: 'pet', lines: [t('pet.q1')] },
+      { kind: 'prompt', key: 'pet.greeting' },
+      { kind: 'prompt', key: 'pet.q1' },
     ]);
     setStep(0);
     setAnswers({});
@@ -185,11 +273,67 @@ export function CompassPet() {
   useEffect(() => {
     if (open && messages.length === 0) greet();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open ]);
+  }, [open]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [messages, busy]);
+
+  /**
+   * Locale change: re-fetch every live backend-backed turn whose reply
+   * was answered in the old locale, in the new locale. While a turn
+   * awaits its fresh reply it renders the thinking line (see
+   * renderTurn), never the old-locale lines. A failed re-fetch falls
+   * back to the offline catalogue rendered in the new locale. The
+   * in-flight set stops duplicate fetches; replyLocale records the
+   * locale each reply was actually answered in, so a reply that lands
+   * after a further switch is re-fetched again instead of shown stale.
+   */
+  useEffect(() => {
+    messages.forEach((m, i) => {
+      if ((m.kind !== 'suggest' && m.kind !== 'ask') || !m.reply || m.replyLocale === locale) return;
+      if (inFlightRef.current.has(i)) return;
+      inFlightRef.current.add(i);
+      const conv = convRef.current;
+      const req = m.kind === 'suggest'
+        ? fetchJson<AssistantReply>('/api/assistant/suggest', {
+            method: 'POST',
+            body: JSON.stringify({ degree_level: m.degree, country: m.country, budget_band: m.band, locale }),
+          })
+        : fetchJson<AssistantReply>('/api/assistant/ask', {
+            method: 'POST',
+            body: JSON.stringify({ message: m.message, locale }),
+          });
+      req.then((fresh) => {
+        if (convRef.current !== conv) return;
+        setMessages((prev) => prev.map((x, j) => {
+          if (j !== i || (x.kind !== 'suggest' && x.kind !== 'ask')) return x;
+          return { ...x, reply: fresh, replyLocale: locale };
+        }));
+      }).catch(() => {
+        if (convRef.current !== conv) return;
+        setOffline(true);
+        setMessages((prev) => prev.map((x, j) => {
+          if (j !== i) return x;
+          if (x.kind === 'suggest') {
+            const off = suggestOffline(x.degree, x.country, x.band);
+            return {
+              ...x, reply: null, replyLocale: null, offline: true,
+              offlineProgramId: off?.programId ?? null,
+              offlineEvidenceUrl: off?.evidenceUrl ?? null,
+              offlineFee: off?.fee ?? null, offlineFit: off?.fit ?? null,
+            };
+          }
+          if (x.kind === 'ask') {
+            const rank = rankOffline(x.message);
+            return { ...x, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institution_id ?? null };
+          }
+          return x;
+        }));
+      }).finally(() => { inFlightRef.current.delete(i); });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale, messages]);
 
   const toggle = (next: boolean) => {
     setOpen(next);
@@ -200,38 +344,126 @@ export function CompassPet() {
     if (next) setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  const push = (msg: ChatMsg) => setMessages((prev) => [...prev, msg]);
+  const push = (msg: ChatTurn) => setMessages((prev) => [...prev, msg]);
+
+  /** Label for a stored quick-reply choice, localised at render time. */
+  const choiceLabel = (turn: Extract<ChatTurn, { kind: 'choice' }>): string => {
+    if (turn.step === 0) return t(turn.value === 'undergraduate' ? 'pet.q1ug' : 'pet.q1tm');
+    if (turn.step === 1) return t(`country.${turn.value}`);
+    if (turn.country === 'GB') {
+      return t(turn.value === 'low' ? 'pet.q3gbLow' : turn.value === 'mid' ? 'pet.q3gbMid' : 'pet.q3gbHigh');
+    }
+    if (turn.degree === 'undergraduate') {
+      return t(turn.value === 'low' ? 'pet.q3sgUgLow' : turn.value === 'mid' ? 'pet.q3sgUgMid' : 'pet.q3sgUgHigh');
+    }
+    return t(turn.value === 'low' ? 'pet.q3sgTmLow' : turn.value === 'mid' ? 'pet.q3sgTmMid' : 'pet.q3sgTmHigh');
+  };
+
+  /**
+   * Every visible string of one turn, produced at render time from the
+   * current locale. Backend lines are shown only when they were
+   * answered in the current locale; a stale reply renders the thinking
+   * line until its re-fetch lands (see the [locale, messages] effect).
+   */
+  const renderTurn = (turn: ChatTurn): {
+    lines: string[];
+    evidenceUrl?: string | null;
+    nextSteps?: { wizard?: string; program?: string | null; institution?: string | null };
+  } => {
+    switch (turn.kind) {
+      case 'prompt':
+        return { lines: [t(turn.key)] };
+      case 'choice':
+        return { lines: [choiceLabel(turn)] };
+      case 'freeText':
+        // The user's own words, verbatim — not a localised string.
+        return { lines: [turn.text] };
+      case 'noProgrammes': {
+        // Honest unknown, rendered at render time from the current
+        // locale (needs pet.suggestNone / pet.noProgrammesRank /
+        // pet.suggestUnknown2 — see the test file for the exact keys).
+        // No programme is invented; the pet offers what it CAN do in
+        // this country instead: a rank lookup, or the eligibility check.
+        const level = t(turn.degree === 'undergraduate' ? 'pet.q1ug' : 'pet.q1tm');
+        const countryName = t(`country.${turn.country}`);
+        return {
+          lines: [
+            tf('pet.suggestNone', { level, country: countryName }),
+            t('pet.noProgrammesRank'),
+            t('pet.suggestUnknown2'),
+          ],
+          nextSteps: { wizard: '/wizard' },
+        };
+      }
+      case 'suggest': {
+        if (turn.reply && turn.replyLocale === locale) {
+          return { lines: turn.reply.lines, evidenceUrl: turn.reply.evidence_url, nextSteps: turn.reply.next_steps };
+        }
+        if (turn.reply) return { lines: [t('pet.thinking')] };
+        if (turn.offline) {
+          if (!turn.offlineProgramId) return { lines: [t('pet.offline')] };
+          const program = PROGRAMS.find((p) => p.id === turn.offlineProgramId);
+          const lines = [
+            t('pet.offline'),
+            program ? displayProgramTitle(program, locale) : turn.offlineProgramId,
+          ];
+          if (turn.offlineFee) {
+            const fee = tf(turn.offlineFee.period === 'total' ? 'pet.feeTotal' : 'pet.feePerYear',
+              { currency: turn.offlineFee.currency, amount: money(turn.offlineFee.amount) });
+            lines.push(tf(turn.offlineFit === 'within' ? 'pet.feeWithin' : 'pet.feeAbove', { fee }));
+          }
+          return {
+            lines,
+            evidenceUrl: turn.offlineEvidenceUrl,
+            nextSteps: { wizard: '/wizard', program: `/programs/${turn.offlineProgramId}` },
+          };
+        }
+        return { lines: [t('pet.thinking')] };
+      }
+      case 'ask': {
+        if (turn.reply && turn.replyLocale === locale) {
+          return { lines: turn.reply.lines, evidenceUrl: turn.reply.evidence_url, nextSteps: turn.reply.next_steps };
+        }
+        if (turn.reply) return { lines: [t('pet.thinking')] };
+        if (turn.offline) {
+          const rank = rankOffline(turn.message);
+          if (rank) return { lines: rank.lines, evidenceUrl: rank.evidence_url, nextSteps: rank.next_steps };
+          return { lines: [t('pet.offline')] };
+        }
+        return { lines: [t('pet.thinking')] };
+      }
+    }
+  };
 
   const askSuggest = async (degree: Degree, country: Country, band: Band) => {
+    if (!hasVerifiedProgrammes(country)) {
+      // Defensive: the Q2 branch already answers this without calling
+      // the backend, so this is unreachable in the normal flow.
+      push({ kind: 'noProgrammes', degree, country });
+      return;
+    }
     setBusy(true);
+    const requestLocale = locale;
     try {
       const r = await fetchJson<AssistantReply>('/api/assistant/suggest', {
         method: 'POST',
-        body: JSON.stringify({ degree_level: degree, country, budget_band: band, locale }),
+        body: JSON.stringify({ degree_level: degree, country, budget_band: band, locale: requestLocale }),
       });
-      push({ role: 'pet', lines: r.lines, reply: r });
+      push({
+        kind: 'suggest', degree, country, band,
+        reply: r, replyLocale: requestLocale, offline: false,
+        offlineProgramId: null, offlineEvidenceUrl: null, offlineFee: null, offlineFit: null,
+      });
     } catch {
       setOffline(true);
-      const r = suggestOffline(degree, country, band);
-      if (r) {
-        const fee = r.fee
-          ? tf(r.fee.period === 'total' ? 'pet.feeTotal' : 'pet.feePerYear',
-               { currency: r.fee.currency, amount: money(r.fee.amount) })
-          : null;
-        const lines = [t('pet.offline'), r.programName];
-        if (fee) lines.push(tf(r.fit === 'within' ? 'pet.feeWithin' : 'pet.feeAbove', { fee }));
-        push({
-          role: 'pet',
-          lines,
-          reply: {
-            lines, program_id: r.programId, program_name: r.programName,
-            evidence_url: r.evidenceUrl, fee_fit: r.fit, ai_status: 'unavailable',
-            next_steps: { wizard: '/wizard', program: `/programs/${r.programId}` },
-          },
-        });
-      } else {
-        push({ role: 'pet', lines: [t('pet.offline')] });
-      }
+      const off = suggestOffline(degree, country, band);
+      push({
+        kind: 'suggest', degree, country, band,
+        reply: null, replyLocale: null, offline: true,
+        offlineProgramId: off?.programId ?? null,
+        offlineEvidenceUrl: off?.evidenceUrl ?? null,
+        offlineFee: off?.fee ?? null, offlineFit: off?.fit ?? null,
+      });
     } finally {
       setBusy(false);
     }
@@ -242,27 +474,29 @@ export function CompassPet() {
     if (step === 0) {
       const degree = value as Degree;
       setAnswers((a) => ({ ...a, degree }));
-      push({ role: 'user', lines: [value === 'undergraduate' ? t('pet.q1ug') : t('pet.q1tm')] });
-      push({ role: 'pet', lines: [t('pet.q2')] });
+      push({ kind: 'choice', step: 0, value });
+      push({ kind: 'prompt', key: 'pet.q2' });
       setStep(1);
     } else if (step === 1) {
-      const country = value as Country;
+      const country = value;
       setAnswers((a) => ({ ...a, country }));
-      push({ role: 'user', lines: [value === 'GB' ? t('pet.q2gb') : t('pet.q2sg')] });
-      push({ role: 'pet', lines: [t('pet.q3')] });
-      setStep(2);
+      push({ kind: 'choice', step: 1, value });
+      if (hasVerifiedProgrammes(country)) {
+        push({ kind: 'prompt', key: 'pet.q3' });
+        setStep(2);
+      } else {
+        // No verified programme in this country yet: say so honestly
+        // and stop asking — a budget question here would have nothing
+        // to decide, and no programme or route is ever invented.
+        push({ kind: 'noProgrammes', degree: answers.degree as Degree, country });
+        setStep(3);
+      }
     } else if (step === 2) {
       const band = value as Band;
       const degree = answers.degree as Degree;
       const country = answers.country as Country;
-      const label =
-        country === 'GB'
-          ? band === 'low' ? t('pet.q3gbLow') : band === 'mid' ? t('pet.q3gbMid') : t('pet.q3gbHigh')
-          : degree === 'undergraduate'
-            ? band === 'low' ? t('pet.q3sgUgLow') : band === 'mid' ? t('pet.q3sgUgMid') : t('pet.q3sgUgHigh')
-            : band === 'low' ? t('pet.q3sgTmLow') : band === 'mid' ? t('pet.q3sgTmMid') : t('pet.q3sgTmHigh');
       setAnswers((a) => ({ ...a, budget: band }));
-      push({ role: 'user', lines: [label] });
+      push({ kind: 'choice', step: 2, value, degree, country });
       setStep(3);
       void askSuggest(degree, country, band);
     }
@@ -272,20 +506,19 @@ export function CompassPet() {
     const text = input.trim();
     if (!text || busy) return;
     setInput('');
-    push({ role: 'user', lines: [text] });
+    push({ kind: 'freeText', text });
     setBusy(true);
+    const requestLocale = locale;
     try {
       const r = await fetchJson<AssistantReply>('/api/assistant/ask', {
         method: 'POST',
-        body: JSON.stringify({ message: text, locale }),
+        body: JSON.stringify({ message: text, locale: requestLocale }),
       });
-      push({ role: 'pet', lines: r.lines, reply: r });
+      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null });
     } catch {
       setOffline(true);
-      const isRank = /排名|rank|qs|泰晤士|软科|arwu|第几/i.test(text);
-      const r = isRank ? rankOffline(text) : null;
-      if (r) push({ role: 'pet', lines: r.lines, reply: r });
-      else push({ role: 'pet', lines: [t('pet.offline')] });
+      const rank = rankOffline(text);
+      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institution_id ?? null });
     } finally {
       setBusy(false);
     }
@@ -295,7 +528,7 @@ export function CompassPet() {
     step === 0
       ? [{ value: 'undergraduate', label: t('pet.q1ug') }, { value: 'taught_masters', label: t('pet.q1tm') }]
       : step === 1
-        ? [{ value: 'GB', label: t('pet.q2gb') }, { value: 'SG', label: t('pet.q2sg') }]
+        ? PET_COUNTRY_CODES.map((code) => ({ value: code, label: t(`country.${code}`) }))
         : step === 2
           ? answers.country === 'GB'
             ? [{ value: 'low', label: t('pet.q3gbLow') }, { value: 'mid', label: t('pet.q3gbMid') }, { value: 'high', label: t('pet.q3gbHigh') }]
@@ -332,37 +565,41 @@ export function CompassPet() {
             <button type="button" onClick={() => toggle(false)} aria-label={t('pet.close')} className="btn-press rounded-full px-2 py-1 text-base font-bold leading-none hover:bg-white/15">×</button>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto bg-paper p-3 text-sm">
-            {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${m.role === 'user' ? 'bg-teal text-white' : 'bg-white text-navy shadow-sm ring-1 ring-navy/5'}`}>
-                  {m.lines.filter(Boolean).map((line, j) => (
-                    <p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>
-                  ))}
-                  {m.reply?.evidence_url && (
-                    <a href={m.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
-                      {t('pet.evidence')} ↗
-                    </a>
-                  )}
-                  {m.reply?.next_steps && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <Link href={m.reply.next_steps.wizard ?? '/wizard'} onClick={() => toggle(false)} className="btn-press rounded-full bg-amber px-3 py-1.5 text-xs font-bold text-navy">
-                        {t('pet.ctaWizard')}
-                      </Link>
-                      {m.reply.next_steps.program && (
-                        <Link href={m.reply.next_steps.program} onClick={() => toggle(false)} className="btn-press rounded-full border border-navy/25 px-3 py-1.5 text-xs font-semibold text-navy">
-                          {t('pet.ctaProgram')}
+            {messages.map((m, i) => {
+              const rendered = renderTurn(m);
+              const isUser = m.kind === 'choice' || m.kind === 'freeText';
+              return (
+                <div key={i} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${isUser ? 'bg-teal text-white' : 'bg-white text-navy shadow-sm ring-1 ring-navy/5'}`}>
+                    {rendered.lines.filter(Boolean).map((line, j) => (
+                      <p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>
+                    ))}
+                    {rendered.evidenceUrl && (
+                      <a href={rendered.evidenceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
+                        {t('pet.evidence')} ↗
+                      </a>
+                    )}
+                    {rendered.nextSteps && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Link href={rendered.nextSteps.wizard ?? '/wizard'} onClick={() => toggle(false)} className="btn-press rounded-full bg-amber px-3 py-1.5 text-xs font-bold text-navy">
+                          {t('pet.ctaWizard')}
                         </Link>
-                      )}
-                      {m.reply.next_steps.institution && !m.reply.next_steps.program && (
-                        <Link href={m.reply.next_steps.institution} onClick={() => toggle(false)} className="btn-press rounded-full border border-navy/25 px-3 py-1.5 text-xs font-semibold text-navy">
-                          {t('pet.ctaInstitution')}
-                        </Link>
-                      )}
-                    </div>
-                  )}
+                        {rendered.nextSteps.program && (
+                          <Link href={rendered.nextSteps.program} onClick={() => toggle(false)} className="btn-press rounded-full border border-navy/25 px-3 py-1.5 text-xs font-semibold text-navy">
+                            {t('pet.ctaProgram')}
+                          </Link>
+                        )}
+                        {rendered.nextSteps.institution && !rendered.nextSteps.program && (
+                          <Link href={rendered.nextSteps.institution} onClick={() => toggle(false)} className="btn-press rounded-full border border-navy/25 px-3 py-1.5 text-xs font-semibold text-navy">
+                            {t('pet.ctaInstitution')}
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {busy && (
               <div className="flex justify-start">
                 <div className="rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">{t('pet.thinking')}</div>

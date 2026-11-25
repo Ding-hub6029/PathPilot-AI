@@ -1,0 +1,1 @@
+{"data_version":"v3","institutions":[],"notes":"Merged canonical expansion file. Band files in collectors/ are merged here only after tools/validate_expansion.py prints OK. v2 data is untouched; expansion programmes are listed, not matchable (see data/expansions/README.md).","programs":[],"sources":[],"traceability":[]}

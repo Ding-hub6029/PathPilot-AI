@@ -344,3 +344,111 @@ def test_country_locale_map_covers_all_countries():
     en = json.loads((root / "frontend" / "messages" / "en.json").read_text(encoding="utf-8"))
     for code, name in data_names.items():
         assert en[f"country.{code}"] == name, code
+
+
+# --- Rankings page: vertical list with crests (2026-11-25) ------------------
+# The /rankings page is a single-column vertical list (one <ol>, rows
+# top-to-bottom by rank) with a crest per row. The crest manifest is
+# frontend/src/lib/crests.ts; real crests are freely-usable Commons files
+# (Public domain / CC BY / CC BY-SA) stored locally under
+# frontend/public/crests/, everything else an explicit monogram fallback.
+# No rank value, score or sort order is changed by this (existing tests
+# above pin all 300 entries).
+import re
+from pathlib import Path
+
+CRESTS_TS = Path(__file__).resolve().parents[1] / "frontend" / "src" / "lib" / "crests.ts"
+CRESTS_DIR = Path(__file__).resolve().parents[1] / "frontend" / "public" / "crests"
+RANKINGS_PAGE = Path(__file__).resolve().parents[1] / "frontend" / "src" / "app" / "rankings" / "page.tsx"
+
+REAL_CREST_IDS = {
+    "harvard-university", "massachusetts-institute-of-technology",
+    "university-of-oxford", "imperial", "stanford-university",
+    "princeton-university", "university-of-cambridge",
+    "university-of-california-berkeley", "columbia-university",
+    "eth-zurich", "yale-university", "tsinghua-university",
+    "cornell-university", "peking-university",
+    "chinese-university-of-hong-kong", "universite-paris-saclay",
+    "university-of-california-los-angeles", "university-of-pennsylvania",
+    "university-of-california-san-diego",
+}
+
+MONOGRAM_TOP_IDS = {
+    # Top-20 by best rank (plus the four covered institutions) with no
+    # freely-usable Commons crest found on 2026-11-25: trademarked logos
+    # absent from Commons or held on Wikipedia under a non-free rationale.
+    "california-institute-of-technology", "ucl", "university-of-chicago",
+    "nus", "university-of-hong-kong", "ntu",
+}
+
+
+def _parse_crest_manifest():
+    text = CRESTS_TS.read_text(encoding="utf-8")
+    block = text.split("export const CRESTS", 1)[1].split("};", 1)[0]
+    real, mono = {}, set()
+    for m in re.finditer(
+            r"'([^']+)':\s*\{\s*src:\s*'([^']+)',\s*source_url:\s*'([^']+)',\s*licence:\s*'([^']+)'\s*\}",
+            block):
+        real[m.group(1)] = {"src": m.group(2), "source_url": m.group(3), "licence": m.group(4)}
+    for m in re.finditer(r"'([^']+)':\s*\{\s*monogram:\s*true\s*\}", block):
+        mono.add(m.group(1))
+    return real, mono
+
+
+def test_crest_manifest_covers_every_institution():
+    real, mono = _parse_crest_manifest()
+    ids = {i["id"] for i in RANKINGS["institutions"]}
+    assert len(ids) == 148
+    assert set(real) | mono == ids  # every institution resolves to one or the other
+    assert not (set(real) & mono)
+    assert set(real) == REAL_CREST_IDS
+    assert MONOGRAM_TOP_IDS <= mono
+    assert "imperial" in real  # covered institution with a real crest
+
+
+def test_crest_manifest_real_crests_have_source_and_licence():
+    real, _ = _parse_crest_manifest()
+    assert len(real) == 19
+    for inst_id, entry in real.items():
+        assert entry["src"].startswith("/crests/"), inst_id
+        assert entry["source_url"].startswith(
+            "https://commons.wikimedia.org/wiki/File:"), inst_id
+        assert entry["licence"] in {"Public domain", "CC BY 3.0", "CC BY-SA 3.0"}, inst_id
+        # No tokenised / expiring link anywhere in the manifest.
+        for value in entry.values():
+            assert "?" not in value and "utm_" not in value, (inst_id, value)
+            assert "token" not in value.lower() and "expires" not in value.lower(), (inst_id, value)
+
+
+def test_crest_local_files_exist_and_are_valid_images():
+    real, _ = _parse_crest_manifest()
+    for inst_id, entry in real.items():
+        local = CRESTS_DIR / entry["src"].removeprefix("/crests/")
+        assert local.is_file(), (inst_id, local)
+        data = local.read_bytes()
+        assert len(data) > 500, inst_id  # not an empty / error page
+        if local.suffix == ".svg":
+            assert data.lstrip().startswith((b"<svg", b"<?xml")), inst_id
+        elif local.suffix == ".png":
+            assert data.startswith(b"\x89PNG"), inst_id
+        else:  # pragma: no cover - no other formats are used
+            raise AssertionError(f"unexpected crest format for {inst_id}: {local.suffix}")
+
+
+def test_rankings_page_is_vertical_list_with_crests():
+    text = RANKINGS_PAGE.read_text(encoding="utf-8")
+    # Single-column vertical list, not the old 2-column card grid. The one
+    # remaining sm:grid-cols-2 is the provider-cards section above it.
+    assert "<ol" in text and "flex flex-col" in text
+    assert text.count("sm:grid-cols-2") == 1
+    assert "grid gap-3 sm:grid-cols-2" not in text.split("<ol")[1]
+    # Crests come from the manifest; monogram fallback uses the theme colours.
+    assert "from '../../lib/crests'" in text
+    assert "crestFor(inst.id)" in text and "monogramFor(inst.official_name)" in text
+    assert "#0B1F3A" in text
+    # Sort order is untouched: selected provider's rank, else best rank.
+    assert "Math.min(...visibleEntries.filter((e) => e.institution_id === a.id).map(rankValue))" in text
+    # Localised names / countries and the filters / compare still render.
+    assert "displayInstitutionName(inst, locale)" in text
+    assert "displayCountryName(inst, t)" in text
+    assert "toggleSelect" in text and "compareInstitutions" in text

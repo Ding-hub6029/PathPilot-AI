@@ -7,6 +7,7 @@ import { matchProfile } from '../../lib/api';
 import { MatchResponse } from '../../lib/types';
 import { RuleRow } from '../../components/RuleRow';
 import { formatProgramLine } from '../../lib/format';
+import { displayProgramTitle } from '../../lib/programs';
 
 export default function ReportPage() {
   const { t, tf, locale, profile } = useApp();
@@ -53,7 +54,7 @@ export default function ReportPage() {
           if (!p) return null;
           return (
             <section key={r.programId} className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">{p.institution} — {p.officialName}</h2>
+              <h2 className="text-lg font-bold">{displayProgramTitle(p, locale)}</h2>
               <p className="text-sm text-navy/70">{formatProgramLine(p, t, locale)}</p>
               <ul className="mt-3 space-y-2">
                 {r.ruleResults.map((rule) => (

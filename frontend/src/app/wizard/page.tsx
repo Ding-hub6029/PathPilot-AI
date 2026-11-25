@@ -5,6 +5,7 @@ import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
 import { sampleUndergrad, sampleMasters, Profile, Curriculum } from '../../lib/types';
 import { formatFeeItems, formatIntake } from '../../lib/format';
+import { displayProgramTitle } from '../../lib/programs';
 
 const STEPS = ['curriculum', 'track', 'target', 'academic', 'language', 'budget'] as const;
 
@@ -168,7 +169,7 @@ export default function WizardPage() {
                 return (
                   <button key={p.id} type="button" aria-pressed={on} onClick={() => updateProfile({ targetProgramIds: on ? profile.targetProgramIds.filter((x) => x !== p.id) : [...profile.targetProgramIds, p.id] })}
                     className={`btn-press block w-full rounded-2xl border-2 p-4 text-start ${on ? 'border-teal bg-teal/5' : 'border-navy/15'}`}>
-                    <span className="font-bold">{p.institution} — {p.officialName}</span>
+                    <span className="font-bold">{displayProgramTitle(p, locale)}</span>
                     <span className="block text-sm text-navy/70">{formatIntake(p, t)} · {formatFeeItems(p, t, locale)}</span>
                   </button>
                 );

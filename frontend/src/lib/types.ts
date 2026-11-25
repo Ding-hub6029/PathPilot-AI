@@ -23,6 +23,8 @@ export interface Program {
   institution: string;
   institutionId: string;
   officialName: string;
+  /** Presentation-layer display names per locale (degree part only). Never overwrites officialName; missing locales fall back to it. */
+  nameLocalized?: Record<string, string>;
   country: string;
   degreeLevel: Track;
   subject: string;

@@ -358,3 +358,78 @@ yet verified".
 - Exact rank values for all 300 entries — recorded in
   `data/versions/v2/rankings.json`, verified from the official feeds
   2026-11-25 ~03:20 UTC; intentionally not repeated here.
+
+---
+
+## 5. University crests on the rankings page (2026-11-25)
+
+The `/rankings` page (vertical list, Day 3) shows one crest per institution
+row. The manifest is `frontend/src/lib/crests.ts` (institution id →
+`{src, source_url, licence}` or `{monogram: true}`); local files live in
+`frontend/public/crests/`. No rank value, score or sort order was touched
+for this change — the list keeps the existing sort (selected provider's
+rank, else best rank) and the same provider-rank values.
+
+### Method
+First choice was a freely-usable file on Wikimedia Commons, checked via
+the Commons API (`extmetadata LicenseShortName`) on 2026-11-25: only
+files whose licence allows redistribution (Public domain, CC BY, CC BY-SA)
+were downloaded as small local copies (original SVG where small, else a
+256 px raster thumbnail of the SVG via Commons `Special:FilePath`). The
+`source_url` in the manifest is the stable Commons file page
+(`commons.wikimedia.org/wiki/File:…`) — never a tokenised or expiring
+URL. Second choice (official media/brand page) was not needed: every
+real crest below came from Commons. Where no freely-usable Commons file
+exists — the logo is absent from Commons or is held on Wikipedia under a
+non-free (fair-use) rationale, which does not allow redistribution — the
+row renders a styled monogram badge (first letters of the official name,
+navy #0B1F3A background), never a fake crest or invented logo.
+
+### Real crests (19)
+| Institution | Commons file (source_url) | Licence | Local file |
+|---|---|---|---|
+| Harvard University | https://commons.wikimedia.org/wiki/File:Harvard_University_shield.svg | Public domain | crests/harvard-university.svg |
+| Massachusetts Institute of Technology | https://commons.wikimedia.org/wiki/File:Massachusetts_Institute_of_Technology_logo.svg | Public domain | crests/massachusetts-institute-of-technology.svg |
+| University of Oxford | https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_the_University_of_Oxford.svg | Public domain | crests/university-of-oxford.png |
+| Imperial College London | https://commons.wikimedia.org/wiki/File:Arms_of_Imperial_College_London.svg | CC BY 3.0 | crests/imperial.png |
+| Stanford University | https://commons.wikimedia.org/wiki/File:Seal_of_Leland_Stanford_Junior_University.svg | Public domain | crests/stanford-university.png |
+| Princeton University | https://commons.wikimedia.org/wiki/File:Princeton_University_Shield.svg | Public domain | crests/princeton-university.svg |
+| University of Cambridge | https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_the_University_of_Cambridge.svg | CC BY-SA 3.0 | crests/university-of-cambridge.png |
+| University of California, Berkeley | https://commons.wikimedia.org/wiki/File:Seal_of_University_of_California,_Berkeley.svg | Public domain | crests/university-of-california-berkeley.png |
+| Columbia University | https://commons.wikimedia.org/wiki/File:Columbia_University_Shield.svg | Public domain | crests/columbia-university.svg |
+| ETH Zurich | https://commons.wikimedia.org/wiki/File:ETH_Zürich_Logo.svg | Public domain | crests/eth-zurich.svg |
+| Yale University | https://commons.wikimedia.org/wiki/File:Yale_University_logo.svg | Public domain | crests/yale-university.svg |
+| Tsinghua University | https://commons.wikimedia.org/wiki/File:Tsinghua_University_Logo.svg | Public domain | crests/tsinghua-university.png |
+| Cornell University | https://commons.wikimedia.org/wiki/File:Cornell_University_seal.svg | Public domain | crests/cornell-university.svg |
+| Peking University | https://commons.wikimedia.org/wiki/File:Peking_University_seal.svg | Public domain | crests/peking-university.svg |
+| Chinese University of Hong Kong | https://commons.wikimedia.org/wiki/File:Emblem_of_CU.png | Public domain | crests/chinese-university-of-hong-kong.png |
+| Université Paris-Saclay | https://commons.wikimedia.org/wiki/File:Logo_Université_Paris-Saclay_2019-12.svg | Public domain | crests/universite-paris-saclay.svg |
+| University of California, Los Angeles | https://commons.wikimedia.org/wiki/File:The_University_of_California_UCLA.svg | Public domain | crests/university-of-california-los-angeles.svg |
+| University of Pennsylvania | https://commons.wikimedia.org/wiki/File:Shield_of_the_University_of_Pennsylvania.svg | Public domain | crests/university-of-pennsylvania.svg |
+| University of California, San Diego | https://commons.wikimedia.org/wiki/File:Seal_of_the_University_of_California,_San_Diego.svg | Public domain | crests/university-of-california-san-diego.png |
+
+Attribution for the two CC-licensed crests: Imperial College London arms
+(Arms of Imperial College London.svg) — CC BY 3.0; University of
+Cambridge coat of arms (Coat of Arms of the University of Cambridge.svg)
+— CC BY-SA 3.0. Both are credited here and in the manifest with their
+Commons file page; the files themselves are unchanged. All other crests
+above are public domain (no attribution required; source still recorded).
+University logos are also trademarks — the files are used only to
+identify the institution on this non-commercial student project page.
+
+### Monogram fallback (129 institutions)
+Every other institution in the 148-institution set has an explicit
+`{ monogram: true }` entry in the manifest — no institution is left
+without a crest decision. This includes the top-20 institutions for
+which no freely-usable Commons crest was found on 2026-11-25:
+California Institute of Technology, University College London (UCL),
+University of Chicago, National University of Singapore (NUS), University
+of Hong Kong, and Nanyang Technological University (NTU). Their logos
+are trademarked and either absent from Commons or held on Wikipedia
+under a non-free rationale, so a monogram badge is used instead of
+reproducing a non-free logo. The same applies to the remaining 123
+institutions (e.g. Johns Hopkins, University of Washington, UNSW Sydney,
+all institutions outside the top ~25 by best rank). If a freely-licensed
+crest for one of these appears on Commons later, add it to the manifest
+with its source URL and licence and add the local file — do not hotlink
+an unlicensed logo.

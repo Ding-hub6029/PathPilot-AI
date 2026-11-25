@@ -29,13 +29,15 @@ from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from ai.assistant import (BUDGET_BANDS, COUNTRIES, DEGREE_LEVELS, ask as assistant_ask,
+from ai.assistant import (BUDGET_BANDS, DEGREE_LEVELS, ask as assistant_ask,
                         suggest as assistant_suggest)
 from ai.explain import explain_with_status
 from ai.provider import ProviderAdapter
 from app.adapter import (RULES_VERSION, flat_to_student, match_response,
                          rule_to_frontend, source_manifest_hash, summary_for)
-from app.data import DATA_VERSION, PROGRAMS, RANKINGS
+from app.data import (DATA_VERSION, EXPANSION_INSTITUTIONS,
+                      EXPANSION_PROGRAMS, PROGRAMS, RANKINGS,
+                      V2_PROGRAM_INSTITUTION)
 from app.schemas import (AssistantAskRequest, AssistantSuggestRequest,
                          ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
                          MatchRequest, SimulateRequest, StudentProfile)
@@ -202,6 +204,9 @@ def list_programs(request: Request,
                   subject: str | None = Query(default=None),
                   intake: str | None = Query(default=None),
                   degree_level: str | None = Query(default=None),
+                  institution: str | None = Query(default=None),
+                  field: str | None = Query(default=None),
+                  catalogue: str = Query(default="v2"),
                   cursor: str | None = Query(default=None),
                   limit: int = Query(default=20, ge=1)):
     """Filter + cursor pagination (spec Ch12).
@@ -209,17 +214,35 @@ def list_programs(request: Request,
     Filters are exact for country/degree_level (case-insensitive) and
     substring for subject (case-insensitive). ``intake`` matches the
     program's intake_year, or the intake string when it holds a year
-    (NUS stores "August 2027, AY2027/2028 Semester 1"). ``cursor`` is an
-    opaque offset token; ``limit`` defaults to 20 and is capped at 20.
-    Response keeps the Day-1 "programs" key for backward compatibility.
+    (NUS stores "August 2027, AY2027/2028 Semester 1"). ``institution``
+    matches the ranking institution id (v2 programmes via the explicit
+    V2_PROGRAM_INSTITUTION mapping); ``field`` is an exact match on the
+    programme's field slug. ``catalogue`` selects which catalogue to list:
+    ``v2`` (default — the 8 matchable programmes, byte-identical to the
+    Day-2 response), ``expansion`` (listed v3 programmes only) or ``all``
+    (both; every item then carries ``catalogue`` + ``matchable`` flags).
+    ``cursor`` is an opaque offset token; ``limit`` defaults to 20 and is
+    capped at 20. Response keeps the Day-1 "programs" key for backward
+    compatibility.
     """
     rid = request.state.request_id
+    if catalogue not in ("v2", "expansion", "all"):
+        return _err(rid, "VALIDATION_ERROR",
+                    "catalogue must be 'v2', 'expansion' or 'all'.", 400)
     try:
         offset = _decode_cursor(cursor)
     except ValueError as exc:
         return _err(rid, "VALIDATION_ERROR", str(exc), 400)
     limit = min(limit, 20)
-    items = list(PROGRAMS.values())
+    if catalogue == "v2":
+        items = list(PROGRAMS.values())
+    elif catalogue == "expansion":
+        items = [dict(p, catalogue="expansion", matchable=False)
+                 for p in EXPANSION_PROGRAMS.values()]
+    else:
+        items = ([dict(p, catalogue="v2", matchable=True) for p in PROGRAMS.values()]
+                 + [dict(p, catalogue="expansion", matchable=False)
+                    for p in EXPANSION_PROGRAMS.values()])
     if country:
         items = [p for p in items if str(p.get("country", "")).upper() == country.strip().upper()]
     if subject:
@@ -234,6 +257,21 @@ def list_programs(request: Request,
         items = [p for p in items if _intake_match(p)]
     if degree_level:
         items = [p for p in items if str(p.get("degree_level", "")) == degree_level.strip()]
+    if institution:
+        want = institution.strip()
+        def _inst_match(p: dict) -> bool:
+            if p.get("institution_id"):
+                return str(p["institution_id"]) == want
+            return V2_PROGRAM_INSTITUTION.get(p.get("id", "")) == want
+        items = [p for p in items if _inst_match(p)]
+    if field:
+        needle = field.strip().lower()
+        def _field_match(p: dict) -> bool:
+            # v2 programmes carry subject "computer science" (spaces);
+            # expansion programmes carry the field slug. Normalise both.
+            value = str(p.get("field") or p.get("subject", "")).lower()
+            return value.replace(" ", "-") == needle or value == needle
+        items = [p for p in items if _field_match(p)]
     page = items[offset:offset + limit]
     next_offset = offset + len(page)
     next_cursor = _encode_cursor(next_offset) if next_offset < len(items) else None
@@ -248,6 +286,82 @@ def get_program(program_id: str, request: Request):
         return _err(request.state.request_id, "PROGRAM_NOT_FOUND",
                     f"No program with id '{program_id}'.", 404)
     return program
+
+
+# --- Institution profiles (Day 3 expansion, v3) -----------------------------
+# The institution is the reference app's school detail page: ranks (from
+# v2 rankings.json — never stored here), a stats profile (v3 expansion,
+# official sources only, null where unverified), and the programme list
+# (v2 matchable programmes first, then expansion listed programmes).
+# Stats exist only for institutions collectors have profiled; every other
+# institution returns "stats": null — never invented stats.
+@app.get("/api/v1/institutions")
+def list_institutions(request: Request,
+                      country: str | None = Query(default=None),
+                      query: str | None = Query(default=None),
+                      cursor: str | None = Query(default=None),
+                      limit: int = Query(default=20, ge=1)):
+    """All 148 ranking institutions, cursor-paginated.
+
+    ``country`` matches the institution's country code (case-insensitive);
+    ``query`` is a case-insensitive substring on the official name or the
+    verified Chinese display name (name_zh). Each item carries
+    ``has_stats_profile`` and ``programmes_count`` (v2 + expansion).
+    """
+    rid = request.state.request_id
+    try:
+        offset = _decode_cursor(cursor)
+    except ValueError as exc:
+        return _err(rid, "VALIDATION_ERROR", str(exc), 400)
+    limit = min(limit, 20)
+    items = list(RANKINGS.get("institutions", []))
+    if country:
+        items = [i for i in items if str(i.get("country", "")).upper() == country.strip().upper()]
+    if query:
+        needle = query.strip().lower()
+        items = [i for i in items
+                 if needle in str(i.get("official_name", "")).lower()
+                 or needle in str(i.get("name_zh", "") or "").lower()]
+    out = []
+    for inst in items:
+        iid = inst["id"]
+        count = sum(1 for p in PROGRAMS.values()
+                    if V2_PROGRAM_INSTITUTION.get(p["id"]) == iid)
+        count += sum(1 for p in EXPANSION_PROGRAMS.values()
+                     if p.get("institution_id") == iid)
+        out.append(dict(inst, has_stats_profile=iid in EXPANSION_INSTITUTIONS,
+                        programmes_count=count))
+    page = out[offset:offset + limit]
+    next_offset = offset + len(page)
+    next_cursor = _encode_cursor(next_offset) if next_offset < len(items) else None
+    return {"data_version": DATA_VERSION, "expansion_version": "v3",
+            "items": page, "next_cursor": next_cursor}
+
+
+@app.get("/api/v1/institutions/{institution_id}")
+def get_institution(institution_id: str, request: Request):
+    """One institution: ranking record, stats profile (or null), provider
+    ranks, and programmes — v2 matchable first, then expansion listed."""
+    inst = None
+    for cand in RANKINGS.get("institutions", []):
+        if cand["id"] == institution_id:
+            inst = cand
+            break
+    if inst is None:
+        return _err(request.state.request_id, "INSTITUTION_NOT_FOUND",
+                    f"No institution with id '{institution_id}'.", 404)
+    entries = [e for e in RANKINGS.get("entries", [])
+               if e.get("institution_id") == institution_id]
+    programs = ([dict(p, catalogue="v2", matchable=True)
+                 for p in PROGRAMS.values()
+                 if V2_PROGRAM_INSTITUTION.get(p["id"]) == institution_id]
+                + [dict(p, catalogue="expansion", matchable=False)
+                   for p in EXPANSION_PROGRAMS.values()
+                   if p.get("institution_id") == institution_id])
+    return {"data_version": DATA_VERSION, "expansion_version": "v3",
+            "institution": inst,
+            "stats": EXPANSION_INSTITUTIONS.get(institution_id),
+            "rankings": entries, "programs": programs}
 
 
 # --- Rankings (Day 3, spec Ch9 FR15/FR16, BR15/BR16) -----------------------
@@ -367,15 +481,14 @@ def get_institution_rankings(institution_id: str, request: Request):
 def assistant_suggest_endpoint(req: AssistantSuggestRequest, request: Request):
     """Answer to the pet's 3 quick-reply questions: degree level,
     country, budget band -> a short route suggestion (max 3 lines,
-    conclusion first, ONE evidence link)."""
+    conclusion first, ONE evidence link). Global scope: a country with
+    no verified programme yet gets the honest unknown answer
+    (suggest_none), never a 422 and never a guessed route. Only
+    degree_level and budget_band are validated enums."""
     if req.degree_level not in DEGREE_LEVELS:
         return _err(request.state.request_id, "VALIDATION_ERROR",
                     f"degree_level must be one of {list(DEGREE_LEVELS)}, got {req.degree_level!r}.", 422,
                     field_errors=[{"field": "degree_level", "message": "Must be 'undergraduate' or 'taught_masters'."}])
-    if req.country not in COUNTRIES:
-        return _err(request.state.request_id, "VALIDATION_ERROR",
-                    f"country must be one of {list(COUNTRIES)}, got {req.country!r}.", 422,
-                    field_errors=[{"field": "country", "message": "Must be 'GB' or 'SG'."}])
     if req.budget_band not in BUDGET_BANDS:
         return _err(request.state.request_id, "VALIDATION_ERROR",
                     f"budget_band must be one of {list(BUDGET_BANDS)}, got {req.budget_band!r}.", 422,

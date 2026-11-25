@@ -5,6 +5,8 @@ import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
 import { matchProfile, simulate } from '../../lib/api';
 import { MatchResponse, Profile } from '../../lib/types';
+import { displayProgramName } from '../../lib/programs';
+import { displayProgramInstitutionName } from '../../lib/rankings';
 import { StatusChip } from '../../components/StatusChip';
 import { RuleRow } from '../../components/RuleRow';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
@@ -116,8 +118,8 @@ export default function ResultsPage() {
             const sim = simData?.results.find((x) => x.programId === r.programId);
             return (
               <article key={r.programId} className={`card-lift anim-fade-up stagger-${(i % 4) + 1} rounded-2xl border border-navy/10 bg-white p-5 shadow-sm`}>
-                <p className="text-sm font-semibold text-teal">{p.institution} · {p.country}</p>
-                <h2 className="mt-1 text-lg font-bold">{p.officialName}</h2>
+                <p className="text-sm font-semibold text-teal">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
+                <h2 className="mt-1 text-lg font-bold">{displayProgramName(p, locale)}</h2>
                 {r.trackMismatch ? (
                   <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-800">{t('results.trackMismatch')}</p>
                 ) : (

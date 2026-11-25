@@ -152,7 +152,9 @@ class SimulateRequest(BaseModel):
 class AssistantSuggestRequest(BaseModel):
     """小罗盘 3-question flow (Day 3): the three quick-reply answers.
 
-    degree_level: undergraduate | taught_masters; country: GB | SG;
+    degree_level: undergraduate | taught_masters; country: any country
+    code — GB/SG have verified programmes and per-track budget bands,
+    any other country gets the honest "no verified programme" answer;
     budget_band: low | mid | high (bands are defined per track/country
     in ai/assistant.py — GB per-year GBP, SG UG per-year SGD, SG TM total
     SGD). locale: en | zh-CN | es | fr | pt-BR | ar (other values fall

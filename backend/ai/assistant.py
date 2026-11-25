@@ -37,6 +37,10 @@ AI_STATUS = "unavailable"
 MAX_ANSWER_LINES = 3
 
 DEGREE_LEVELS = ("undergraduate", "taught_masters")
+# Countries with verified programmes (and localised country names in
+# _T) so far. The product is global: any other country is accepted and
+# degrades to the honest "no verified programme" answer — see
+# suggest() — never a 422 and never a guessed route.
 COUNTRIES = ("GB", "SG")
 BUDGET_BANDS = ("low", "mid", "high")
 
@@ -422,7 +426,12 @@ def suggest(degree_level: str, country: str, budget_band: str,
     with an honest 'above your band' line. At most 3 lines."""
     loc = locale if locale in _T else "en"
     level = _t(loc, f"level_{degree_level}")
-    country_name = _t(loc, f"country_{country}")
+    # Global scope: only GB/SG have a localised country name in _T.
+    # Any other country has no verified programme, so the answer below
+    # is the honest "no verified programme" one — fall back to the raw
+    # country code for the name instead of raising KeyError.
+    country_name = (_T[loc].get(f"country_{country}")
+                    or _T["en"].get(f"country_{country}") or country)
     candidates = [p for p in PROGRAMS.values()
                   if p.get("degree_level") == degree_level and p.get("country") == country]
     if not candidates:

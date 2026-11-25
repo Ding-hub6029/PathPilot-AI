@@ -5,6 +5,8 @@ import { useApp } from '../lib/store';
 import { usePrograms } from '../lib/usePrograms';
 import { sampleUndergrad, sampleMasters } from '../lib/types';
 import { formatProgramLine } from '../lib/format';
+import { displayProgramName } from '../lib/programs';
+import { displayProgramInstitutionName } from '../lib/rankings';
 import { WelcomeModal } from '../components/WelcomeModal';
 
 export default function HomePage() {
@@ -68,8 +70,8 @@ export default function HomePage() {
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {programs.map((p, i) => (
             <article key={p.id} className={`card-lift anim-fade-up stagger-${i + 1} rounded-2xl border border-navy/10 bg-white p-5 shadow-sm`}>
-              <p className="text-sm font-semibold text-teal">{p.institution} · {p.country}</p>
-              <h3 className="mt-1 text-lg font-bold">{p.officialName}</h3>
+              <p className="text-sm font-semibold text-teal">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
+              <h3 className="mt-1 text-lg font-bold">{displayProgramName(p, locale)}</h3>
               <p className="mt-2 text-sm text-navy/75">
                 {formatProgramLine(p, t, locale)}
                 {p.ucasCode ? ` · UCAS ${p.ucasCode}` : ''}

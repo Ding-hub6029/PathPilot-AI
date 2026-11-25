@@ -5,7 +5,7 @@ import { useApp } from '../../../lib/store';
 import { fetchInstitutionRankings } from '../../../lib/api';
 import { displayCountryCode, displayCountryName, displayInstitutionName, displayProgramInstitutionName } from '../../../lib/rankings';
 import { RankingCards } from '../../../components/RankingCards';
-import { PROGRAMS } from '../../../lib/programs';
+import { PROGRAMS, displayProgramName } from '../../../lib/programs';
 import { RankingInstitution } from '../../../lib/types';
 
 /**
@@ -89,7 +89,7 @@ export default function InstitutionDetail({ params }: { params: { id: string } }
             {programs.map((p) => (
               <li key={p.id} className="rounded-2xl border border-navy/10 bg-white p-4 shadow-sm">
                 <p className="font-bold">
-                  <Link href={`/programs/${p.id}`} className="text-teal-dark underline">{p.officialName}</Link>
+                  <Link href={`/programs/${p.id}`} className="text-teal-dark underline">{displayProgramName(p, locale)}</Link>
                 </p>
                 <p className="mt-1 text-sm text-navy/60">{displayProgramInstitutionName(p.institution, locale)} · {displayCountryCode(p.country, p.country, t)}</p>
                 <Link href="/wizard" className="btn-press mt-3 inline-block rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">{t('home.ctaWizard')}</Link>

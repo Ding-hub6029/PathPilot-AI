@@ -89,7 +89,6 @@ def test_suggest_stops_asking_after_three_answers():
 def test_suggest_endpoint_validates_enums():
     for body, field in (
             ({"degree_level": "phd", "country": "GB", "budget_band": "mid"}, "degree_level"),
-            ({"degree_level": "undergraduate", "country": "US", "budget_band": "mid"}, "country"),
             ({"degree_level": "undergraduate", "country": "GB", "budget_band": "huge"}, "budget_band")):
         r = client.post("/api/v1/assistant/suggest", json=body)
         assert r.status_code == 422, body
@@ -284,3 +283,49 @@ def test_ielts_reference_never_used_as_programme_fact():
     assert oxford.get("ielts_reference") == "7.5 (7.0)"
     r = ask("牛津大学雅思要求", "zh-CN")
     assert "7.5" not in "\n".join(r["lines"])
+
+
+def test_assistant_endpoints_honour_locale_param():
+    # The frontend sends the current locale on every /ask and /suggest
+    # call and re-fetches on locale change, so the backend must answer
+    # in the requested locale (a stale-locale answer would resurface in
+    # the panel). Unknown locales fall back to English, never crash.
+    r = client.post("/api/v1/assistant/suggest",
+                    json={"degree_level": "undergraduate", "country": "GB",
+                          "budget_band": "mid", "locale": "fr"})
+    assert r.status_code == 200
+    assert "Licence" in r.json()["lines"][0]
+    r = client.post("/api/v1/assistant/ask",
+                    json={"message": "UCL本科的学费是多少", "locale": "es"})
+    assert r.status_code == 200
+    assert "Matrícula" in r.json()["lines"][0]
+    r = client.post("/api/v1/assistant/ask",
+                    json={"message": "UCL本科的学费是多少", "locale": "xx"})
+    assert r.status_code == 200
+    assert "tuition" in r.json()["lines"][0].lower()
+
+
+def test_suggest_degrades_gracefully_for_country_without_programmes():
+    # Global scope: a country with no verified programme yet gets an
+    # honest unknown answer — never a 422, never a crash, never an
+    # invented programme, fee or route. GB/SG budget-band logic is
+    # untouched (see test_suggest_fee_fit_is_honest).
+    for level, country, band, locale, needle in (
+            ("undergraduate", "US", "mid", "en", "no verified programme"),
+            ("taught_masters", "CN", "low", "zh-CN", "没有"),
+            ("undergraduate", "JP", "high", "es", "no hay programas verificados")):
+        r = suggest(level, country, band, locale)
+        assert r["program_id"] is None, (level, country, band)
+        assert r["evidence_url"] is None
+        assert r["next_steps"]["program"] is None
+        assert len(r["lines"]) <= 3
+        assert needle in r["lines"][0], r["lines"]
+        # No programme, fee or rank is invented for the country.
+        assert "46,700" not in "\n".join(r["lines"])
+    # Same through the endpoint (was 422 before the global fix).
+    r = client.post("/api/v1/assistant/suggest",
+                    json={"degree_level": "undergraduate", "country": "US",
+                          "budget_band": "mid", "locale": "en"})
+    assert r.status_code == 200
+    assert r.json()["program_id"] is None
+    assert "no verified programme" in r.json()["lines"][0]

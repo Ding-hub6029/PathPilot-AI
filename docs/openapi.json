@@ -30,7 +30,7 @@
         "type": "object"
       },
       "AssistantSuggestRequest": {
-        "description": "\u5c0f\u7f57\u76d8 3-question flow (Day 3): the three quick-reply answers.\n\ndegree_level: undergraduate | taught_masters; country: GB | SG;\nbudget_band: low | mid | high (bands are defined per track/country\nin ai/assistant.py \u2014 GB per-year GBP, SG UG per-year SGD, SG TM total\nSGD). locale: en | zh-CN | es | fr | pt-BR | ar (other values fall\nback to en in the template lookup).",
+        "description": "\u5c0f\u7f57\u76d8 3-question flow (Day 3): the three quick-reply answers.\n\ndegree_level: undergraduate | taught_masters; country: any country\ncode \u2014 GB/SG have verified programmes and per-track budget bands,\nany other country gets the honest \"no verified programme\" answer;\nbudget_band: low | mid | high (bands are defined per track/country\nin ai/assistant.py \u2014 GB per-year GBP, SG UG per-year SGD, SG TM total\nSGD). locale: en | zh-CN | es | fr | pt-BR | ar (other values fall\nback to en in the template lookup).",
         "properties": {
           "budget_band": {
             "title": "Budget Band",
@@ -667,7 +667,7 @@
     },
     "/api/v1/assistant/suggest": {
       "post": {
-        "description": "Answer to the pet's 3 quick-reply questions: degree level,\ncountry, budget band -> a short route suggestion (max 3 lines,\nconclusion first, ONE evidence link).",
+        "description": "Answer to the pet's 3 quick-reply questions: degree level,\ncountry, budget band -> a short route suggestion (max 3 lines,\nconclusion first, ONE evidence link). Global scope: a country with\nno verified programme yet gets the honest unknown answer\n(suggest_none), never a 422 and never a guessed route. Only\ndegree_level and budget_band are validated enums.",
         "operationId": "assistant_suggest_endpoint_api_v1_assistant_suggest_post",
         "requestBody": {
           "content": {
@@ -733,6 +733,132 @@
           }
         },
         "summary": "Health"
+      }
+    },
+    "/api/v1/institutions": {
+      "get": {
+        "description": "All 148 ranking institutions, cursor-paginated.\n\n``country`` matches the institution's country code (case-insensitive);\n``query`` is a case-insensitive substring on the official name or the\nverified Chinese display name (name_zh). Each item carries\n``has_stats_profile`` and ``programmes_count`` (v2 + expansion).",
+        "operationId": "list_institutions_api_v1_institutions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "country",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Country"
+            }
+          },
+          {
+            "in": "query",
+            "name": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Query"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Institutions"
+      }
+    },
+    "/api/v1/institutions/{institution_id}": {
+      "get": {
+        "description": "One institution: ranking record, stats profile (or null), provider\nranks, and programmes \u2014 v2 matchable first, then expansion listed.",
+        "operationId": "get_institution_api_v1_institutions__institution_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "institution_id",
+            "required": true,
+            "schema": {
+              "title": "Institution Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Institution"
       }
     },
     "/api/v1/institutions/{institution_id}/rankings": {
@@ -845,7 +971,7 @@
     },
     "/api/v1/programs": {
       "get": {
-        "description": "Filter + cursor pagination (spec Ch12).\n\nFilters are exact for country/degree_level (case-insensitive) and\nsubstring for subject (case-insensitive). ``intake`` matches the\nprogram's intake_year, or the intake string when it holds a year\n(NUS stores \"August 2027, AY2027/2028 Semester 1\"). ``cursor`` is an\nopaque offset token; ``limit`` defaults to 20 and is capped at 20.\nResponse keeps the Day-1 \"programs\" key for backward compatibility.",
+        "description": "Filter + cursor pagination (spec Ch12).\n\nFilters are exact for country/degree_level (case-insensitive) and\nsubstring for subject (case-insensitive). ``intake`` matches the\nprogram's intake_year, or the intake string when it holds a year\n(NUS stores \"August 2027, AY2027/2028 Semester 1\"). ``institution``\nmatches the ranking institution id (v2 programmes via the explicit\nV2_PROGRAM_INSTITUTION mapping); ``field`` is an exact match on the\nprogramme's field slug. ``catalogue`` selects which catalogue to list:\n``v2`` (default \u2014 the 8 matchable programmes, byte-identical to the\nDay-2 response), ``expansion`` (listed v3 programmes only) or ``all``\n(both; every item then carries ``catalogue`` + ``matchable`` flags).\n``cursor`` is an opaque offset token; ``limit`` defaults to 20 and is\ncapped at 20. Response keeps the Day-1 \"programs\" key for backward\ncompatibility.",
         "operationId": "list_programs_api_v1_programs_get",
         "parameters": [
           {
@@ -910,6 +1036,48 @@
                 }
               ],
               "title": "Degree Level"
+            }
+          },
+          {
+            "in": "query",
+            "name": "institution",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Institution"
+            }
+          },
+          {
+            "in": "query",
+            "name": "field",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Field"
+            }
+          },
+          {
+            "in": "query",
+            "name": "catalogue",
+            "required": false,
+            "schema": {
+              "default": "v2",
+              "title": "Catalogue",
+              "type": "string"
             }
           },
           {

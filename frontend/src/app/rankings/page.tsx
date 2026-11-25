@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { fetchRankings, RankingsResult } from '../../lib/api';
 import { displayCountryCode, displayCountryName, displayInstitutionName } from '../../lib/rankings';
+import { crestFor, monogramFor } from '../../lib/crests';
 import { useApp } from '../../lib/store';
 import { RankingEntry } from '../../lib/types';
 
@@ -188,21 +189,62 @@ export default function RankingsPage() {
           <p role="status" className="mt-4 rounded-lg bg-white p-3 text-sm font-semibold">{t('rankings.noResults')}</p>
         )}
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <ol className="mt-4 flex flex-col gap-3">
           {sortedInstitutions.map((inst) => {
             const instEntries = visibleEntries.filter((e) => e.institution_id === inst.id);
             if (rankType === 'world' && instEntries.length === 0) return null;
+            // Rank shown in the row is the same rank the list is sorted by:
+            // the selected provider's rank when one provider is chosen,
+            // otherwise the institution's best rank across the visible
+            // providers (rankValue is the sort key used above).
+            const bestEntry = [...instEntries].sort((a, b) => rankValue(a) - rankValue(b))[0];
+            const crest = crestFor(inst.id);
             return (
-              <article key={inst.id} className="rounded-2xl border border-navy/10 bg-white p-4 shadow-sm">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-bold">
-                      <Link href={`/institutions/${inst.id}`} className="text-teal-dark underline">
-                        {displayInstitutionName(inst, locale)}
-                      </Link>
-                    </p>
-                    <p className="text-sm text-navy/60">{displayCountryName(inst, t)}</p>
-                  </div>
+              <li key={inst.id} className="flex items-center gap-3 rounded-2xl border border-navy/10 bg-white p-3 shadow-sm sm:gap-4 sm:p-4">
+                <span className="w-12 shrink-0 text-center text-lg font-bold text-navy" dir="ltr">
+                  {bestEntry ? bestEntry.rank_display : '—'}
+                </span>
+                {crest && 'src' in crest ? (
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-navy/10 bg-white" aria-hidden="true">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={crest.src} alt="" className="h-12 w-12 object-contain" />
+                  </span>
+                ) : (
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#0B1F3A] text-base font-bold text-white" aria-hidden="true">
+                    {monogramFor(inst.official_name)}
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold">
+                    <Link href={`/institutions/${inst.id}`} className="text-teal-dark underline">
+                      {displayInstitutionName(inst, locale)}
+                    </Link>
+                  </p>
+                  <p className="text-sm text-navy/60">{displayCountryName(inst, t)}</p>
+                  <ul className="mt-2 flex flex-wrap gap-1.5">
+                    {providers
+                      .filter((p) => provider === 'all' || p.id === provider)
+                      .map((p) => {
+                        const e = instEntries.find((x) => x.provider === p.id);
+                        if (!e) return null;
+                        return (
+                          <li key={p.id} className="rounded-full bg-navy/5 px-2.5 py-1 text-xs font-semibold">
+                            <span dir="ltr">{p.short_name} · {p.edition_label}: {e.verification_status === 'verified' ? e.rank_display : t('rankings.unavailableShort')}</span>
+                            {e.verification_status === 'verified' && e.rank_kind === 'tie' && (
+                              <span className="ms-1 font-normal text-navy/60">{t('rankings.tieNote')}</span>
+                            )}
+                            {e.verification_status === 'verified' && e.score !== null && (
+                              <span className="ms-1 font-normal text-navy/60">{t('rankings.score')}: {e.score}</span>
+                            )}
+                          </li>
+                        );
+                      })}
+                  </ul>
+                  {rankType === 'world' && (
+                    <p className="mt-1.5 text-xs text-navy/60">{t('rankings.subjectNote')}</p>
+                  )}
+                </div>
+                <div className="shrink-0 text-end">
                   <label className="flex items-center gap-1 text-sm font-semibold">
                     <input
                       type="checkbox"
@@ -212,39 +254,14 @@ export default function RankingsPage() {
                     />
                     {t('rankings.compare')}
                   </label>
+                  {selected.length >= 3 && !selected.includes(inst.id) && (
+                    <p className="mt-1 text-xs text-navy/60">{t('rankings.maxThree')}</p>
+                  )}
                 </div>
-                {selected.length >= 3 && !selected.includes(inst.id) && (
-                  <p className="mt-1 text-xs text-navy/60">{t('rankings.maxThree')}</p>
-                )}
-                <ul className="mt-3 space-y-2">
-                  {providers
-                    .filter((p) => provider === 'all' || p.id === provider)
-                    .map((p) => {
-                      const e = instEntries.find((x) => x.provider === p.id);
-                      if (!e) return null;
-                      return (
-                        <li key={p.id} className="flex items-baseline justify-between gap-2 border-t border-navy/5 pt-2 text-sm">
-                          <span className="font-semibold">{p.short_name} · {p.edition_label}</span>
-                          {e.verification_status === 'verified' ? (
-                            <span className="font-bold" dir="ltr">
-                              {e.rank_display}
-                              {e.rank_kind === 'tie' && <span className="ms-1 text-xs font-normal text-navy/60">{t('rankings.tieNote')}</span>}
-                              {e.score !== null && <span className="ms-2 text-xs font-normal text-navy/60">{t('rankings.score')}: {e.score}</span>}
-                            </span>
-                          ) : (
-                            <span className="font-semibold text-amber-dark">{t('rankings.unavailableShort')}</span>
-                          )}
-                        </li>
-                      );
-                    })}
-                </ul>
-                {rankType === 'world' && (
-                  <p className="mt-2 text-xs text-navy/60">{t('rankings.subjectNote')}</p>
-                )}
-              </article>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </section>
 
       {compareInstitutions.length >= 2 && (

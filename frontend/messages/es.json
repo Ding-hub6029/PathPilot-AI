@@ -410,5 +410,8 @@
   "wizard.trackTitle": "Primero, elige tu vía",
   "wizard.trackUndergrad": "Grado",
   "wizard.trackUndergradDesc": "Títulos de grado, p. ej., BSc en Informática",
-  "wizard.usaNote": "Nota: Imperial publica un estándar de AP; UCL no publica ninguna equivalencia estadounidense para estos programas, por lo que esa comprobación se marcará como desconocida."
+  "wizard.usaNote": "Nota: Imperial publica un estándar de AP; UCL no publica ninguna equivalencia estadounidense para estos programas, por lo que esa comprobación se marcará como desconocida.",
+  "pet.suggestNone": "{level} · {country}: aún no hay programas verificados en esta vía; no lo sé.",
+  "pet.noProgrammesRank": "Dime qué universidad; solo consulto el top 100 verificado.",
+  "pet.suggestUnknown2": "Inicia la comprobación de requisitos para revisar tu perfil regla por regla."
 }
