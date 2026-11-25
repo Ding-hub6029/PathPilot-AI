@@ -166,6 +166,7 @@ Goal: QS 2027 top 100 institutions ALL fully covered, and EVERY programme of eve
 | D3-E09 | Backend loader: `load_expansion()` + `validate_expansion_data()` in `app/data.py`, refuses to start on invalid content, missing file = empty catalogue | `backend/app/data.py` | pass |
 | D3-E10 | Endpoints: `GET /api/v1/institutions` (148, country/query + cursor pagination), `GET /api/v1/institutions/{id}` (ranking record + stats or null + ranks + programmes, v2 first), `/programs` gains `institution` / `field` / `catalogue` (v2 default byte-identical, expansion, all) | `backend/app/main.py`, `docs/openapi.json` (17 paths) | pass |
 | D3-E11 | Tests (21 in `tests/test_expansion.py`): loader/validator refusals, institution list paging (148) + filters + 404 + stats-null honesty, /programs default contract + catalogue modes + institution/field filters, no banned provider in responses | `tests/test_expansion.py` | pass (167 passed total, 0 failed; live :8001 verified) |
+| D3-E12 | Success cases (55) from public social sources, labelled 网友分享，未经官方核实， with source URLs | `data/expansions/success_cases.json`, `docs/SUCCESS_CASES.md` | done (2026-11-25) |
 
 ## Test result (real run, 2026-11-25, expansion)
 
