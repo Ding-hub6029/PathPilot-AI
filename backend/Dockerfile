@@ -5,6 +5,8 @@ WORKDIR /app
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/app ./app
+COPY backend/ai ./ai
+COPY backend/domain ./domain
 COPY data ./data
 ENV PORT=8000
 EXPOSE 8000
