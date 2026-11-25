@@ -31,13 +31,17 @@ from fastapi.responses import JSONResponse
 
 from ai.assistant import (BUDGET_BANDS, DEGREE_LEVELS, ask as assistant_ask,
                         suggest as assistant_suggest)
-from ai.explain import explain_with_status
+from ai.explain import explain_structured_with_status
+from ai.prompts import PROMPT_VERSION
 from ai.provider import ProviderAdapter
 from app.adapter import (RULES_VERSION, flat_to_student, match_response,
                          rule_to_frontend, source_manifest_hash, summary_for)
 from app.data import (DATA_VERSION, EXPANSION_INSTITUTIONS,
                       EXPANSION_PROGRAMS, PROGRAMS, RANKINGS,
                       V2_PROGRAM_INSTITUTION)
+from app.router_chat import router as router_chat
+from app.router_eval import router as router_eval
+from app.router_plans import router as router_plans
 from app.schemas import (AssistantAskRequest, AssistantSuggestRequest,
                          ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
                          MatchRequest, SimulateRequest, StudentProfile)
@@ -45,6 +49,13 @@ from domain.eligibility import (_parse_test_date, effective_curriculum,
                                 evaluate, overall_status, track_mismatch)
 
 app = FastAPI(title="PathPilot AI — Day 2 backend", version="0.2.0")
+
+# Day 3 AI routers (chat + profile parse, improvement plans, AI evaluation
+# set). Each router defines its own Pydantic models; main.py only mounts
+# them so a router can never collide with the Day 1/2 endpoints.
+app.include_router(router_chat)
+app.include_router(router_plans)
+app.include_router(router_eval)
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,6 +72,13 @@ app.add_middleware(
 # tests can isolate bursts; it is not an endpoint.
 RATE_LIMIT_GENERAL_PER_MIN = 60
 RATE_LIMIT_EXPLAIN_PER_MIN = 10
+# Model calls cost money and latency: the AI endpoints share their own
+# 10/min/IP bucket (spec Ch15 anonymous-AI-call budget). Template-only
+# assistant endpoints (/assistant/suggest, /assistant/ask) stay on the
+# general bucket; /ai/status is a cheap read and stays general too.
+RATE_LIMIT_AI_PER_MIN = 10
+AI_PATH_PREFIXES = ("/api/v1/assistant/chat", "/api/v1/profile/parse",
+                    "/api/v1/improvement-plan", "/api/v1/ai/evaluation")
 _RATE_WINDOW_S = 60.0
 _rate_buckets: dict[str, list[float]] = {}
 
@@ -110,6 +128,8 @@ async def _request_id_and_limits(request: Request, call_next):
     if path not in ("/api/v1/health", "/api/v1/ready"):
         if path == "/api/v1/explain":
             bucket, limit = "explain", RATE_LIMIT_EXPLAIN_PER_MIN
+        elif path.startswith(AI_PATH_PREFIXES):
+            bucket, limit = "ai", RATE_LIMIT_AI_PER_MIN
         else:
             bucket, limit = "general", RATE_LIMIT_GENERAL_PER_MIN
         if _rate_limited(client_ip, bucket, limit):
@@ -145,13 +165,16 @@ def _validate_profile(profile: StudentProfile) -> str | None:
     return None
 
 
-def _evaluate(profile: StudentProfile, program: dict):
+def _evaluate(profile: StudentProfile, program: dict, locale: str = "en"):
     results = evaluate(profile, program)
     provider = ProviderAdapter()
     ev = Evaluation(program_id=program["id"], data_version=DATA_VERSION,
                     overall_status=overall_status(results), results=results,
                     ai_status=provider.ai_status)
-    ev.explanation, ev.ai_status = explain_with_status(ev, provider)
+    structured, text, status = explain_structured_with_status(ev, locale, provider)
+    ev.explanation = text
+    ev.ai_status = status
+    ev.explanation_structured = structured
     return ev
 
 
@@ -182,6 +205,20 @@ def _decode_cursor(cursor: str | None) -> int:
 @app.get("/api/v1/health")
 def health():
     return {"status": "ok", "data_version": DATA_VERSION, "programs": len(PROGRAMS)}
+
+
+@app.get("/api/v1/ai/status")
+def ai_status():
+    """AI integration status (Day 3). Never exposes the key value — only
+    whether one is configured, which provider/model is selected, and the
+    prompt version. With no key this reports ai_status="unavailable" and
+    every AI endpoint falls back to the rules/template behaviour."""
+    info = ProviderAdapter().describe()
+    return {"ai_status": info["ai_status"], "provider": info["provider"],
+            "model": info["model"],
+            "api_key_configured": info["api_key_configured"],
+            "supported_providers": info["supported_providers"],
+            "prompt_version": PROMPT_VERSION, "data_version": DATA_VERSION}
 
 
 @app.get("/api/v1/ready")
@@ -764,13 +801,14 @@ async def explain(request: Request):
                             "ruleResults": [], "trackMismatch": True,
                             "explanation": None, "ai_status": "unavailable"})
             continue
-        ev = _evaluate(profile, program)
+        ev = _evaluate(profile, program, locale=req.locale or "en")
         results.append({"programId": pid,
                         "eligibilitySummary": summary_for(ev.overall_status),
                         "ruleResults": [rule_to_frontend(r) for r in ev.results],
                         "trackMismatch": False,
                         "ai_status": ev.ai_status,
-                        "explanation": ev.explanation})
+                        "explanation": ev.explanation,
+                        "explanation_structured": ev.explanation_structured})
     return {"evaluation_id": f"explain-{rid[:8]}", "results": results,
             "rules_version": RULES_VERSION,
             "source_manifest_hash": source_manifest_hash(),

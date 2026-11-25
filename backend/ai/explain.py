@@ -1,13 +1,26 @@
-"""Template explanation, citation-checked.
+"""Explanation: template (always) + model-written (when a provider is
+configured), both citation-checked (Day 3, spec Ch13).
 
 Every claim references a real evidence_id / rule_id from the evaluation;
 a claim with no matching evidence is dropped, never invented.
-Model timeout/failure -> template fallback, never invented text.
+Model path: the model only sees the server-side recomputed evaluation
+plus the programme's verified sources; its structured JSON output is
+validated by ai.grounding.check_model_output (schema, id whitelist,
+rule-status immutability, numeric cross-check, no probabilities or
+guarantees, no raw URLs). One repair retry on validation failure, then
+the deterministic template. Model timeout/failure -> template fallback,
+never invented text. ai_status is "available" only when a validated
+model output was actually used.
 """
 from __future__ import annotations
 
+import json
+
+from ai.grounding import (check_model_output, programme_fact_texts,
+                          programme_sources, render_structured_explanation)
+from ai.prompts import PROMPT_VERSION, explain_system
+from ai.provider import ProviderAdapter, ProviderError
 from app.schemas import Evaluation
-from ai.provider import ProviderAdapter
 
 _STATUS_WORDS = {
     "MET": "meets the stated minimum",
@@ -33,6 +46,105 @@ def template_explanation(evaluation: Evaluation) -> str:
     return "\n".join(lines)
 
 
+def _parse_model_json(text: str) -> dict | None:
+    """Parse a model reply as JSON, tolerating ```json fences."""
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        stripped = stripped.strip("`").strip()
+        if stripped.lower().startswith("json"):
+            stripped = stripped[4:].strip()
+    try:
+        parsed = json.loads(stripped)
+    except (ValueError, TypeError):
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _model_explain(evaluation: Evaluation, locale: str,
+                   provider: ProviderAdapter) -> dict | None:
+    """One model attempt + one repair attempt. Returns the validated
+    structured output, or None (caller falls back to the template)."""
+    sources = programme_sources(evaluation.program_id)
+    allowed_evidence = {s.id for s in sources}
+    evidence_texts = programme_fact_texts(evaluation.program_id)
+    for s in sources:
+        evidence_texts.setdefault(s.id, s.excerpt)
+        allowed_evidence.add(s.id)
+    rule_status = {r.rule_id: r.status for r in evaluation.results}
+    allowed_rules = set(rule_status)
+    for r in evaluation.results:
+        for eid in r.evidence_ids:
+            allowed_evidence.add(eid)
+            evidence_texts.setdefault(eid, r.detail)
+    envelope = {
+        "task": "explain",
+        "prompt_version": PROMPT_VERSION,
+        "locale": locale,
+        "program_id": evaluation.program_id,
+        "data_version": evaluation.data_version,
+        "overall_status": evaluation.overall_status,
+        "rule_results": [
+            {"rule_id": r.rule_id, "status": r.status, "detail": r.detail,
+             "evidence_ids": list(r.evidence_ids)} for r in evaluation.results],
+        "evidence_catalog": [
+            {"id": s.id, "url": s.url, "title": s.title, "excerpt": s.excerpt}
+            for s in sources],
+    }
+    messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
+    try:
+        result = provider.chat(messages, system=explain_system(locale),
+                               timeout_s=12.0)
+    except ProviderError:
+        return None
+    parsed = _parse_model_json(result.text)
+    if parsed is None:
+        return None
+    check = check_model_output(
+        parsed, allowed_evidence_ids=allowed_evidence,
+        allowed_rule_ids=allowed_rules, rule_status=rule_status,
+        evidence_texts=evidence_texts, locale=locale)
+    if check.valid:
+        return parsed
+    # One repair attempt, within the total budget (spec Ch13).
+    repair = ("Your previous output failed validation. Fix ONLY these "
+              f"problems and output JSON only: {check.error_text()}\n\n"
+              f"Previous output:\n{result.text[:4000]}")
+    try:
+        retry = provider.chat(messages + [{"role": "user", "content": repair}],
+                              system=explain_system(locale), timeout_s=8.0)
+    except ProviderError:
+        return None
+    parsed2 = _parse_model_json(retry.text)
+    if parsed2 is None:
+        return None
+    check2 = check_model_output(
+        parsed2, allowed_evidence_ids=allowed_evidence,
+        allowed_rule_ids=allowed_rules, rule_status=rule_status,
+        evidence_texts=evidence_texts, locale=locale)
+    return parsed2 if check2.valid else None
+
+
+def explain_structured_with_status(
+        evaluation: Evaluation, locale: str = "en",
+        provider: ProviderAdapter | None = None
+) -> tuple[dict | None, str, str]:
+    """Returns (structured_model_output_or_None, text, ai_status).
+
+    ``structured`` is present only when a validated model output was used;
+    otherwise text is the template explanation and ai_status is
+    "unavailable". The rule results are always kept (spec FR06/NFR02:
+    model failure never loses the rules).
+    """
+    provider = provider or ProviderAdapter()
+    if not provider.available:
+        return None, template_explanation(evaluation), "unavailable"
+    structured = _model_explain(evaluation, locale, provider)
+    if structured is None:
+        return None, template_explanation(evaluation), "unavailable"
+    sources = programme_sources(evaluation.program_id)
+    return structured, render_structured_explanation(structured, sources), "available"
+
+
 def explain(evaluation: Evaluation, provider: ProviderAdapter | None = None) -> str:
     text, _status = explain_with_status(evaluation, provider)
     return text
@@ -43,15 +155,11 @@ def explain_with_status(evaluation: Evaluation,
     """Template explanation plus the honest ai_status.
 
     If no provider is configured, or a configured provider fails/times out,
-    the result is the template text with ai_status="unavailable" — the rule
-    results are always kept (spec FR06/NFR02: model failure never loses the
-    rules). Callers must use this, not explain(), when they report ai_status.
+    or its output fails citation validation, the result is the template
+    text with ai_status="unavailable" — the rule results are always kept
+    (spec FR06/NFR02: model failure never loses the rules). Callers must
+    use this, not explain(), when they report ai_status.
     """
-    provider = provider or ProviderAdapter()
-    if not provider.available:
-        return template_explanation(evaluation), "unavailable"
-    try:
-        # No provider is wired in on Day 2; generate() raises and we fall back.
-        return provider.generate(template_explanation(evaluation)), "available"
-    except Exception:
-        return template_explanation(evaluation), "unavailable"
+    _structured, text, status = explain_structured_with_status(
+        evaluation, "en", provider)
+    return text, status

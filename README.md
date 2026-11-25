@@ -80,6 +80,25 @@ deadline questions and rank lookups from the verified catalogue only.
 146 tests passing, 415 i18n keys × 6 locales, `npm run build` pass.
 See TASKS.md (pet section) and DECISIONS.md #93–#96, #99.
 
+**Real AI integration (Day 3, `docs/AI_INTEGRATION.md`):** the backend now
+wires a real model when a key is configured (`AI_PROVIDER` /
+`AI_MODEL` / `AI_API_KEY`, plus `AI_BASE_URL` for third-party
+OpenAI-compatible gateways; OpenAI, DeepSeek and Gemini supported) —
+`GET /api/v1/ai/status` reports whether one is live. With a key, the pet
+answers free-text chat grounded in verified data (`POST
+/api/v1/assistant/chat`), `/explain` is model-written and citation-checked
+(+ `explanation_structured`), free text parses into a profile (`POST
+/api/v1/profile/parse`, confirmation always required), and improvement
+plans are generated (`POST /api/v1/improvement-plan` + reassess, FR13/FR14).
+Without a key every endpoint falls back honestly to the template behaviour
+and the frozen 12-case AI evaluation set (`GET /api/v1/ai/evaluation`)
+still runs: 12/12 passed on the template path, citation legality 78/78,
+false-MET 0. **Working gateway is shenjyai.cc (DeepSeek
+`deepseek-v4.1-flash`, $5.00 balance, tested live — chat completion "OK",
+`/v1/models` 200); the ai11.shop key was rejected with "Invalid token"
+and must not be used. The shenjyai key still needs storing in the Secure
+Vault before the app can make a live model call (BLOCKERS #19).**
+
 ## Quick start (one command per service; run backend first)
 
 ```bash

@@ -628,6 +628,65 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/ai/evaluation": {
+      "get": {
+        "description": "Run the frozen 12-case AI evaluation set and return the report.",
+        "operationId": "get_ai_evaluation_api_v1_ai_evaluation_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mode",
+            "required": false,
+            "schema": {
+              "default": "template",
+              "title": "Mode",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Ai Evaluation",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/v1/ai/status": {
+      "get": {
+        "description": "AI integration status (Day 3). Never exposes the key value \u2014 only\nwhether one is configured, which provider/model is selected, and the\nprompt version. With no key this reports ai_status=\"unavailable\" and\nevery AI endpoint falls back to the rules/template behaviour.",
+        "operationId": "ai_status_api_v1_ai_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ai Status"
+      }
+    },
     "/api/v1/assistant/ask": {
       "post": {
         "description": "Free-text question to the pet. Answered only from verified data;\npersonal data is refused, never echoed, never stored.",
@@ -663,6 +722,26 @@
           }
         },
         "summary": "Assistant Ask Endpoint"
+      }
+    },
+    "/api/v1/assistant/chat": {
+      "post": {
+        "description": "Free-text question to \u5c0f\u7f57\u76d8.\n\nRequest: ``{message (1..500 chars), locale=\"en\",\nhistory: [{role, content}] (max 10 turns, each content max 500)}``.\nResponse: ``{lines (at most 3, conclusion first), evidence_url,\nai_status, model, sources: [{id, url, title}]}``.",
+        "operationId": "assistant_chat_endpoint_api_v1_assistant_chat_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Assistant Chat Endpoint",
+        "tags": [
+          "assistant"
+        ]
       }
     },
     "/api/v1/assistant/suggest": {
@@ -733,6 +812,178 @@
           }
         },
         "summary": "Health"
+      }
+    },
+    "/api/v1/improvement-plan": {
+      "post": {
+        "description": "Create a plan: diagnose gaps from engine evaluations, build tasks\n(model path when a provider is configured, templates otherwise).\n\nRequest: {profile (nested StudentProfile dict or flat wizard profile),\nprogram_ids, deadline (ISO date, optional), weekly_hours (optional),\nbudget {amount, currency} (optional), locale (default \"en\")}.\nResponse: {plan_id, track, gap_assessment, tasks, weekly_schedule,\nassumptions, limitations, ai_status, versions: [1]}.",
+        "operationId": "create_improvement_plan_api_v1_improvement_plan_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Create Improvement Plan",
+        "tags": [
+          "improvement-plan"
+        ]
+      }
+    },
+    "/api/v1/improvement-plan/reassess": {
+      "post": {
+        "description": "Recompute a plan's evaluations from a profile patch (engine only;\na client-supplied verdict is never trusted).",
+        "operationId": "reassess_improvement_plan_api_v1_improvement_plan_reassess_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Reassess Improvement Plan",
+        "tags": [
+          "improvement-plan"
+        ]
+      }
+    },
+    "/api/v1/improvement-plan/{plan_id}": {
+      "get": {
+        "description": "Return the stored plan (404 if unknown).",
+        "operationId": "get_improvement_plan_api_v1_improvement_plan__plan_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "title": "Plan Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Improvement Plan",
+        "tags": [
+          "improvement-plan"
+        ]
+      }
+    },
+    "/api/v1/improvement-plan/{plan_id}/export": {
+      "get": {
+        "description": "The plan as a JSON export document (same content plus export\nmetadata).",
+        "operationId": "export_improvement_plan_api_v1_improvement_plan__plan_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "title": "Plan Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Improvement Plan",
+        "tags": [
+          "improvement-plan"
+        ]
+      }
+    },
+    "/api/v1/improvement-plan/{plan_id}/tasks/{task_id}": {
+      "post": {
+        "description": "Update one task's status. 422 on an illegal transition. Completing\na task changes no rule status; user_confirmed_evidence is recorded\nas a user statement only.",
+        "operationId": "update_plan_task_api_v1_improvement_plan__plan_id__tasks__task_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "title": "Plan Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Plan Task",
+        "tags": [
+          "improvement-plan"
+        ]
       }
     },
     "/api/v1/institutions": {
@@ -931,6 +1182,26 @@
           }
         },
         "summary": "Openapi V1"
+      }
+    },
+    "/api/v1/profile/parse": {
+      "post": {
+        "description": "Parse free text into a StudentProfile-shaped dict (parse only).\n\nRequest: ``{text (1..2000 chars), locale=\"en\"}``. Response:\n``{parsed_profile, unparsed, confidence, confirmation_required,\nparser, ai_status, note}`` \u2014 the profile is NOT applied here; the\ncaller applies the user-confirmed profile via ``/match`` or\n``/profile/validate``.",
+        "operationId": "profile_parse_endpoint_api_v1_profile_parse_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Profile Parse Endpoint",
+        "tags": [
+          "assistant"
+        ]
       }
     },
     "/api/v1/profile/validate": {

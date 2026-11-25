@@ -122,6 +122,9 @@ class Evaluation(BaseModel):
     results: list[RuleResult] = []
     ai_status: str = "unavailable"
     explanation: Optional[str] = None
+    # Validated structured model output (spec Ch13 schema), present only
+    # when a model call was actually used; None in template mode.
+    explanation_structured: Optional[dict] = None
 
 
 class MatchRequest(BaseModel):
