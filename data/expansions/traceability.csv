@@ -1,0 +1,654 @@
+fact_id,scope,scope_id,field,value,source_url,retrieved_at
+rank-11-25-f0001,institution,university-of-hong-kong,stats.total_students,44100,http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html,2026-11-25
+rank-11-25-f0002,institution,university-of-hong-kong,founded_year,1911,http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html,2026-11-25
+rank-11-25-f0003,institution,ntu,stats.total_students,34400,https://www.ntu.edu.sg/docs/default-source/office-of-data-and-analytics/ntuataglance2023b.pdf,2026-11-25
+rank-11-25-f0004,institution,ntu,founded_year,1991,https://www.ntu.edu.sg/docs/default-source/office-of-data-and-analytics/ntuataglance2023b.pdf,2026-11-25
+rank-11-25-f0005,institution,peking-university,stats.total_students,45974,http://oldisd.pku.edu.cn/info/1454/2532.htm,2026-11-25
+rank-11-25-f0006,institution,peking-university,founded_year,1898,http://oldisd.pku.edu.cn/info/1454/2532.htm,2026-11-25
+rank-11-25-f0008,institution,university-of-pennsylvania,stats.total_students,29384,https://www.upenn.edu/index.php/about,2026-11-25
+rank-11-25-f0009,institution,university-of-pennsylvania,stats.student_faculty_ratio,10,https://www.upenn.edu/index.php/about,2026-11-25
+rank-11-25-f0010,institution,university-of-pennsylvania,founded_year,1740,https://www.upenn.edu/index.php/about,2026-11-25
+rank-11-25-f0011,institution,cornell-university,stats.total_students,26017,https://www.cornell.edu/about/index.cfm,2026-11-25
+rank-11-25-f0012,institution,cornell-university,founded_year,1865,https://www.cornell.edu/about/index.cfm,2026-11-25
+rank-11-25-f0014,institution,yale-university,founded_year,1701,https://macmillan.yale.edu/foxfellowship/yale-university-united-states,2026-11-25
+rank-11-25-f0015,institution,university-of-new-south-wales,stats.total_students,70238,https://www.unsw.edu.au/content/dam/pdfs/unsw-adobe-websites/about-us/unsw-at-a-glance/2024-08-unsw-at-a-glance-2024-A5-digital.pdf,2026-11-25
+rank-11-25-f0016,institution,university-of-new-south-wales,founded_year,1949,https://www.unsw.edu.au/content/dam/pdfs/unsw-adobe-websites/about-us/unsw-at-a-glance/2024-08-unsw-at-a-glance-2024-A5-digital.pdf,2026-11-25
+rank-11-25-f0021,institution,ecole-polytechnique-federale-de-lausanne,founded_year,1853,https://www.epfl.ch/schools/cdh/wp-content/uploads/2024/06/CDH22.pdf,2026-11-25
+rank-11-25-f0025,program,hku-cs-beng-2027,fees,249000 HKD per_year,https://admissions.hku.hk/programmes/undergraduate-programmes/computing-and-data-science,2026-11-25
+rank-11-25-f0026,program,hku-aids-beng-2027,fees,249000 HKD per_year,https://admissions.hku.hk/programmes/undergraduate-programmes/computing-and-data-science,2026-11-25
+rank-11-25-f0027,program,hku-cs-msc-2027,fees,375000 HKD total,https://master.cds.hku.hk/msccs/about/msc-in-computer-science-application-procedure-2027-28/,2026-11-25
+rank-11-25-f0028,program,hku-cs-msc-2027,application_deadline,1 Dec 2026,https://master.cds.hku.hk/msccs/about/msc-in-computer-science-application-procedure-2027-28/,2026-11-25
+rank-11-25-f0029,program,ntu-ce-beng-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/education/degree-programmes,2026-11-25
+rank-11-25-f0030,program,ntu-dsai-bsc-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/education/degree-programmes,2026-11-25
+rank-11-25-f0031,program,ntu-aisc-bcomp-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/education/degree-programmes,2026-11-25
+rank-11-25-f0032,program,ntu-ds-msc-2027,fees,65748.8 SGD total,https://www.ntu.edu.sg/engineering/coe-programmes/graduate/coe-programme-detail/master-of-science-in-data-science-%28msds%29,2026-11-25
+rank-11-25-f0033,program,ntu-cyber-msc-2027,fees,unknown SGD total,https://www.ntu.edu.sg/computing/admissions/graduate-programmes,2026-11-25
+rank-11-25-f0034,program,peking-cs-bsc-2027,fees,30000 CNY per_year,http://oldisd.pku.edu.cn/info/1454/2532.htm,2026-11-25
+rank-11-25-f0035,program,peking-cs-msc-2027,fees,unknown CNY per_year,http://oldisd.pku.edu.cn/info/1454/2532.htm,2026-11-25
+rank-11-25-f0036,program,tsinghua-cs-bsc-2027,fees,30000 CNY per_year,https://international.join-tsinghua.edu.cn/Admission1/Fees.htm,2026-11-25
+rank-11-25-f0055,program,cuhk-cs-msc-2027,fees,300000 HKD total,http://msc.cse.cuhk.edu.hk/?page_id=124&lang=en,2026-11-25
+rank-11-25-f0063,program,jhu-cs-mse-2027,fees,68670 USD per_year,https://www.cs.jhu.edu/academic-programs/graduate-studies/masters-computer-science/,2026-11-25
+rank-11-25-f0064,program,jhu-cs-mse-2027,application_deadline,15 Feb 2027,https://www.cs.jhu.edu/academic-programs/graduate-studies/masters-computer-science/,2026-11-25
+rank-01-10-massachusetts-institute-of-technology-stats-total_students,institution,massachusetts-institute-of-technology,stats.total_students,11816,https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf,2026-11-25
+rank-01-10-massachusetts-institute-of-technology-stats-student_faculty_ratio,institution,massachusetts-institute-of-technology,stats.student_faculty_ratio,3,https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf,2026-11-25
+rank-01-10-massachusetts-institute-of-technology-stats-international_pct,institution,massachusetts-institute-of-technology,stats.international_pct,29.1,https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf,2026-11-25
+rank-01-10-massachusetts-institute-of-technology-stats-graduate_pct,institution,massachusetts-institute-of-technology,stats.graduate_pct,61.4,https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf,2026-11-25
+rank-01-10-massachusetts-institute-of-technology-founded-year,institution,massachusetts-institute-of-technology,founded_year,1861,https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf,2026-11-25
+rank-01-10-imperial-stats-total_students,institution,imperial,stats.total_students,23000,https://www.imperial.ac.uk/media/imperial-college/about/leadership-and-strategy/president/public/Imperial-Strategy---Science-for-Humanity.pdf?ref=felixonline.co.uk,2026-11-25
+rank-01-10-imperial-stats-graduate_pct,institution,imperial,stats.graduate_pct,47.8,https://www.imperial.ac.uk/media/imperial-college/about/leadership-and-strategy/president/public/Imperial-Strategy---Science-for-Humanity.pdf?ref=felixonline.co.uk,2026-11-25
+rank-01-10-imperial-founded-year,institution,imperial,founded_year,1907,https://www.imperial.ac.uk/about/,2026-11-25
+rank-01-10-stanford-university-stats-total_students,institution,stanford-university,stats.total_students,17314,https://facts.stanford.edu/academics,2026-11-25
+rank-01-10-stanford-university-stats-graduate_pct,institution,stanford-university,stats.graduate_pct,57.9,https://facts.stanford.edu/academics,2026-11-25
+rank-01-10-university-of-oxford-stats-total_students,institution,university-of-oxford,stats.total_students,26800,https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers,2026-11-25
+rank-01-10-university-of-oxford-stats-international_pct,institution,university-of-oxford,stats.international_pct,43,https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers,2026-11-25
+rank-01-10-university-of-oxford-stats-graduate_pct,institution,university-of-oxford,stats.graduate_pct,51.3,https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers,2026-11-25
+rank-01-10-university-of-oxford-stats-male_pct,institution,university-of-oxford,stats.male_pct,48.9,https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers,2026-11-25
+rank-01-10-university-of-oxford-stats-female_pct,institution,university-of-oxford,stats.female_pct,51.0,https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers,2026-11-25
+rank-01-10-university-of-oxford-founded-year,institution,university-of-oxford,founded_year,1096,https://www.ox.ac.uk/about/the-university/facts-and-figures?lang=en,2026-11-25
+rank-01-10-harvard-university-stats-total_students,institution,harvard-university,stats.total_students,24317,https://www.harvard.edu/about/,2026-11-25
+rank-01-10-harvard-university-stats-student_faculty_ratio,institution,harvard-university,stats.student_faculty_ratio,7,https://college.harvard.edu/about,2026-11-25
+rank-01-10-harvard-university-stats-international_pct,institution,harvard-university,stats.international_pct,23,https://www.hio.harvard.edu/statistics.md,2026-11-25
+rank-01-10-harvard-university-stats-graduate_pct,institution,harvard-university,stats.graduate_pct,70.8,https://www.harvard.edu/about/,2026-11-25
+rank-01-10-harvard-university-founded-year,institution,harvard-university,founded_year,1636,https://www.harvard.edu/about/,2026-11-25
+rank-01-10-university-of-cambridge-stats-total_students,institution,university-of-cambridge,stats.total_students,24927,https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance,2026-11-25
+rank-01-10-university-of-cambridge-stats-international_pct,institution,university-of-cambridge,stats.international_pct,41,https://www.careers.cam.ac.uk/employers/advertise-your-opportunities/hiring-international-graduates,2026-11-25
+rank-01-10-university-of-cambridge-stats-graduate_pct,institution,university-of-cambridge,stats.graduate_pct,48.5,https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance,2026-11-25
+rank-01-10-university-of-cambridge-founded-year,institution,university-of-cambridge,founded_year,1209,https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance,2026-11-25
+rank-01-10-california-institute-of-technology-stats-total_students,institution,california-institute-of-technology,stats.total_students,2000,https://www.caltech.edu/about/news/kavli-foundation-establishes-endowed-professorship-caltech-572,2026-11-25
+rank-01-10-eth-zurich-stats-total_students,institution,eth-zurich,stats.total_students,26942,https://ethz.ch/content/dam/ethz/main/eth-zurich/portraet/geschaeftsbericht-2025/PDF-Downloads/GB25-eth-zuerich-jahresrechnung-EN.pdf,2026-11-25
+rank-01-10-eth-zurich-founded-year,institution,eth-zurich,founded_year,1855,https://ethz.ch/en/studies/non-degree-courses/exchange/downloads/for-prospective-students/university.html,2026-11-25
+rank-01-10-ucl-stats-total_students,institution,ucl,stats.total_students,51000,https://www.ucl.ac.uk/pg-teaching-opportunities-hub/sites/pg_teaching_opportunities_hub/files/b16-01958_pgta_bsc_sociology_programme_candid_ladislao_dela_cruz_j.pdf,2026-11-25
+rank-01-10-ucl-founded-year,institution,ucl,founded_year,1826,https://www.ucl.ac.uk/pg-teaching-opportunities-hub/sites/pg_teaching_opportunities_hub/files/b16-01958_pgta_bsc_sociology_programme_candid_ladislao_dela_cruz_j.pdf,2026-11-25
+rank-01-10-nus-stats-total_students,institution,nus,stats.total_students,45700,http://www.nus.edu.sg/about,2026-11-25
+rank-01-10-nus-stats-graduate_pct,institution,nus,stats.graduate_pct,35.9,http://www.nus.edu.sg/about,2026-11-25
+rank-01-10-nus-founded-year,institution,nus,founded_year,1905,http://www.nus.edu.sg/about,2026-11-25
+rank-01-10-mit-cs-sb-2027-fees,program,mit-cs-sb-2027,fees,66720,https://mitadmissions.org/apply/firstyear/deadlines-requirements/,2026-11-25
+rank-01-10-mit-cs-sb-2027-deadline,program,mit-cs-sb-2027,application_deadline,1 November 2026 (Early Action); 4 January 2027 (Regular Action),https://mitadmissions.org/apply/firstyear/deadlines-requirements/,2026-11-25
+rank-01-10-mit-eecs-sb-2027-fees,program,mit-eecs-sb-2027,fees,66720,https://mitadmissions.org/apply/firstyear/deadlines-requirements/,2026-11-25
+rank-01-10-mit-eecs-sb-2027-deadline,program,mit-eecs-sb-2027,application_deadline,1 November 2026 (Early Action); 4 January 2027 (Regular Action),https://mitadmissions.org/apply/firstyear/deadlines-requirements/,2026-11-25
+rank-01-10-mit-ceds-sb-2027-fees,program,mit-ceds-sb-2027,fees,66720,https://mitadmissions.org/apply/firstyear/deadlines-requirements/,2026-11-25
+rank-01-10-mit-ceds-sb-2027-deadline,program,mit-ceds-sb-2027,application_deadline,1 November 2026 (Early Action); 4 January 2027 (Regular Action),https://mitadmissions.org/apply/firstyear/deadlines-requirements/,2026-11-25
+rank-01-10-mit-eecs-meng-2027-fees,program,mit-eecs-meng-2027,fees,66720,https://eecsis.mit.edu/degree_requirements.pcgi?program=6-3,2026-11-25
+rank-01-10-stanford-cs-bs-2027-fees,program,stanford-cs-bs-2027,fees,67731,https://admission.stanford.edu/apply/first-year/testing.html,2026-11-25
+rank-01-10-stanford-cs-bs-2027-deadline,program,stanford-cs-bs-2027,application_deadline,1 November 2026 (Restrictive Early Action); 5 January 2027 (Regular Decision),https://admission.stanford.edu/apply/first-year/testing.html,2026-11-25
+rank-01-10-stanford-cs-ms-2027-fees,program,stanford-cs-ms-2027,fees,69717,https://bulletin.stanford.edu/programs/graduate/computer-science/master-of-science/admissions,2026-11-25
+rank-01-10-stanford-cs-ms-2027-deadline,program,stanford-cs-ms-2027,application_deadline,8 December 2026,https://bulletin.stanford.edu/programs/graduate/computer-science/master-of-science/admissions,2026-11-25
+rank-01-10-oxford-cs-ba-2027-fees,program,oxford-cs-ba-2027,fees,66580,https://www.ox.ac.uk/node/842,2026-11-25
+rank-01-10-oxford-cs-ba-2027-deadline,program,oxford-cs-ba-2027,application_deadline,"15 October 2026 (UCAS, 6pm UK time)",https://www.ox.ac.uk/node/842,2026-11-25
+rank-01-10-oxford-cs-mcompsci-2027-fees,program,oxford-cs-mcompsci-2027,fees,66580,https://www.ox.ac.uk/node/842,2026-11-25
+rank-01-10-oxford-cs-mcompsci-2027-deadline,program,oxford-cs-mcompsci-2027,application_deadline,"15 October 2026 (UCAS, 6pm UK time)",https://www.ox.ac.uk/node/842,2026-11-25
+rank-01-10-oxford-msc-adv-cs-2027-fees,program,oxford-msc-adv-cs-2027,fees,46350,https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science?wssl=1,2026-11-25
+rank-01-10-oxford-msc-adv-cs-2027-deadline,program,oxford-msc-adv-cs-2027,application_deadline,6 January 2027 (12:00 midday UK time),https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science?wssl=1,2026-11-25
+rank-01-10-harvard-cs-ab-2027-fees,program,harvard-cs-ab-2027,fees,62226,https://college.harvard.edu/admissions/apply,2026-11-25
+rank-01-10-harvard-cs-ab-2027-deadline,program,harvard-cs-ab-2027,application_deadline,1 November 2026 (Restrictive Early Action); 1 January 2027 (Regular Decision),https://college.harvard.edu/admissions/apply,2026-11-25
+rank-01-10-harvard-cse-sm-2027-fees,program,harvard-cse-sm-2027,fees,67504,https://seas.harvard.edu/masters-data-science/how-apply,2026-11-25
+rank-01-10-harvard-cse-sm-2027-deadline,program,harvard-cse-sm-2027,application_deadline,1 December 2026,https://seas.harvard.edu/masters-data-science/how-apply,2026-11-25
+rank-01-10-harvard-ds-sm-2027-fees,program,harvard-ds-sm-2027,fees,67504,https://seas.harvard.edu/masters-data-science/how-apply,2026-11-25
+rank-01-10-harvard-ds-sm-2027-deadline,program,harvard-ds-sm-2027,application_deadline,1 December 2026,https://seas.harvard.edu/masters-data-science/how-apply,2026-11-25
+rank-01-10-cambridge-cs-ba-2027-fees,program,cambridge-cs-ba-2027,fees,44214,https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng,2026-11-25
+rank-01-10-cambridge-cs-ba-2027-deadline,program,cambridge-cs-ba-2027,application_deadline,15 October 2026 (UCAS),https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng,2026-11-25
+rank-01-10-cambridge-cs-meng-2027-fees,program,cambridge-cs-meng-2027,fees,44214,https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng,2026-11-25
+rank-01-10-cambridge-cs-meng-2027-deadline,program,cambridge-cs-meng-2027,application_deadline,15 October 2026 (UCAS),https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng,2026-11-25
+rank-01-10-cambridge-mphil-acs-2027-fees,program,cambridge-mphil-acs-2027,fees,51084,https://www.cl.cam.ac.uk/admissions/acs/,2026-11-25
+rank-01-10-cambridge-mphil-acs-2027-deadline,program,cambridge-mphil-acs-2027,application_deadline,25 February 2027 (funding deadline 8 December 2026),https://www.cl.cam.ac.uk/admissions/acs/,2026-11-25
+rank-01-10-caltech-cs-bs-2027-fees,program,caltech-cs-bs-2027,fees,68574,https://www.admissions.caltech.edu/apply/first-year-applicants/deadlines,2026-11-25
+rank-01-10-caltech-cs-bs-2027-deadline,program,caltech-cs-bs-2027,application_deadline,1 November 2026 (Restrictive Early Action); 4 January 2027 (Regular Decision),https://www.admissions.caltech.edu/apply/first-year-applicants/deadlines,2026-11-25
+rank-01-10-eth-cs-msc-2027-fees,program,eth-cs-msc-2027,fees,4380,https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf,2026-11-25
+rank-01-10-eth-cs-msc-2027-deadline,program,eth-cs-msc-2027,application_deadline,30 November 2026,https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf,2026-11-25
+rank-01-10-eth-ds-msc-2027-fees,program,eth-ds-msc-2027,fees,4380,https://www.ethz.org/content/dam/ethz/common/docs/master-profile/englisch/ingenieurwissenschaften/MSc-DataScience-Appendix.pdf,2026-11-25
+rank-01-10-eth-ds-msc-2027-deadline,program,eth-ds-msc-2027,application_deadline,30 November 2026,https://www.ethz.org/content/dam/ethz/common/docs/master-profile/englisch/ingenieurwissenschaften/MSc-DataScience-Appendix.pdf,2026-11-25
+rank-01-10-eth-cybersec-msc-2027-fees,program,eth-cybersec-msc-2027,fees,4380,https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf,2026-11-25
+rank-01-10-eth-cybersec-msc-2027-deadline,program,eth-cybersec-msc-2027,application_deadline,30 November 2026,https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf,2026-11-25
+rank-01-10-imperial-comp-meng-aiml-2027-fees,program,imperial-comp-meng-aiml-2027,fees,unknown,http://www.imperial.ac.uk/study/ug/courses/computing-department/meng-computing-artificial-intelligence/,2026-11-25
+rank-01-10-imperial-comp-meng-aiml-2027-deadline,program,imperial-comp-meng-aiml-2027,application_deadline,13 January 2027 (18:00 UK time),http://www.imperial.ac.uk/study/ug/courses/computing-department/meng-computing-artificial-intelligence/,2026-11-25
+rank-01-10-imperial-msc-ai-2027-fees,program,imperial-msc-ai-2027,fees,48300,https://www.imperial.ac.uk/study/courses/postgraduate-taught/computing-artificial-intelligence-msc/?removeCourse=1194116,2026-11-25
+rank-01-10-imperial-msc-ai-2027-deadline,program,imperial-msc-ai-2027,application_deadline,6 January 2027 (Round 2 closes),https://www.imperial.ac.uk/study/courses/postgraduate-taught/computing-artificial-intelligence-msc/?removeCourse=1194116,2026-11-25
+rank-01-10-imperial-msc-adv-comp-2027-fees,program,imperial-msc-adv-comp-2027,fees,48300,https://www.imperial.ac.uk/study/courses/postgraduate-taught/advanced-computing/,2026-11-25
+rank-01-10-imperial-msc-adv-comp-2027-deadline,program,imperial-msc-adv-comp-2027,application_deadline,6 January 2027 (Round 2 closes),https://www.imperial.ac.uk/study/courses/postgraduate-taught/advanced-computing/,2026-11-25
+rank-01-10-ucl-cs-meng-2027-fees,program,ucl-cs-meng-2027,fees,48600,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-meng,2026-11-25
+rank-01-10-ucl-cs-meng-2027-deadline,program,ucl-cs-meng-2027,application_deadline,13 January 2027 (6pm UK time),https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-meng,2026-11-25
+rank-01-10-ucl-dsml-msc-2026-fees,program,ucl-dsml-msc-2026,fees,42700,https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/data-science-and-machine-learning-msc-2026,2026-11-25
+rank-01-10-ucl-dsml-msc-2026-deadline,program,ucl-dsml-msc-2026,application_deadline,27 March 2026 (visa-required applicants); 28 August 2026 (no visa required),https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/data-science-and-machine-learning-msc-2026,2026-11-25
+rank-01-10-ucl-ml-msc-2027-fees,program,ucl-ml-msc-2027,fees,44400,https://www.ucl.ac.uk/study/prospective-students/graduate/courses/machine-learning-msc,2026-11-25
+rank-01-10-ucl-ml-msc-2027-deadline,program,ucl-ml-msc-2027,application_deadline,22 March 2027 (visa-required applicants); 27 August 2027 (no visa required),https://www.ucl.ac.uk/study/prospective-students/graduate/courses/machine-learning-msc,2026-11-25
+rank-01-10-nus-bcomp-isec-2027-fees,program,nus-bcomp-isec-2027,fees,39700,https://www.comp.nus.edu.sg/programmes/ug/isc/curr/,2026-11-25
+rank-01-10-nus-bcomp-is-2027-fees,program,nus-bcomp-is-2027,fees,39700,https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs,2026-11-25
+rank-51-75-university-of-michigan-ann-arbor-stats-total_students,institution,university-of-michigan-ann-arbor,stats.total_students,53488,https://obp.umich.edu/wp-content/uploads/pubdata/mandatoryreports/Section_241_Report_Card_2025-26.pdf,2026-11-25
+rank-51-75-university-of-michigan-ann-arbor-stats-student_faculty_ratio,institution,university-of-michigan-ann-arbor,stats.student_faculty_ratio,11,https://obp.umich.edu/wp-content/uploads/pubdata/mandatoryreports/Section_241_Report_Card_2025-26.pdf,2026-11-25
+rank-51-75-university-of-michigan-ann-arbor-stats-international_pct,institution,university-of-michigan-ann-arbor,stats.international_pct,15.2,https://obp.umich.edu/wp-content/uploads/pubdata/mandatoryreports/Section_241_Report_Card_2025-26.pdf,2026-11-25
+rank-51-75-university-of-michigan-ann-arbor-stats-graduate_pct,institution,university-of-michigan-ann-arbor,stats.graduate_pct,33.9,https://obp.umich.edu/wp-content/uploads/pubdata/mandatoryreports/Section_241_Report_Card_2025-26.pdf,2026-11-25
+rank-51-75-university-of-michigan-ann-arbor-founded-year,institution,university-of-michigan-ann-arbor,founded_year,1817,https://obp.umich.edu/wp-content/uploads/pubdata/almanac/Almanac_20th_Ch1_Overview.pdf,2026-11-25
+rank-51-75-city-university-of-hong-kong-founded-year,institution,city-university-of-hong-kong,founded_year,1984,https://www.cs.cityu.edu.hk/~hwchun/extreme/winners/2006/Billy/cityu-web-hacker-butterfly-cityu.html,2026-11-25
+rank-51-75-national-taiwan-university-founded-year,institution,national-taiwan-university,founded_year,1928,https://ntuweb.cloud.ntu.edu.tw/oldenglish/about/about.html,2026-11-25
+rank-51-75-carnegie-mellon-university-stats-total_students,institution,carnegie-mellon-university,stats.total_students,16564,https://www.cmu.edu/ira/images/quickfacts/26_cmu_quickfacts.pdf,2026-11-25
+rank-51-75-carnegie-mellon-university-founded-year,institution,carnegie-mellon-university,founded_year,1900,https://www.cmu.edu/ira/images/quickfacts/26_cmu_quickfacts.pdf,2026-11-25
+rank-51-75-new-york-university-stats-total_students,institution,new-york-university,stats.total_students,60525,https://www.nyu.edu/about/news-publications/nyu-at-a-glance.html,2026-11-25
+rank-51-75-new-york-university-founded-year,institution,new-york-university,founded_year,1831,https://www.nyu.edu/about/news-publications/nyu-at-a-glance.html,2026-11-25
+rank-51-75-ku-leuven-stats-total_students,institution,ku-leuven,stats.total_students,66306,https://www.kuleuven.be/english/about-kuleuven/facts-and-figures,2026-11-25
+rank-51-75-ku-leuven-stats-international_pct,institution,ku-leuven,stats.international_pct,26.8,https://www.kuleuven.be/english/about-kuleuven/facts-and-figures,2026-11-25
+rank-51-75-ku-leuven-founded-year,institution,ku-leuven,founded_year,1425,https://www.kuleuven.be/english/about-kuleuven/facts-and-figures,2026-11-25
+rank-51-75-london-school-of-economics-and-political-science-founded-year,institution,london-school-of-economics-and-political-science,founded_year,1895,https://www.lse.ac.uk/about-lse/our-history?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-king-fahd-university-of-petroleum-minerals-founded-year,institution,king-fahd-university-of-petroleum-minerals,founded_year,1963,https://pure.kfupm.edu.sa/,2026-11-25
+rank-51-75-kyoto-university-stats-total_students,institution,kyoto-university,stats.total_students,23000,https://www.kyoto-u.ac.jp/en/education-campus/faq/2-1,2026-11-25
+rank-51-75-kyoto-university-stats-international_pct,institution,kyoto-university,stats.international_pct,13.0,https://www.kyoto-u.ac.jp/en/education-campus/faq/2-1,2026-11-25
+rank-51-75-kyoto-university-founded-year,institution,kyoto-university,founded_year,1897,https://www.kyoto-u.ac.jp/en/education-campus/faq/2-1,2026-11-25
+rank-51-75-korea-advanced-institute-of-science-and-technology-stats-total_students,institution,korea-advanced-institute-of-science-and-technology,stats.total_students,12348,https://www.kaist.ac.kr/en/html/kaist/01.html,2026-11-25
+rank-51-75-korea-advanced-institute-of-science-and-technology-stats-international_pct,institution,korea-advanced-institute-of-science-and-technology,stats.international_pct,7.5,https://www.kaist.ac.kr/en/html/kaist/01.html,2026-11-25
+rank-51-75-korea-advanced-institute-of-science-and-technology-stats-graduate_pct,institution,korea-advanced-institute-of-science-and-technology,stats.graduate_pct,67.5,https://www.kaist.ac.kr/en/html/kaist/01.html,2026-11-25
+rank-51-75-korea-advanced-institute-of-science-and-technology-founded-year,institution,korea-advanced-institute-of-science-and-technology,founded_year,1971,https://www.kaist.ac.kr/en/html/kaist/01.html,2026-11-25
+rank-51-75-brown-university-stats-total_students,institution,brown-university,stats.total_students,11004,https://www.brown.edu/index%2ephp/about,2026-11-25
+rank-51-75-brown-university-stats-graduate_pct,institution,brown-university,stats.graduate_pct,33.9,https://www.brown.edu/index%2ephp/about,2026-11-25
+rank-51-75-brown-university-founded-year,institution,brown-university,founded_year,1764,https://www.brown.edu/index%2ephp/about,2026-11-25
+rank-51-75-university-of-birmingham-founded-year,institution,university-of-birmingham,founded_year,1900,https://www.birmingham.ac.uk/about/our-history-and-heritage,2026-11-25
+rank-51-75-university-of-warwick-stats-international_pct,institution,university-of-warwick,stats.international_pct,33.0,https://warwick.ac.uk/services/gov/calendar/historicalnote/,2026-11-25
+rank-51-75-university-of-warwick-founded-year,institution,university-of-warwick,founded_year,1965,https://warwick.ac.uk/services/gov/calendar/historicalnote/,2026-11-25
+rank-51-75-lund-university-stats-total_students,institution,lund-university,stats.total_students,46000,https://www.lunduniversity.lu.se/about-university/university-glance,2026-11-25
+rank-51-75-lund-university-founded-year,institution,lund-university,founded_year,1666,https://www.lunduniversity.lu.se/about-university/university-glance,2026-11-25
+rank-51-75-university-of-texas-at-austin-stats-total_students,institution,university-of-texas-at-austin,stats.total_students,55172,https://www.utexas.edu/about/facts-and-figures,2026-11-25
+rank-51-75-university-of-texas-at-austin-stats-graduate_pct,institution,university-of-texas-at-austin,stats.graduate_pct,19.2,https://www.utexas.edu/about/facts-and-figures,2026-11-25
+rank-51-75-university-of-texas-at-austin-founded-year,institution,university-of-texas-at-austin,founded_year,1883,https://www.utexas.edu/about/facts-and-figures,2026-11-25
+rank-51-75-university-of-illinois-urbana-champaign-founded-year,institution,university-of-illinois-urbana-champaign,founded_year,1867,https://uillinois.edu/about/history,2026-11-25
+rank-51-75-trinity-college-dublin-founded-year,institution,trinity-college-dublin,founded_year,1592,https://www.tcd.ie/media/tcd/calendar/general-information/2018-19/history-of-tcd.pdf,2026-11-25
+rank-51-75-michigan-cs-bse-2027-fees,program,michigan-cs-bse-2027,fees,unknown,https://bulletin.engin.umich.edu/eecs/,2026-11-25
+rank-51-75-michigan-ce-bse-2027-fees,program,michigan-ce-bse-2027,fees,unknown,https://bulletin.engin.umich.edu/eecs/,2026-11-25
+rank-51-75-michigan-ds-bse-2027-fees,program,michigan-ds-bse-2027,fees,unknown,https://bulletin.engin.umich.edu/eecs/,2026-11-25
+rank-51-75-michigan-cs-bs-2027-fees,program,michigan-cs-bs-2027,fees,unknown,https://cse.engin.umich.edu/academics/undergraduate/programs/computer-science-lsa-major/,2026-11-25
+rank-51-75-michigan-cse-ms-2027-fees,program,michigan-cse-ms-2027,fees,unknown,http://eecs.umich.edu/cse/,2026-11-25
+rank-51-75-michigan-ds-ms-2027-fees,program,michigan-ds-ms-2027,fees,unknown,http://eecs.umich.edu/cse/,2026-11-25
+rank-51-75-cityu-hk-cs-bsc-2027-fees,program,cityu-hk-cs-bsc-2027,fees,unknown,https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview,2026-11-25
+rank-51-75-cityu-hk-cs-bsc-2027-deadline,program,cityu-hk-cs-bsc-2027,application_deadline,15 Jan 2027,https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview,2026-11-25
+rank-51-75-cityu-hk-cyber-bsc-2027-fees,program,cityu-hk-cyber-bsc-2027,fees,unknown,https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview,2026-11-25
+rank-51-75-cityu-hk-cyber-bsc-2027-deadline,program,cityu-hk-cyber-bsc-2027,application_deadline,15 Jan 2027,https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview,2026-11-25
+rank-51-75-cityu-hk-ai-msc-2027-fees,program,cityu-hk-ai-msc-2027,fees,unknown,https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview,2026-11-25
+rank-51-75-cityu-hk-cs-msc-2027-fees,program,cityu-hk-cs-msc-2027,fees,unknown,https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview,2026-11-25
+rank-51-75-cityu-hk-cyber-msc-2027-fees,program,cityu-hk-cyber-msc-2027,fees,unknown,https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview,2026-11-25
+rank-51-75-cityu-hk-digcom-msc-2027-fees,program,cityu-hk-digcom-msc-2027,fees,unknown,https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview,2026-11-25
+rank-51-75-korea-u-cse-ms-2027-fees,program,korea-u-cse-ms-2027,fees,unknown,https://info.korea.edu/en_info/grad/computer_intro.do,2026-11-25
+rank-51-75-ntu-csie-bs-2027-fees,program,ntu-csie-bs-2027,fees,unknown,https://admissions.ntu.edu.tw/colleges/college-of-electrical-engineering-computer-science/,2026-11-25
+rank-51-75-ntu-csie-ms-2027-fees,program,ntu-csie-ms-2027,fees,unknown,https://admissions.ntu.edu.tw/colleges/college-of-electrical-engineering-computer-science/,2026-11-25
+rank-51-75-ntu-ds-ms-2027-fees,program,ntu-ds-ms-2027,fees,unknown,https://admissions.ntu.edu.tw/colleges/college-of-electrical-engineering-computer-science/,2026-11-25
+rank-51-75-cmu-cs-bs-2027-fees,program,cmu-cs-bs-2027,fees,unknown,http://coursecatalog.web.cmu.edu/schools-colleges/schoolofcomputerscience/schoolofcomputerscience.pdf,2026-11-25
+rank-51-75-cmu-cbio-bs-2027-fees,program,cmu-cbio-bs-2027,fees,unknown,http://coursecatalog.web.cmu.edu/schools-colleges/schoolofcomputerscience/schoolofcomputerscience.pdf,2026-11-25
+rank-51-75-cmu-ai-bs-2027-fees,program,cmu-ai-bs-2027,fees,unknown,http://coursecatalog.web.cmu.edu/schools-colleges/schoolofcomputerscience/schoolofcomputerscience.pdf,2026-11-25
+rank-51-75-cmu-hci-bs-2027-fees,program,cmu-hci-bs-2027,fees,unknown,http://coursecatalog.web.cmu.edu/schools-colleges/schoolofcomputerscience/schoolofcomputerscience.pdf,2026-11-25
+rank-51-75-cmu-robotics-bs-2027-fees,program,cmu-robotics-bs-2027,fees,unknown,http://coursecatalog.web.cmu.edu/schools-colleges/schoolofcomputerscience/schoolofcomputerscience.pdf,2026-11-25
+rank-51-75-cmu-cs-ms-2027-fees,program,cmu-cs-ms-2027,fees,unknown,https://www.cs.cmu.edu/education/masters/,2026-11-25
+rank-51-75-cmu-hci-ms-2027-fees,program,cmu-hci-ms-2027,fees,unknown,https://www.cs.cmu.edu/education/masters/,2026-11-25
+rank-51-75-cmu-ds-ms-2027-fees,program,cmu-ds-ms-2027,fees,unknown,https://www.cs.cmu.edu/education/masters/,2026-11-25
+rank-51-75-cmu-ai-ms-2027-fees,program,cmu-ai-ms-2027,fees,unknown,https://www.cs.cmu.edu/education/masters/,2026-11-25
+rank-51-75-cmu-ml-ms-2027-fees,program,cmu-ml-ms-2027,fees,unknown,https://www.cs.cmu.edu/education/masters/,2026-11-25
+rank-51-75-cmu-se-ms-2027-fees,program,cmu-se-ms-2027,fees,unknown,https://www.cs.cmu.edu/education/masters/,2026-11-25
+rank-51-75-um-ai-bcs-2027-fees,program,um-ai-bcs-2027,fees,unknown,https://www.um.edu.my/computer-science-and-information-technology,2026-11-25
+rank-51-75-um-csn-bcs-2027-fees,program,um-csn-bcs-2027,fees,unknown,https://www.um.edu.my/computer-science-and-information-technology,2026-11-25
+rank-51-75-um-is-bcs-2027-fees,program,um-is-bcs-2027,fees,unknown,https://www.um.edu.my/computer-science-and-information-technology,2026-11-25
+rank-51-75-um-se-bcs-2027-fees,program,um-se-bcs-2027,fees,unknown,https://www.um.edu.my/computer-science-and-information-technology,2026-11-25
+rank-51-75-um-mm-bit-2027-fees,program,um-mm-bit-2027,fees,unknown,https://www.um.edu.my/computer-science-and-information-technology,2026-11-25
+rank-51-75-um-ds-bcs-2027-fees,program,um-ds-bcs-2027,fees,unknown,https://www.um.edu.my/computer-science-and-information-technology,2026-11-25
+rank-51-75-um-se-mse-2027-fees,program,um-se-mse-2027,fees,unknown,https://www.um.edu.my/master-of-computer-science-and-information,2026-11-25
+rank-51-75-um-cs-mcs-2027-fees,program,um-cs-mcs-2027,fees,unknown,https://www.um.edu.my/master-of-computer-science-and-information,2026-11-25
+rank-51-75-um-ds-mds-2027-fees,program,um-ds-mds-2027,fees,unknown,https://www.um.edu.my/master-of-computer-science-and-information,2026-11-25
+rank-51-75-bristol-ai-beng-2027-fees,program,bristol-ai-beng-2027,fees,unknown,https://www.bristol.ac.uk/study/artificial-intelligence/,2026-11-25
+rank-51-75-bristol-csai-bsc-2027-fees,program,bristol-csai-bsc-2027,fees,unknown,https://www.bristol.ac.uk/study/artificial-intelligence/,2026-11-25
+rank-51-75-bristol-csai-meng-2027-fees,program,bristol-csai-meng-2027,fees,unknown,https://www.bristol.ac.uk/study/artificial-intelligence/,2026-11-25
+rank-51-75-bristol-ai-msc-2027-fees,program,bristol-ai-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/artificial-intelligence/,2026-11-25
+rank-51-75-bristol-eai-msc-2027-fees,program,bristol-eai-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/artificial-intelligence/,2026-11-25
+rank-51-75-bristol-aimh-msc-2027-fees,program,bristol-aimh-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/artificial-intelligence/,2026-11-25
+rank-51-75-bristol-aib-msc-2027-fees,program,bristol-aib-msc-2027,fees,GBP 34500 per_year,https://www.bristol.ac.uk/study/postgraduate/taught/msc-artificial-intelligence-for-business/,2026-11-25
+rank-51-75-bristol-ds-msc-2027-fees,program,bristol-ds-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/postgraduate/search/ai-data-science-programme-list/,2026-11-25
+rank-51-75-bristol-dsb-msc-2027-fees,program,bristol-dsb-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/postgraduate/search/ai-data-science-programme-list/,2026-11-25
+rank-51-75-bristol-fintech-msc-2027-fees,program,bristol-fintech-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/postgraduate/search/ai-data-science-programme-list/,2026-11-25
+rank-51-75-bristol-iot-msc-2027-fees,program,bristol-iot-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/postgraduate/search/ai-data-science-programme-list/,2026-11-25
+rank-51-75-bristol-robotics-msc-2027-fees,program,bristol-robotics-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/postgraduate/search/ai-data-science-programme-list/,2026-11-25
+rank-51-75-bristol-aerial-robotics-msc-2027-fees,program,bristol-aerial-robotics-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/postgraduate/search/ai-data-science-programme-list/,2026-11-25
+rank-51-75-bristol-biorobotics-msc-2027-fees,program,bristol-biorobotics-msc-2027,fees,unknown,https://www.bristol.ac.uk/study/postgraduate/search/ai-data-science-programme-list/,2026-11-25
+rank-51-75-nyu-ce-bs-2027-fees,program,nyu-ce-bs-2027,fees,unknown,https://engineering.nyu.edu/academics/departments/computer-science-and-engineering/degrees-and-programs,2026-11-25
+rank-51-75-nyu-cs-bs-2027-fees,program,nyu-cs-bs-2027,fees,unknown,https://engineering.nyu.edu/academics/departments/computer-science-and-engineering/degrees-and-programs,2026-11-25
+rank-51-75-nyu-cs-ms-2027-fees,program,nyu-cs-ms-2027,fees,unknown,https://engineering.nyu.edu/academics/programs/computer-science-ms,2026-11-25
+rank-51-75-nyu-cyber-ms-2027-fees,program,nyu-cyber-ms-2027,fees,unknown,https://engineering.nyu.edu/academics/departments/computer-science-and-engineering/degrees-and-programs,2026-11-25
+rank-51-75-nyu-cyber-risk-ms-2027-fees,program,nyu-cyber-risk-ms-2027,fees,unknown,https://engineering.nyu.edu/academics/departments/computer-science-and-engineering/degrees-and-programs,2026-11-25
+rank-51-75-nyu-ds-ms-2027-fees,program,nyu-ds-ms-2027,fees,unknown,https://cims.nyu.edu/ai/educational-programs/graduate/,2026-11-25
+rank-51-75-nyu-et-ms-2027-fees,program,nyu-et-ms-2027,fees,unknown,https://engineering.nyu.edu/academics/departments/computer-science-and-engineering/degrees-and-programs,2026-11-25
+rank-51-75-ku-leuven-cs-meng-2027-fees,program,ku-leuven-cs-meng-2027,fees,unknown,https://onderwijsaanbod.kuleuven.be/opleidingen/e/CQ_52364384.htm?pdf=1,2026-11-25
+rank-51-75-ku-leuven-ai-ms-2027-fees,program,ku-leuven-ai-ms-2027,fees,unknown,https://www.kuleuven.be/programmes/master-artificial-intelligence/index.html,2026-11-25
+rank-51-75-ku-leuven-cyber-ms-2027-fees,program,ku-leuven-cyber-ms-2027,fees,unknown,https://onderwijsaanbod.kuleuven.be/opleidingen/e/CQ_52364384.htm?pdf=1,2026-11-25
+rank-51-75-uva-ai-msc-2027-fees,program,uva-ai-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-cs-msc-2027-fees,program,uva-cs-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-ds-msc-2027-fees,program,uva-ds-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-dsba-msc-2027-fees,program,uva-dsba-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-comp-sci-msc-2027-fees,program,uva-comp-sci-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-sne-msc-2027-fees,program,uva-sne-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-se-msc-2027-fees,program,uva-se-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-qcs-msc-2027-fees,program,uva-qcs-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-bioinfo-msc-2027-fees,program,uva-bioinfo-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-cdai-msc-2027-fees,program,uva-cdai-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-is-msc-2027-fees,program,uva-is-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-logic-msc-2027-fees,program,uva-logic-msc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-css-bsc-2027-fees,program,uva-css-bsc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-uva-eds-bsc-2027-fees,program,uva-eds-bsc-2027,fees,unknown,https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics,2026-11-25
+rank-51-75-lmu-ds-msc-2027-fees,program,lmu-ds-msc-2027,fees,unknown,https://dsl.ifi.lmu.de/cms/students/study/index.html,2026-11-25
+rank-51-75-lmu-informatics-ms-2027-fees,program,lmu-informatics-ms-2027,fees,unknown,https://dsl.ifi.lmu.de/cms/students/study/index.html,2026-11-25
+rank-51-75-lse-ds-msc-2027-fees,program,lse-ds-msc-2027,fees,unknown,https://www.lse.ac.uk/study-at-lse/graduate/msc-data-science?gad_source=1,2026-11-25
+rank-51-75-lse-asds-msc-2027-fees,program,lse-asds-msc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-mcds-msc-2027-fees,program,lse-mcds-msc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-ora-msc-2027-fees,program,lse-ora-msc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-misdi-msc-2027-fees,program,lse-misdi-msc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-hds-msc-2027-fees,program,lse-hds-msc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-gds-msc-2027-fees,program,lse-gds-msc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-ada-msc-2027-fees,program,lse-ada-msc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-mpa-dspp-2027-fees,program,lse-mpa-dspp-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-ds-bsc-2027-fees,program,lse-ds-bsc-2027,fees,unknown,https://www.lse.ac.uk/study-at-lse/undergraduate/bsc-data-science,2026-11-25
+rank-51-75-lse-pds-bsc-2027-fees,program,lse-pds-bsc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/Study-to-24?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-mds-bsc-2027-fees,program,lse-mds-bsc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/Study-to-24?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-lse-eds-bsc-2027-fees,program,lse-eds-bsc-2027,fees,unknown,https://www.lse.ac.uk/DSI/study/undergraduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e,2026-11-25
+rank-51-75-kfupm-cs-bs-2027-fees,program,kfupm-cs-bs-2027,fees,unknown,https://ics.kfupm.edu.sa/,2026-11-25
+rank-51-75-kfupm-se-bs-2027-fees,program,kfupm-se-bs-2027,fees,unknown,https://ics.kfupm.edu.sa/,2026-11-25
+rank-51-75-kfupm-aics-bs-2027-fees,program,kfupm-aics-bs-2027,fees,unknown,https://ics.kfupm.edu.sa/,2026-11-25
+rank-51-75-kfupm-ce-bs-2027-fees,program,kfupm-ce-bs-2027,fees,unknown,https://ccm.kfupm.edu.sa/academics/programs,2026-11-25
+rank-51-75-kfupm-sd-bs-2027-fees,program,kfupm-sd-bs-2027,fees,unknown,https://ccm.kfupm.edu.sa/academics/programs,2026-11-25
+rank-51-75-kfupm-ai-ms-2027-fees,program,kfupm-ai-ms-2027,fees,unknown,https://ics.kfupm.edu.sa/,2026-11-25
+rank-51-75-kfupm-cyber-ms-2027-fees,program,kfupm-cyber-ms-2027,fees,unknown,https://ics.kfupm.edu.sa/,2026-11-25
+rank-51-75-kfupm-vsc-ms-2027-fees,program,kfupm-vsc-ms-2027,fees,unknown,https://ics.kfupm.edu.sa/,2026-11-25
+rank-51-75-kfupm-cn-ms-2027-fees,program,kfupm-cn-ms-2027,fees,unknown,https://ccm.kfupm.edu.sa/academics/programs,2026-11-25
+rank-51-75-kfupm-hpc-ms-2027-fees,program,kfupm-hpc-ms-2027,fees,unknown,https://ccm.kfupm.edu.sa/academics/programs,2026-11-25
+rank-51-75-kfupm-iot-ms-2027-fees,program,kfupm-iot-ms-2027,fees,unknown,https://ccm.kfupm.edu.sa/academics/programs,2026-11-25
+rank-51-75-kfupm-qc-ms-2027-fees,program,kfupm-qc-ms-2027,fees,unknown,https://ccm.kfupm.edu.sa/academics/programs,2026-11-25
+rank-51-75-kyoto-ist-ms-2027-fees,program,kyoto-ist-ms-2027,fees,unknown,https://www.i.kyoto-u.ac.jp/en/course/,2026-11-25
+rank-51-75-kyoto-si-ms-2027-fees,program,kyoto-si-ms-2027,fees,unknown,https://www.i.kyoto-u.ac.jp/en/course/,2026-11-25
+rank-51-75-kyoto-ams-ms-2027-fees,program,kyoto-ams-ms-2027,fees,unknown,https://www.i.kyoto-u.ac.jp/en/course/,2026-11-25
+rank-51-75-kyoto-amp-ms-2027-fees,program,kyoto-amp-ms-2027,fees,unknown,https://www.i.kyoto-u.ac.jp/en/course/,2026-11-25
+rank-51-75-kyoto-ss-ms-2027-fees,program,kyoto-ss-ms-2027,fees,unknown,https://www.i.kyoto-u.ac.jp/en/course/,2026-11-25
+rank-51-75-kyoto-cce-ms-2027-fees,program,kyoto-cce-ms-2027,fees,unknown,https://www.i.kyoto-u.ac.jp/en/course/,2026-11-25
+rank-51-75-kyoto-ds-ms-2027-fees,program,kyoto-ds-ms-2027,fees,unknown,https://www.i.kyoto-u.ac.jp/en/course/,2026-11-25
+rank-51-75-kyoto-cs-bs-2027-fees,program,kyoto-cs-bs-2027,fees,unknown,https://www.i.kyoto-u.ac.jp/en/faculty/relationship/,2026-11-25
+rank-51-75-kaist-cs-ms-2027-fees,program,kaist-cs-ms-2027,fees,unknown,https://admission.kaist.ac.kr/intl-graduate/Discover/ExplorePrograms,2026-11-25
+rank-51-75-kaist-ai-ms-2027-fees,program,kaist-ai-ms-2027,fees,unknown,https://admission.kaist.ac.kr/intl-graduate/Discover/ExplorePrograms,2026-11-25
+rank-51-75-kaist-ds-ms-2027-fees,program,kaist-ds-ms-2027,fees,unknown,https://admission.kaist.ac.kr/intl-graduate/Discover/ExplorePrograms,2026-11-25
+rank-51-75-kaist-is-ms-2027-fees,program,kaist-is-ms-2027,fees,unknown,https://admission.kaist.ac.kr/intl-graduate/Discover/ExplorePrograms,2026-11-25
+rank-51-75-kaist-ee-ms-2027-fees,program,kaist-ee-ms-2027,fees,unknown,https://admission.kaist.ac.kr/intl-graduate/Discover/ExplorePrograms,2026-11-25
+rank-51-75-kaist-robotics-ms-2027-fees,program,kaist-robotics-ms-2027,fees,unknown,https://admission.kaist.ac.kr/intl-graduate/Discover/ExplorePrograms,2026-11-25
+rank-51-75-brown-cs-scb-2027-fees,program,brown-cs-scb-2027,fees,unknown,https://oir.brown.edu/institutional-data/browns-cip-codes,2026-11-25
+rank-51-75-brown-cs-ab-2027-fees,program,brown-cs-ab-2027,fees,unknown,https://oir.brown.edu/institutional-data/browns-cip-codes,2026-11-25
+rank-51-75-brown-amcs-scb-2027-fees,program,brown-amcs-scb-2027,fees,unknown,https://oir.brown.edu/institutional-data/browns-cip-codes,2026-11-25
+rank-51-75-brown-mcs-scb-2027-fees,program,brown-mcs-scb-2027,fees,unknown,https://oir.brown.edu/institutional-data/browns-cip-codes,2026-11-25
+rank-51-75-brown-csecon-scb-2027-fees,program,brown-csecon-scb-2027,fees,unknown,https://oir.brown.edu/institutional-data/browns-cip-codes,2026-11-25
+rank-51-75-brown-ds-scm-2027-fees,program,brown-ds-scm-2027,fees,unknown,https://oir.brown.edu/institutional-data/browns-cip-codes,2026-11-25
+rank-51-75-brown-cs-scm-2027-fees,program,brown-cs-scm-2027,fees,unknown,https://oir.brown.edu/institutional-data/browns-cip-codes,2026-11-25
+rank-51-75-brown-dsp-scm-2027-fees,program,brown-dsp-scm-2027,fees,unknown,https://oir.brown.edu/institutional-data/browns-cip-codes,2026-11-25
+rank-51-75-auckland-ds-ms-2027-fees,program,auckland-ds-ms-2027,fees,NZD 57974-58258 per_year,https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/master-of-data-science-mdats.html,2026-11-25
+rank-51-75-auckland-ai-ms-2027-fees,program,auckland-ai-ms-2027,fees,NZD 57292-57293 per_year,https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/master-of-artificial-intelligence--mai-.html,2026-11-25
+rank-51-75-auckland-ds-mprof-2027-fees,program,auckland-ds-mprof-2027,fees,unknown,https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/computer-science/postgraduate.html,2026-11-25
+rank-51-75-auckland-digsec-mprof-2027-fees,program,auckland-digsec-mprof-2027,fees,unknown,https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/computer-science/postgraduate.html,2026-11-25
+rank-51-75-auckland-cs-bsc-2027-fees,program,auckland-cs-bsc-2027,fees,unknown,https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/computer-science/undergraduate.html,2026-11-25
+rank-51-75-auckland-se-be-2027-fees,program,auckland-se-be-2027,fees,unknown,https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/software-engineering/undergraduate.html,2026-11-25
+rank-51-75-birmingham-cs-bsc-2027-fees,program,birmingham-cs-bsc-2027,fees,unknown,https://www.birmingham.ac.uk/study/undergraduate/subjects/computer-science-courses/computer-science-bsc,2026-11-25
+rank-51-75-birmingham-aics-bsc-2027-fees,program,birmingham-aics-bsc-2027,fees,GBP 33300 per_year,https://www.birmingham.ac.uk/study/undergraduate/subjects/computer-science-courses/artificial-intelligence-ai-computer-science-bsc,2026-11-25
+rank-51-75-birmingham-aics-bsc-2027-deadline,program,birmingham-aics-bsc-2027,application_deadline,13 Jan 2027,https://www.birmingham.ac.uk/study/undergraduate/subjects/computer-science-courses/artificial-intelligence-ai-computer-science-bsc,2026-11-25
+rank-51-75-birmingham-aics-ind-bsc-2027-fees,program,birmingham-aics-ind-bsc-2027,fees,unknown,https://www.birmingham.ac.uk/documents/students/cma/2025/eps/artificial-intelligence-and-computer-science-with-an-industrial-year-b.sc.-4-years-gg74-2025-26-pdf-127kb.pdf,2026-11-25
+rank-51-75-birmingham-cs-msc-2027-fees,program,birmingham-cs-msc-2027,fees,unknown,https://www.birmingham.ac.uk/study/postgraduate/subjects/computer-science-and-data-science-courses/computer-science-msc,2026-11-25
+rank-51-75-birmingham-adv-cs-msc-2027-fees,program,birmingham-adv-cs-msc-2027,fees,unknown,https://www.birmingham.ac.uk/study/postgraduate/subjects/computer-science-and-data-science-courses/advanced-computer-science-msc,2026-11-25
+rank-51-75-birmingham-ai-msc-2027-fees,program,birmingham-ai-msc-2027,fees,unknown,https://www.birmingham.ac.uk/study/postgraduate/subjects/computer-science-and-data-science-courses/artificial-intelligence-msc,2026-11-25
+rank-51-75-birmingham-cyber-msc-2027-fees,program,birmingham-cyber-msc-2027,fees,unknown,https://www.birmingham.ac.uk/study/postgraduate/subjects/computer-science-and-data-science-courses/cyber-security-msc,2026-11-25
+rank-51-75-warwick-cs-bsc-2027-fees,program,warwick-cs-bsc-2027,fees,unknown,https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf,2026-11-25
+rank-51-75-warwick-cs-meng-2027-fees,program,warwick-cs-meng-2027,fees,unknown,https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf,2026-11-25
+rank-51-75-warwick-csb-bsc-2027-fees,program,warwick-csb-bsc-2027,fees,unknown,https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf,2026-11-25
+rank-51-75-warwick-ds-bsc-2027-fees,program,warwick-ds-bsc-2027,fees,unknown,https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf,2026-11-25
+rank-51-75-warwick-ds-msci-2027-fees,program,warwick-ds-msci-2027,fees,unknown,https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf,2026-11-25
+rank-51-75-warwick-cse-beng-2027-fees,program,warwick-cse-beng-2027,fees,unknown,https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf,2026-11-25
+rank-51-75-warwick-dm-bsc-2027-fees,program,warwick-dm-bsc-2027,fees,unknown,https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf,2026-11-25
+rank-51-75-warwick-robotics-beng-2027-fees,program,warwick-robotics-beng-2027,fees,unknown,https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf,2026-11-25
+rank-51-75-warwick-csai-msc-2027-fees,program,warwick-csai-msc-2027,fees,unknown,https://warwick.ac.uk/study/postgraduate/courses/msc-computer-science-artificial-intelligence-machine-learning/,2026-11-25
+rank-51-75-warwick-aai-msc-2027-fees,program,warwick-aai-msc-2027,fees,unknown,https://warwick.ac.uk/fac/sci/wmg/study/masters-degrees/applied-artificial-intelligence/,2026-11-25
+rank-51-75-warwick-aai-msc-2027-deadline,program,warwick-aai-msc-2027,application_deadline,31 Aug 2027,https://warwick.ac.uk/fac/sci/wmg/study/masters-degrees/applied-artificial-intelligence/,2026-11-25
+rank-51-75-duke-cs-bs-2027-fees,program,duke-cs-bs-2027,fees,unknown,https://cs.duke.edu/undergraduate/why-duke-cs,2026-11-25
+rank-51-75-duke-cs-ab-2027-fees,program,duke-cs-ab-2027,fees,unknown,https://cs.duke.edu/undergraduate/degrees/BA,2026-11-25
+rank-51-75-duke-statcs-bs-2027-fees,program,duke-statcs-bs-2027,fees,unknown,https://cs.duke.edu/undergraduate/why-duke-cs,2026-11-25
+rank-51-75-duke-mathcs-bs-2027-fees,program,duke-mathcs-bs-2027,fees,unknown,https://cs.duke.edu/undergraduate/why-duke-cs,2026-11-25
+rank-51-75-duke-cs-ms-2027-fees,program,duke-cs-ms-2027,fees,unknown,https://cs.duke.edu/graduate/ms/course-options,2026-11-25
+rank-51-75-duke-msec-ms-2027-fees,program,duke-msec-ms-2027,fees,unknown,https://gradschool.duke.edu/academics/programs-and-degrees/masters-programs/,2026-11-25
+rank-51-75-duke-mids-ms-2027-fees,program,duke-mids-ms-2027,fees,unknown,https://gradschool.duke.edu/academics/programs-and-degrees/masters-programs/,2026-11-25
+rank-51-75-lund-ml-msc-2027-fees,program,lund-ml-msc-2027,fees,SEK 370000 total,https://www.lunduniversity.lu.se/study/machine-learning-systems-and-control-masters-programme-TAMSR,2026-11-25
+rank-51-75-ut-austin-cs-bs-2027-fees,program,ut-austin-cs-bs-2027,fees,unknown,https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing,2026-11-25
+rank-51-75-ut-austin-cs-ba-2027-fees,program,ut-austin-cs-ba-2027,fees,unknown,https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing,2026-11-25
+rank-51-75-ut-austin-cs-bsa-2027-fees,program,ut-austin-cs-bsa-2027,fees,unknown,https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing,2026-11-25
+rank-51-75-ut-austin-sds-bs-2027-fees,program,ut-austin-sds-bs-2027,fees,unknown,https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing,2026-11-25
+rank-51-75-ut-austin-inf-bsi-2027-fees,program,ut-austin-inf-bsi-2027,fees,unknown,https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing,2026-11-25
+rank-51-75-ut-austin-cs-ms-2027-fees,program,ut-austin-cs-ms-2027,fees,unknown,https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing,2026-11-25
+rank-51-75-ut-austin-cs-online-ms-2027-fees,program,ut-austin-cs-online-ms-2027,fees,USD 10000 total,https://cdso.utexas.edu/,2026-11-25
+rank-51-75-ut-austin-cs-online-ms-2027-deadline,program,ut-austin-cs-online-ms-2027,application_deadline,15 April,https://cdso.utexas.edu/,2026-11-25
+rank-51-75-ut-austin-ai-online-ms-2027-fees,program,ut-austin-ai-online-ms-2027,fees,USD 10000 total,https://cdso.utexas.edu/,2026-11-25
+rank-51-75-ut-austin-ai-online-ms-2027-deadline,program,ut-austin-ai-online-ms-2027,application_deadline,15 April,https://cdso.utexas.edu/,2026-11-25
+rank-51-75-ut-austin-ds-online-ms-2027-fees,program,ut-austin-ds-online-ms-2027,fees,USD 10000 total,https://cdso.utexas.edu/,2026-11-25
+rank-51-75-ut-austin-ds-online-ms-2027-deadline,program,ut-austin-ds-online-ms-2027,application_deadline,15 April,https://cdso.utexas.edu/,2026-11-25
+rank-51-75-ut-austin-is-ms-2027-fees,program,ut-austin-is-ms-2027,fees,unknown,https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing,2026-11-25
+rank-51-75-ut-austin-isp-ms-2027-fees,program,ut-austin-isp-ms-2027,fees,unknown,https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing,2026-11-25
+rank-51-75-sorbonne-mind-ms-2027-fees,program,sorbonne-mind-ms-2027,fees,unknown,https://sciences.sorbonne-universite.fr/en/masters/master-computer-science/mind,2026-11-25
+rank-51-75-uiuc-cs-bs-2027-fees,program,uiuc-cs-bs-2027,fees,unknown,http://catalog.illinois.edu/degree-programs/,2026-11-25
+rank-51-75-uiuc-ce-bs-2027-fees,program,uiuc-ce-bs-2027,fees,unknown,http://catalog.illinois.edu/degree-programs/,2026-11-25
+rank-51-75-uiuc-csphys-bs-2027-fees,program,uiuc-csphys-bs-2027,fees,unknown,http://catalog.illinois.edu/degree-programs/,2026-11-25
+rank-51-75-uiuc-mathcs-bs-2027-fees,program,uiuc-mathcs-bs-2027,fees,unknown,http://catalog.illinois.edu/degree-programs/,2026-11-25
+rank-51-75-uiuc-statcs-bs-2027-fees,program,uiuc-statcs-bs-2027,fees,unknown,http://catalog.illinois.edu/degree-programs/,2026-11-25
+rank-51-75-uiuc-cs-ms-2027-fees,program,uiuc-cs-ms-2027,fees,unknown,https://siebelschool.illinois.edu/admissions/graduate/degree-program-options,2026-11-25
+rank-51-75-uiuc-mcs-2027-fees,program,uiuc-mcs-2027,fees,unknown,https://siebelschool.illinois.edu/admissions/graduate/degree-program-options,2026-11-25
+rank-51-75-uiuc-mcs-ds-2027-fees,program,uiuc-mcs-ds-2027,fees,unknown,https://siebelschool.illinois.edu/admissions/graduate/degree-program-options,2026-11-25
+rank-51-75-uiuc-bioinfo-ms-2027-fees,program,uiuc-bioinfo-ms-2027,fees,unknown,https://siebelschool.illinois.edu/admissions/graduate/degree-program-options,2026-11-25
+rank-51-75-tcd-cs-ba-2027-fees,program,tcd-cs-ba-2027,fees,unknown,https://www.tcd.ie/courses/undergraduate/courses/computer-science/,2026-11-25
+rank-51-75-tcd-cs-ds-msc-2027-fees,program,tcd-cs-ds-msc-2027,fees,unknown,https://www.tcd.ie/courses/postgraduate/courses/computer-science---data-science--mscpgraddip/,2026-11-25
+rank-51-75-tcd-cs-is-msc-2027-fees,program,tcd-cs-is-msc-2027,fees,unknown,https://www.tcd.ie/scss/courses/postgraduate/,2026-11-25
+rank-51-75-tcd-cs-fns-msc-2027-fees,program,tcd-cs-fns-msc-2027,fees,unknown,https://www.tcd.ie/scss/courses/postgraduate/,2026-11-25
+rank-51-75-tcd-cs-avr-msc-2027-fees,program,tcd-cs-avr-msc-2027,fees,unknown,https://www.tcd.ie/scss/courses/postgraduate/,2026-11-25
+rank-51-75-tcd-idm-msc-2027-fees,program,tcd-idm-msc-2027,fees,unknown,https://www.tcd.ie/scss/courses/postgraduate/,2026-11-25
+rank-26-50-f0001,program,fudan-cs-bachelor-2027,fees,unknown,https://iso.fudan.edu.cn/_upload/article/files/3e/a5/446b78734925997dcd3f0967e4b0/082c79b0-dbba-413a-bdd0-cc201c34c6a6.pdf,2026-11-25
+rank-26-50-f0002,program,fudan-cs-bachelor-2027,requirements.language,IELTS 6.5 / TOEFL iBT 90 / Duolingo 110 / PTE 61,https://iso.fudan.edu.cn/_upload/article/files/3e/a5/446b78734925997dcd3f0967e4b0/082c79b0-dbba-413a-bdd0-cc201c34c6a6.pdf,2026-11-25
+rank-26-50-f0003,program,fudan-cs-bachelor-2027,requirements.academic,English-taught track; HSK Level 4 required for graduation,https://iso.fudan.edu.cn/_upload/article/files/3e/a5/446b78734925997dcd3f0967e4b0/082c79b0-dbba-413a-bdd0-cc201c34c6a6.pdf,2026-11-25
+rank-26-50-f0004,program,fudan-se-bachelor-2027,fees,unknown,https://iso.fudan.edu.cn/_upload/article/files/3e/a5/446b78734925997dcd3f0967e4b0/082c79b0-dbba-413a-bdd0-cc201c34c6a6.pdf,2026-11-25
+rank-26-50-f0005,program,fudan-se-bachelor-2027,requirements.language,IELTS 6.5 / TOEFL iBT 90 / Duolingo 110 / PTE 61,https://iso.fudan.edu.cn/_upload/article/files/3e/a5/446b78734925997dcd3f0967e4b0/082c79b0-dbba-413a-bdd0-cc201c34c6a6.pdf,2026-11-25
+rank-26-50-f0006,program,fudan-se-bachelor-2027,requirements.academic,English-taught track; HSK Level 4 required for graduation,https://iso.fudan.edu.cn/_upload/article/files/3e/a5/446b78734925997dcd3f0967e4b0/082c79b0-dbba-413a-bdd0-cc201c34c6a6.pdf,2026-11-25
+rank-26-50-f0007,program,princeton-cs-ab-2027,fees,unknown,https://admission.princeton.edu/academics/degrees-departments?page=1,2026-11-25
+rank-26-50-f0008,program,princeton-cs-ab-2027,requirements.academic,Central admission; concentration chosen after enrolment,https://admission.princeton.edu/academics/degrees-departments?page=1,2026-11-25
+rank-26-50-f0009,program,princeton-cs-bse-2027,fees,unknown,https://admission.princeton.edu/academics/degrees-departments?page=1,2026-11-25
+rank-26-50-f0010,program,princeton-cs-bse-2027,requirements.academic,Central admission; concentration chosen after enrolment,https://admission.princeton.edu/academics/degrees-departments?page=1,2026-11-25
+rank-26-50-f0011,program,sydney-advcomp-bachelor-2027,fees,63600,https://cusp.sydney.edu.au/students/view-degree-page/print/1/stream/13823/dvid/6222/,2026-11-25
+rank-26-50-f0012,program,sydney-advcomp-bachelor-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band; TOEFL iBT 85",https://cusp.sydney.edu.au/students/view-degree-page/print/1/stream/13823/dvid/6222/,2026-11-25
+rank-26-50-f0013,program,sydney-advcomp-bachelor-2027,requirements.academic,ATAR 90.0 / IB 34; HSC Mathematics Advanced Band 4,https://cusp.sydney.edu.au/students/view-degree-page/print/1/stream/13823/dvid/6222/,2026-11-25
+rank-26-50-f0014,program,sydney-computing-bachelor-2027,fees,unknown,https://www.sydney.edu.au/handbooks/2023/engineering/advanced_computing/advanced_computing_table.html,2026-11-25
+rank-26-50-f0015,program,sydney-computing-bachelor-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band",https://cusp.sydney.edu.au/students/view-degree-page/print/1/stream/13823/dvid/6222/,2026-11-25
+rank-26-50-f0016,program,sydney-cs-mcs-2027,fees,41300,https://www.sydney.edu.au/courses/courses/pc/master-of-computer-science.html?ref=abroadbrief.com,2026-11-25
+rank-26-50-f0017,program,sydney-cs-mcs-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band; TOEFL iBT 85",https://www.sydney.edu.au/courses/courses/pc/master-of-computer-science.html?ref=abroadbrief.com,2026-11-25
+rank-26-50-f0018,program,sydney-it-mit-2027,fees,unknown,https://cusp.sydney.edu.au/students/view-degree-page/degree_id/413,2026-11-25
+rank-26-50-f0019,program,sydney-it-mit-2027,requirements.academic,Bachelor's degree with at least 60% average (entry level 1),https://cusp.sydney.edu.au/students/view-degree-page/degree_id/413,2026-11-25
+rank-26-50-f0020,program,sydney-it-mit-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band",https://cusp.sydney.edu.au/students/view-degree-page/degree_id/413,2026-11-25
+rank-26-50-f0021,program,anu-computing-bachelor-2027,fees,57640,https://programsandcourses.anu.edu.au/2025/program/BCOMP,2026-11-25
+rank-26-50-f0022,program,anu-computing-bachelor-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band; TOEFL iBT 80",https://policies.anu.edu.au/ppl/document/ANUP_000408,2026-11-25
+rank-26-50-f0023,program,anu-computing-bachelor-2027,requirements.academic,ATAR 80 / IB 30; Mathematics Methods prerequisite,https://programsandcourses.anu.edu.au/2025/program/BCOMP,2026-11-25
+rank-26-50-f0024,program,anu-advcomp-hons-2027,fees,unknown,https://programsandcourses.anu.edu.au/2024/program/AACOM,2026-11-25
+rank-26-50-f0025,program,anu-advcomp-hons-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band",https://policies.anu.edu.au/ppl/document/ANUP_000408,2026-11-25
+rank-26-50-f0026,program,mcgill-cs-bsc-2027,fees,unknown,https://www.cs.mcgill.ca/undergrad/future/applying/,2026-11-25
+rank-26-50-f0027,program,mcgill-cs-bsc-2027,application_deadline,15 January 2027,https://www.cs.mcgill.ca/undergrad/future/applying/,2026-11-25
+rank-26-50-f0028,program,mcgill-cs-bsc-2027,requirements.language,"IELTS 6.5 overall, no band below 6.0; TOEFL iBT 90 (21 each)",https://www.cs.mcgill.ca/undergrad/future/applying/,2026-11-25
+rank-26-50-f0029,program,mcgill-cs-bsc-2027,requirements.academic,Faculty of Science group admission; major declared after admission,https://www.cs.mcgill.ca/undergrad/future/applying/,2026-11-25
+rank-26-50-f0030,program,mcgill-se-beng-2027,fees,unknown,https://www.cs.mcgill.ca/undergrad/future/applying/,2026-11-25
+rank-26-50-f0031,program,mcgill-se-beng-2027,application_deadline,15 January 2027,https://www.cs.mcgill.ca/undergrad/future/applying/,2026-11-25
+rank-26-50-f0032,program,mcgill-se-beng-2027,requirements.language,"IELTS 6.5 overall, no band below 6.0; TOEFL iBT 90 (21 each)",https://www.cs.mcgill.ca/undergrad/future/applying/,2026-11-25
+rank-26-50-f0033,program,monash-cs-bachelor-2027,fees,45440,https://www.monash.edu/study/courses/find-a-course/computer-science-c2001?utm_medium=paidsearch&utm_content=ITSEMC2001_AU_WAV_UGSTUDENTT&utm_source=google&utm_campaign=UGRAD_ITE&gclid=Cj0KCQjww4TGBhCKARIsAFLXndTFDK08USDzX43_48TqeIKJMgfmu12sVk-qfW9NYByJjs0tAtQhHZ8aAjnTEALw_wcB,2026-11-25
+rank-26-50-f0034,program,monash-cs-bachelor-2027,requirements.academic,ATAR 80.15; prerequisites English and Mathematics,https://www.monash.edu/study/courses/find-a-course/computer-science-c2001?utm_medium=paidsearch&utm_content=ITSEMC2001_AU_WAV_UGSTUDENTT&utm_source=google&utm_campaign=UGRAD_ITE&gclid=Cj0KCQjww4TGBhCKARIsAFLXndTFDK08USDzX43_48TqeIKJMgfmu12sVk-qfW9NYByJjs0tAtQhHZ8aAjnTEALw_wcB,2026-11-25
+rank-26-50-f0035,program,monash-it-mit-2027,fees,44740,https://www.monash.edu/study/courses/find-a-course/information-technology-c6001,2026-11-25
+rank-26-50-f0036,program,monash-it-mit-2027,requirements.language,"IELTS 6.5 overall, min 6.0 each band; TOEFL iBT 79",https://www.monash.edu/study/courses/find-a-course/information-technology-c6001,2026-11-25
+rank-26-50-f0037,program,monash-it-mit-2027,requirements.academic,Bachelor's degree with at least 60% average (entry level 1),https://www.monash.edu/study/courses/find-a-course/information-technology-c6001,2026-11-25
+rank-26-50-f0038,program,toronto-cs-bsc-2027,fees,unknown,https://www.artsci.utoronto.ca/sites/default/files/Viewbook2025spread.pdf,2026-11-25
+rank-26-50-f0039,program,toronto-cs-bsc-2027,requirements.language,"IELTS 6.5 overall, no band below 6.0",https://www.utsc.utoronto.ca/admissions/sites/utsc.utoronto.ca.admissions/files/docs/viewbook.pdf,2026-11-25
+rank-26-50-f0040,program,toronto-cs-bsc-2027,requirements.academic,English and Calculus required; recommended range low 90s; supplemental application,https://www.artsci.utoronto.ca/sites/default/files/Viewbook2025spread.pdf,2026-11-25
+rank-26-50-f0041,program,toronto-mscac-2027,fees,unknown,https://mscac.utoronto.ca/apply/,2026-11-25
+rank-26-50-f0042,program,toronto-mscac-2027,application_deadline,1 December 2026,https://mscac.utoronto.ca/apply/,2026-11-25
+rank-26-50-f0043,program,toronto-mscac-2027,requirements.language,"IELTS 7.0 overall, min 6.5 each component",https://sgs.calendar.utoronto.ca/computer-science-applied-computing-mscac-concentration-computer-science,2026-11-25
+rank-26-50-f0044,program,toronto-mscac-2027,requirements.academic,"Bachelor's in CS or related, B+ in final year; GRE optional",https://sgs.calendar.utoronto.ca/computer-science-applied-computing-mscac-concentration-computer-science,2026-11-25
+rank-26-50-f0045,program,hkust-cs-beng-2027,fees,unknown,https://cse.hkust.edu.hk/ug/comp/,2026-11-25
+rank-26-50-f0046,program,hkust-cs-beng-2027,requirements.language,IELTS 6.0 overall; TOEFL iBT 80 (2021 document),https://ugadmin.hkust.edu.hk/prog_crs/ug/202627/pdf/26-27comp.pdf,2026-11-25
+rank-26-50-f0047,program,hkust-cs-beng-2027,requirements.academic,Senior Maths plus one senior science subject,https://ugadmin.hkust.edu.hk/prog_crs/ug/202627/pdf/26-27comp.pdf,2026-11-25
+rank-26-50-f0048,program,hkust-ai-msc-2027,fees,400000,https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-ai,2026-11-25
+rank-26-50-f0049,program,hkust-ai-msc-2027,application_deadline,1 March 2027,https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-ai,2026-11-25
+rank-26-50-f0050,program,hkust-ai-msc-2027,requirements.language,"IELTS 6.5 overall, all sub-scores 5.5; TOEFL iBT 80",https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-ai,2026-11-25
+rank-26-50-f0051,program,hkust-ai-msc-2027,requirements.academic,"Bachelor's in CE/CS/related, or other degree + 2y relevant work experience",https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-ai,2026-11-25
+rank-26-50-f0052,program,hkust-reai-msc-2027,fees,360000,https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-meng-reai,2026-11-25
+rank-26-50-f0053,program,hkust-reai-msc-2027,application_deadline,1 April 2027,https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-meng-reai,2026-11-25
+rank-26-50-f0054,program,hkust-reai-msc-2027,requirements.language,"IELTS 6.5 overall, all sub-scores 5.5",https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-meng-reai,2026-11-25
+rank-26-50-f0055,program,hkust-reai-msc-2027,requirements.academic,Bachelor's 2nd-class honours or above in engineering/CS/related,https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-meng-reai,2026-11-25
+rank-26-50-f0056,program,psl-cs-master-2027,fees,unknown,https://dauphine.psl.eu/en/training/masters-degrees/computer-science,2026-11-25
+rank-26-50-f0057,program,psl-cs-master-2027,requirements.academic,M1 I2D; M2 tracks MODO and IASD taught in English; 120 ECTS,https://dauphine.psl.eu/en/training/masters-degrees/computer-science,2026-11-25
+rank-26-50-f0058,program,psl-iasd-m2-2027,fees,unknown,https://dauphine.psl.eu/en/training/masters-degrees/computer-science/m2-artificial-intelligence-systems-data,2026-11-25
+rank-26-50-f0059,program,psl-iasd-m2-2027,requirements.academic,"M2, 60 ECTS, English, 24-week internship, capacity 50",https://dauphine.psl.eu/en/training/masters-degrees/computer-science/m2-artificial-intelligence-systems-data,2026-11-25
+rank-26-50-f0060,program,edinburgh-cs-bsc-2027,fees,40900,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0061,program,edinburgh-cs-bsc-2027,application_deadline,13 January 2027,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0062,program,edinburgh-cs-bsc-2027,requirements.language,"IELTS 6.5 overall, min 5.5 each; TOEFL iBT 92 (20 each)",https://explore.ucas.com/explore/courses/b05b4517-874b-1ee2-1c14-d63e806df2a7/computer-science?studyYear=2026,2026-11-25
+rank-26-50-f0063,program,edinburgh-cs-bsc-2027,requirements.academic,A-level A*A*A*-AAB incl Maths A; IB 34-43 incl HL Maths 6,https://explore.ucas.com/explore/courses/b05b4517-874b-1ee2-1c14-d63e806df2a7/computer-science?studyYear=2026,2026-11-25
+rank-26-50-f0064,program,edinburgh-ai-bsc-2027,fees,unknown,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0065,program,edinburgh-ai-bsc-2027,application_deadline,13 January 2027,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0066,program,edinburgh-ai-bsc-2027,requirements.language,"IELTS 6.5 overall, min 5.5 each; TOEFL iBT 92 (20 each)",https://explore.ucas.com/explore/courses/b05b4517-874b-1ee2-1c14-d63e806df2a7/computer-science?studyYear=2026,2026-11-25
+rank-26-50-f0067,program,edinburgh-aics-bsc-2027,fees,unknown,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0068,program,edinburgh-aics-bsc-2027,application_deadline,13 January 2027,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0069,program,edinburgh-aics-bsc-2027,requirements.language,"IELTS 6.5 overall, min 5.5 each; TOEFL iBT 92 (20 each)",https://explore.ucas.com/explore/courses/b05b4517-874b-1ee2-1c14-d63e806df2a7/computer-science?studyYear=2026,2026-11-25
+rank-26-50-f0070,program,edinburgh-csmaths-bsc-2027,fees,unknown,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0071,program,edinburgh-csmaths-bsc-2027,application_deadline,13 January 2027,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0072,program,edinburgh-csmaths-bsc-2027,requirements.language,"IELTS 6.5 overall, min 5.5 each; TOEFL iBT 92 (20 each)",https://explore.ucas.com/explore/courses/b05b4517-874b-1ee2-1c14-d63e806df2a7/computer-science?studyYear=2026,2026-11-25
+rank-26-50-f0073,program,edinburgh-cs-beng-2027,fees,unknown,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0074,program,edinburgh-cs-beng-2027,application_deadline,13 January 2027,https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0,2026-11-25
+rank-26-50-f0075,program,edinburgh-cs-beng-2027,requirements.language,"IELTS 6.5 overall, min 5.5 each; TOEFL iBT 92 (20 each)",https://explore.ucas.com/explore/courses/b05b4517-874b-1ee2-1c14-d63e806df2a7/computer-science?studyYear=2026,2026-11-25
+rank-26-50-f0076,program,edinburgh-ds-msc-2027,fees,unknown,https://study.ed.ac.uk/programmes/postgraduate-taught/902-data-science?utm_source=Topuniversities&utm_medium=programme&utm_campaign=ExternalListings&utm_content=CourseURL,2026-11-25
+rank-26-50-f0077,program,edinburgh-ds-msc-2027,requirements.language,"IELTS 7.0 overall, 6.5 in three components and 6.0 in the remaining; TOEFL iBT 100",https://study.ed.ac.uk/programmes/postgraduate-taught/902-data-science?utm_source=Topuniversities&utm_medium=programme&utm_campaign=ExternalListings&utm_content=CourseURL,2026-11-25
+rank-26-50-f0078,program,edinburgh-ds-msc-2027,requirements.academic,UK 2:1 honours (or equivalent) in informatics/AI/CS/maths/quantitative discipline,https://study.ed.ac.uk/programmes/postgraduate-taught/902-data-science?utm_source=Topuniversities&utm_medium=programme&utm_campaign=ExternalListings&utm_content=CourseURL,2026-11-25
+rank-26-50-f0079,program,edinburgh-ai-msc-2027,fees,47680,https://study.ed.ac.uk/programmes/postgraduate-taught-campus-fees?programme_code=PTMSCAINTL1F&year=2027,2026-11-25
+rank-26-50-f0080,program,sjtu-cs-bachelor-2027,fees,150000,https://en.smse.sjtu.edu.cn/admission/undergraduateEnglish,2026-11-25
+rank-26-50-f0081,program,sjtu-cs-bachelor-2027,application_deadline,1 November 2026,https://en.smse.sjtu.edu.cn/admission/undergraduateEnglish,2026-11-25
+rank-26-50-f0082,program,sjtu-cs-bachelor-2027,requirements.academic,English-taught cluster programme; all major courses in English; HSK Level 4 for graduation,https://en.smse.sjtu.edu.cn/admission/undergraduateEnglish,2026-11-25
+rank-26-50-f0083,program,kcl-cs-bsc-2027,fees,unknown,https://www.kcl.ac.uk/study/undergraduate/courses/computer-science-bsc,2026-11-25
+rank-26-50-f0084,program,kcl-cs-bsc-2027,application_deadline,13 January 2027,https://www.kcl.ac.uk/study/undergraduate/courses/computer-science-bsc,2026-11-25
+rank-26-50-f0085,program,kcl-cs-bsc-2027,requirements.language,"IELTS 6.5 overall, min 6.0 each (Band D); TOEFL iBT 92",https://www.kcl.ac.uk/study/undergraduate/courses/computer-science-bsc,2026-11-25
+rank-26-50-f0086,program,kcl-cs-bsc-2027,requirements.academic,"A*A*A incl Maths or Further Maths A; IB 39 pts, HL Maths 6",https://www.kcl.ac.uk/study/undergraduate/courses/computer-science-bsc,2026-11-25
+rank-26-50-f0087,program,kcl-ai-bsc-2027,fees,unknown,https://www.kcl.ac.uk/study/undergraduate/courses/artificial-intelligence-bsc,2026-11-25
+rank-26-50-f0088,program,kcl-ai-bsc-2027,application_deadline,13 January 2027,https://www.kcl.ac.uk/study/undergraduate/courses/artificial-intelligence-bsc,2026-11-25
+rank-26-50-f0089,program,kcl-ds-msc-2027,fees,40450,https://www.kcl.ac.uk/study/postgraduate-taught/courses/data-science-msc/fees,2026-11-25
+rank-26-50-f0090,program,snu-cse-bachelor-2027,fees,unknown,https://cse.snu.ac.kr/en/admissions/international/undergraduate,2026-11-25
+rank-26-50-f0091,program,snu-cse-bachelor-2027,requirements.academic,"International admissions tracks I and II; Department of CSE, College of Engineering",https://cse.snu.ac.kr/en/admissions/international/undergraduate,2026-11-25
+rank-26-50-f0092,program,snu-cse-master-2027,fees,unknown,https://cse.snu.ac.kr/en/admissions/international/graduate,2026-11-25
+rank-26-50-f0093,program,tokyo-epiip-msc-2027,fees,unknown,https://www.i.u-tokyo.ac.jp/edu/entra/epiip/epiip2024_guide_e.pdf,2026-11-25
+rank-26-50-f0094,program,tokyo-epiip-msc-2027,requirements.academic,Bachelor's degree (16 years of education); English capability evaluated,https://www.i.u-tokyo.ac.jp/edu/entra/epiip/epiip2024_guide_e.pdf,2026-11-25
+rank-26-50-f0095,program,manchester-cs-bsc-2027,fees,39700,https://www.manchester.ac.uk/study/undergraduate/courses/2027/00560/bsc-computer-science/all-content/COMP25212,2026-11-25
+rank-26-50-f0096,program,manchester-cs-bsc-2027,application_deadline,13 January 2027,https://www.manchester.ac.uk/study/undergraduate/courses/2027/00560/bsc-computer-science/all-content/COMP25212,2026-11-25
+rank-26-50-f0097,program,manchester-cs-bsc-2027,requirements.language,"IELTS 6.5, no sub-skill below 6.5",https://www.manchester.ac.uk/study/undergraduate/courses/2027/00560/bsc-computer-science/all-content/COMP25212,2026-11-25
+rank-26-50-f0098,program,manchester-cs-bsc-2027,requirements.academic,"A*AA incl A* Maths + a science subject; IB 37 pts, 7,6,6 incl 7 in Maths",https://www.manchester.ac.uk/study/undergraduate/courses/2027/00560/bsc-computer-science/all-content/COMP25212,2026-11-25
+rank-26-50-f0099,program,manchester-cs-ind-bsc-2027,fees,39700,https://www.manchester.ac.uk/study/undergraduate/courses/2027/00559/bsc-computer-science-with-industrial-experience/all-content/COMP10120,2026-11-25
+rank-26-50-f0100,program,manchester-cs-ind-bsc-2027,application_deadline,13 January 2027,https://www.manchester.ac.uk/study/undergraduate/courses/2027/00559/bsc-computer-science-with-industrial-experience/all-content/COMP10120,2026-11-25
+rank-26-50-f0101,program,manchester-cs-ind-bsc-2027,requirements.language,"IELTS 6.5, no sub-skill below 6.5",https://www.manchester.ac.uk/study/undergraduate/courses/2027/00559/bsc-computer-science-with-industrial-experience/all-content/COMP10120,2026-11-25
+rank-26-50-f0102,program,manchester-cs-ind-bsc-2027,requirements.academic,A*AA incl A* Maths + a science subject; IB 37 pts,https://www.manchester.ac.uk/study/undergraduate/courses/2027/00559/bsc-computer-science-with-industrial-experience/all-content/COMP10120,2026-11-25
+rank-26-50-f0103,program,manchester-acs-msc-2027,fees,41400,https://www.manchester.ac.uk/study/masters/courses/list/21573/msc-advanced-computer-science/,2026-11-25
+rank-26-50-f0104,program,manchester-acs-msc-2027,requirements.language,"IELTS 7.0, no sub-skill below 6.5; TOEFL iBT 100 (22 each)",https://www.manchester.ac.uk/study/masters/courses/list/21573/msc-advanced-computer-science/,2026-11-25
+rank-26-50-f0105,program,manchester-dsai-msc-2027,fees,37000,https://www.manchester.ac.uk/study/masters/courses/list/22195/msc-data-science-and-artificial-intelligence-computer-science-data-informatics/,2026-11-25
+rank-26-50-f0106,program,manchester-dsai-msc-2027,requirements.language,"IELTS 7.0, no component below 6.5; TOEFL iBT 100 (22 each)",https://www.manchester.ac.uk/study/masters/courses/list/22195/msc-data-science-and-artificial-intelligence-computer-science-data-informatics/,2026-11-25
+rank-26-50-f0107,program,queensland-cs-bachelor-2027,fees,60952,https://study.uq.edu.au/sites/default/files/2026-09/International-minimum-entry-score-guide.pdf,2026-11-25
+rank-26-50-f0108,program,queensland-cs-bachelor-2027,requirements.language,"IELTS 6.5 overall, 6.0 each; TOEFL iBT 87; PTE 64/60",https://study.uq.edu.au/sites/default/files/2026-09/International-minimum-entry-score-guide.pdf,2026-11-25
+rank-26-50-f0109,program,queensland-cs-bachelor-2027,requirements.academic,ATAR 84,https://study.uq.edu.au/sites/default/files/2026-09/International-minimum-entry-score-guide.pdf,2026-11-25
+rank-26-50-f0110,program,queensland-cs-mds-2027,fees,60952,https://study.uq.edu.au/study-options/programs/bachelor-computer-science-master-data-science-2561,2026-11-25
+rank-26-50-f0111,program,queensland-cs-mds-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band",https://study.uq.edu.au/study-options/programs/bachelor-computer-science-master-data-science-2561,2026-11-25
+rank-26-50-f0112,program,queensland-cs-mds-2027,requirements.academic,ATAR 97 / IB 40.75,https://study.uq.edu.au/study-options/programs/bachelor-computer-science-master-data-science-2561,2026-11-25
+rank-26-50-f0113,program,queensland-cs-mcs-2027,fees,60952,https://study.uq.edu.au/study-options/programs/master-computer-science-5522,2026-11-25
+rank-26-50-f0114,program,queensland-cs-mcs-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band",https://study.uq.edu.au/study-options/programs/master-computer-science-5522,2026-11-25
+rank-26-50-f0115,program,queensland-cs-mcs-2027,requirements.academic,Bachelor's in CS/IT/related required,https://study.uq.edu.au/study-options/programs/master-computer-science-5522,2026-11-25
+rank-26-50-f0116,program,queensland-ds-mds-2027,fees,60952,https://study.uq.edu.au/study-options/programs/master-data-science-5660?studentType=international&utm_source=topuniversities.com&utm_medium=referral&utm_campaign=int-qstu,2026-11-25
+rank-26-50-f0117,program,queensland-ds-mds-2027,requirements.language,"IELTS 6.5 overall, 6.0 each band",https://study.uq.edu.au/study-options/programs/master-data-science-5660?studentType=international&utm_source=topuniversities.com&utm_medium=referral&utm_campaign=int-qstu,2026-11-25
+rank-26-50-f0118,program,queensland-ds-mds-2027,requirements.academic,Bachelor's in a relevant discipline required,https://study.uq.edu.au/study-options/programs/master-data-science-5660?studentType=international&utm_source=topuniversities.com&utm_medium=referral&utm_campaign=int-qstu,2026-11-25
+rank-26-50-f0119,program,yonsei-cse-bachelor-2027,fees,unknown,https://www2.yonsei.ac.kr/entrance/2026/intl/2026.3_Int_Application_Guide(Eng).pdf,2026-11-25
+rank-26-50-f0120,program,yonsei-cse-bachelor-2027,requirements.academic,"International admissions; Department of CSE, School of Computing",https://www2.yonsei.ac.kr/entrance/2026/intl/2026.3_Int_Application_Guide(Eng).pdf,2026-11-25
+rank-26-50-f0121,program,yonsei-cse-master-2027,fees,unknown,https://design.yonsei.ac.kr/csai_en/board/facultyBoard.do?mode=view&articleNo=466833&article.offset=0&articleLimit=10,2026-11-25
+rank-26-50-f0122,program,columbia-cs-ba-2027,fees,72800,https://undergrad.admissions.columbia.edu/affordability/cost,2026-11-25
+rank-26-50-f0123,program,columbia-cs-ba-2027,requirements.academic,Central admission via Columbia College; major declared after admission,https://www.cs.columbia.edu/education/undergraduate/prospectivefaq/,2026-11-25
+rank-26-50-f0124,program,columbia-cs-bs-2027,fees,72800,https://undergrad.admissions.columbia.edu/affordability/cost,2026-11-25
+rank-26-50-f0125,program,columbia-cs-bs-2027,requirements.academic,Central admission via SEAS; major declared after admission,https://www.cs.columbia.edu/education/undergraduate/prospectivefaq/,2026-11-25
+rank-26-50-f0126,program,columbia-cs-ms-2027,fees,unknown,https://cvn.columbia.edu/content/computer-science-masters-degree,2026-11-25
+rank-26-50-f0127,program,columbia-cs-ms-2027,application_deadline,15 January 2027,https://cvn.columbia.edu/content/computer-science-masters-degree,2026-11-25
+rank-26-50-f0128,program,columbia-cs-ms-2027,requirements.academic,"GPA 3.3+ required, most admitted above 3.5; 4 CS + 2 maths prerequisites for non-CS background",https://www.cs.columbia.edu/education/admissions8/,2026-11-25
+rank-26-50-f0129,program,columbia-cs-ms-2027,requirements.test,GRE not required for the 2027 cycle,https://www.engineering.columbia.edu/admissions-aid/graduate-admissions/how-apply/application-requirements?utm_id=120241673204670286,2026-11-25
+rank-26-50-f0130,program,ipp-dataai-msc-2027,fees,unknown,https://www.ip-paris.fr/sites/default/files/pages/documents/Masters/master-phd-track-registration-fees-EN-26-27%20(2).pdf,2026-11-25
+rank-26-50-f0131,program,ipp-dataai-msc-2027,requirements.academic,M1: bachelor's in CS; M2: first year of a master's in CS; 120 ECTS,https://www.ip-paris.fr/en/education/graduate-programs/masters-science/computer-science-program/masters-data-and-artificial-intelligence,2026-11-25
+rank-26-50-f0132,program,northwestern-cs-bs-2027,fees,unknown,https://www.mccormick.northwestern.edu/computer-science/academics/,2026-11-25
+rank-26-50-f0133,program,northwestern-cs-bs-2027,requirements.test,Test-optional for 2026-27 (SAT/ACT not required),https://catalogs.northwestern.edu/undergraduate/admission/,2026-11-25
+rank-26-50-f0134,program,northwestern-cs-bs-2027,requirements.academic,Central undergraduate admission; major within McCormick (BS/BSE) or Weinberg (BA),https://www.mccormick.northwestern.edu/computer-science/academics/,2026-11-25
+rank-26-50-f0135,program,northwestern-cs-ba-2027,fees,unknown,https://www.mccormick.northwestern.edu/computer-science/academics/,2026-11-25
+rank-26-50-f0136,program,northwestern-cs-ba-2027,requirements.test,Test-optional for 2026-27 (SAT/ACT not required),https://catalogs.northwestern.edu/undergraduate/admission/,2026-11-25
+rank-26-50-f0137,program,northwestern-cs-ba-2027,requirements.academic,Central undergraduate admission; major within McCormick (BS/BSE) or Weinberg (BA),https://www.mccormick.northwestern.edu/computer-science/academics/,2026-11-25
+rank-26-50-f0138,program,northwestern-ai-bse-2027,fees,unknown,https://www.mccormick.northwestern.edu/computer-science/academics/,2026-11-25
+rank-26-50-f0139,program,northwestern-ai-bse-2027,requirements.test,Test-optional for 2026-27 (SAT/ACT not required),https://catalogs.northwestern.edu/undergraduate/admission/,2026-11-25
+rank-26-50-f0140,program,northwestern-ai-bse-2027,requirements.academic,Central undergraduate admission; major within McCormick (BS/BSE) or Weinberg (BA),https://www.mccormick.northwestern.edu/computer-science/academics/,2026-11-25
+rank-26-50-f0141,program,northwestern-ce-bs-2027,fees,unknown,https://www.mccormick.northwestern.edu/computer-science/academics/,2026-11-25
+rank-26-50-f0142,program,northwestern-ce-bs-2027,requirements.test,Test-optional for 2026-27 (SAT/ACT not required),https://catalogs.northwestern.edu/undergraduate/admission/,2026-11-25
+rank-26-50-f0143,program,northwestern-ce-bs-2027,requirements.academic,Central undergraduate admission; major within McCormick (BS/BSE) or Weinberg (BA),https://www.mccormick.northwestern.edu/computer-science/academics/,2026-11-25
+rank-26-50-f0144,program,northwestern-mlds-ms-2027,fees,unknown,https://www.mccormick.northwestern.edu/machine-learning-data-science/admissions/?linkId=45359726,2026-11-25
+rank-26-50-f0145,program,northwestern-mlds-ms-2027,application_deadline,15 January 2027,https://www.mccormick.northwestern.edu/machine-learning-data-science/admissions/?linkId=45359726,2026-11-25
+rank-26-50-f0146,program,northwestern-mlds-ms-2027,requirements.language,TOEFL 100 / IELTS 7.5 minimum,https://www.mccormick.northwestern.edu/machine-learning-data-science/admissions/faq.html,2026-11-25
+rank-26-50-f0147,program,northwestern-mlds-ms-2027,requirements.academic,GPA 3.0 or above; ~60 students per fall,https://www.mccormick.northwestern.edu/machine-learning-data-science/admissions/?linkId=45359726,2026-11-25
+rank-26-50-f0148,program,northwestern-mlds-ms-2027,requirements.test,GRE/GMAT not required,https://www.mccormick.northwestern.edu/machine-learning-data-science/admissions/faq.html,2026-11-25
+rank-26-50-f0149,program,northwestern-ai-ms-2027,fees,unknown,https://www.mccormick.northwestern.edu/artificial-intelligence/admissions/frequently-asked-questions.html,2026-11-25
+rank-26-50-f0150,program,northwestern-ai-ms-2027,application_deadline,15 April 2027,https://www.mccormick.northwestern.edu/artificial-intelligence/admissions/frequently-asked-questions.html,2026-11-25
+rank-26-50-f0151,program,northwestern-ai-ms-2027,requirements.language,TOEFL 100 / IELTS 7.0 minimum,https://www.mccormick.northwestern.edu/artificial-intelligence/admissions/frequently-asked-questions.html,2026-11-25
+rank-26-50-f0152,program,northwestern-ai-ms-2027,requirements.test,"GRE recommended, not required",https://www.mccormick.northwestern.edu/artificial-intelligence/admissions/frequently-asked-questions.html,2026-11-25
+rank-26-50-f0153,program,ubc-cs-bsc-2027,fees,unknown,http://you.ubc.ca/programs/computer-science-vancouver-bsc/,2026-11-25
+rank-26-50-f0154,program,ubc-cs-bsc-2027,requirements.academic,Specialization applied for in second year,http://you.ubc.ca/programs/computer-science-vancouver-bsc/,2026-11-25
+rank-26-50-f0155,program,ubc-mds-2027,fees,unknown,https://masterdatascience.ubc.ca/admissions/international-students,2026-11-25
+rank-26-50-f0156,program,ubc-mds-2027,requirements.language,"IELTS 7.0 overall, 6.5 each; TOEFL iBT 100",https://www.grad.ubc.ca/prospective-students/application-admission/ielts-program-minimum-requirements,2026-11-25
+rank-26-50-f0157,program,zju-ce-bachelor-2027,fees,200000,https://zjui.intl.zju.edu.cn/sites/default/files/2023-02/2023%20ZJUI%20Admission%20Handbook_0.pdf,2026-11-25
+rank-26-50-f0158,program,zju-ce-bachelor-2027,requirements.language,English test transcripts (TOEFL/IELTS) required; no minimum stated,https://zjui.intl.zju.edu.cn/sites/default/files/2023-02/2023%20ZJUI%20Admission%20Handbook_0.pdf,2026-11-25
+rank-26-50-f0159,program,zju-automation-bachelor-2027,fees,80000,http://www.cse.zju.edu.cn/cseenglish/2022/1115/c39728a2678725/page.htm,2026-11-25
+rank-26-50-f0160,program,zju-automation-bachelor-2027,requirements.academic,3+1 structure; all courses in English; specialisations incl. Big Data and AI / Robotics,http://www.cse.zju.edu.cn/cseenglish/2022/1115/c39728a2678725/page.htm,2026-11-25
+rank-26-50-f0161,program,delft-cse-bsc-2027,fees,17310,https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering/from-application-to-enrollment/tuition-and-fees,2026-11-25
+rank-26-50-f0162,program,delft-cse-bsc-2027,application_deadline,15 January 2027,https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering/from-application-to-enrollment/tuition-and-fees,2026-11-25
+rank-26-50-f0163,program,delft-cse-bsc-2027,requirements.language,IELTS Academic 6.5 overall; TOEFL iBT 90,https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering/from-application-to-enrollment/admission-requirements,2026-11-25
+rank-26-50-f0164,program,delft-cse-bsc-2027,requirements.academic,Secondary diploma equivalent to Dutch VWO + Mathematics; numerus clausus,https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering/from-application-to-enrollment/admission-requirements,2026-11-25
+rank-26-50-f0165,program,delft-cs-msc-2027,fees,unknown,https://www.tudelft.nl/en/education/admission-and-application/msc-international-diploma/admission-requirements,2026-11-25
+rank-26-50-f0166,program,delft-cs-msc-2027,application_deadline,1 April 2027,https://www.tudelft.nl/en/education/admission-and-application/msc-international-diploma/admission-requirements,2026-11-25
+rank-26-50-f0167,program,delft-cs-msc-2027,requirements.language,"IELTS 7.0 overall, min 6.5 each; TOEFL iBT 100 (22 each)",https://www.tudelft.nl/en/education/admission-and-application/msc-international-diploma/admission-requirements,2026-11-25
+rank-26-50-f0168,program,delft-cs-msc-2027,requirements.academic,Relevant bachelor's + CGPA at least 75% of scale maximum,https://www.tudelft.nl/en/education/admission-and-application/msc-international-diploma/admission-requirements,2026-11-25
+rank-26-50-f0169,program,ucla-cs-bs-2027,fees,55700,https://admission.ucla.edu/sites/default/files/documents/UCLA-International-Admission-Guide-2026.pdf,2026-11-25
+rank-26-50-f0170,program,ucla-cs-bs-2027,requirements.language,TOEFL 100 (old scale) / 5 (new scale),https://admission.ucla.edu/sites/default/files/documents/UCLA-International-Admission-Guide-2026.pdf,2026-11-25
+rank-26-50-f0171,program,ucla-cs-bs-2027,requirements.test,UCLA does not consider SAT/ACT scores,https://admission.ucla.edu/sites/default/files/documents/UCLA-International-Admission-Guide-2026.pdf,2026-11-25
+rank-26-50-f0172,program,ucla-cs-bs-2027,requirements.academic,Apply directly to Samueli by selecting a major; UC requirements apply,https://www.seasoasa.ucla.edu/curric-25-26/13-ugprg-admis-25.html,2026-11-25
+rank-26-50-f0173,program,ucla-cse-bs-2027,fees,55700,https://admission.ucla.edu/sites/default/files/documents/UCLA-International-Admission-Guide-2026.pdf,2026-11-25
+rank-26-50-f0174,program,ucla-cse-bs-2027,requirements.language,TOEFL 100 (old scale) / 5 (new scale),https://admission.ucla.edu/sites/default/files/documents/UCLA-International-Admission-Guide-2026.pdf,2026-11-25
+rank-26-50-f0175,program,ucla-cse-bs-2027,requirements.test,UCLA does not consider SAT/ACT scores,https://admission.ucla.edu/sites/default/files/documents/UCLA-International-Admission-Guide-2026.pdf,2026-11-25
+rank-26-50-f0176,program,ucla-cse-bs-2027,requirements.academic,Apply directly to Samueli by selecting a major; UC requirements apply,https://www.seasoasa.ucla.edu/curric-25-26/13-ugprg-admis-25.html,2026-11-25
+rank-26-50-f0177,program,ucla-cs-ms-2027,fees,unknown,https://www.cs.ucla.edu/graduate-requirements/,2026-11-25
+rank-26-50-f0178,program,ucla-cs-ms-2027,application_deadline,15 December 2026,https://www.cs.ucla.edu/graduate-requirements/,2026-11-25
+rank-26-50-f0179,program,ucla-cs-ms-2027,requirements.language,TOEFL 87+ / IELTS 7.0+,https://www.cs.ucla.edu/graduate-admission-frequently-asked-questions/,2026-11-25
+rank-26-50-f0180,program,ucla-cs-ms-2027,requirements.academic,"GPA 3.0+ required, 3.50+ expected in junior/senior years",https://www.cs.ucla.edu/graduate-requirements/,2026-11-25
+rank-26-50-f0181,program,ucla-cs-ms-2027,requirements.test,GRE not required for the 2025-26 cycle,https://www.cs.ucla.edu/graduate-admission-frequently-asked-questions/,2026-11-25
+rank-26-50-f0182,program,hkpolyu-cs-bsc-2027,fees,240000,https://www.polyu.edu.hk/saso/docdrive/Public/AdmissionLeaflets/pamphlet_International%20Qualification.pdf,2026-11-25
+rank-26-50-f0183,program,hkpolyu-cs-bsc-2027,requirements.language,IELTS 6.0 overall; TOEFL iBT 80,https://www.polyu.edu.hk/saso/docdrive/Public/AdmissionLeaflets/pamphlet_International%20Qualification.pdf,2026-11-25
+rank-26-50-f0184,program,hkpolyu-cs-bsc-2027,requirements.academic,IB 32+ / A level B in 3 subjects / SAT 1190 + 2 AP grade 3+,https://www.polyu.edu.hk/saso/docdrive/Public/AdmissionLeaflets/pamphlet_International%20Qualification.pdf,2026-11-25
+rank-26-50-f0185,program,hkpolyu-dsa-bsc-2027,fees,240000,https://www.polyu.edu.hk/saso/docdrive/Public/AdmissionLeaflets/pamphlet_International%20Qualification.pdf,2026-11-25
+rank-26-50-f0186,program,hkpolyu-dsa-bsc-2027,requirements.language,IELTS 6.0 overall; TOEFL iBT 80,https://www.polyu.edu.hk/saso/docdrive/Public/AdmissionLeaflets/pamphlet_International%20Qualification.pdf,2026-11-25
+rank-26-50-f0187,program,hkpolyu-dsa-bsc-2027,requirements.academic,IB 32+ / A level B in 3 subjects / SAT 1190 + 2 AP grade 3+,https://www.polyu.edu.hk/saso/docdrive/Public/AdmissionLeaflets/pamphlet_International%20Qualification.pdf,2026-11-25
+rank-26-50-f0188,program,hkpolyu-it-msc-2027,fees,9500,https://www.polyu.edu.hk/comp/-/media/department/comp/programme/2026/20260625/polyumsc_brochure_2026-it-20260623_web.pdf?rev=d69f52b2a4e24f11885858a887d5c397&hash=2532FFF9E18DE4D37DA914AA77002129,2026-11-25
+rank-26-50-f0189,program,hkpolyu-it-msc-2027,requirements.language,IELTS 6.0 overall; TOEFL iBT 80,https://www.polyu.edu.hk/comp/-/media/department/comp/programme/2026/20260625/polyumsc_brochure_2026-it-20260623_web.pdf?rev=d69f52b2a4e24f11885858a887d5c397&hash=2532FFF9E18DE4D37DA914AA77002129,2026-11-25
+rank-26-50-f0190,program,hkpolyu-it-msc-2027,requirements.academic,Bachelor's in Computing/CS/Maths/IS/Engineering/science,https://www.polyu.edu.hk/comp/-/media/department/comp/programme/2026/20260625/polyumsc_brochure_2026-it-20260623_web.pdf?rev=d69f52b2a4e24f11885858a887d5c397&hash=2532FFF9E18DE4D37DA914AA77002129,2026-11-25
+rank-26-50-f0191,program,hkpolyu-aai-msc-2027,fees,14900,https://www.polyu.edu.hk/comp/-/media/department/comp/programme/2026/2026-aug/polyumsc_brochure_2026-as-20260714_web.pdf?rev=bfb7f6ca96d942e480852f094059a436&hash=C8C78E8A360CF96B62EC9209723A0C50,2026-11-25
+rank-26-50-f0192,program,hkpolyu-aai-msc-2027,requirements.language,IELTS 6.0 overall; TOEFL iBT 80,https://www.polyu.edu.hk/comp/-/media/department/comp/programme/2026/2026-aug/polyumsc_brochure_2026-as-20260714_web.pdf?rev=bfb7f6ca96d942e480852f094059a436&hash=C8C78E8A360CF96B62EC9209723A0C50,2026-11-25
+rank-26-50-f0193,program,hkpolyu-aai-msc-2027,requirements.academic,"Bachelor's in Computing/CS/Engineering/IS/Maths, or other degree + 3y relevant IT work experience",https://www.polyu.edu.hk/comp/-/media/department/comp/programme/2026/2026-aug/polyumsc_brochure_2026-as-20260714_web.pdf?rev=bfb7f6ca96d942e480852f094059a436&hash=C8C78E8A360CF96B62EC9209723A0C50,2026-11-25
+rank-26-50-f0194,institution,fudan-university,founded_year,1905,https://iso.fudan.edu.cn/_upload/article/files/3e/a5/446b78734925997dcd3f0967e4b0/082c79b0-dbba-413a-bdd0-cc201c34c6a6.pdf,2026-11-25
+rank-26-50-f0195,institution,zhejiang-university,founded_year,1897,https://zjui.intl.zju.edu.cn/sites/default/files/2023-02/2023%20ZJUI%20Admission%20Handbook_0.pdf,2026-11-25
+rank-76-100-universite-paris-saclay-stats-total_students,institution,universite-paris-saclay,stats.total_students,50000,https://www.universite-paris-saclay.fr/en/luniversite/about-universite-paris-saclay,2026-11-25
+rank-76-100-universite-paris-saclay-stats-international_pct,institution,universite-paris-saclay,stats.international_pct,21,https://www.universite-paris-saclay.fr/en/luniversite/about-universite-paris-saclay,2026-11-25
+rank-76-100-adelaide-university-stats-total_students,institution,adelaide-university,stats.total_students,70000,https://www.theeducatoronline.com/k12/news/adelaide-university-opens/288727,2026-11-25
+rank-76-100-adelaide-university-founded-year,institution,adelaide-university,founded_year,2026,https://www.theeducatoronline.com/k12/news/adelaide-university-opens/288727,2026-11-25
+rank-76-100-university-of-glasgow-stats-total_students,institution,university-of-glasgow,stats.total_students,35000,https://www.gla.ac.uk/explore/jobs/appointments/infoservicesappointment2026/,2026-11-25
+rank-76-100-university-of-glasgow-founded-year,institution,university-of-glasgow,founded_year,1451,https://www.gla.ac.uk/explore/jobs/appointments/infoservicesappointment2026/,2026-11-25
+rank-76-100-university-of-sheffield-stats-total_students,institution,university-of-sheffield,stats.total_students,30307,https://tef2023.officeforstudents.org.uk/_entity/sharepointdocumentlocation/813ce5c9-e6c4-ee11-9079-0022481b5c9c/c9f0b614-2d1f-ee11-9967-000d3a8729d5?file=The University of Sheffield- TEF 2023 - Provider Submission.pdf,2026-11-25
+rank-76-100-university-of-sheffield-stats-international_pct,institution,university-of-sheffield,stats.international_pct,36,https://tef2023.officeforstudents.org.uk/_entity/sharepointdocumentlocation/813ce5c9-e6c4-ee11-9079-0022481b5c9c/c9f0b614-2d1f-ee11-9967-000d3a8729d5?file=The University of Sheffield- TEF 2023 - Provider Submission.pdf,2026-11-25
+rank-76-100-heidelberg-university-stats-total_students,institution,heidelberg-university,stats.total_students,32178,https://www.uni-heidelberg.de/en/university/facts-figures,2026-11-25
+rank-76-100-heidelberg-university-stats-international_pct,institution,heidelberg-university,stats.international_pct,20.6,https://www.uni-heidelberg.de/en/university/facts-figures,2026-11-25
+rank-76-100-heidelberg-university-founded-year,institution,heidelberg-university,founded_year,1386,https://www.uni-heidelberg.de/en/university/facts-figures,2026-11-25
+rank-76-100-politecnico-di-milano-stats-total_students,institution,politecnico-di-milano,stats.total_students,49395,https://www.polimi.it/en/the-politecnico/,2026-11-25
+rank-76-100-politecnico-di-milano-stats-international_pct,institution,politecnico-di-milano,stats.international_pct,20.1,https://www.polimi.it/en/the-politecnico/,2026-11-25
+rank-76-100-politecnico-di-milano-founded-year,institution,politecnico-di-milano,founded_year,1863,https://www.polimi.it/en/the-politecnico/,2026-11-25
+rank-76-100-university-of-technology-sydney-stats-total_students,institution,university-of-technology-sydney,stats.total_students,54403,https://www.uts.edu.au/about/why-uts,2026-11-25
+rank-76-100-university-of-technology-sydney-stats-international_pct,institution,university-of-technology-sydney,stats.international_pct,28.3,https://www.uts.edu.au/about/why-uts,2026-11-25
+rank-76-100-university-of-technology-sydney-founded-year,institution,university-of-technology-sydney,founded_year,1988,https://www.uts.edu.au/about/why-uts,2026-11-25
+rank-76-100-uppsala-university-stats-total_students,institution,uppsala-university,stats.total_students,49860,https://www.uu.se/en/about-uu/facts-and-figures.html,2026-11-25
+rank-76-100-uppsala-university-stats-male_pct,institution,uppsala-university,stats.male_pct,39,https://www.uu.se/en/about-uu/facts-and-figures.html,2026-11-25
+rank-76-100-uppsala-university-stats-female_pct,institution,uppsala-university,stats.female_pct,61,https://www.uu.se/en/about-uu/facts-and-figures.html,2026-11-25
+rank-76-100-uppsala-university-founded-year,institution,uppsala-university,founded_year,1477,https://www.uu.se/en/about-uu/facts-and-figures.html,2026-11-25
+rank-76-100-nanjing-university-stats-total_students,institution,nanjing-university,stats.total_students,38376,http://njunju.nju.edu.cn/EN/numbers/list.htm,2026-11-25
+rank-76-100-nanjing-university-stats-international_pct,institution,nanjing-university,stats.international_pct,3.7,http://njunju.nju.edu.cn/EN/numbers/list.htm,2026-11-25
+rank-76-100-nanjing-university-founded-year,institution,nanjing-university,founded_year,1902,http://njunju.nju.edu.cn/EN/numbers/list.htm,2026-11-25
+rank-76-100-university-of-copenhagen-stats-total_students,institution,university-of-copenhagen,stats.total_students,36758,https://about.ku.dk/facts-figures/,2026-11-25
+rank-76-100-university-of-copenhagen-founded-year,institution,university-of-copenhagen,founded_year,1479,https://about.ku.dk/profile-history/,2026-11-25
+rank-76-100-boston-university-founded-year,institution,boston-university,founded_year,1839,https://www.bu.edu/summer/about-bu/,2026-11-25
+rank-76-100-osaka-university-stats-total_students,institution,osaka-university,stats.total_students,23462,https://jpcup.niad.ac.jp/institute/0292.html,2026-11-25
+rank-76-100-osaka-university-stats-international_pct,institution,osaka-university,stats.international_pct,8.7,https://jpcup.niad.ac.jp/institute/0292.html,2026-11-25
+rank-76-100-osaka-university-founded-year,institution,osaka-university,founded_year,1931,https://jpcup.niad.ac.jp/institute/0292.html,2026-11-25
+rank-76-100-university-of-alberta-stats-total_students,institution,university-of-alberta,stats.total_students,46201,https://www.ualberta.ca/en/toolkit/communications/overview.html,2026-11-25
+rank-76-100-university-of-alberta-founded-year,institution,university-of-alberta,founded_year,1908,https://www.ualberta.ca/en/toolkit/communications/overview.html,2026-11-25
+rank-76-100-institute-of-science-tokyo-stats-total_students,institution,institute-of-science-tokyo,stats.total_students,13492,https://www.university.im/japan/institute-of-science-tokyo/,2026-11-25
+rank-76-100-institute-of-science-tokyo-stats-international_pct,institution,institute-of-science-tokyo,stats.international_pct,13,https://ocrd.citl.isct.ac.jp/post/free-online-courses-from-the-institute-of-science-tokyo,2026-11-25
+rank-76-100-institute-of-science-tokyo-founded-year,institution,institute-of-science-tokyo,founded_year,2024,https://www.isct.ac.jp/en/news/ra3mel22vc25,2026-11-25
+rank-76-100-freie-universitat-berlin-stats-total_students,institution,freie-universitat-berlin,stats.total_students,34400,https://www.fu-berlin.de/en/universitaet/zahlen/index.html,2026-11-25
+rank-76-100-freie-universitat-berlin-founded-year,institution,freie-universitat-berlin,founded_year,1948,https://www.fu-berlin.de/en/universitaet/zahlen/index.html,2026-11-25
+rank-76-100-university-of-zurich-stats-total_students,institution,university-of-zurich,stats.total_students,28785,https://www.uzh.ch/dam/jcr:746716b5-f3c2-4b02-bb80-d7360b0c59ae/UZH_FactsFigures_2026.pdf,2026-11-25
+rank-76-100-university-of-zurich-stats-international_pct,institution,university-of-zurich,stats.international_pct,19.8,https://www.uzh.ch/dam/jcr:746716b5-f3c2-4b02-bb80-d7360b0c59ae/UZH_FactsFigures_2026.pdf,2026-11-25
+rank-76-100-university-of-zurich-founded-year,institution,university-of-zurich,founded_year,1833,https://www.uzh.ch/dam/jcr:746716b5-f3c2-4b02-bb80-d7360b0c59ae/UZH_FactsFigures_2026.pdf,2026-11-25
+rank-76-100-paris-saclay-cs-msc-2027-fees,program,paris-saclay-cs-msc-2027,fees,EUR 3950 per_year (2026/27),https://www.universite-paris-saclay.fr/en/education/masters-degree/computer-science,2026-11-25
+rank-76-100-paris-saclay-ai-msc-2027-fees,program,paris-saclay-ai-msc-2027,fees,EUR 3950 per_year (2026/27),https://www.universite-paris-saclay.fr/en/education/masters-degree/computer-science,2026-11-25
+rank-76-100-paris-saclay-ds-msc-2027-fees,program,paris-saclay-ds-msc-2027,fees,EUR 3950 per_year (2026/27),https://www.universite-paris-saclay.fr/en/education/masters-degree/computer-science,2026-11-25
+rank-76-100-paris-saclay-dkai-msc-2027-fees,program,paris-saclay-dkai-msc-2027,fees,EUR 3950 per_year (2026/27),https://www.universite-paris-saclay.fr/en/education/masters-degree/computer-science,2026-11-25
+rank-76-100-leeds-cs-bsc-2027-fees,program,leeds-cs-bsc-2027,fees,GBP 33700 per_year (2027/28),https://catalogue.leeds.ac.uk/Programme/202627?code=BSCS-R,2026-11-25
+rank-76-100-leeds-cs-industrial-bsc-2027-fees,program,leeds-cs-industrial-bsc-2027,fees,GBP 33700 per_year (2027/28),https://courses.leeds.ac.uk/202627/3262/computer-science-industrial-bsc,2026-11-25
+rank-76-100-leeds-ai-msc-2027-fees,program,leeds-ai-msc-2027,fees,unknown (not stated on official page),https://courses.leeds.ac.uk/i537/advanced-computer-science-artificial-intelligence-msc,2026-11-25
+rank-76-100-leeds-ds-msc-2027-fees,program,leeds-ds-msc-2027,fees,unknown (not stated on official page),https://courses.leeds.ac.uk/202627/i071/data-science-and-analytics-msc,2026-11-25
+rank-76-100-leeds-advanced-cs-data-analytics-msc-2027-fees,program,leeds-advanced-cs-data-analytics-msc-2027,fees,unknown (not stated on official page),https://courses.leeds.ac.uk/g314/advanced-computer-science-data-analytics-msc,2026-11-25
+rank-76-100-uwa-cs-bsc-2027-fees,program,uwa-cs-bsc-2027,fees,unknown (not stated on official page),https://www.uwa.edu.au/study/Courses/Computer-Science,2026-11-25
+rank-76-100-uwa-advanced-cs-bhons-2027-fees,program,uwa-advanced-cs-bhons-2027,fees,unknown (not stated on official page),https://www.uwa.edu.au/study/Courses/Computer-Science,2026-11-25
+rank-76-100-uwa-ds-msc-2027-fees,program,uwa-ds-msc-2027,fees,AUD 52000 per_year (2026),https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTPG&feeYear=2026,2026-11-25
+rank-76-100-adelaide-cs-bhons-2027-fees,program,adelaide-cs-bhons-2027,fees,AUD 55400 per_year (2027),https://adelaideuni.edu.au/study/degrees/bachelor-of-computer-science-honours/dom/,2026-11-25
+rank-76-100-adelaide-cs-ai-bsc-2027-fees,program,adelaide-cs-ai-bsc-2027,fees,AUD 55400 per_year (2027),https://adelaide.edu.au/study/degrees/bachelor-of-computer-science-artificial-intelligence-and-machine-learning/,2026-11-25
+rank-76-100-adelaide-ds-msc-2027-fees,program,adelaide-ds-msc-2027,fees,AUD 57100 per_year (2027),https://adelaide.edu.au/study/degrees/master-of-data-science/,2026-11-25
+rank-76-100-glasgow-cs-bsc-2027-fees,program,glasgow-cs-bsc-2027,fees,GBP 33708 per_year (2027/28),https://www.gla.ac.uk/undergraduate/degrees/computingscience/,2026-11-25
+rank-76-100-glasgow-cs-msci-2027-fees,program,glasgow-cs-msci-2027,fees,GBP 33708 per_year (2027/28),https://www.gla.ac.uk/undergraduate/degrees/computingscience/,2026-11-25
+rank-76-100-glasgow-cs-msc-2027-fees,program,glasgow-cs-msc-2027,fees,GBP 34815 per_year (2027-28),https://www.gla.ac.uk/postgraduate/taught/computingscience/,2026-11-25
+rank-76-100-glasgow-ds-ai-msc-2027-fees,program,glasgow-ds-ai-msc-2027,fees,GBP 34815 per_year (2027-28),https://www.gla.ac.uk/postgraduate/taught/data-science-artificial-intelligence/,2026-11-25
+rank-76-100-ucsd-cs-bs-2027-fees,program,ucsd-cs-bs-2027,fees,unknown (not stated on official page),https://admissions.ucsd.edu/first-year/application-requirements.html,2026-11-25
+rank-76-100-ucsd-ai-bs-2027-fees,program,ucsd-ai-bs-2027,fees,unknown (not stated on official page),https://admissions.ucsd.edu/first-year/application-requirements.html,2026-11-25
+rank-76-100-ucsd-ce-bs-2027-fees,program,ucsd-ce-bs-2027,fees,unknown (not stated on official page),https://admissions.ucsd.edu/first-year/application-requirements.html,2026-11-25
+rank-76-100-ucsd-bioinformatics-bs-2027-fees,program,ucsd-bioinformatics-bs-2027,fees,unknown (not stated on official page),https://admissions.ucsd.edu/first-year/application-requirements.html,2026-11-25
+rank-76-100-ucsd-cs-ms-2027-fees,program,ucsd-cs-ms-2027,fees,USD 38087.17 per_year (2026-27),https://cse.ucsd.edu/graduate/financial-opportunities,2026-11-25
+rank-76-100-kth-cs-msc-2027-fees,program,kth-cs-msc-2027,fees,SEK 385000 total,https://www.kth.se/en/studies/2.23106/master/computer-science,2026-11-25
+rank-76-100-kth-ml-msc-2027-fees,program,kth-ml-msc-2027,fees,SEK 385000 total,https://www.kth.se/en/studies/master/machine-learning/fees-machine-learning-1.909974,2026-11-25
+rank-76-100-kth-csse-msc-2027-fees,program,kth-csse-msc-2027,fees,EUR 38000 total,https://www.kth.se/en/studies/2.23106/master/computer-simulations-for-science-and-engineering/fees-computer-simulations-science-engineering-1.910144,2026-11-25
+rank-76-100-sheffield-cs-bsc-2027-fees,program,sheffield-cs-bsc-2027,fees,unknown (not stated on official page),https://sheffield.ac.uk/courses/subjects/computer-science,2026-11-25
+rank-76-100-sheffield-cs-ai-bsc-2027-fees,program,sheffield-cs-ai-bsc-2027,fees,unknown (not stated on official page),https://sheffield.ac.uk/courses/subjects/computer-science,2026-11-25
+rank-76-100-sheffield-cs-se-beng-2027-fees,program,sheffield-cs-se-beng-2027,fees,unknown (not stated on official page),https://sheffield.ac.uk/courses/subjects/computer-science,2026-11-25
+rank-76-100-sheffield-cs-mcomp-2027-fees,program,sheffield-cs-mcomp-2027,fees,unknown (not stated on official page),https://sheffield.ac.uk/courses/subjects/computer-science,2026-11-25
+rank-76-100-sheffield-advanced-cs-msc-2027-fees,program,sheffield-advanced-cs-msc-2027,fees,GBP 32905 per_year (2026/27),https://sheffield.ac.uk/postgraduate/taught/courses/2027/advanced-computer-science-msc,2026-11-25
+rank-76-100-sheffield-ai-msc-2027-fees,program,sheffield-ai-msc-2027,fees,GBP 34340 per_year (2026/27),https://sheffield.ac.uk/postgraduate/taught/courses/2027/artificial-intelligence-msc,2026-11-25
+rank-76-100-sheffield-cyber-ai-msc-2027-fees,program,sheffield-cyber-ai-msc-2027,fees,unknown (not stated on official page),http://sheffield.ac.uk/postgraduate/taught/courses/2027/cybersecurity-and-artificial-intelligence-msc,2026-11-25
+rank-76-100-uba-cs-licenciatura-2027-fees,program,uba-cs-licenciatura-2027,fees,ARS 0 per_year,https://codigo.rec.uba.ar/libro_v__exactas/libro-v-facultad-de-cs-exactas-y-naturales/titulo-12-licenciatura-en-ciencias-de-la-computacion/capitulo-a-plan-1993-y-sus-modificatorias/,2026-11-25
+rank-76-100-durham-cs-bsc-2027-fees,program,durham-cs-bsc-2027,fees,GBP 35000 per_year (2027/28),https://www.durham.ac.uk/departments/academic/computer-science/,2026-11-25
+rank-76-100-durham-cs-meng-2027-fees,program,durham-cs-meng-2027,fees,GBP 35000 per_year (2027/28),https://www.durham.ac.uk/departments/academic/computer-science/,2026-11-25
+rank-76-100-durham-advanced-cs-msc-2027-fees,program,durham-advanced-cs-msc-2027,fees,GBP 35000 per_year,https://www.durham.ac.uk/study/courses/advanced-computer-science-g5t609/,2026-11-25
+rank-76-100-durham-ai-msc-2027-fees,program,durham-ai-msc-2027,fees,GBP 35000 per_year,https://www.durham.ac.uk/departments/academic/computer-science/,2026-11-25
+rank-76-100-heidelberg-dcs-msc-2027-fees,program,heidelberg-dcs-msc-2027,fees,EUR 3000 per_year,https://www.uni-heidelberg.de/en/study/all-subjects/computer-science/data-and-computer-science-master,2026-11-25
+rank-76-100-polimi-cse-msc-2027-fees,program,polimi-cse-msc-2027,fees,EUR 3883.04 per_year (2027/28),https://www.polimi.it/en/education/laurea-magistrale-programmes/programme-detail/computer-science-and-engineering,2026-11-25
+rank-76-100-polimi-cse-msc-2027-application-deadline,program,polimi-cse-msc-2027,application_deadline,1 December 2026 (1st call); 25 February 2027 (2nd call),https://www.polimi.it/en/education/laurea-magistrale-programmes/programme-detail/computer-science-and-engineering,2026-11-25
+rank-76-100-uts-compsci-hons-2027-fees,program,uts-compsci-hons-2027,fees,AUD 57240 per_year (2027),https://dp.uat.uts.edu.au/for-students/international/guides-for-international-students/contentassets/utsi-listing-grid-international-undergraduate-course-summary-table.pdf,2026-11-25
+rank-76-100-uts-compsci-2027-fees,program,uts-compsci-2027,fees,AUD 57240 per_year (2027),https://dp.uat.uts.edu.au/for-students/international/guides-for-international-students/contentassets/utsi-listing-grid-international-undergraduate-course-summary-table.pdf,2026-11-25
+rank-76-100-uts-ai-bai-2027-fees,program,uts-ai-bai-2027,fees,AUD 57240 per_year (2027),https://dp.uat.uts.edu.au/for-students/international/guides-for-international-students/contentassets/utsi-listing-grid-international-undergraduate-course-summary-table.pdf,2026-11-25
+rank-76-100-uts-ai-msc-2027-fees,program,uts-ai-msc-2027,fees,unknown (not stated on official page),https://handbookpre2025.uts.edu.au/2024/courses/c04443.html,2026-11-25
+rank-76-100-uppsala-cs-msc-2027-fees,program,uppsala-cs-msc-2027,fees,SEK 150000 per_year (2027),https://www.uu.se/en/study/programme-syllabus?query=1779,2026-11-25
+rank-76-100-uppsala-ds-ml-msc-2027-fees,program,uppsala-ds-ml-msc-2027,fees,SEK 150000 per_year (2027),https://www.uu.se/en/study/programme/masters-programme-data-science-machine-learning-and-statistics,2026-11-25
+rank-76-100-uppsala-ds-image-msc-2027-fees,program,uppsala-ds-image-msc-2027,fees,SEK 150000 per_year (2027),https://www.uu.se/en/study/programme/masters-programme-data-science-image-analysis-and-machine-learning,2026-11-25
+rank-76-100-nanjing-mct-msc-2027-fees,program,nanjing-mct-msc-2027,fees,CNY 38000 per_year,https://cs.nju.edu.cn/cs_en/52970/list.psp,2026-11-25
+rank-76-100-nanjing-ai-msc-2027-fees,program,nanjing-ai-msc-2027,fees,CNY 38000 per_year,https://hwxy.nju.edu.cn/lxnd/zsxx/yyskzy/20241113/i301654.html,2026-11-25
+rank-76-100-copenhagen-cs-msc-2027-fees,program,copenhagen-cs-msc-2027,fees,DKK 130000 per_year,https://www.ku.dk/fileadmin/site-2596/Studieordninger/Science/datalogi/MSc_Computer_Science_STO.pdf,2026-11-25
+rank-76-100-copenhagen-sds-msc-2027-fees,program,copenhagen-sds-msc-2027,fees,unknown (not stated on official page),https://www.ku.dk/studies/masters/social-data-science,2026-11-25
+rank-76-100-copenhagen-sds-msc-2027-application-deadline,program,copenhagen-sds-msc-2027,application_deadline,15 January 2027,https://www.ku.dk/studies/masters/social-data-science,2026-11-25
+rank-76-100-penn-state-cs-bs-2027-fees,program,penn-state-cs-bs-2027,fees,USD 44574 per_year (2026-27),https://admissions.psu.edu/info/future/international/,2026-11-25
+rank-76-100-penn-state-cse-ms-2027-fees,program,penn-state-cse-ms-2027,fees,USD 44996 per_year (2026-27),https://bulletins.psu.edu/graduate/programs/majors/computer-science-engineering/,2026-11-25
+rank-76-100-penn-state-cse-meng-2027-fees,program,penn-state-cse-meng-2027,fees,USD 44996 per_year (2026-27),https://bulletins.psu.edu/graduate/programs/majors/computer-science-engineering/,2026-11-25
+rank-76-100-washington-cs-bs-2027-fees,program,washington-cs-bs-2027,fees,USD 45789 per_year (2026-27),https://www.washington.edu/financialaid/cost-of-attendance/,2026-11-25
+rank-76-100-washington-ce-bs-2027-fees,program,washington-ce-bs-2027,fees,USD 45789 per_year (2026-27),https://www.washington.edu/financialaid/cost-of-attendance/,2026-11-25
+rank-76-100-washington-informatics-bs-2027-fees,program,washington-informatics-bs-2027,fees,USD 45789 per_year (2026-27),https://www.washington.edu/financialaid/cost-of-attendance/,2026-11-25
+rank-76-100-washington-ds-ms-2027-fees,program,washington-ds-ms-2027,fees,USD 55980 total (2026-27),https://www.washington.edu/datasciencemasters/tuitionfinancialaid/,2026-11-25
+rank-76-100-bu-ds-ms-2027-fees,program,bu-ds-ms-2027,fees,unknown (not stated on official page),https://www.bu.edu/cds-faculty/programs-admissions/ms-data-science/msds-admissions-requirements/,2026-11-25
+rank-76-100-bu-ds-ms-2027-application-deadline,program,bu-ds-ms-2027,application_deadline,1 April 2027,https://www.bu.edu/cds-faculty/programs-admissions/ms-data-science/msds-admissions-requirements/,2026-11-25
+rank-76-100-bu-cs-ms-2027-fees,program,bu-cs-ms-2027,fees,unknown (not stated on official page),https://www.bu.edu/csmet/academic-programs/met-computer-science-academic-policies-manual/,2026-11-25
+rank-76-100-osaka-itsce-msc-2027-fees,program,osaka-itsce-msc-2027,fees,JPY 535800 per_year,https://www.osaka-u.ac.jp/en/campus/tuition/tuition.html,2026-11-25
+rank-76-100-alberta-cs-ai-bsc-2027-fees,program,alberta-cs-ai-bsc-2027,fees,unknown (not stated on official page),https://www.ualberta.ca/en/undergraduate-programs/bachelor-of-science-with-honors-computing-science-artificial-intelligence-option.html,2026-11-25
+rank-76-100-alberta-cs-msc-2027-fees,program,alberta-cs-msc-2027,fees,unknown (not stated on official page),https://calendar.ualberta.ca/preview_program.php?catoid=56&poid=83565,2026-11-25
+rank-76-100-alberta-cs-ml-msc-2027-fees,program,alberta-cs-ml-msc-2027,fees,unknown (not stated on official page),https://calendar.ualberta.ca/preview_program.php?catoid=56&poid=83565,2026-11-25
+rank-76-100-ist-cs-ms-2027-fees,program,ist-cs-ms-2027,fees,JPY 635400 per_year,https://jpcup.niad.ac.jp/institute/0901/1Z41.html,2026-11-25
+rank-76-100-ist-mcs-ms-2027-fees,program,ist-mcs-ms-2027,fees,JPY 635400 per_year,https://jpcup.niad.ac.jp/institute/0901/1Z41.html,2026-11-25
+rank-76-100-nottingham-cs-bsc-2027-fees,program,nottingham-cs-bsc-2027,fees,GBP 33000 per_year (2026/27),https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/Computer-Science-BSc-Hons.html,2026-11-25
+rank-76-100-nottingham-cs-ai-bsc-2027-fees,program,nottingham-cs-ai-bsc-2027,fees,GBP 33000 per_year (2026/27),https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/Computer-Science-with-Artificial-Intelligence-BSc-Hons-U6UCMPAI.html,2026-11-25
+rank-76-100-nottingham-advanced-cs-msc-2027-fees,program,nottingham-advanced-cs-msc-2027,fees,GBP 33000 per_year (2026/27),https://www.nottingham.ac.uk/computerscience/studywithus/mastersdegrees/index.aspx,2026-11-25
+rank-76-100-nottingham-cs-ai-msc-2027-fees,program,nottingham-cs-ai-msc-2027,fees,GBP 33000 per_year (2026/27),https://www.nottingham.ac.uk/pgstudy/course/taught/computer-science-artificial-intelligence,2026-11-25
+rank-76-100-nottingham-ds-msc-2027-fees,program,nottingham-ds-msc-2027,fees,GBP 33000 per_year (2026/27),https://www.nottingham.ac.uk/pgstudy/course/taught/Data-Science-MSc,2026-11-25
+rank-76-100-nottingham-hci-msc-2027-fees,program,nottingham-hci-msc-2027,fees,unknown (not stated on official page),https://www.nottingham.ac.uk/computerscience/studywithus/mastersdegrees/index.aspx,2026-11-25
+rank-76-100-fu-berlin-ds-msc-2027-fees,program,fu-berlin-ds-msc-2027,fees,EUR 0 per_year,https://www.fu-berlin.de/en/studium/studienangebot/master/data-science/index.html,2026-11-25
+rank-76-100-fu-berlin-cs-msc-2027-fees,program,fu-berlin-cs-msc-2027,fees,EUR 0 per_year,http://www.mi.fu-berlin.de/en/inf/stud/master/index.html,2026-11-25
+rank-76-100-zurich-comp-sci-msc-2027-fees,program,zurich-comp-sci-msc-2027,fees,CHF 1758 per_year,https://www.uzh.ch/cmsssl/en/studies/application/fees.html,2026-11-25
+rank-76-100-zurich-nsc-msc-2027-fees,program,zurich-nsc-msc-2027,fees,CHF 1758 per_year,https://www.uzh.ch/cmsssl/en/studies/application/fees.html,2026-11-25

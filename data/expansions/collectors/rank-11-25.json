@@ -1,0 +1,4792 @@
+{
+ "data_version": "v3",
+ "notes": "Band B collector file: QS 2027 ranks 11-25. Official university pages used wherever a verbatim official URL was returned by search; where no official page URL was returned in this pass, figures are recorded with the aggregator page that quotes the official schedule and the fact is flagged in the collector's report for re-verification. No ranking provider beyond QS/THE/ARWU; no agency success cases; matchable is false everywhere; application_status is unknown everywhere because no official page stated open/closed for the current cycle. Fees with amount null are unknown, not zero.",
+ "institutions": [
+  {
+   "institution_id": "university-of-hong-kong",
+   "official_name": "University of Hong Kong",
+   "name_zh": "香港大学",
+   "country_code": "HK",
+   "country_name": "Hong Kong",
+   "city": "Hong Kong",
+   "official_website": "https://hku.hk",
+   "stats": {
+    "total_students": {
+     "value": 44100,
+     "source_url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+     "retrieved_at": "2026-11-25",
+     "note": "Around 44,100 headcounts including postgraduates, 2025-26 (HKU handbook)"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1911,
+    "source_url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded in 1911 (HKU handbook)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25",
+   "intro": {
+    "value": "The University of Hong Kong (HKU), founded in 1911, is the oldest of Hong Kong's institutions of higher learning.",
+    "source_url": "https://www.msc-cs.hku.hk/About/AboutHKU",
+    "retrieved_at": "2026-11-25"
+   },
+   "address": {
+    "value": "Pokfulam, Hong Kong",
+    "source_url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+    "retrieved_at": "2026-11-25",
+    "note": "Main campus area, Pokfulam"
+   }
+  },
+  {
+   "institution_id": "ntu",
+   "official_name": "Nanyang Technological University",
+   "name_zh": "新加坡南洋理工大学",
+   "country_code": "SG",
+   "country_name": "Singapore",
+   "city": "Singapore",
+   "official_website": "https://ntu.edu.sg",
+   "stats": {
+    "total_students": {
+     "value": 34400,
+     "source_url": "https://www.ntu.edu.sg/docs/default-source/office-of-data-and-analytics/ntuataglance2023b.pdf",
+     "retrieved_at": "2026-11-25",
+     "note": "About 24,630 undergraduates and 9,770 graduate students, 2023 (NTU at a Glance); total is the sum of the two published figures"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1991,
+    "source_url": "https://www.ntu.edu.sg/docs/default-source/office-of-data-and-analytics/ntuataglance2023b.pdf",
+    "retrieved_at": "2026-11-25",
+    "note": "Established in 1991 (NTU at a Glance)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25",
+   "intro": {
+    "value": "Established in 1991, Nanyang Technological University, Singapore (NTU Singapore) has roots that go back to 1981 when its predecessor institution, Nanyang Technological Institute, was set up.",
+    "source_url": "https://www.ntu.edu.sg/docs/default-source/office-of-data-and-analytics/ntuataglance2023b.pdf",
+    "retrieved_at": "2026-11-25"
+   },
+   "address": {
+    "value": "50 Nanyang Avenue, Singapore 639798",
+    "source_url": "https://www.ntu.edu.sg/computing/discover-ccds/our-programmes",
+    "retrieved_at": "2026-11-25",
+    "note": "College of Computing and Data Science address"
+   }
+  },
+  {
+   "institution_id": "peking-university",
+   "official_name": "Peking University",
+   "name_zh": "北京大学",
+   "country_code": "CN",
+   "country_name": "China",
+   "city": "Beijing",
+   "official_website": "https://pku.edu.cn",
+   "stats": {
+    "total_students": {
+     "value": 45974,
+     "source_url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+     "retrieved_at": "2026-11-25",
+     "note": "16,328 undergraduates, 17,830 postgraduates and 11,816 doctoral candidates, December 2019 (PKU International Students Division); total is the sum of the three published figures"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1898,
+    "source_url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded in 1898 (PKU International Students Division)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25",
+   "intro": {
+    "value": "Founded in 1898, Peking University (PKU) is the first national university in Chinese modern history.",
+    "source_url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+    "retrieved_at": "2026-11-25"
+   }
+  },
+  {
+   "institution_id": "tsinghua-university",
+   "official_name": "Tsinghua University",
+   "name_zh": "清华大学",
+   "country_code": "CN",
+   "country_name": "China",
+   "city": "Beijing",
+   "official_website": "https://tsinghua.edu.cn",
+   "stats": {
+    "total_students": null,
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1911,
+    "source_url": "https://www.studyu.org/en/university-tsinghua",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded in 1911 (figure as reported against Tsinghua's own pages; official About page not retrieved in this pass)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25"
+  },
+  {
+   "institution_id": "university-of-pennsylvania",
+   "official_name": "University of Pennsylvania",
+   "name_zh": "宾夕法尼亚大学",
+   "country_code": "US",
+   "country_name": "United States",
+   "city": "Philadelphia",
+   "official_website": "https://upenn.edu",
+   "stats": {
+    "total_students": {
+     "value": 29384,
+     "source_url": "https://www.upenn.edu/index.php/about",
+     "retrieved_at": "2026-11-25",
+     "note": "Total students, Fall 2025 (Penn About page)"
+    },
+    "student_faculty_ratio": {
+     "value": 10,
+     "source_url": "https://www.upenn.edu/index.php/about",
+     "retrieved_at": "2026-11-25",
+     "note": "10:1 student-faculty ratio, Fall 2025 (Penn About page)"
+    },
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1740,
+    "source_url": "https://www.upenn.edu/index.php/about",
+    "retrieved_at": "2026-11-25",
+    "note": "Year founded 1740 (Penn About page)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25",
+   "intro": {
+    "value": "Founded in 1740 and known as America's first university, Penn shares many ties with Philadelphia and the birth of our nation.",
+    "source_url": "https://www.upenn.edu/index.php/about",
+    "retrieved_at": "2026-11-25"
+   }
+  },
+  {
+   "institution_id": "cornell-university",
+   "official_name": "Cornell University",
+   "name_zh": "康奈尔大学",
+   "country_code": "US",
+   "country_name": "United States",
+   "city": "Ithaca",
+   "official_website": "https://cornell.edu",
+   "stats": {
+    "total_students": {
+     "value": 26017,
+     "source_url": "https://www.cornell.edu/about/index.cfm",
+     "retrieved_at": "2026-11-25",
+     "note": "16,073 undergraduate and 9,944 graduate and professional students (Cornell About, Quick Facts); total is the sum of the two published figures"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1865,
+    "source_url": "https://www.cornell.edu/about/index.cfm",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded 1865 (Cornell About, Quick Facts)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25"
+  },
+  {
+   "institution_id": "yale-university",
+   "official_name": "Yale University",
+   "name_zh": "耶鲁大学",
+   "country_code": "US",
+   "country_name": "United States",
+   "city": "New Haven",
+   "official_website": "https://yale.edu",
+   "stats": {
+    "total_students": {
+     "value": 15657,
+     "source_url": "https://en.wikipedia.org/wiki/Yale_University",
+     "retrieved_at": "2026-11-25",
+     "note": "15,657 students, 2025 (figure as reported; official Yale facts page not retrieved in this pass)"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1701,
+    "source_url": "https://macmillan.yale.edu/foxfellowship/yale-university-united-states",
+    "retrieved_at": "2026-11-25",
+    "note": "Originally founded in 1701 (Yale Macmillan Center)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25",
+   "intro": {
+    "value": "Yale University is one of the world's most distinguished centers of learning and research.",
+    "source_url": "https://macmillan.yale.edu/foxfellowship/yale-university-united-states",
+    "retrieved_at": "2026-11-25"
+   }
+  },
+  {
+   "institution_id": "chinese-university-of-hong-kong",
+   "official_name": "Chinese University of Hong Kong",
+   "name_zh": "香港中文大学",
+   "country_code": "HK",
+   "country_name": "Hong Kong",
+   "city": "Sha Tin",
+   "official_website": "https://cuhk.edu.hk",
+   "stats": {
+    "total_students": null,
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": null,
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25"
+  },
+  {
+   "institution_id": "university-of-new-south-wales",
+   "official_name": "University of New South Wales",
+   "name_zh": "新南威尔士大学",
+   "country_code": "AU",
+   "country_name": "Australia",
+   "city": "Sydney",
+   "official_website": "https://unsw.edu.au",
+   "stats": {
+    "total_students": {
+     "value": 70238,
+     "source_url": "https://www.unsw.edu.au/content/dam/pdfs/unsw-adobe-websites/about-us/unsw-at-a-glance/2024-08-unsw-at-a-glance-2024-A5-digital.pdf",
+     "retrieved_at": "2026-11-25",
+     "note": "70,238 total students, 2023 data submitted to TCSI (UNSW at a Glance)"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1949,
+    "source_url": "https://www.unsw.edu.au/content/dam/pdfs/unsw-adobe-websites/about-us/unsw-at-a-glance/2024-08-unsw-at-a-glance-2024-A5-digital.pdf",
+    "retrieved_at": "2026-11-25",
+    "note": "Established 1949 (UNSW at a Glance)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25",
+   "intro": {
+    "value": "Since our beginning in 1949, UNSW has grown to become one of the world's best universities.",
+    "source_url": "https://www.unsw.edu.au/content/dam/pdfs/unsw-adobe-websites/about-us/unsw-at-a-glance/2024-08-unsw-at-a-glance-2024-A5-digital.pdf",
+    "retrieved_at": "2026-11-25"
+   }
+  },
+  {
+   "institution_id": "johns-hopkins-university",
+   "official_name": "Johns Hopkins University",
+   "name_zh": "约翰斯·霍普金斯大学",
+   "country_code": "US",
+   "country_name": "United States",
+   "city": "Baltimore",
+   "official_website": "https://jhu.edu",
+   "stats": {
+    "total_students": null,
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1876,
+    "source_url": "https://beta4.collegedunia.com/usa/university/958-johns-hopkins-university-baltimore",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded in 1876 (figure as reported; official JHU About page not retrieved in this pass)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25"
+  },
+  {
+   "institution_id": "university-of-california-berkeley",
+   "official_name": "University of California, Berkeley",
+   "name_zh": "加州大学伯克利分校",
+   "country_code": "US",
+   "country_name": "United States",
+   "city": "Berkeley",
+   "official_website": null,
+   "stats": {
+    "total_students": {
+     "value": 45882,
+     "source_url": "https://en.wikipedia.org/wiki/University_of_California_Berkeley",
+     "retrieved_at": "2026-11-25",
+     "note": "45,882 students, fall 2024 (figure as reported; official Berkeley facts page not retrieved in this pass)"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1868,
+    "source_url": "https://en.wikipedia.org/wiki/University_of_California_Berkeley",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded in 1868 (figure as reported; official Berkeley facts page not retrieved in this pass)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25",
+   "intro": {
+    "value": "The University of California, Berkeley is a public land-grant research university in Berkeley, California, United States, founded in 1868 as the state's first land-grant university.",
+    "source_url": "https://en.wikipedia.org/wiki/University_of_California_Berkeley",
+    "retrieved_at": "2026-11-25"
+   }
+  },
+  {
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "official_name": "École Polytechnique Fédérale de Lausanne",
+   "name_zh": "洛桑联邦理工学院",
+   "country_code": "CH",
+   "country_name": "Switzerland",
+   "city": "Lausanne",
+   "official_website": "https://epfl.ch",
+   "stats": {
+    "total_students": {
+     "value": 14072,
+     "source_url": "https://www.laigui.ch/files/education/EPFL_Diploma_Supplement_Lai_Gui_EN.pdf",
+     "retrieved_at": "2026-11-25",
+     "note": "14,072 students including 2,465 doctoral students, EPFL Facts 2025"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1853,
+    "source_url": "https://www.epfl.ch/schools/cdh/wp-content/uploads/2024/06/CDH22.pdf",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded in 1853 under the name Ecole spéciale de Lausanne (EPFL profile)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25",
+   "intro": {
+    "value": "It was founded in 1853 under the name Ecole spéciale de Lausanne, and was given its current name in 1969 when it became Switzerland's second federal institute of technology.",
+    "source_url": "https://www.epfl.ch/schools/cdh/wp-content/uploads/2024/06/CDH22.pdf",
+    "retrieved_at": "2026-11-25"
+   }
+  },
+  {
+   "institution_id": "university-of-melbourne",
+   "official_name": "University of Melbourne",
+   "name_zh": "墨尔本大学",
+   "country_code": "AU",
+   "country_name": "Australia",
+   "city": "Melbourne",
+   "official_website": null,
+   "stats": {
+    "total_students": {
+     "value": 58142,
+     "source_url": "https://en.wikipedia.org/wiki/University_of_Melbourne",
+     "retrieved_at": "2026-11-25",
+     "note": "58,142 EFTSL (equivalent full-time student load), 2025 - a load measure, not a headcount (figure as reported; official Melbourne facts page not retrieved in this pass)"
+    },
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1853,
+    "source_url": "https://en.wikipedia.org/wiki/University_of_Melbourne",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded in 1853 (figure as reported; official Melbourne facts page not retrieved in this pass)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25"
+  },
+  {
+   "institution_id": "university-of-chicago",
+   "official_name": "University of Chicago",
+   "name_zh": "芝加哥大学",
+   "country_code": "US",
+   "country_name": "United States",
+   "city": "Chicago",
+   "official_website": null,
+   "stats": {
+    "total_students": null,
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": null,
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25"
+  },
+  {
+   "institution_id": "technical-university-of-munich",
+   "official_name": "Technical University of Munich",
+   "name_zh": "慕尼黑工业大学",
+   "country_code": "DE",
+   "country_name": "Germany",
+   "city": "Munich",
+   "official_website": null,
+   "stats": {
+    "total_students": null,
+    "student_faculty_ratio": null,
+    "international_pct": null,
+    "graduate_pct": null,
+    "male_pct": null,
+    "female_pct": null
+   },
+   "founded_year": {
+    "value": 1868,
+    "source_url": "https://beta4.collegedunia.com/germany/university/691-technical-university-munich-munich",
+    "retrieved_at": "2026-11-25",
+    "note": "Founded in 1868 (figure as reported; official TUM About page not retrieved in this pass)"
+   },
+   "membership_tags": [],
+   "campus_photo": null,
+   "last_verified_at": "2026-11-25"
+  }
+ ],
+ "programs": [
+  {
+   "id": "hku-cs-beng-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "city": "Hong Kong",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学工程学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Tuition 2026/27, non-local STEM programmes, per year. Local students HKD 47,000 per year.",
+    "amount": 249000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 780,
+     "currency": "HKD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "hku-cs-beng-2027-academic",
+     "category": "academic",
+     "description": "HKDSE English, Chinese and Mathematics at Level 3, Citizenship and Social Development Attained, and Level 3 in two elective subjects; scoring formula Eng + Math + Best 3 subjects. Non-JUPAS applicants are assessed on international qualifications including IB, GCE A Levels and SAT.",
+     "threshold": null,
+     "source_ids": [
+      "hku-cds-ug"
+     ]
+    },
+    {
+     "id": "hku-cs-beng-2027-language",
+     "category": "language",
+     "description": "English language proficiency as required by the university for international applicants; no programme-specific IELTS/TOEFL score is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "hku-cds-ug"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-cds-ug",
+     "url": "https://admissions.hku.hk/programmes/undergraduate-programmes/computing-and-data-science",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Computing and Data Science undergraduate programmes (HKU Admissions)"
+    },
+    {
+     "id": "hku-handbook",
+     "url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "General Information about the University (HKU handbook 2026-27)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "hku-aids-beng-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "city": "Hong Kong",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Artificial Intelligence and Data Science",
+   "name_localized": {
+    "zh-CN": "人工智能与数据科学工程学士"
+   },
+   "field": "artificial-intelligence",
+   "field_zh": "人工智能",
+   "subject": "artificial-intelligence",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Tuition 2026/27, non-local STEM programmes, per year.",
+    "amount": 249000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 780,
+     "currency": "HKD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "hku-aids-beng-2027-academic",
+     "category": "academic",
+     "description": "HKDSE English, Chinese and Mathematics at Level 3, Citizenship and Social Development Attained, and Level 3 in two elective subjects; Mathematics Extended Part (Module 1 or 2) preferred. Non-JUPAS applicants are assessed on international qualifications including IB, GCE A Levels and SAT.",
+     "threshold": null,
+     "source_ids": [
+      "hku-cds-ug"
+     ]
+    },
+    {
+     "id": "hku-aids-beng-2027-language",
+     "category": "language",
+     "description": "English language proficiency as required by the university for international applicants; no programme-specific IELTS/TOEFL score is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "hku-cds-ug"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-cds-ug",
+     "url": "https://admissions.hku.hk/programmes/undergraduate-programmes/computing-and-data-science",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Computing and Data Science undergraduate programmes (HKU Admissions)"
+    },
+    {
+     "id": "hku-handbook",
+     "url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "General Information about the University (HKU handbook 2026-27)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "hku-cs-msc-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "city": "Hong Kong",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "1 year",
+   "duration_months": 12,
+   "fees": {
+    "currency": "HKD",
+    "period": "total",
+    "notes": "Total tuition for the full programme, non-local, 2027/28 intake, subject to University approval. Local students HKD 275,000. General stream fee for 2026/27 was HKD 334,800 non-local.",
+    "amount": 375000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2027-28",
+    "residency": "international",
+    "application_fee": {
+     "amount": 780,
+     "currency": "HKD"
+    }
+   },
+   "application_deadline": "1 Dec 2026",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "hku-cs-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree or an equivalent qualification; a bachelor's degree in computer science, engineering or a related discipline is expected. No GPA threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "hku-msc-cs-portal"
+     ]
+    },
+    {
+     "id": "hku-cs-msc-2027-language",
+     "category": "language",
+     "description": "IELTS Academic overall 6.0, no band below 5.5; TOEFL iBT 80 or above. Required only for applicants with qualifications from institutions outside Hong Kong where the language of instruction or examination is not English.",
+     "threshold": {
+      "overall": 6.0,
+      "each_component": 5.5,
+      "toefl_ibt": 80
+     },
+     "source_ids": [
+      "hku-msc-cs-portal",
+      "hku-msc-cs-app"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-msc-cs-app",
+     "url": "https://master.cds.hku.hk/msccs/about/msc-in-computer-science-application-procedure-2027-28/",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "MSc in Computer Science - Application Procedure 2027/28 (HKU CDS)"
+    },
+    {
+     "id": "hku-msc-cs-portal",
+     "url": "https://portal.hku.hk/tpg-admissions/programme-details?programme=master-of-science-in-computer-science-(general,-cyber-security,-financial-computing-and-multimedia-computing-streams)-cds&mode=0",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "MSc in Computer Science programme details (HKU TPG portal)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "ntu-ce-beng-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "city": "Singapore",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering (Computer Engineering)",
+   "name_localized": {
+    "zh-CN": "计算机工程工程学士"
+   },
+   "field": "computer-engineering",
+   "field_zh": "计算机工程",
+   "subject": "computer-engineering",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Tuition AY2026/27, non-subsidised lab-based programmes, per year, inclusive of 9% GST. With the MOE Tuition Grant, other international students pay SGD 21,400 per year.",
+    "amount": 40600,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026/27",
+    "residency": "international"
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "ntu-ce-beng-2027-academic",
+     "category": "academic",
+     "description": "Admission to the College of Computing and Data Science undergraduate programmes; strong mathematics and science preparation is expected. No programme-specific grade threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-ccds-ug"
+     ]
+    },
+    {
+     "id": "ntu-ce-beng-2027-language",
+     "category": "language",
+     "description": "English language proficiency as required by the university for international applicants; no programme-specific IELTS/TOEFL score is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-degree-prog"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-degree-prog",
+     "url": "https://www.ntu.edu.sg/education/degree-programmes",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Degree Programmes AY2026 (NTU)"
+    },
+    {
+     "id": "ntu-tuition-ug",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Tuition fees, undergraduate AY2026/2027 (NTU)"
+    },
+    {
+     "id": "ntu-ccds-ug",
+     "url": "https://www.ntu.edu.sg/computing/discover-ccds/our-programmes",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Our Programmes, College of Computing and Data Science (NTU)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "ntu-dsai-bsc-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "city": "Singapore",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Data Science and Artificial Intelligence",
+   "name_localized": {
+    "zh-CN": "数据科学与人工智能理学学士"
+   },
+   "field": "data-science",
+   "field_zh": "数据科学",
+   "subject": "data-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Tuition AY2026/27, non-subsidised lab-based programmes, per year, inclusive of 9% GST. With the MOE Tuition Grant, other international students pay SGD 21,400 per year.",
+    "amount": 40600,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026/27",
+    "residency": "international"
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "ntu-dsai-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint programme of the College of Computing and Data Science and the School of Physical and Mathematical Sciences; mathematically intensive, with grounding in statistics, probability, optimisation and machine learning. No programme-specific grade threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-ccds-ug"
+     ]
+    },
+    {
+     "id": "ntu-dsai-bsc-2027-language",
+     "category": "language",
+     "description": "English language proficiency as required by the university for international applicants; no programme-specific IELTS/TOEFL score is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-degree-prog"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-degree-prog",
+     "url": "https://www.ntu.edu.sg/education/degree-programmes",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Degree Programmes AY2026 (NTU)"
+    },
+    {
+     "id": "ntu-tuition-ug",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Tuition fees, undergraduate AY2026/2027 (NTU)"
+    },
+    {
+     "id": "ntu-ccds-ug",
+     "url": "https://www.ntu.edu.sg/computing/discover-ccds/our-programmes",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Our Programmes, College of Computing and Data Science (NTU)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "ntu-aisc-bcomp-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "city": "Singapore",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Computing in Artificial Intelligence and Society",
+   "name_localized": {
+    "zh-CN": "人工智能与社会计算机学士"
+   },
+   "field": "artificial-intelligence",
+   "field_zh": "人工智能",
+   "subject": "artificial-intelligence",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Tuition AY2026/27, non-subsidised lab-based programmes, per year, inclusive of 9% GST. With the MOE Tuition Grant, other international students pay SGD 21,400 per year.",
+    "amount": 40600,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026/27",
+    "residency": "international"
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "ntu-aisc-bcomp-2027-academic",
+     "category": "academic",
+     "description": "Human-centric AI with ethical depth; strong foundations in mathematics or physics are expected. No programme-specific grade threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-ccds-ug"
+     ]
+    },
+    {
+     "id": "ntu-aisc-bcomp-2027-language",
+     "category": "language",
+     "description": "English language proficiency as required by the university for international applicants; no programme-specific IELTS/TOEFL score is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-degree-prog"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-degree-prog",
+     "url": "https://www.ntu.edu.sg/education/degree-programmes",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Degree Programmes AY2026 (NTU)"
+    },
+    {
+     "id": "ntu-tuition-ug",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Tuition fees, undergraduate AY2026/2027 (NTU)"
+    },
+    {
+     "id": "ntu-ccds-ug",
+     "url": "https://www.ntu.edu.sg/computing/discover-ccds/our-programmes",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Our Programmes, College of Computing and Data Science (NTU)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "ntu-ds-msc-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "city": "Singapore",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Data Science",
+   "name_localized": {
+    "zh-CN": "数据科学理学硕士"
+   },
+   "field": "data-science",
+   "field_zh": "数据科学",
+   "subject": "data-science",
+   "duration": "1 year",
+   "duration_months": 12,
+   "fees": {
+    "currency": "SGD",
+    "period": "total",
+    "notes": "Total tuition for Academic Year 2027/2028 and after, inclusive of GST. Full-time minimum candidature 1 year (30 AUs).",
+    "amount": 65748.8,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2027/28",
+    "residency": "international",
+    "application_fee": {
+     "amount": 50,
+     "currency": "SGD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "ntu-ds-msc-2027-academic",
+     "category": "academic",
+     "description": "A good honours degree in computer science, computer engineering or a related discipline with solid mathematical training, or a good bachelor's degree in a related discipline with solid mathematical training and 2 years of relevant industry experience.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-msds"
+     ]
+    },
+    {
+     "id": "ntu-ds-msc-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 100 or above, or IELTS 6.5 or above, or certification of English as medium of instruction.",
+     "threshold": {
+      "ielts": 6.5,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "ntu-msds"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-msds",
+     "url": "https://www.ntu.edu.sg/engineering/coe-programmes/graduate/coe-programme-detail/master-of-science-in-data-science-%28msds%29",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Master of Science in Data Science (NTU)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "ntu-cyber-msc-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "city": "Singapore",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Cybersecurity (Applied Cybersecurity)",
+   "name_localized": {
+    "zh-CN": "网络安全理学硕士"
+   },
+   "field": "cybersecurity",
+   "field_zh": "网络安全",
+   "subject": "cybersecurity",
+   "duration": "1 year",
+   "duration_months": 12,
+   "fees": {
+    "currency": "SGD",
+    "period": "total",
+    "notes": "Tuition unknown - not stated on the official programme page checked; the College of Computing and Data Science one-fee schedule for AY2025 listed SGD 63,220 for MSAI, MSc Cyber Security and MSDS, but no 2027/28 figure for this programme was confirmed on its own page.",
+    "amount": null,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2027/28",
+    "residency": "international"
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "ntu-cyber-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related field; no GPA threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-ccds-grad"
+     ]
+    },
+    {
+     "id": "ntu-cyber-msc-2027-language",
+     "category": "language",
+     "description": "English language proficiency as required by the university for international applicants; no programme-specific IELTS/TOEFL score is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-ccds-grad"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-ccds-grad",
+     "url": "https://www.ntu.edu.sg/computing/admissions/graduate-programmes",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Graduate Education at CCDS (NTU)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "peking-cs-bsc-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "city": "Beijing",
+   "degree_level": "undergraduate",
+   "official_name": "Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Tuition for undergraduate science subjects, RMB 30,000 per year (humanities RMB 26,000 per year). International undergraduates apply to the School of Electronics Engineering and Computer Science and choose their major after the second year.",
+    "amount": 30000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international",
+    "application_fee": {
+     "amount": 800,
+     "currency": "CNY"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "peking-cs-bsc-2027-academic",
+     "category": "academic",
+     "description": "International applicants apply through the entrance examination route (Chinese, English and mathematics) or the programme without written examination; applicants to Sciences, Information Science and Technology or Engineering must show mathematics results. No programme-specific grade threshold is stated on the official page.",
+     "threshold": null,
+     "source_ids": [
+      "pku-isd"
+     ]
+    },
+    {
+     "id": "peking-cs-bsc-2027-language",
+     "category": "language",
+     "description": "Chinese-taught undergraduate study: HSK Level 6 (over 180 points) is required. Applicants below the standard may take English-taught courses for one or two semesters or study at the School of Chinese as a Second Language.",
+     "threshold": {
+      "hsk_level": 6
+     },
+     "source_ids": [
+      "pku-isd"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-isd",
+     "url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "General Information, International Students Division (Peking University)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "peking-cs-msc-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "city": "Beijing",
+   "degree_level": "taught_masters",
+   "official_name": "Computer Science (MSc)",
+   "name_localized": {
+    "zh-CN": "计算机科学理学硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "2-3 years",
+   "duration_months": null,
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Tuition unknown - the PKU general table lists master's science subjects at RMB 33,000 per year but states English-taught master's programmes should refer to their respective programme brochures, and no brochure fee was confirmed on an official page in this pass.",
+    "amount": null,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international"
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "peking-cs-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree and two letters of recommendation from full professors or associate professors; a personal presentation in Chinese is required for Chinese-taught routes. No GPA threshold is stated on the official page.",
+     "threshold": null,
+     "source_ids": [
+      "pku-isd"
+     ]
+    },
+    {
+     "id": "peking-cs-msc-2027-language",
+     "category": "language",
+     "description": "English-taught master's programmes require TOEFL iBT 100 or above, or GRE 315 or above, or an equivalent standard set by the individual programme.",
+     "threshold": {
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "pku-wentchina"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-isd",
+     "url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "General Information, International Students Division (Peking University)"
+    },
+    {
+     "id": "pku-wentchina",
+     "url": "https://wentchina.com/university/peking-university/",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Peking University programmes and tuition (WentChina guide, citing PKU)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "tsinghua-cs-bsc-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "city": "Beijing",
+   "degree_level": "undergraduate",
+   "official_name": "Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Tuition for Chinese-English taught programmes including Computer Science, RMB 30,000 per year. Application fee RMB 800.",
+    "amount": 30000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international",
+    "application_fee": {
+     "amount": 800,
+     "currency": "CNY"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "tsinghua-cs-bsc-2027-academic",
+     "category": "academic",
+     "description": "Undergraduates are admitted by division and college rather than by single major; Computer Science is among the subject groups open to international applicants. No programme-specific grade threshold is stated on the official fees page.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-fees",
+      "tsinghua-studyu"
+     ]
+    },
+    {
+     "id": "tsinghua-cs-bsc-2027-language",
+     "category": "language",
+     "description": "Chinese-English taught undergraduate programmes require HSK Level 5 or above.",
+     "threshold": {
+      "hsk_level": 5
+     },
+     "source_ids": [
+      "tsinghua-studyu"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-fees",
+     "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Fees, Tsinghua Undergraduate Admissions (Tsinghua)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "tsinghua-advcomp-msc-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "city": "Beijing",
+   "degree_level": "taught_masters",
+   "official_name": "Master's in Advanced Computing",
+   "name_localized": {
+    "zh-CN": "高级计算硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Tuition unknown - no fee for this programme was confirmed on an official Tsinghua page in this pass; the general master's range is RMB 28,000-33,000 per year.",
+    "amount": null,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international"
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "tsinghua-advcomp-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related field; no GPA threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-studyu"
+     ]
+    },
+    {
+     "id": "tsinghua-advcomp-msc-2027-language",
+     "category": "language",
+     "description": "English-taught master's programme; a high level of English language proficiency is required and no minimum TOEFL/IELTS score is published.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-studyu"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-studyu",
+     "url": "https://www.studyu.org/en/university-tsinghua",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Tsinghua University tuition and 2027 application dates (StudyU, citing Tsinghua)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "upenn-cs-bse-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "city": "Philadelphia",
+   "degree_level": "undergraduate",
+   "official_name": "Computer Science, BSE",
+   "name_localized": {
+    "zh-CN": "计算机科学工程学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition 2026-27, uniform across schools, per year. Application fee USD 75.",
+    "amount": 66104,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 75,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "5 Jan 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "upenn-cs-bse-2027-academic",
+     "category": "academic",
+     "description": "Admission is to the University of Pennsylvania centrally, not to a single major; Penn Engineering looks for preparation in mathematics and science. No per-major grade threshold is stated.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-adm"
+     ]
+    },
+    {
+     "id": "upenn-cs-bse-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 100 or IELTS Academic 7.0 for undergraduate applicants.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "upenn-adm"
+     ]
+    },
+    {
+     "id": "upenn-cs-bse-2027-test",
+     "category": "test",
+     "description": "SAT or ACT scores are required for all applicants, including international students; there is no minimum score. A testing waiver is available only for genuine hardship in taking a test.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-adm"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-adm",
+     "url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of Pennsylvania admissions, fees and deadlines (Collegedunia, citing Penn)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "upenn-cs-bas-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "city": "Philadelphia",
+   "degree_level": "undergraduate",
+   "official_name": "Computer Science, BAS",
+   "name_localized": {
+    "zh-CN": "计算机科学应用科学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition 2026-27, uniform across schools, per year. Application fee USD 75.",
+    "amount": 66104,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 75,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "5 Jan 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "upenn-cs-bas-2027-academic",
+     "category": "academic",
+     "description": "Admission is to the University of Pennsylvania centrally, not to a single major; the BAS combines technology with liberal arts for students who do not plan to become professional engineers. No per-major grade threshold is stated.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-adm"
+     ]
+    },
+    {
+     "id": "upenn-cs-bas-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 100 or IELTS Academic 7.0 for undergraduate applicants.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "upenn-adm"
+     ]
+    },
+    {
+     "id": "upenn-cs-bas-2027-test",
+     "category": "test",
+     "description": "SAT or ACT scores are required for all applicants, including international students; there is no minimum score. A testing waiver is available only for genuine hardship in taking a test.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-adm"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-adm",
+     "url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of Pennsylvania admissions, fees and deadlines (Collegedunia, citing Penn)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "upenn-cis-mse-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "city": "Philadelphia",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Engineering in Computer and Information Science",
+   "name_localized": {
+    "zh-CN": "计算机与信息科学工程硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "18 months",
+   "duration_months": 18,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "SEAS master's tuition 2026-27, per year; tuition is charged per course unit (USD 8,825 per course unit in 2026-27). Application fee USD 95.",
+    "amount": 73522,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 95,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "1 Feb 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "upenn-cis-mse-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related field; Penn Engineering states a GPA of 3.0 as the general graduate minimum in its admissions guidance, but no programme-specific GPA threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-adm"
+     ]
+    },
+    {
+     "id": "upenn-cis-mse-2027-language",
+     "category": "language",
+     "description": "Recommended minimums (not hard cut-offs): TOEFL iBT 100, IELTS 7.5, Duolingo 135.",
+     "threshold": {
+      "ielts": 7.5,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "upenn-adm"
+     ]
+    },
+    {
+     "id": "upenn-cis-mse-2027-test",
+     "category": "test",
+     "description": "GRE is optional for this cycle.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-adm"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-adm",
+     "url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of Pennsylvania admissions, fees and deadlines (Collegedunia, citing Penn)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "cornell-cs-bs-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "city": "Ithaca",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition 2026-27 for out-of-state students at any Cornell college, per year; the same rate applies to all international students. Application fee USD 85.",
+    "amount": 73946,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 85,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "2 Jan 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "cornell-cs-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is to a specific undergraduate college (College of Engineering or College of Arts and Sciences), not to the university broadly; strong college-preparatory subjects including mathematics and science are expected. No per-major grade threshold is stated.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-fees"
+     ]
+    },
+    {
+     "id": "cornell-cs-bs-2027-language",
+     "category": "language",
+     "description": "IELTS 7.5 overall for applicants who need to show English proficiency; TOEFL is also accepted.",
+     "threshold": {
+      "ielts": 7.5
+     },
+     "source_ids": [
+      "cornell-fees"
+     ]
+    },
+    {
+     "id": "cornell-cs-bs-2027-test",
+     "category": "test",
+     "description": "SAT or ACT scores under a test-optional policy; check the current-cycle status by college.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-fees",
+     "url": "https://unifinder-8tv.pages.dev/universities/cornell",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Cornell University tuition and costs (StudyPath, citing Cornell)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "cornell-cs-ba-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "city": "Ithaca",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Arts in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学文学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition 2026-27 for out-of-state students at any Cornell college, per year; the same rate applies to all international students. Application fee USD 85.",
+    "amount": 73946,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 85,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "2 Jan 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "cornell-cs-ba-2027-academic",
+     "category": "academic",
+     "description": "Admission is to the College of Arts and Sciences; strong college-preparatory subjects including mathematics and science are expected. No per-major grade threshold is stated.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-fees"
+     ]
+    },
+    {
+     "id": "cornell-cs-ba-2027-language",
+     "category": "language",
+     "description": "IELTS 7.5 overall for applicants who need to show English proficiency; TOEFL is also accepted.",
+     "threshold": {
+      "ielts": 7.5
+     },
+     "source_ids": [
+      "cornell-fees"
+     ]
+    },
+    {
+     "id": "cornell-cs-ba-2027-test",
+     "category": "test",
+     "description": "SAT or ACT scores under a test-optional policy; check the current-cycle status by college.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-fees",
+     "url": "https://unifinder-8tv.pages.dev/universities/cornell",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Cornell University tuition and costs (StudyPath, citing Cornell)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "cornell-cs-meng-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "city": "Ithaca",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Engineering in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学工程硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "1 year",
+   "duration_months": 12,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time MEng tuition 2026-27, per year (USD 36,973 per semester). Offered on the Ithaca campus and at Cornell Tech; both are 30 credits over one year of full-time study.",
+    "amount": 73946,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 105,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "1 Feb 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "cornell-cs-meng-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related field; two letters of recommendation and two essays are required. No GPA threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-meng"
+     ]
+    },
+    {
+     "id": "cornell-cs-meng-2027-language",
+     "category": "language",
+     "description": "IELTS overall band 7.0, or TOEFL iBT with section minimums (Writing 4, Listening 3.5, Reading 4, Speaking 5.5) for applicants whose degree was not taught in English.",
+     "threshold": {
+      "ielts": 7.0
+     },
+     "source_ids": [
+      "cornell-meng"
+     ]
+    },
+    {
+     "id": "cornell-cs-meng-2027-test",
+     "category": "test",
+     "description": "GRE is not required and is not accepted for the MEng programmes.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-meng"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-meng",
+     "url": "https://gradtab.app/programs/cornell-meng-cs-2027",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Cornell CS MEng Fall 2027 deadline and requirements (GradTab, citing Cornell)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "yale-cs-bs-2027",
+   "institution_id": "yale-university",
+   "institution": "Yale University",
+   "country": "US",
+   "city": "New Haven",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Yale College tuition 2026-27, per year, the same for international and US students (tuition-only rate for nonresident students). Application fee USD 80.",
+    "amount": 72500,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 80,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "2 Jan 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "yale-cs-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is to Yale College rather than to a department; students choose a major later. No per-major grade threshold is stated.",
+     "threshold": null,
+     "source_ids": [
+      "yale-fees"
+     ]
+    },
+    {
+     "id": "yale-cs-bs-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 100 or IELTS 7.0 for international applicants.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "yale-fees"
+     ]
+    },
+    {
+     "id": "yale-cs-bs-2027-test",
+     "category": "test",
+     "description": "From the 2026-27 admissions cycle, every first-year applicant, including international applicants, must include ACT or SAT scores.",
+     "threshold": null,
+     "source_ids": [
+      "yale-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "yale-fees",
+     "url": "https://unifinder-8tv.pages.dev/universities/yale",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Yale University tuition and costs (StudyPath, citing Yale)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "yale-cs-ms-2027",
+   "institution_id": "yale-university",
+   "institution": "Yale University",
+   "country": "US",
+   "city": "New Haven",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "1 year",
+   "duration_months": 12,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "MS tuition per year; the programme is a one-year intensive terminal master's degree (12 term courses). Application fee USD 105.",
+    "amount": 52400,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 105,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "2 Jan 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "yale-cs-ms-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related quantitative field with a strong GPA. No minimum GPA is stated by Yale.",
+     "threshold": null,
+     "source_ids": [
+      "yale-ms-fee"
+     ]
+    },
+    {
+     "id": "yale-cs-ms-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 100 or IELTS 7.0 for applicants whose native language is not English.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "yale-ms-fee"
+     ]
+    },
+    {
+     "id": "yale-cs-ms-2027-test",
+     "category": "test",
+     "description": "GRE is required for the MS programme (PhD GRE is not accepted).",
+     "threshold": null,
+     "source_ids": [
+      "yale-gsas"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "yale-ms-fee",
+     "url": "https://yocket.com/universities/yale-university/computer-science-820",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "MS in Computer Science at Yale University (Yocket, citing Yale)"
+    },
+    {
+     "id": "yale-gsas",
+     "url": "https://gsas.yale.edu/index%2ephp/programs-of-study/computer-science",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Computer Science, Yale Graduate School of Arts and Sciences"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "cuhk-cse-bsc-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "city": "Sha Tin",
+   "degree_level": "undergraduate",
+   "official_name": "Computer Science and Engineering",
+   "name_localized": {
+    "zh-CN": "计算机科学与工程学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Tuition for non-local undergraduate students, per year. Application fee HKD 450.",
+    "amount": 214000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 450,
+     "currency": "HKD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "cuhk-cse-bsc-2027-academic",
+     "category": "academic",
+     "description": "Broad-based admission to Computer Science and Engineering as a whole; the Computer Science or Computer Engineering major is declared after year one. Senior secondary mathematics plus one of biology, chemistry, computer science or physics at higher level is expected. No programme-specific grade threshold is stated on the official page.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-adm"
+     ]
+    },
+    {
+     "id": "cuhk-cse-bsc-2027-language",
+     "category": "language",
+     "description": "IELTS Academic 6.0, TOEFL iBT 80 (or 4.5 on the new TOEFL scale), or Grade 12 English at 80%.",
+     "threshold": {
+      "ielts": 6.0,
+      "toefl_ibt": 80
+     },
+     "source_ids": [
+      "cuhk-adm"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-adm",
+     "url": "https://Collegedunia.com/hong-kong/university/721-chinese-university-of-hong-kong-shatin/admission",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Chinese University of Hong Kong admissions (Collegedunia, citing CUHK)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "cuhk-cs-msc-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "city": "Sha Tin",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "1 year",
+   "duration_months": 12,
+   "fees": {
+    "currency": "HKD",
+    "period": "total",
+    "notes": "Total tuition for full-time mode, admitted in academic year 2027-28, subject to approval. For 2026-27 the full-time total was HKD 264,000.",
+    "amount": 300000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2027-28",
+    "residency": "international",
+    "application_fee": {
+     "amount": 300,
+     "currency": "HKD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "cuhk-cs-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related field; no GPA threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-msc-tuition"
+     ]
+    },
+    {
+     "id": "cuhk-cs-msc-2027-language",
+     "category": "language",
+     "description": "IELTS 6.5 or above for taught postgraduate applicants.",
+     "threshold": {
+      "ielts": 6.5
+     },
+     "source_ids": [
+      "cuhk-adm"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-msc-tuition",
+     "url": "http://msc.cse.cuhk.edu.hk/?page_id=124&lang=en",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Tuition Fee, Master of Science in Computer Science (CUHK)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "cuhk-ds-msc-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "city": "Sha Tin",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Data Science",
+   "name_localized": {
+    "zh-CN": "数据科学理学硕士"
+   },
+   "field": "data-science",
+   "field_zh": "数据科学",
+   "subject": "data-science",
+   "duration": "1 year",
+   "duration_months": 12,
+   "fees": {
+    "currency": "HKD",
+    "period": "total",
+    "notes": "Tuition unknown - no fee for this programme was confirmed on an official CUHK page in this pass.",
+    "amount": null,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international"
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "cuhk-ds-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related field; no GPA threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-adm"
+     ]
+    },
+    {
+     "id": "cuhk-ds-msc-2027-language",
+     "category": "language",
+     "description": "IELTS 6.5 or above for taught postgraduate applicants.",
+     "threshold": {
+      "ielts": 6.5
+     },
+     "source_ids": [
+      "cuhk-adm"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-adm",
+     "url": "https://Collegedunia.com/hong-kong/university/721-chinese-university-of-hong-kong-shatin/admission",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Chinese University of Hong Kong admissions (Collegedunia, citing CUHK)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "unsw-cs-bsc-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "city": "Sydney",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "3 years",
+   "duration_months": 36,
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2026 indicative first-year fee for international students, per year. Application fee AUD 150.",
+    "amount": 61000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026",
+    "residency": "international",
+    "application_fee": {
+     "amount": 150,
+     "currency": "AUD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "February 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "unsw-cs-bsc-2027-academic",
+     "category": "academic",
+     "description": "A recognised secondary qualification equivalent to Australian Year 12, with competitive academic results. Majors include Artificial Intelligence, Computer Science and Cyber Security. No programme-specific grade threshold is stated on the official page.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-fees"
+     ]
+    },
+    {
+     "id": "unsw-cs-bsc-2027-language",
+     "category": "language",
+     "description": "IELTS Academic 6.5 overall for international applicants.",
+     "threshold": {
+      "ielts": 6.5
+     },
+     "source_ids": [
+      "unsw-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-fees",
+     "url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of New South Wales tuition fees by programme (Collegedunia, citing UNSW)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "unsw-ce-beng-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "city": "Sydney",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering (Honours) (Computer Engineering)",
+   "name_localized": {
+    "zh-CN": "计算机工程工程学士（荣誉）"
+   },
+   "field": "computer-engineering",
+   "field_zh": "计算机工程",
+   "subject": "computer-engineering",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2026 indicative first-year fee for international students, per year. Application fee AUD 150.",
+    "amount": 61500,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026",
+    "residency": "international",
+    "application_fee": {
+     "amount": 150,
+     "currency": "AUD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "February 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "unsw-ce-beng-2027-academic",
+     "category": "academic",
+     "description": "A recognised secondary qualification equivalent to Australian Year 12, with competitive academic results. Direct-entry four-year honours engineering degree. No programme-specific grade threshold is stated on the official page.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-fees"
+     ]
+    },
+    {
+     "id": "unsw-ce-beng-2027-language",
+     "category": "language",
+     "description": "IELTS Academic 6.5 overall for international applicants.",
+     "threshold": {
+      "ielts": 6.5
+     },
+     "source_ids": [
+      "unsw-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-fees",
+     "url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of New South Wales tuition fees by programme (Collegedunia, citing UNSW)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "unsw-it-mit-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "city": "Sydney",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Information Technology",
+   "name_localized": {
+    "zh-CN": "信息技术硕士"
+   },
+   "field": "information-systems",
+   "field_zh": "信息系统",
+   "subject": "information-systems",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2026 indicative first-year fee for international students, per year. Specialisations include Artificial Intelligence, Bioinformatics and Information Technology.",
+    "amount": 63000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026",
+    "residency": "international",
+    "application_fee": {
+     "amount": 150,
+     "currency": "AUD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "February 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "unsw-it-mit-2027-academic",
+     "category": "academic",
+     "description": "A cognate bachelor's degree with a minimum weighted average mark (WAM) of 65% for the standard entry point; non-cognate entry pathways exist.",
+     "threshold": {
+      "wam_pct": 65
+     },
+     "source_ids": [
+      "unsw-fees"
+     ]
+    },
+    {
+     "id": "unsw-it-mit-2027-language",
+     "category": "language",
+     "description": "IELTS Academic 6.5 overall for international applicants.",
+     "threshold": {
+      "ielts": 6.5
+     },
+     "source_ids": [
+      "unsw-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-fees",
+     "url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of New South Wales tuition fees by programme (Collegedunia, citing UNSW)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "unsw-ds-msc-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "city": "Sydney",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Data Science and Decisions",
+   "name_localized": {
+    "zh-CN": "数据科学与决策硕士"
+   },
+   "field": "data-science",
+   "field_zh": "数据科学",
+   "subject": "data-science",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2026 indicative first-year fee for international students, per year.",
+    "amount": 62000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026",
+    "residency": "international",
+    "application_fee": {
+     "amount": 150,
+     "currency": "AUD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "February 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "unsw-ds-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related field; no GPA threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-fees"
+     ]
+    },
+    {
+     "id": "unsw-ds-msc-2027-language",
+     "category": "language",
+     "description": "IELTS Academic 6.5 overall for international applicants.",
+     "threshold": {
+      "ielts": 6.5
+     },
+     "source_ids": [
+      "unsw-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-fees",
+     "url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of New South Wales tuition fees by programme (Collegedunia, citing UNSW)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "jhu-cs-bs-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "city": "Baltimore",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time undergraduate tuition 2026-27, flat annual rate across the undergraduate schools. Application fee USD 70.",
+    "amount": 68670,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 70,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "2 Jan 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "jhu-cs-bs-2027-academic",
+     "category": "academic",
+     "description": "Completion of secondary school with strong results, including mathematics; no programme-specific grade threshold is stated on the official programme page.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-adm"
+     ]
+    },
+    {
+     "id": "jhu-cs-bs-2027-language",
+     "category": "language",
+     "description": "IELTS 7.0 for international applicants.",
+     "threshold": {
+      "ielts": 7.0
+     },
+     "source_ids": [
+      "jhu-adm"
+     ]
+    },
+    {
+     "id": "jhu-cs-bs-2027-test",
+     "category": "test",
+     "description": "SAT or ACT scores are required for undergraduate applicants.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-adm"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-adm",
+     "url": "https://beta4.collegedunia.com/usa/university/958-johns-hopkins-university-baltimore",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Johns Hopkins University fees and deadlines (Collegedunia, citing JHU)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "jhu-cs-mse-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "city": "Baltimore",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Engineering in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学工程硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "3-4 semesters",
+   "duration_months": null,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Tuition USD 68,670 annually (USD 34,335 per semester) as published on the programme page. No application fee.",
+    "amount": 68670,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 0,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "15 Feb 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "jhu-cs-mse-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in computer science or a related field; resume, statement of purpose, three recommendation letters and transcripts are required. No GPA threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-mse"
+     ]
+    },
+    {
+     "id": "jhu-cs-mse-2027-language",
+     "category": "language",
+     "description": "International students must provide TOEFL or IELTS scores unless eligible for an English proficiency waiver; no minimum score is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-mse"
+     ]
+    },
+    {
+     "id": "jhu-cs-mse-2027-test",
+     "category": "test",
+     "description": "No GRE is required for the MSE in Computer Science.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-mse"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-mse",
+     "url": "https://www.cs.jhu.edu/academic-programs/graduate-studies/masters-computer-science/",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Master of Science in Engineering, Computer Science (Johns Hopkins CS)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "berkeley-eecs-bs-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "city": "Berkeley",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Electrical Engineering and Computer Sciences",
+   "name_localized": {
+    "zh-CN": "电气工程与计算机科学理学学士"
+   },
+   "field": "computer-engineering",
+   "field_zh": "计算机工程",
+   "subject": "computer-engineering",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Non-resident undergraduate tuition and fees 2026/27, per year, including nonresident supplemental tuition. Application fee USD 95.",
+    "amount": 63050,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026/27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 95,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "30 Nov 2026",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "berkeley-eecs-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is through the central UC application to the College of Engineering; strong secondary-school results in mathematics and physics are expected. No per-major grade threshold is stated.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fees"
+     ]
+    },
+    {
+     "id": "berkeley-eecs-bs-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 90 or IELTS 6.5 for international applicants.",
+     "threshold": {
+      "ielts": 6.5,
+      "toefl_ibt": 90
+     },
+     "source_ids": [
+      "berkeley-fees"
+     ]
+    },
+    {
+     "id": "berkeley-eecs-bs-2027-test",
+     "category": "test",
+     "description": "UC Berkeley undergraduate admission is test-blind: SAT/ACT scores are not considered.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-fees",
+     "url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of California, Berkeley admission and fees (Collegedunia, citing UC Berkeley)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "berkeley-cs-ba-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "city": "Berkeley",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Arts in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学文学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Non-resident undergraduate tuition and fees 2026/27, per year, including nonresident supplemental tuition. Application fee USD 95.",
+    "amount": 63050,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026/27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 95,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "30 Nov 2026",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "berkeley-cs-ba-2027-academic",
+     "category": "academic",
+     "description": "Admission is through the central UC application to the College of Letters and Science; strong secondary-school results in mathematics are expected. No per-major grade threshold is stated.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fees"
+     ]
+    },
+    {
+     "id": "berkeley-cs-ba-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 90 or IELTS 6.5 for international applicants.",
+     "threshold": {
+      "ielts": 6.5,
+      "toefl_ibt": 90
+     },
+     "source_ids": [
+      "berkeley-fees"
+     ]
+    },
+    {
+     "id": "berkeley-cs-ba-2027-test",
+     "category": "test",
+     "description": "UC Berkeley undergraduate admission is test-blind: SAT/ACT scores are not considered.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-fees",
+     "url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of California, Berkeley admission and fees (Collegedunia, citing UC Berkeley)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "berkeley-cs-ms-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "city": "Berkeley",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Electrical Engineering and Computer Sciences",
+   "name_localized": {
+    "zh-CN": "电气工程与计算机科学理学硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Non-resident academic graduate tuition 2026/27, per year. Application fee USD 155.",
+    "amount": 41175,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026/27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 155,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "August 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "berkeley-cs-ms-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree with a GPA of 3.0 on a 4.0 scale is the general graduate minimum; no programme-specific threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fees"
+     ]
+    },
+    {
+     "id": "berkeley-cs-ms-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 90 or IELTS 7.0 for international graduate applicants.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 90
+     },
+     "source_ids": [
+      "berkeley-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-fees",
+     "url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of California, Berkeley admission and fees (Collegedunia, citing UC Berkeley)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "epfl-cs-bsc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "city": "Lausanne",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "3 years",
+   "duration_months": 36,
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester for foreign nationals who move to Switzerland to study (tripled rate from autumn 2025), i.e. CHF 4,380 per year, plus about CHF 50 per semester in fees.",
+    "amount": 4380,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international",
+    "application_fee": {
+     "amount": 150,
+     "currency": "CHF"
+    }
+   },
+   "application_deadline": "30 Apr 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "epfl-cs-bsc-2027-academic",
+     "category": "academic",
+     "description": "Bachelor's programmes are taught mainly in French; admission capacity and entrance-exam rules apply to some certificates. No programme-specific grade threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-fees"
+     ]
+    },
+    {
+     "id": "epfl-cs-bsc-2027-language",
+     "category": "language",
+     "description": "French at B2 level is required for French-taught bachelor's programmes.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-fees",
+     "url": "https://armaneducation.com/en/universities/epfl",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "EPFL fees, dates and programmes (Arman Education, citing EPFL)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "epfl-cs-msc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "city": "Lausanne",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester for foreign nationals who move to Switzerland to study, i.e. CHF 4,380 per year, plus about CHF 50 per semester in fees. Application fee CHF 150.",
+    "amount": 4380,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international",
+    "application_fee": {
+     "amount": 150,
+     "currency": "CHF"
+    }
+   },
+   "application_deadline": "15 Dec 2026",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "epfl-cs-msc-2027-academic",
+     "category": "academic",
+     "description": "A Bachelor of Science in Computer Science or a related quantitative field with high academic marks. No GPA threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-fees"
+     ]
+    },
+    {
+     "id": "epfl-cs-msc-2027-language",
+     "category": "language",
+     "description": "English language proficiency at C1 level: IELTS Academic 7.0 overall or TOEFL iBT 100.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "epfl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-fees",
+     "url": "https://armaneducation.com/en/universities/epfl",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "EPFL fees, dates and programmes (Arman Education, citing EPFL)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "epfl-ds-msc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "city": "Lausanne",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Data Science",
+   "name_localized": {
+    "zh-CN": "数据科学理学硕士"
+   },
+   "field": "data-science",
+   "field_zh": "数据科学",
+   "subject": "data-science",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester for foreign nationals who move to Switzerland to study, i.e. CHF 4,380 per year, plus about CHF 50 per semester in fees. Application fee CHF 150.",
+    "amount": 4380,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international",
+    "application_fee": {
+     "amount": 150,
+     "currency": "CHF"
+    }
+   },
+   "application_deadline": "15 Dec 2026",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "epfl-ds-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in a quantitative field with high academic marks. No GPA threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-fees"
+     ]
+    },
+    {
+     "id": "epfl-ds-msc-2027-language",
+     "category": "language",
+     "description": "English language proficiency at C1 level: IELTS Academic 7.0 overall or TOEFL iBT 100.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "epfl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-fees",
+     "url": "https://armaneducation.com/en/universities/epfl",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "EPFL fees, dates and programmes (Arman Education, citing EPFL)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "melbourne-cs-bsc-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "city": "Melbourne",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science (Computing and Software Systems)",
+   "name_localized": {
+    "zh-CN": "理学学士（计算与软件系统）"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "3 years",
+   "duration_months": 36,
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "Tuition unknown - Melbourne charges by subject rather than by degree and publishes a first-year range of AUD 43,904-65,344 for 2027; no programme-specific fee for this major was confirmed on an official page in this pass. Application fee AUD 154.",
+    "amount": null,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2027",
+    "residency": "international",
+    "application_fee": {
+     "amount": 154,
+     "currency": "AUD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "February 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "melbourne-cs-bsc-2027-academic",
+     "category": "academic",
+     "description": "A recognised secondary qualification with strong results in mathematics; the Computing and Software Systems major is taken within the Bachelor of Science. No programme-specific grade threshold is stated on the official page.",
+     "threshold": null,
+     "source_ids": [
+      "melbourne-studyu"
+     ]
+    },
+    {
+     "id": "melbourne-cs-bsc-2027-language",
+     "category": "language",
+     "description": "IELTS Academic 6.5 overall, no band below 6.0; no online or at-home tests are accepted.",
+     "threshold": {
+      "ielts": 6.5,
+      "each_component": 6.0
+     },
+     "source_ids": [
+      "melbourne-studyu"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "melbourne-studyu",
+     "url": "https://www.studyu.org/en/university-melbourne",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of Melbourne fees and entry (StudyU, citing Melbourne)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "melbourne-it-mit-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "city": "Melbourne",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Information Technology",
+   "name_localized": {
+    "zh-CN": "信息技术硕士"
+   },
+   "field": "information-systems",
+   "field_zh": "信息系统",
+   "subject": "information-systems",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "Annual tuition 2026 for one equivalent full-time study load, international students. Application fee AUD 154.",
+    "amount": 64000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026",
+    "residency": "international",
+    "application_fee": {
+     "amount": 154,
+     "currency": "AUD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "February 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "melbourne-it-mit-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree; Melbourne bachelor's graduates with a weighted average mark of at least 65% are entitled to an international fee place in the Master of Information Technology. No programme-specific GPA threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "melbourne-fees",
+      "melbourne-studyu"
+     ]
+    },
+    {
+     "id": "melbourne-it-mit-2027-language",
+     "category": "language",
+     "description": "IELTS Academic 6.5 overall, no band below 6.0.",
+     "threshold": {
+      "ielts": 6.5,
+      "each_component": 6.0
+     },
+     "source_ids": [
+      "melbourne-studyu"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "melbourne-fees",
+     "url": "https://collegedunia.com/australia/university/609-university-of-melbourne-melbourne/programs?stream=78",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of Melbourne courses and fees (Collegedunia, citing Melbourne)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "melbourne-ds-msc-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "city": "Melbourne",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Data Science",
+   "name_localized": {
+    "zh-CN": "数据科学硕士"
+   },
+   "field": "data-science",
+   "field_zh": "数据科学",
+   "subject": "data-science",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "Annual tuition 2026 for one equivalent full-time study load, international students. Application fee AUD 154.",
+    "amount": 57984,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026",
+    "residency": "international",
+    "application_fee": {
+     "amount": 154,
+     "currency": "AUD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "February 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "melbourne-ds-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree with basic programming, calculus and linear algebra preparation. No programme-specific GPA threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "melbourne-fees"
+     ]
+    },
+    {
+     "id": "melbourne-ds-msc-2027-language",
+     "category": "language",
+     "description": "IELTS Academic 6.5 overall, no band below 6.0.",
+     "threshold": {
+      "ielts": 6.5,
+      "each_component": 6.0
+     },
+     "source_ids": [
+      "melbourne-studyu"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "melbourne-fees",
+     "url": "https://collegedunia.com/australia/university/609-university-of-melbourne-melbourne/programs?stream=78",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of Melbourne courses and fees (Collegedunia, citing Melbourne)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "uchicago-cs-bs-2027",
+   "institution_id": "university-of-chicago",
+   "institution": "University of Chicago",
+   "country": "US",
+   "city": "Chicago",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "4 years",
+   "duration_months": 48,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition 2026-27, uniform across majors in the College, per year. Application fee USD 75.",
+    "amount": 75960,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 75,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "uchicago-cs-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is to the College centrally, not to a single major. No per-major grade threshold is stated.",
+     "threshold": null,
+     "source_ids": [
+      "uchicago-fees"
+     ]
+    },
+    {
+     "id": "uchicago-cs-bs-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 100 or IELTS 7.0 for international applicants.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "uchicago-fees"
+     ]
+    },
+    {
+     "id": "uchicago-cs-bs-2027-test",
+     "category": "test",
+     "description": "SAT/ACT are test-optional for undergraduate applicants.",
+     "threshold": null,
+     "source_ids": [
+      "uchicago-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uchicago-fees",
+     "url": "https://collegedunia.com/usa/university/1129-university-of-chicago-chicago",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "University of Chicago admissions and fees (Collegedunia, citing UChicago)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "uchicago-cs-ms-2027",
+   "institution_id": "university-of-chicago",
+   "institution": "University of Chicago",
+   "country": "US",
+   "city": "Chicago",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "9 months",
+   "duration_months": 9,
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Tuition for the 9-course MS programme, per year. The 12-course variant runs 15 months. Application fee USD 90.",
+    "amount": 66762,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026-27",
+    "residency": "international",
+    "application_fee": {
+     "amount": 90,
+     "currency": "USD"
+    }
+   },
+   "application_deadline": "1 Feb 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "September 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "uchicago-cs-ms-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree with a computer science background; a bachelor's with 65% or CGPA 6.5/10 is the commonly cited guidance, but no programme-specific threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "uchicago-ms",
+      "uchicago-fees"
+     ]
+    },
+    {
+     "id": "uchicago-cs-ms-2027-language",
+     "category": "language",
+     "description": "TOEFL iBT 100 or IELTS 7.0 for international applicants.",
+     "threshold": {
+      "ielts": 7.0,
+      "toefl_ibt": 100
+     },
+     "source_ids": [
+      "uchicago-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uchicago-ms",
+     "url": "https://yocket.com/universities/the-university-of-chicago/computer-science-2268",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "MS in Computer Science at the University of Chicago (Yocket, citing UChicago)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "tum-informatics-bsc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "city": "Munich",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Informatics",
+   "name_localized": {
+    "zh-CN": "信息学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "3 years",
+   "duration_months": 36,
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Non-EU bachelor's tuition EUR 2,000-3,000 per semester (EUR 4,000-6,000 per year); the amount shown is the top of the published band. EU/EEA students pay no tuition. Plus a semester contribution of about EUR 85-97 per semester.",
+    "amount": 6000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international"
+   },
+   "application_deadline": null,
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "October 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "tum-informatics-bsc-2027-academic",
+     "category": "academic",
+     "description": "A secondary-school qualification with strong results; Class 12 with 80% or higher is the commonly cited guidance, but no programme-specific threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "tum-fees"
+     ]
+    },
+    {
+     "id": "tum-informatics-bsc-2027-language",
+     "category": "language",
+     "description": "Taught in German; German language proficiency at TestDaF 4 or DSH-2 level is required.",
+     "threshold": null,
+     "source_ids": [
+      "tum-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-fees",
+     "url": "https://collegedunia.com/germany/university/691-technical-university-munich-munich/fees",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Technical University of Munich tuition fees (Collegedunia, citing TUM)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "tum-informatics-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "city": "Munich",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Informatics",
+   "name_localized": {
+    "zh-CN": "信息学理学硕士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Non-EU master's tuition EUR 6,000 per semester (EUR 12,000 per year) for this programme, plus a semester contribution of about EUR 97 per semester. EU/EEA students and holders of a German bachelor's degree pay no tuition.",
+    "amount": 12000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": "2026/27",
+    "residency": "international"
+   },
+   "application_deadline": "31 May 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "October 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "tum-informatics-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in Informatics equivalent to the TUM BSc Informatics; other programmes do not qualify. Two-stage aptitude assessment including a 90-minute written test in English.",
+     "threshold": null,
+     "source_ids": [
+      "tum-msc"
+     ]
+    },
+    {
+     "id": "tum-informatics-msc-2027-language",
+     "category": "language",
+     "description": "Taught in English; English language proficiency is required and no minimum TOEFL/IELTS score is published on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "tum-msc"
+     ]
+    },
+    {
+     "id": "tum-informatics-msc-2027-test",
+     "category": "test",
+     "description": "GRE General or Indian GATE (CS) is mandatory for applicants with degrees from Bangladesh, China, India, Iran or Pakistan; a uni-assist VPD is required for applicants with a non-German bachelor's degree.",
+     "threshold": null,
+     "source_ids": [
+      "tum-msc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-msc",
+     "url": "https://app.studygateway.io/programs/technical-university-of-munich-msc-informatics",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "MSc Informatics at Technical University of Munich (StudyGateway, citing TUM)"
+    },
+    {
+     "id": "tum-fees",
+     "url": "https://collegedunia.com/germany/university/691-technical-university-munich-munich/fees",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Technical University of Munich tuition fees (Collegedunia, citing TUM)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  },
+  {
+   "id": "tum-dataeng-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "city": "Munich",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Data Engineering and Analytics",
+   "name_localized": {
+    "zh-CN": "数据工程与分析理学硕士"
+   },
+   "field": "data-science",
+   "field_zh": "数据科学",
+   "subject": "data-science",
+   "duration": "2 years",
+   "duration_months": 24,
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Non-EU master's tuition EUR 4,000-6,000 per semester (EUR 8,000-12,000 per year); the amount shown is the top of the published band. Plus a semester contribution of about EUR 85-97 per semester.",
+    "amount": 12000,
+    "amount_min": null,
+    "amount_max": null,
+    "academic_year": null,
+    "residency": "international"
+   },
+   "application_deadline": "31 May 2027",
+   "application_status": "unknown",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "start": "October 2027",
+   "study_mode": "full-time",
+   "ucas_code": null,
+   "intake_year": 2027,
+   "requirements": [
+    {
+     "id": "tum-dataeng-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in a related quantitative field; a bachelor's with 70% or CGPA 7.5/10 is the commonly cited guidance, but no programme-specific threshold is stated on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "tum-fees"
+     ]
+    },
+    {
+     "id": "tum-dataeng-msc-2027-language",
+     "category": "language",
+     "description": "Taught in English; English language proficiency is required and no minimum TOEFL/IELTS score is published on the programme page.",
+     "threshold": null,
+     "source_ids": [
+      "tum-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-fees",
+     "url": "https://collegedunia.com/germany/university/691-technical-university-munich-munich/fees",
+     "retrieved_at": "2026-11-25T12:00:00Z",
+     "title": "Technical University of Munich tuition fees (Collegedunia, citing TUM)"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false
+  }
+ ],
+ "sources": [
+  {
+   "id": "hku-handbook",
+   "url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "General Information about the University (HKU handbook 2026-27)"
+  },
+  {
+   "id": "hku-cds-ug",
+   "url": "https://admissions.hku.hk/programmes/undergraduate-programmes/computing-and-data-science",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Computing and Data Science undergraduate programmes (HKU Admissions)"
+  },
+  {
+   "id": "hku-msc-cs-app",
+   "url": "https://master.cds.hku.hk/msccs/about/msc-in-computer-science-application-procedure-2027-28/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MSc in Computer Science - Application Procedure 2027/28 (HKU CDS)"
+  },
+  {
+   "id": "hku-msc-cs-portal",
+   "url": "https://portal.hku.hk/tpg-admissions/programme-details?programme=master-of-science-in-computer-science-(general,-cyber-security,-financial-computing-and-multimedia-computing-streams)-cds&mode=0",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MSc in Computer Science programme details (HKU TPG portal)"
+  },
+  {
+   "id": "hku-about",
+   "url": "https://www.msc-cs.hku.hk/About/AboutHKU",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "About HKU (HKU School of Computing and Data Science)"
+  },
+  {
+   "id": "ntu-ataglance",
+   "url": "https://www.ntu.edu.sg/docs/default-source/office-of-data-and-analytics/ntuataglance2023b.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "NTU at a Glance 2023 (NTU)"
+  },
+  {
+   "id": "ntu-degree-prog",
+   "url": "https://www.ntu.edu.sg/education/degree-programmes",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Degree Programmes AY2026 (NTU)"
+  },
+  {
+   "id": "ntu-tuition-ug",
+   "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Tuition fees, undergraduate AY2026/2027 (NTU)"
+  },
+  {
+   "id": "ntu-msds",
+   "url": "https://www.ntu.edu.sg/engineering/coe-programmes/graduate/coe-programme-detail/master-of-science-in-data-science-%28msds%29",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Master of Science in Data Science (NTU)"
+  },
+  {
+   "id": "ntu-ccds-grad",
+   "url": "https://www.ntu.edu.sg/computing/admissions/graduate-programmes",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Graduate Education at CCDS (NTU)"
+  },
+  {
+   "id": "ntu-ccds-ug",
+   "url": "https://www.ntu.edu.sg/computing/discover-ccds/our-programmes",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Our Programmes, College of Computing and Data Science (NTU)"
+  },
+  {
+   "id": "pku-isd",
+   "url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "General Information, International Students Division (Peking University)"
+  },
+  {
+   "id": "pku-wentchina",
+   "url": "https://wentchina.com/university/peking-university/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Peking University programmes and tuition (WentChina guide, citing PKU)"
+  },
+  {
+   "id": "tsinghua-fees",
+   "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Fees, Tsinghua Undergraduate Admissions (Tsinghua)"
+  },
+  {
+   "id": "tsinghua-studyu",
+   "url": "https://www.studyu.org/en/university-tsinghua",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Tsinghua University tuition and 2027 application dates (StudyU, citing Tsinghua)"
+  },
+  {
+   "id": "upenn-about",
+   "url": "https://www.upenn.edu/index.php/about",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "About the University of Pennsylvania"
+  },
+  {
+   "id": "upenn-adm",
+   "url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Pennsylvania admissions, fees and deadlines (Collegedunia, citing Penn)"
+  },
+  {
+   "id": "cornell-about",
+   "url": "https://www.cornell.edu/about/index.cfm",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "About Cornell University"
+  },
+  {
+   "id": "cornell-fees",
+   "url": "https://unifinder-8tv.pages.dev/universities/cornell",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Cornell University tuition and costs (StudyPath, citing Cornell)"
+  },
+  {
+   "id": "cornell-meng",
+   "url": "https://gradtab.app/programs/cornell-meng-cs-2027",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Cornell CS MEng Fall 2027 deadline and requirements (GradTab, citing Cornell)"
+  },
+  {
+   "id": "yale-macmillan",
+   "url": "https://macmillan.yale.edu/foxfellowship/yale-university-united-states",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Yale University (Yale Macmillan Center)"
+  },
+  {
+   "id": "yale-wiki",
+   "url": "https://en.wikipedia.org/wiki/Yale_University",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Yale University (Wikipedia, for 2025 enrolment total)"
+  },
+  {
+   "id": "yale-fees",
+   "url": "https://unifinder-8tv.pages.dev/universities/yale",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Yale University tuition and costs (StudyPath, citing Yale)"
+  },
+  {
+   "id": "yale-gsas",
+   "url": "https://gsas.yale.edu/index%2ephp/programs-of-study/computer-science",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Computer Science, Yale Graduate School of Arts and Sciences"
+  },
+  {
+   "id": "yale-ms-fee",
+   "url": "https://yocket.com/universities/yale-university/computer-science-820",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MS in Computer Science at Yale University (Yocket, citing Yale)"
+  },
+  {
+   "id": "cuhk-msc-tuition",
+   "url": "http://msc.cse.cuhk.edu.hk/?page_id=124&lang=en",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Tuition Fee, Master of Science in Computer Science (CUHK)"
+  },
+  {
+   "id": "cuhk-adm",
+   "url": "https://Collegedunia.com/hong-kong/university/721-chinese-university-of-hong-kong-shatin/admission",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Chinese University of Hong Kong admissions (Collegedunia, citing CUHK)"
+  },
+  {
+   "id": "unsw-ataglance",
+   "url": "https://www.unsw.edu.au/content/dam/pdfs/unsw-adobe-websites/about-us/unsw-at-a-glance/2024-08-unsw-at-a-glance-2024-A5-digital.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UNSW at a Glance 2024 (UNSW)"
+  },
+  {
+   "id": "unsw-fees",
+   "url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of New South Wales tuition fees by programme (Collegedunia, citing UNSW)"
+  },
+  {
+   "id": "jhu-mse",
+   "url": "https://www.cs.jhu.edu/academic-programs/graduate-studies/masters-computer-science/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Master of Science in Engineering, Computer Science (Johns Hopkins CS)"
+  },
+  {
+   "id": "jhu-adm",
+   "url": "https://beta4.collegedunia.com/usa/university/958-johns-hopkins-university-baltimore",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Johns Hopkins University fees and deadlines (Collegedunia, citing JHU)"
+  },
+  {
+   "id": "berkeley-fees",
+   "url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of California, Berkeley admission and fees (Collegedunia, citing UC Berkeley)"
+  },
+  {
+   "id": "berkeley-wiki",
+   "url": "https://en.wikipedia.org/wiki/University_of_California_Berkeley",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of California, Berkeley (Wikipedia, for founded year and 2024 enrolment)"
+  },
+  {
+   "id": "epfl-cdh",
+   "url": "https://www.epfl.ch/schools/cdh/wp-content/uploads/2024/06/CDH22.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "EPFL 2022-2023 profile (EPFL)"
+  },
+  {
+   "id": "epfl-facts",
+   "url": "https://www.laigui.ch/files/education/EPFL_Diploma_Supplement_Lai_Gui_EN.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "EPFL Facts 2025, Diploma Supplement (EPFL document)"
+  },
+  {
+   "id": "epfl-fees",
+   "url": "https://armaneducation.com/en/universities/epfl",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "EPFL fees, dates and programmes (Arman Education, citing EPFL)"
+  },
+  {
+   "id": "melbourne-fees",
+   "url": "https://collegedunia.com/australia/university/609-university-of-melbourne-melbourne/programs?stream=78",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Melbourne courses and fees (Collegedunia, citing Melbourne)"
+  },
+  {
+   "id": "melbourne-wiki",
+   "url": "https://en.wikipedia.org/wiki/University_of_Melbourne",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Melbourne (Wikipedia, for founded year and 2025 EFTSL)"
+  },
+  {
+   "id": "melbourne-studyu",
+   "url": "https://www.studyu.org/en/university-melbourne",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Melbourne fees and entry (StudyU, citing Melbourne)"
+  },
+  {
+   "id": "uchicago-fees",
+   "url": "https://collegedunia.com/usa/university/1129-university-of-chicago-chicago",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Chicago admissions and fees (Collegedunia, citing UChicago)"
+  },
+  {
+   "id": "uchicago-ms",
+   "url": "https://yocket.com/universities/the-university-of-chicago/computer-science-2268",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MS in Computer Science at the University of Chicago (Yocket, citing UChicago)"
+  },
+  {
+   "id": "tum-fees",
+   "url": "https://collegedunia.com/germany/university/691-technical-university-munich-munich/fees",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Technical University of Munich tuition fees (Collegedunia, citing TUM)"
+  },
+  {
+   "id": "tum-about",
+   "url": "https://beta4.collegedunia.com/germany/university/691-technical-university-munich-munich",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Technical University of Munich admissions and fees (Collegedunia, citing TUM)"
+  },
+  {
+   "id": "tum-msc",
+   "url": "https://app.studygateway.io/programs/technical-university-of-munich-msc-informatics",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MSc Informatics at Technical University of Munich (StudyGateway, citing TUM)"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "f0001",
+   "scope": "institution",
+   "scope_id": "university-of-hong-kong",
+   "field": "stats.total_students",
+   "value": "44100",
+   "source_url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0002",
+   "scope": "institution",
+   "scope_id": "university-of-hong-kong",
+   "field": "founded_year",
+   "value": "1911",
+   "source_url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0003",
+   "scope": "institution",
+   "scope_id": "ntu",
+   "field": "stats.total_students",
+   "value": "34400",
+   "source_url": "https://www.ntu.edu.sg/docs/default-source/office-of-data-and-analytics/ntuataglance2023b.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0004",
+   "scope": "institution",
+   "scope_id": "ntu",
+   "field": "founded_year",
+   "value": "1991",
+   "source_url": "https://www.ntu.edu.sg/docs/default-source/office-of-data-and-analytics/ntuataglance2023b.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0005",
+   "scope": "institution",
+   "scope_id": "peking-university",
+   "field": "stats.total_students",
+   "value": "45974",
+   "source_url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0006",
+   "scope": "institution",
+   "scope_id": "peking-university",
+   "field": "founded_year",
+   "value": "1898",
+   "source_url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0007",
+   "scope": "institution",
+   "scope_id": "tsinghua-university",
+   "field": "founded_year",
+   "value": "1911",
+   "source_url": "https://www.studyu.org/en/university-tsinghua",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0008",
+   "scope": "institution",
+   "scope_id": "university-of-pennsylvania",
+   "field": "stats.total_students",
+   "value": "29384",
+   "source_url": "https://www.upenn.edu/index.php/about",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0009",
+   "scope": "institution",
+   "scope_id": "university-of-pennsylvania",
+   "field": "stats.student_faculty_ratio",
+   "value": "10",
+   "source_url": "https://www.upenn.edu/index.php/about",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0010",
+   "scope": "institution",
+   "scope_id": "university-of-pennsylvania",
+   "field": "founded_year",
+   "value": "1740",
+   "source_url": "https://www.upenn.edu/index.php/about",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0011",
+   "scope": "institution",
+   "scope_id": "cornell-university",
+   "field": "stats.total_students",
+   "value": "26017",
+   "source_url": "https://www.cornell.edu/about/index.cfm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0012",
+   "scope": "institution",
+   "scope_id": "cornell-university",
+   "field": "founded_year",
+   "value": "1865",
+   "source_url": "https://www.cornell.edu/about/index.cfm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0013",
+   "scope": "institution",
+   "scope_id": "yale-university",
+   "field": "stats.total_students",
+   "value": "15657",
+   "source_url": "https://en.wikipedia.org/wiki/Yale_University",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0014",
+   "scope": "institution",
+   "scope_id": "yale-university",
+   "field": "founded_year",
+   "value": "1701",
+   "source_url": "https://macmillan.yale.edu/foxfellowship/yale-university-united-states",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0015",
+   "scope": "institution",
+   "scope_id": "university-of-new-south-wales",
+   "field": "stats.total_students",
+   "value": "70238",
+   "source_url": "https://www.unsw.edu.au/content/dam/pdfs/unsw-adobe-websites/about-us/unsw-at-a-glance/2024-08-unsw-at-a-glance-2024-A5-digital.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0016",
+   "scope": "institution",
+   "scope_id": "university-of-new-south-wales",
+   "field": "founded_year",
+   "value": "1949",
+   "source_url": "https://www.unsw.edu.au/content/dam/pdfs/unsw-adobe-websites/about-us/unsw-at-a-glance/2024-08-unsw-at-a-glance-2024-A5-digital.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0017",
+   "scope": "institution",
+   "scope_id": "johns-hopkins-university",
+   "field": "founded_year",
+   "value": "1876",
+   "source_url": "https://beta4.collegedunia.com/usa/university/958-johns-hopkins-university-baltimore",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0018",
+   "scope": "institution",
+   "scope_id": "university-of-california-berkeley",
+   "field": "stats.total_students",
+   "value": "45882",
+   "source_url": "https://en.wikipedia.org/wiki/University_of_California_Berkeley",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0019",
+   "scope": "institution",
+   "scope_id": "university-of-california-berkeley",
+   "field": "founded_year",
+   "value": "1868",
+   "source_url": "https://en.wikipedia.org/wiki/University_of_California_Berkeley",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0020",
+   "scope": "institution",
+   "scope_id": "ecole-polytechnique-federale-de-lausanne",
+   "field": "stats.total_students",
+   "value": "14072",
+   "source_url": "https://www.laigui.ch/files/education/EPFL_Diploma_Supplement_Lai_Gui_EN.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0021",
+   "scope": "institution",
+   "scope_id": "ecole-polytechnique-federale-de-lausanne",
+   "field": "founded_year",
+   "value": "1853",
+   "source_url": "https://www.epfl.ch/schools/cdh/wp-content/uploads/2024/06/CDH22.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0022",
+   "scope": "institution",
+   "scope_id": "university-of-melbourne",
+   "field": "stats.total_students",
+   "value": "58142",
+   "source_url": "https://en.wikipedia.org/wiki/University_of_Melbourne",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0023",
+   "scope": "institution",
+   "scope_id": "university-of-melbourne",
+   "field": "founded_year",
+   "value": "1853",
+   "source_url": "https://en.wikipedia.org/wiki/University_of_Melbourne",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0024",
+   "scope": "institution",
+   "scope_id": "technical-university-of-munich",
+   "field": "founded_year",
+   "value": "1868",
+   "source_url": "https://beta4.collegedunia.com/germany/university/691-technical-university-munich-munich",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0025",
+   "scope": "program",
+   "scope_id": "hku-cs-beng-2027",
+   "field": "fees",
+   "value": "249000 HKD per_year",
+   "source_url": "https://admissions.hku.hk/programmes/undergraduate-programmes/computing-and-data-science",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0026",
+   "scope": "program",
+   "scope_id": "hku-aids-beng-2027",
+   "field": "fees",
+   "value": "249000 HKD per_year",
+   "source_url": "https://admissions.hku.hk/programmes/undergraduate-programmes/computing-and-data-science",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0027",
+   "scope": "program",
+   "scope_id": "hku-cs-msc-2027",
+   "field": "fees",
+   "value": "375000 HKD total",
+   "source_url": "https://master.cds.hku.hk/msccs/about/msc-in-computer-science-application-procedure-2027-28/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0028",
+   "scope": "program",
+   "scope_id": "hku-cs-msc-2027",
+   "field": "application_deadline",
+   "value": "1 Dec 2026",
+   "source_url": "https://master.cds.hku.hk/msccs/about/msc-in-computer-science-application-procedure-2027-28/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0029",
+   "scope": "program",
+   "scope_id": "ntu-ce-beng-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/education/degree-programmes",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0030",
+   "scope": "program",
+   "scope_id": "ntu-dsai-bsc-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/education/degree-programmes",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0031",
+   "scope": "program",
+   "scope_id": "ntu-aisc-bcomp-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/education/degree-programmes",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0032",
+   "scope": "program",
+   "scope_id": "ntu-ds-msc-2027",
+   "field": "fees",
+   "value": "65748.8 SGD total",
+   "source_url": "https://www.ntu.edu.sg/engineering/coe-programmes/graduate/coe-programme-detail/master-of-science-in-data-science-%28msds%29",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0033",
+   "scope": "program",
+   "scope_id": "ntu-cyber-msc-2027",
+   "field": "fees",
+   "value": "unknown SGD total",
+   "source_url": "https://www.ntu.edu.sg/computing/admissions/graduate-programmes",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0034",
+   "scope": "program",
+   "scope_id": "peking-cs-bsc-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0035",
+   "scope": "program",
+   "scope_id": "peking-cs-msc-2027",
+   "field": "fees",
+   "value": "unknown CNY per_year",
+   "source_url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0036",
+   "scope": "program",
+   "scope_id": "tsinghua-cs-bsc-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0037",
+   "scope": "program",
+   "scope_id": "tsinghua-advcomp-msc-2027",
+   "field": "fees",
+   "value": "unknown CNY per_year",
+   "source_url": "https://www.studyu.org/en/university-tsinghua",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0038",
+   "scope": "program",
+   "scope_id": "upenn-cs-bse-2027",
+   "field": "fees",
+   "value": "66104 USD per_year",
+   "source_url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0039",
+   "scope": "program",
+   "scope_id": "upenn-cs-bse-2027",
+   "field": "application_deadline",
+   "value": "5 Jan 2027",
+   "source_url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0040",
+   "scope": "program",
+   "scope_id": "upenn-cs-bas-2027",
+   "field": "fees",
+   "value": "66104 USD per_year",
+   "source_url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0041",
+   "scope": "program",
+   "scope_id": "upenn-cs-bas-2027",
+   "field": "application_deadline",
+   "value": "5 Jan 2027",
+   "source_url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0042",
+   "scope": "program",
+   "scope_id": "upenn-cis-mse-2027",
+   "field": "fees",
+   "value": "73522 USD per_year",
+   "source_url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0043",
+   "scope": "program",
+   "scope_id": "upenn-cis-mse-2027",
+   "field": "application_deadline",
+   "value": "1 Feb 2027",
+   "source_url": "https://Collegedunia.com/usa/university/1822-university-of-pennsylvania-philadelphia/admission",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0044",
+   "scope": "program",
+   "scope_id": "cornell-cs-bs-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://unifinder-8tv.pages.dev/universities/cornell",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0045",
+   "scope": "program",
+   "scope_id": "cornell-cs-bs-2027",
+   "field": "application_deadline",
+   "value": "2 Jan 2027",
+   "source_url": "https://unifinder-8tv.pages.dev/universities/cornell",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0046",
+   "scope": "program",
+   "scope_id": "cornell-cs-ba-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://unifinder-8tv.pages.dev/universities/cornell",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0047",
+   "scope": "program",
+   "scope_id": "cornell-cs-ba-2027",
+   "field": "application_deadline",
+   "value": "2 Jan 2027",
+   "source_url": "https://unifinder-8tv.pages.dev/universities/cornell",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0048",
+   "scope": "program",
+   "scope_id": "cornell-cs-meng-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://gradtab.app/programs/cornell-meng-cs-2027",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0049",
+   "scope": "program",
+   "scope_id": "cornell-cs-meng-2027",
+   "field": "application_deadline",
+   "value": "1 Feb 2027",
+   "source_url": "https://gradtab.app/programs/cornell-meng-cs-2027",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0050",
+   "scope": "program",
+   "scope_id": "yale-cs-bs-2027",
+   "field": "fees",
+   "value": "72500 USD per_year",
+   "source_url": "https://unifinder-8tv.pages.dev/universities/yale",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0051",
+   "scope": "program",
+   "scope_id": "yale-cs-bs-2027",
+   "field": "application_deadline",
+   "value": "2 Jan 2027",
+   "source_url": "https://unifinder-8tv.pages.dev/universities/yale",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0052",
+   "scope": "program",
+   "scope_id": "yale-cs-ms-2027",
+   "field": "fees",
+   "value": "52400 USD per_year",
+   "source_url": "https://yocket.com/universities/yale-university/computer-science-820",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0053",
+   "scope": "program",
+   "scope_id": "yale-cs-ms-2027",
+   "field": "application_deadline",
+   "value": "2 Jan 2027",
+   "source_url": "https://yocket.com/universities/yale-university/computer-science-820",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0054",
+   "scope": "program",
+   "scope_id": "cuhk-cse-bsc-2027",
+   "field": "fees",
+   "value": "214000 HKD per_year",
+   "source_url": "https://Collegedunia.com/hong-kong/university/721-chinese-university-of-hong-kong-shatin/admission",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0055",
+   "scope": "program",
+   "scope_id": "cuhk-cs-msc-2027",
+   "field": "fees",
+   "value": "300000 HKD total",
+   "source_url": "http://msc.cse.cuhk.edu.hk/?page_id=124&lang=en",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0056",
+   "scope": "program",
+   "scope_id": "cuhk-ds-msc-2027",
+   "field": "fees",
+   "value": "unknown HKD total",
+   "source_url": "https://Collegedunia.com/hong-kong/university/721-chinese-university-of-hong-kong-shatin/admission",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0057",
+   "scope": "program",
+   "scope_id": "unsw-cs-bsc-2027",
+   "field": "fees",
+   "value": "61000 AUD per_year",
+   "source_url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0058",
+   "scope": "program",
+   "scope_id": "unsw-ce-beng-2027",
+   "field": "fees",
+   "value": "61500 AUD per_year",
+   "source_url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0059",
+   "scope": "program",
+   "scope_id": "unsw-it-mit-2027",
+   "field": "fees",
+   "value": "63000 AUD per_year",
+   "source_url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0060",
+   "scope": "program",
+   "scope_id": "unsw-ds-msc-2027",
+   "field": "fees",
+   "value": "62000 AUD per_year",
+   "source_url": "https://Collegedunia.com/australia/university/603-university-of-new-south-wales-sydney/programs/ba-bsc-courses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0061",
+   "scope": "program",
+   "scope_id": "jhu-cs-bs-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://beta4.collegedunia.com/usa/university/958-johns-hopkins-university-baltimore",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0062",
+   "scope": "program",
+   "scope_id": "jhu-cs-bs-2027",
+   "field": "application_deadline",
+   "value": "2 Jan 2027",
+   "source_url": "https://beta4.collegedunia.com/usa/university/958-johns-hopkins-university-baltimore",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0063",
+   "scope": "program",
+   "scope_id": "jhu-cs-mse-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://www.cs.jhu.edu/academic-programs/graduate-studies/masters-computer-science/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0064",
+   "scope": "program",
+   "scope_id": "jhu-cs-mse-2027",
+   "field": "application_deadline",
+   "value": "15 Feb 2027",
+   "source_url": "https://www.cs.jhu.edu/academic-programs/graduate-studies/masters-computer-science/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0065",
+   "scope": "program",
+   "scope_id": "berkeley-eecs-bs-2027",
+   "field": "fees",
+   "value": "63050 USD per_year",
+   "source_url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0066",
+   "scope": "program",
+   "scope_id": "berkeley-eecs-bs-2027",
+   "field": "application_deadline",
+   "value": "30 Nov 2026",
+   "source_url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0067",
+   "scope": "program",
+   "scope_id": "berkeley-cs-ba-2027",
+   "field": "fees",
+   "value": "63050 USD per_year",
+   "source_url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0068",
+   "scope": "program",
+   "scope_id": "berkeley-cs-ba-2027",
+   "field": "application_deadline",
+   "value": "30 Nov 2026",
+   "source_url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0069",
+   "scope": "program",
+   "scope_id": "berkeley-cs-ms-2027",
+   "field": "fees",
+   "value": "41175 USD per_year",
+   "source_url": "https://beta4.collegedunia.com/usa/university/982-university-of-california-berkeley",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0070",
+   "scope": "program",
+   "scope_id": "epfl-cs-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://armaneducation.com/en/universities/epfl",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0071",
+   "scope": "program",
+   "scope_id": "epfl-cs-bsc-2027",
+   "field": "application_deadline",
+   "value": "30 Apr 2027",
+   "source_url": "https://armaneducation.com/en/universities/epfl",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0072",
+   "scope": "program",
+   "scope_id": "epfl-cs-msc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://armaneducation.com/en/universities/epfl",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0073",
+   "scope": "program",
+   "scope_id": "epfl-cs-msc-2027",
+   "field": "application_deadline",
+   "value": "15 Dec 2026",
+   "source_url": "https://armaneducation.com/en/universities/epfl",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0074",
+   "scope": "program",
+   "scope_id": "epfl-ds-msc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://armaneducation.com/en/universities/epfl",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0075",
+   "scope": "program",
+   "scope_id": "epfl-ds-msc-2027",
+   "field": "application_deadline",
+   "value": "15 Dec 2026",
+   "source_url": "https://armaneducation.com/en/universities/epfl",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0076",
+   "scope": "program",
+   "scope_id": "melbourne-cs-bsc-2027",
+   "field": "fees",
+   "value": "unknown AUD per_year",
+   "source_url": "https://www.studyu.org/en/university-melbourne",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0077",
+   "scope": "program",
+   "scope_id": "melbourne-it-mit-2027",
+   "field": "fees",
+   "value": "64000 AUD per_year",
+   "source_url": "https://collegedunia.com/australia/university/609-university-of-melbourne-melbourne/programs?stream=78",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0078",
+   "scope": "program",
+   "scope_id": "melbourne-ds-msc-2027",
+   "field": "fees",
+   "value": "57984 AUD per_year",
+   "source_url": "https://collegedunia.com/australia/university/609-university-of-melbourne-melbourne/programs?stream=78",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0079",
+   "scope": "program",
+   "scope_id": "uchicago-cs-bs-2027",
+   "field": "fees",
+   "value": "75960 USD per_year",
+   "source_url": "https://collegedunia.com/usa/university/1129-university-of-chicago-chicago",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0080",
+   "scope": "program",
+   "scope_id": "uchicago-cs-ms-2027",
+   "field": "fees",
+   "value": "66762 USD per_year",
+   "source_url": "https://yocket.com/universities/the-university-of-chicago/computer-science-2268",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0081",
+   "scope": "program",
+   "scope_id": "uchicago-cs-ms-2027",
+   "field": "application_deadline",
+   "value": "1 Feb 2027",
+   "source_url": "https://yocket.com/universities/the-university-of-chicago/computer-science-2268",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0082",
+   "scope": "program",
+   "scope_id": "tum-informatics-bsc-2027",
+   "field": "fees",
+   "value": "6000 EUR per_year",
+   "source_url": "https://collegedunia.com/germany/university/691-technical-university-munich-munich/fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0083",
+   "scope": "program",
+   "scope_id": "tum-informatics-msc-2027",
+   "field": "fees",
+   "value": "12000 EUR per_year",
+   "source_url": "https://app.studygateway.io/programs/technical-university-of-munich-msc-informatics",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0084",
+   "scope": "program",
+   "scope_id": "tum-informatics-msc-2027",
+   "field": "application_deadline",
+   "value": "31 May 2027",
+   "source_url": "https://app.studygateway.io/programs/technical-university-of-munich-msc-informatics",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0085",
+   "scope": "program",
+   "scope_id": "tum-dataeng-msc-2027",
+   "field": "fees",
+   "value": "12000 EUR per_year",
+   "source_url": "https://collegedunia.com/germany/university/691-technical-university-munich-munich/fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "f0086",
+   "scope": "program",
+   "scope_id": "tum-dataeng-msc-2027",
+   "field": "application_deadline",
+   "value": "31 May 2027",
+   "source_url": "https://collegedunia.com/germany/university/691-technical-university-munich-munich/fees",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

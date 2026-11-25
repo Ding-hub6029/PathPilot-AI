@@ -1,0 +1,70 @@
+# Expansion hold list — records held at merge time for re-verification against official pages.
+
+## rank-11-25
+- program: tsinghua-advcomp-msc-2027: fee/deadline cites a blocked source
+- program: upenn-cs-bse-2027: fee/deadline cites a blocked source
+- program: upenn-cs-bas-2027: fee/deadline cites a blocked source
+- program: upenn-cis-mse-2027: fee/deadline cites a blocked source
+- program: cornell-cs-bs-2027: fee/deadline cites a blocked source
+- program: cornell-cs-ba-2027: fee/deadline cites a blocked source
+- program: cornell-cs-meng-2027: fee/deadline cites a blocked source
+- program: yale-cs-bs-2027: fee/deadline cites a blocked source
+- program: yale-cs-ms-2027: fee/deadline cites a blocked source
+- program: cuhk-cse-bsc-2027: fee/deadline cites a blocked source
+- program: cuhk-ds-msc-2027: fee/deadline cites a blocked source
+- program: unsw-cs-bsc-2027: fee/deadline cites a blocked source
+- program: unsw-ce-beng-2027: fee/deadline cites a blocked source
+- program: unsw-it-mit-2027: fee/deadline cites a blocked source
+- program: unsw-ds-msc-2027: fee/deadline cites a blocked source
+- program: jhu-cs-bs-2027: fee/deadline cites a blocked source
+- program: berkeley-eecs-bs-2027: fee/deadline cites a blocked source
+- program: berkeley-cs-ba-2027: fee/deadline cites a blocked source
+- program: berkeley-cs-ms-2027: fee/deadline cites a blocked source
+- program: epfl-cs-bsc-2027: fee/deadline cites a blocked source
+- program: epfl-cs-msc-2027: fee/deadline cites a blocked source
+- program: epfl-ds-msc-2027: fee/deadline cites a blocked source
+- program: melbourne-cs-bsc-2027: fee/deadline cites a blocked source
+- program: melbourne-it-mit-2027: fee/deadline cites a blocked source
+- program: melbourne-ds-msc-2027: fee/deadline cites a blocked source
+- program: uchicago-cs-bs-2027: fee/deadline cites a blocked source
+- program: uchicago-cs-ms-2027: fee/deadline cites a blocked source
+- program: tum-informatics-bsc-2027: fee/deadline cites a blocked source
+- program: tum-informatics-msc-2027: fee/deadline cites a blocked source
+- program: tum-dataeng-msc-2027: fee/deadline cites a blocked source
+- stripped: tsinghua-university: founded_year nulled (blocked source)
+- stripped: yale-university: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/Yale_University)
+- stripped: johns-hopkins-university: founded_year nulled (blocked source)
+- stripped: university-of-california-berkeley: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/University_of_California_Berkeley)
+- stripped: university-of-california-berkeley: founded_year nulled (blocked source)
+- stripped: university-of-california-berkeley: intro nulled (blocked source)
+- stripped: ecole-polytechnique-federale-de-lausanne: stat total_students nulled (blocked source https://www.laigui.ch/files/education/EPFL_Diploma_Supplement_Lai_Gui_EN.pdf)
+- stripped: university-of-melbourne: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/University_of_Melbourne)
+- stripped: university-of-melbourne: founded_year nulled (blocked source)
+- stripped: technical-university-of-munich: founded_year nulled (blocked source)
+- stripped: peking-cs-msc-2027: dropped requirement peking-cs-msc-2027-language (blocked-only sources)
+- stripped: tsinghua-cs-bsc-2027: stripped blocked source(s) from requirement tsinghua-cs-bsc-2027-academic
+- stripped: tsinghua-cs-bsc-2027: dropped requirement tsinghua-cs-bsc-2027-language (blocked-only sources)
+- stripped: cuhk-cs-msc-2027: dropped requirement cuhk-cs-msc-2027-language (blocked-only sources)
+# Expansion hold list — records held at merge time for re-verification against official pages.
+
+## rank-76-100
+- stripped: university-of-leeds: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/Leeds_University)
+- stripped: university-of-leeds: founded_year nulled (blocked source)
+- stripped: university-of-western-australia: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/University_of_Western_Australia)
+- stripped: university-of-western-australia: founded_year nulled (blocked source)
+- stripped: university-of-california-san-diego: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/University_of_California,_San_Diego)
+- stripped: university-of-california-san-diego: founded_year nulled (blocked source)
+- stripped: kth-royal-institute-of-technology: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/KTH_Royal_Institute_of_Technology)
+- stripped: kth-royal-institute-of-technology: founded_year nulled (blocked source)
+- stripped: university-of-sheffield: founded_year nulled (blocked source)
+- stripped: universidad-de-buenos-aires: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/University_of_Buenos_Aires)
+- stripped: universidad-de-buenos-aires: founded_year nulled (blocked source)
+- stripped: durham-university: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/Durham_University)
+- stripped: durham-university: founded_year nulled (blocked source)
+- stripped: pennsylvania-state-university: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/Pennsylvania_State_University)
+- stripped: pennsylvania-state-university: founded_year nulled (blocked source)
+- stripped: university-of-washington: stat total_students nulled (blocked source https://en.m.wikipedia.org/wiki/University_of_Washington)
+- stripped: university-of-washington: founded_year nulled (blocked source)
+- stripped: boston-university: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/Boston_University)
+- stripped: university-of-nottingham: stat total_students nulled (blocked source https://en.wikipedia.org/wiki/Nottingham_University)
+- stripped: university-of-nottingham: founded_year nulled (blocked source)

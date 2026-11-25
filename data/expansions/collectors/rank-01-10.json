@@ -1,0 +1,3842 @@
+{
+  "data_version": "v3",
+  "institutions": [
+    {
+      "institution_id": "massachusetts-institute-of-technology",
+      "official_name": "Massachusetts Institute of Technology",
+      "country_code": "US",
+      "country_name": "United States",
+      "city": "Cambridge",
+      "name_zh": "麻省理工学院",
+      "official_website": null,
+      "stats": {
+        "total_students": {
+          "value": 11816,
+          "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+          "retrieved_at": "2026-11-25",
+          "note": "2025-26: 4,561 undergraduates and 7,255 graduate students"
+        },
+        "student_faculty_ratio": {
+          "value": 3,
+          "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+          "retrieved_at": "2026-11-25",
+          "note": "3-to-1 ratio of undergraduate students to faculty and instructional staff"
+        },
+        "international_pct": {
+          "value": 29.1,
+          "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from MIT Facts 2026: 529 international undergraduates + 2,908 international graduate students = 3,437 of 11,816 students"
+        },
+        "graduate_pct": {
+          "value": 61.4,
+          "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from MIT Facts 2026: 7,255 graduate students of 11,816 total"
+        },
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25",
+      "founded_year": {
+        "value": 1861,
+        "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+        "retrieved_at": "2026-11-25",
+        "note": "Chartered 10 April 1861"
+      },
+      "address": {
+        "value": "MIT Admissions, 77 Massachusetts Avenue, Room E38-200, Cambridge, MA 02139, USA",
+        "source_url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+        "retrieved_at": "2026-11-25"
+      }
+    },
+    {
+      "institution_id": "imperial",
+      "official_name": "Imperial College London",
+      "country_code": "GB",
+      "country_name": "United Kingdom",
+      "city": "London",
+      "name_zh": "帝国理工学院",
+      "official_website": "https://www.imperial.ac.uk",
+      "stats": {
+        "total_students": {
+          "value": 23000,
+          "source_url": "https://www.imperial.ac.uk/media/imperial-college/about/leadership-and-strategy/president/public/Imperial-Strategy---Science-for-Humanity.pdf?ref=felixonline.co.uk",
+          "retrieved_at": "2026-11-25",
+          "note": "12,000 undergraduates and 11,000 postgraduates"
+        },
+        "student_faculty_ratio": null,
+        "international_pct": null,
+        "graduate_pct": {
+          "value": 47.8,
+          "source_url": "https://www.imperial.ac.uk/media/imperial-college/about/leadership-and-strategy/president/public/Imperial-Strategy---Science-for-Humanity.pdf?ref=felixonline.co.uk",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from Imperial strategy figures: 11,000 postgraduates of 23,000 students"
+        },
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25",
+      "founded_year": {
+        "value": 1907,
+        "source_url": "https://www.imperial.ac.uk/about/",
+        "retrieved_at": "2026-11-25",
+        "note": "Founded in 1907"
+      }
+    },
+    {
+      "institution_id": "stanford-university",
+      "official_name": "Stanford University",
+      "country_code": "US",
+      "country_name": "United States",
+      "city": "Stanford",
+      "name_zh": "斯坦福大学",
+      "official_website": null,
+      "stats": {
+        "total_students": {
+          "value": 17314,
+          "source_url": "https://facts.stanford.edu/academics",
+          "retrieved_at": "2026-11-25",
+          "note": "2025: 7,289 undergraduates and 10,025 graduate students"
+        },
+        "student_faculty_ratio": null,
+        "international_pct": null,
+        "graduate_pct": {
+          "value": 57.9,
+          "source_url": "https://facts.stanford.edu/academics",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from Stanford Facts: 10,025 graduate students of 17,314 total"
+        },
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25"
+    },
+    {
+      "institution_id": "university-of-oxford",
+      "official_name": "University of Oxford",
+      "country_code": "GB",
+      "country_name": "United Kingdom",
+      "city": "Oxford",
+      "name_zh": "牛津大学",
+      "official_website": null,
+      "stats": {
+        "total_students": {
+          "value": 26800,
+          "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+          "retrieved_at": "2026-11-25",
+          "note": "As of 1 December 2025: 12,460 undergraduates, 13,755 graduates, 585 visiting/recognised/other students"
+        },
+        "student_faculty_ratio": null,
+        "international_pct": {
+          "value": 43,
+          "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+          "retrieved_at": "2026-11-25",
+          "note": "43% of the total student body from outside the UK; about 12,565 students from 175 countries/territories"
+        },
+        "graduate_pct": {
+          "value": 51.3,
+          "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from Oxford student numbers: 13,755 graduates of 26,800 total"
+        },
+        "male_pct": {
+          "value": 48.9,
+          "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from Oxford student numbers: 13,110 men of 26,800 total"
+        },
+        "female_pct": {
+          "value": 51.0,
+          "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from Oxford student numbers: 13,680 women of 26,800 total"
+        }
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25",
+      "founded_year": {
+        "value": 1096,
+        "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures?lang=en",
+        "retrieved_at": "2026-11-25",
+        "note": "Teaching existed in Oxford in some form in 1096; no clear date of foundation"
+      },
+      "intro": {
+        "value": "The oldest university in the English-speaking world",
+        "source_url": "https://www.ox.ac.uk/about",
+        "retrieved_at": "2026-11-25"
+      }
+    },
+    {
+      "institution_id": "harvard-university",
+      "official_name": "Harvard University",
+      "country_code": "US",
+      "country_name": "United States",
+      "city": "Cambridge",
+      "name_zh": "哈佛大学",
+      "official_website": null,
+      "stats": {
+        "total_students": {
+          "value": 24317,
+          "source_url": "https://www.harvard.edu/about/",
+          "retrieved_at": "2026-11-25",
+          "note": "24,317 undergraduate and graduate students"
+        },
+        "student_faculty_ratio": {
+          "value": 7,
+          "source_url": "https://college.harvard.edu/about",
+          "retrieved_at": "2026-11-25",
+          "note": "Harvard College student-to-faculty ratio 7:1"
+        },
+        "international_pct": {
+          "value": 23,
+          "source_url": "https://www.hio.harvard.edu/statistics.md",
+          "retrieved_at": "2026-11-25",
+          "note": "23% international student enrolment as a percentage of total student enrolment; 5,627 international students enrolled"
+        },
+        "graduate_pct": {
+          "value": 70.8,
+          "source_url": "https://www.harvard.edu/about/",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from Harvard University total (24,317) minus Harvard College enrolment (7,103)"
+        },
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25",
+      "founded_year": {
+        "value": 1636,
+        "source_url": "https://www.harvard.edu/about/",
+        "retrieved_at": "2026-11-25",
+        "note": "Founded 28 October 1636; the first college in the American colonies"
+      }
+    },
+    {
+      "institution_id": "university-of-cambridge",
+      "official_name": "University of Cambridge",
+      "country_code": "GB",
+      "country_name": "United Kingdom",
+      "city": "Cambridge",
+      "name_zh": "剑桥大学",
+      "official_website": null,
+      "stats": {
+        "total_students": {
+          "value": 24927,
+          "source_url": "https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance",
+          "retrieved_at": "2026-11-25",
+          "note": "2025-2026 figures: 12,850 undergraduates and 12,080 postgraduates"
+        },
+        "student_faculty_ratio": null,
+        "international_pct": {
+          "value": 41,
+          "source_url": "https://www.careers.cam.ac.uk/employers/advertise-your-opportunities/hiring-international-graduates",
+          "retrieved_at": "2026-11-25",
+          "note": "41% of the student population, from 140 countries"
+        },
+        "graduate_pct": {
+          "value": 48.5,
+          "source_url": "https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from Cambridge figures: 12,080 postgraduates of 24,927 total"
+        },
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25",
+      "founded_year": {
+        "value": 1209,
+        "source_url": "https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance",
+        "retrieved_at": "2026-11-25",
+        "note": "Fourth-oldest university in the world; founded 1209"
+      }
+    },
+    {
+      "institution_id": "california-institute-of-technology",
+      "official_name": "California Institute of Technology",
+      "country_code": "US",
+      "country_name": "United States",
+      "city": "Pasadena",
+      "name_zh": "加州理工学院",
+      "official_website": null,
+      "stats": {
+        "total_students": {
+          "value": 2000,
+          "source_url": "https://www.caltech.edu/about/news/kavli-foundation-establishes-endowed-professorship-caltech-572",
+          "retrieved_at": "2026-11-25",
+          "note": "Caltech describes enrolment as 'some 2,000 students'; a precise headcount is not published on the official page checked"
+        },
+        "student_faculty_ratio": null,
+        "international_pct": null,
+        "graduate_pct": null,
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25"
+    },
+    {
+      "institution_id": "eth-zurich",
+      "official_name": "ETH Zurich",
+      "country_code": "CH",
+      "country_name": "Switzerland",
+      "city": "Zurich",
+      "name_zh": "苏黎世联邦理工学院",
+      "official_website": null,
+      "stats": {
+        "total_students": {
+          "value": 26942,
+          "source_url": "https://ethz.ch/content/dam/ethz/main/eth-zurich/portraet/geschaeftsbericht-2025/PDF-Downloads/GB25-eth-zuerich-jahresrechnung-EN.pdf",
+          "retrieved_at": "2026-11-25",
+          "note": "26,942 students from more than 130 countries, including 4,266 doctoral students"
+        },
+        "student_faculty_ratio": null,
+        "international_pct": null,
+        "graduate_pct": null,
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25",
+      "founded_year": {
+        "value": 1855,
+        "source_url": "https://ethz.ch/en/studies/non-degree-courses/exchange/downloads/for-prospective-students/university.html",
+        "retrieved_at": "2026-11-25",
+        "note": "Founded in 1855"
+      }
+    },
+    {
+      "institution_id": "ucl",
+      "official_name": "University College London",
+      "country_code": "GB",
+      "country_name": "United Kingdom",
+      "city": "London",
+      "name_zh": "伦敦大学学院",
+      "official_website": "https://www.ucl.ac.uk",
+      "stats": {
+        "total_students": {
+          "value": 51000,
+          "source_url": "https://www.ucl.ac.uk/pg-teaching-opportunities-hub/sites/pg_teaching_opportunities_hub/files/b16-01958_pgta_bsc_sociology_programme_candid_ladislao_dela_cruz_j.pdf",
+          "retrieved_at": "2026-11-25",
+          "note": "More than 51,000 students from over 150 different countries"
+        },
+        "student_faculty_ratio": null,
+        "international_pct": null,
+        "graduate_pct": null,
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25",
+      "founded_year": {
+        "value": 1826,
+        "source_url": "https://www.ucl.ac.uk/pg-teaching-opportunities-hub/sites/pg_teaching_opportunities_hub/files/b16-01958_pgta_bsc_sociology_programme_candid_ladislao_dela_cruz_j.pdf",
+        "retrieved_at": "2026-11-25",
+        "note": "Founded in 1826 in the heart of London"
+      }
+    },
+    {
+      "institution_id": "nus",
+      "official_name": "National University of Singapore",
+      "country_code": "SG",
+      "country_name": "Singapore",
+      "city": "Singapore",
+      "name_zh": "新加坡国立大学",
+      "official_website": "https://www.nus.edu.sg",
+      "stats": {
+        "total_students": {
+          "value": 45700,
+          "source_url": "http://www.nus.edu.sg/about",
+          "retrieved_at": "2026-11-25",
+          "note": "29,300 undergraduates and 16,400 graduate students, Academic Year 2025/26"
+        },
+        "student_faculty_ratio": null,
+        "international_pct": null,
+        "graduate_pct": {
+          "value": 35.9,
+          "source_url": "http://www.nus.edu.sg/about",
+          "retrieved_at": "2026-11-25",
+          "note": "Computed from NUS figures: 16,400 graduate students of 45,700 total"
+        },
+        "male_pct": null,
+        "female_pct": null
+      },
+      "membership_tags": [],
+      "campus_photo": null,
+      "last_verified_at": "2026-11-25",
+      "founded_year": {
+        "value": 1905,
+        "source_url": "http://www.nus.edu.sg/about",
+        "retrieved_at": "2026-11-25",
+        "note": "Started out as a modest medical school with 23 students in 1905"
+      }
+    }
+  ],
+  "programs": [
+    {
+      "id": "mit-cs-sb-2027",
+      "institution_id": "massachusetts-institute-of-technology",
+      "institution": "Massachusetts Institute of Technology",
+      "country": "US",
+      "degree_level": "undergraduate",
+      "official_name": "Bachelor of Science in Computer Science and Engineering (Course 6-3)",
+      "name_localized": {
+        "zh-CN": "计算机科学理学学士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Tuition 2026-27, international. Cost of attendance USD 92,760. Application fee USD 75.",
+        "amount": 66720,
+        "residency": "international",
+        "academic_year": "2026-27",
+        "application_fee": {
+          "amount": 75,
+          "currency": "USD"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "mit-cs-sb-2027-req-1",
+          "category": "academic",
+          "description": "First-year admission to MIT as a whole; students choose a major (Course 6) after enrolment. No per-major threshold is published.",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-cs-sb-2027-req-2",
+          "category": "test",
+          "description": "SAT or ACT required for first-year applicants (tests before 30 November for Early Action, 31 December for Regular Action).",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-cs-sb-2027-req-3",
+          "category": "language",
+          "description": "English proficiency exam strongly recommended for applicants whose first language is not English and who have used English for fewer than 5 years (before 31 January for Regular Action).",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-cs-sb-2027-req-4",
+          "category": "fee",
+          "description": "Application fee USD 75.",
+          "threshold": {
+            "application_fee_usd": 75
+          },
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-cs-sb-2027-req-5",
+          "category": "other",
+          "description": "Two teacher letters of recommendation and a school report with transcript are required.",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "mit-admissions-deadlines",
+          "url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "mit-tuition-2026",
+          "url": "https://apply.mitadmissions.org/portal/ecportal/help/2026ECReunionWorkshop.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "mit-eecs-catalogue",
+          "url": "http://catalog.mit.edu/archive/2024-2025/schools/mit-schwarzman-college-computing/electrical-engineering-computer-science/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "September 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "1 November 2026 (Early Action); 4 January 2027 (Regular Action)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "mit-eecs-sb-2027",
+      "institution_id": "massachusetts-institute-of-technology",
+      "institution": "Massachusetts Institute of Technology",
+      "country": "US",
+      "degree_level": "undergraduate",
+      "official_name": "Bachelor of Science in Electrical Engineering and Computer Science (Course 6-2)",
+      "name_localized": {
+        "zh-CN": "电气工程与计算机科学理学学士"
+      },
+      "field": "computer-engineering",
+      "field_zh": "计算机工程",
+      "subject": "computer-engineering",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Tuition 2026-27, international. Cost of attendance USD 92,760. Application fee USD 75.",
+        "amount": 66720,
+        "residency": "international",
+        "academic_year": "2026-27",
+        "application_fee": {
+          "amount": 75,
+          "currency": "USD"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "mit-eecs-sb-2027-req-1",
+          "category": "academic",
+          "description": "First-year admission to MIT as a whole; students choose a major (Course 6) after enrolment. No per-major threshold is published.",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-eecs-sb-2027-req-2",
+          "category": "test",
+          "description": "SAT or ACT required for first-year applicants (tests before 30 November for Early Action, 31 December for Regular Action).",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-eecs-sb-2027-req-3",
+          "category": "language",
+          "description": "English proficiency exam strongly recommended for applicants whose first language is not English and who have used English for fewer than 5 years (before 31 January for Regular Action).",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-eecs-sb-2027-req-4",
+          "category": "fee",
+          "description": "Application fee USD 75.",
+          "threshold": {
+            "application_fee_usd": 75
+          },
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-eecs-sb-2027-req-5",
+          "category": "other",
+          "description": "Two teacher letters of recommendation and a school report with transcript are required.",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "mit-admissions-deadlines",
+          "url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "mit-tuition-2026",
+          "url": "https://apply.mitadmissions.org/portal/ecportal/help/2026ECReunionWorkshop.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "mit-eecs-catalogue",
+          "url": "http://catalog.mit.edu/archive/2024-2025/schools/mit-schwarzman-college-computing/electrical-engineering-computer-science/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "September 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "1 November 2026 (Early Action); 4 January 2027 (Regular Action)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "mit-ceds-sb-2027",
+      "institution_id": "massachusetts-institute-of-technology",
+      "institution": "Massachusetts Institute of Technology",
+      "country": "US",
+      "degree_level": "undergraduate",
+      "official_name": "Bachelor of Science in Computer Science, Economics, and Data Science (Course 6-14)",
+      "name_localized": {
+        "zh-CN": "计算机科学与经济和数据科学理学学士"
+      },
+      "field": "data-science",
+      "field_zh": "数据科学",
+      "subject": "data-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Tuition 2026-27, international. Cost of attendance USD 92,760. Application fee USD 75.",
+        "amount": 66720,
+        "residency": "international",
+        "academic_year": "2026-27",
+        "application_fee": {
+          "amount": 75,
+          "currency": "USD"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "mit-ceds-sb-2027-req-1",
+          "category": "academic",
+          "description": "First-year admission to MIT as a whole; students choose a major (Course 6) after enrolment. No per-major threshold is published.",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-ceds-sb-2027-req-2",
+          "category": "test",
+          "description": "SAT or ACT required for first-year applicants (tests before 30 November for Early Action, 31 December for Regular Action).",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-ceds-sb-2027-req-3",
+          "category": "language",
+          "description": "English proficiency exam strongly recommended for applicants whose first language is not English and who have used English for fewer than 5 years (before 31 January for Regular Action).",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-ceds-sb-2027-req-4",
+          "category": "fee",
+          "description": "Application fee USD 75.",
+          "threshold": {
+            "application_fee_usd": 75
+          },
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        },
+        {
+          "id": "mit-ceds-sb-2027-req-5",
+          "category": "other",
+          "description": "Two teacher letters of recommendation and a school report with transcript are required.",
+          "threshold": null,
+          "source_ids": [
+            "mit-admissions-deadlines"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "mit-admissions-deadlines",
+          "url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "mit-tuition-2026",
+          "url": "https://apply.mitadmissions.org/portal/ecportal/help/2026ECReunionWorkshop.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "mit-eecs-catalogue",
+          "url": "http://catalog.mit.edu/archive/2024-2025/schools/mit-schwarzman-college-computing/electrical-engineering-computer-science/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "September 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "1 November 2026 (Early Action); 4 January 2027 (Regular Action)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "mit-eecs-meng-2027",
+      "institution_id": "massachusetts-institute-of-technology",
+      "institution": "Massachusetts Institute of Technology",
+      "country": "US",
+      "degree_level": "taught_masters",
+      "official_name": "Master of Engineering in Electrical Engineering and Computer Science",
+      "name_localized": {
+        "zh-CN": "电气工程与计算机科学工程硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Graduate tuition 2026-27, same rate as undergraduate tuition. The MEng is an additional fifth year beyond the SB; both degrees are awarded simultaneously.",
+        "amount": 66720,
+        "residency": "international",
+        "academic_year": "2026-27"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "mit-eecs-meng-2027-req-1",
+          "category": "academic",
+          "description": "Open to qualified MIT undergraduate students in EECS only; the MEng is an additional fifth year beyond the SB degree.",
+          "threshold": null,
+          "source_ids": [
+            "mit-eecs-degrees",
+            "mit-eecs-grad-faqs"
+          ]
+        },
+        {
+          "id": "mit-eecs-meng-2027-req-2",
+          "category": "language",
+          "description": "EECS graduate English requirement: TOEFL iBT 100, IELTS 7.0, or Duolingo English Test 130.",
+          "threshold": {
+            "toefl_ibt": 100,
+            "ielts_overall": 7.0,
+            "duolingo": 130
+          },
+          "source_ids": [
+            "mit-eecs-grad-faqs"
+          ]
+        },
+        {
+          "id": "mit-eecs-meng-2027-req-3",
+          "category": "other",
+          "description": "No separate public application deadline is published for the MEng; admission is through the MIT EECS undergraduate route.",
+          "threshold": null,
+          "source_ids": [
+            "mit-eecs-grad-faqs"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "mit-eecs-degrees",
+          "url": "https://eecsis.mit.edu/degree_requirements.pcgi?program=6-3",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "mit-eecs-grad-faqs",
+          "url": "https://www.eecs.mit.edu/academics/graduate-programs/admission-process/graduate-admissions-faqs/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "mit-tuition-2026",
+          "url": "https://apply.mitadmissions.org/portal/ecportal/help/2026ECReunionWorkshop.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "September 2027",
+      "duration": "1 year beyond the SB (5th year)",
+      "duration_months": 12,
+      "application_deadline": null,
+      "study_mode": "full-time"
+    },
+    {
+      "id": "stanford-cs-bs-2027",
+      "institution_id": "stanford-university",
+      "institution": "Stanford University",
+      "country": "US",
+      "degree_level": "undergraduate",
+      "official_name": "Bachelor of Science in Computer Science",
+      "name_localized": {
+        "zh-CN": "计算机科学理学学士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Tuition 2026-27; total cost of attendance USD 97,545.",
+        "amount": 67731,
+        "residency": "international",
+        "academic_year": "2026-27"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "stanford-cs-bs-2027-req-1",
+          "category": "academic",
+          "description": "First-year admission to Stanford as a whole; the Computer Science major is declared after enrolment. No per-major threshold is published.",
+          "threshold": null,
+          "source_ids": [
+            "stanford-admission-international"
+          ]
+        },
+        {
+          "id": "stanford-cs-bs-2027-req-2",
+          "category": "test",
+          "description": "ACT or SAT required; no minimum scores and no preferred exam. English proficiency tests cannot substitute for the ACT/SAT.",
+          "threshold": null,
+          "source_ids": [
+            "stanford-admission-testing"
+          ]
+        },
+        {
+          "id": "stanford-cs-bs-2027-req-3",
+          "category": "language",
+          "description": "No English proficiency exam is required for first-year applicants; the same requirements apply regardless of citizenship.",
+          "threshold": null,
+          "source_ids": [
+            "stanford-admission-international"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "stanford-admission-testing",
+          "url": "https://admission.stanford.edu/apply/first-year/testing.html",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "stanford-admission-international",
+          "url": "https://admission.stanford.edu/apply//international/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "stanford-tuition-ug",
+          "url": "https://financialaid.stanford.edu/undergrad/budget/index.html?os=ios0&ref=app",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Stanford",
+      "intake_year": 2027,
+      "start": "September 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "1 November 2026 (Restrictive Early Action); 5 January 2027 (Regular Decision)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "stanford-cs-ms-2027",
+      "institution_id": "stanford-university",
+      "institution": "Stanford University",
+      "country": "US",
+      "degree_level": "taught_masters",
+      "official_name": "Master of Science in Computer Science",
+      "name_localized": {
+        "zh-CN": "计算机科学理学硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "School of Engineering graduate tuition 2026-27: USD 23,239 per quarter (11-18 units); three quarters = USD 69,717 per year.",
+        "amount": 69717,
+        "residency": "international",
+        "academic_year": "2026-27"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "stanford-cs-ms-2027-req-1",
+          "category": "academic",
+          "description": "Bachelor's degree from an accredited institution; a bachelor's degree in Computer Science is not required, but strong quantitative and analytical skills are.",
+          "threshold": null,
+          "source_ids": [
+            "stanford-cs-ms-bulletin"
+          ]
+        },
+        {
+          "id": "stanford-cs-ms-2027-req-2",
+          "category": "language",
+          "description": "TOEFL iBT 100 or IELTS 7.0 required for international applicants whose native language is not English (Stanford graduate minimums).",
+          "threshold": {
+            "toefl_ibt": 100,
+            "ielts_overall": 7.0
+          },
+          "source_ids": [
+            "stanford-cs-ms-bulletin"
+          ]
+        },
+        {
+          "id": "stanford-cs-ms-2027-req-3",
+          "category": "test",
+          "description": "GRE is not required for MS applicants.",
+          "threshold": null,
+          "source_ids": [
+            "stanford-cs-ms-bulletin"
+          ]
+        },
+        {
+          "id": "stanford-cs-ms-2027-req-4",
+          "category": "other",
+          "description": "Three letters of recommendation and a statement of purpose are required; 45 units of coursework including a specialisation.",
+          "threshold": null,
+          "source_ids": [
+            "stanford-cs-ms-bulletin"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "stanford-cs-ms-bulletin",
+          "url": "https://bulletin.stanford.edu/programs/graduate/computer-science/master-of-science/admissions",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "stanford-grad-budget",
+          "url": "https://financialaid.stanford.edu/grad/budget/index.html",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "stanford-mscs-guide",
+          "url": "https://www.joinleland.com/library/a/stanford-mscs",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Stanford",
+      "intake_year": 2027,
+      "start": "Autumn 2027",
+      "duration": "1.5 years on average (45 units)",
+      "duration_months": 18,
+      "application_deadline": "8 December 2026",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "oxford-cs-ba-2027",
+      "institution_id": "university-of-oxford",
+      "institution": "University of Oxford",
+      "country": "GB",
+      "degree_level": "undergraduate",
+      "official_name": "Computer Science BA",
+      "name_localized": {
+        "zh-CN": "计算机科学文学学士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "Overseas course fee 2027/28 as published on the Oxford course page; home fee GBP 10,050.",
+        "amount": 66580,
+        "residency": "international",
+        "academic_year": "2027/28"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "oxford-cs-ba-2027-req-1",
+          "category": "academic",
+          "description": "A*AA at A-level including Mathematics, with the A* in Mathematics, Further Mathematics or Computer Science (A*A in Mathematics and Further Mathematics if available).",
+          "threshold": {
+            "a_level": "A*AA"
+          },
+          "source_ids": [
+            "oxford-cs-ba",
+            "oxford-ug-summary-table"
+          ]
+        },
+        {
+          "id": "oxford-cs-ba-2027-req-2",
+          "category": "test",
+          "description": "TMUA (Test of Mathematics for University Admission) required for 2027 entry.",
+          "threshold": null,
+          "source_ids": [
+            "oxford-ug-summary-table"
+          ]
+        },
+        {
+          "id": "oxford-cs-ba-2027-req-3",
+          "category": "language",
+          "description": "English language higher level: IELTS Academic 7.5 overall with 7.0 in each component.",
+          "threshold": {
+            "ielts_overall": 7.5,
+            "ielts_min_each": 7.0
+          },
+          "source_ids": [
+            "oxford-english-grad"
+          ]
+        },
+        {
+          "id": "oxford-cs-ba-2027-req-4",
+          "category": "other",
+          "description": "Single UCAS application covers both the 3-year BA and the 4-year MCompSci; students choose the course length on application.",
+          "threshold": null,
+          "source_ids": [
+            "oxford-cs-ba"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "oxford-cs-ba",
+          "url": "https://www.ox.ac.uk/node/842",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "oxford-ug-summary-table",
+          "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "oxford-english-grad",
+          "url": "https://www.ox.ac.uk/admissions/graduate/application-guide/qualifications-experience-languages-funding/english-language-proficiency",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Oxford",
+      "intake_year": 2027,
+      "start": "October 2027",
+      "duration": "3 years",
+      "duration_months": 36,
+      "application_deadline": "15 October 2026 (UCAS, 6pm UK time)",
+      "study_mode": "full-time",
+      "ucas_code": "G400"
+    },
+    {
+      "id": "oxford-cs-mcompsci-2027",
+      "institution_id": "university-of-oxford",
+      "institution": "University of Oxford",
+      "country": "GB",
+      "degree_level": "undergraduate",
+      "official_name": "Computer Science MCompSci",
+      "name_localized": {
+        "zh-CN": "计算机科学硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "Overseas course fee 2027/28 as published on the Oxford course page; home fee GBP 10,050.",
+        "amount": 66580,
+        "residency": "international",
+        "academic_year": "2027/28"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "oxford-cs-mcompsci-2027-req-1",
+          "category": "academic",
+          "description": "A*AA at A-level including Mathematics, with the A* in Mathematics, Further Mathematics or Computer Science (A*A in Mathematics and Further Mathematics if available).",
+          "threshold": {
+            "a_level": "A*AA"
+          },
+          "source_ids": [
+            "oxford-cs-ba",
+            "oxford-ug-summary-table"
+          ]
+        },
+        {
+          "id": "oxford-cs-mcompsci-2027-req-2",
+          "category": "test",
+          "description": "TMUA (Test of Mathematics for University Admission) required for 2027 entry.",
+          "threshold": null,
+          "source_ids": [
+            "oxford-ug-summary-table"
+          ]
+        },
+        {
+          "id": "oxford-cs-mcompsci-2027-req-3",
+          "category": "language",
+          "description": "English language higher level: IELTS Academic 7.5 overall with 7.0 in each component.",
+          "threshold": {
+            "ielts_overall": 7.5,
+            "ielts_min_each": 7.0
+          },
+          "source_ids": [
+            "oxford-english-grad"
+          ]
+        },
+        {
+          "id": "oxford-cs-mcompsci-2027-req-4",
+          "category": "other",
+          "description": "The MCompSci is the 4-year integrated master's route; students apply for the 4-year course via UCAS code G400.",
+          "threshold": null,
+          "source_ids": [
+            "oxford-cs-ba"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "oxford-cs-ba",
+          "url": "https://www.ox.ac.uk/node/842",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "oxford-ug-summary-table",
+          "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "oxford-english-grad",
+          "url": "https://www.ox.ac.uk/admissions/graduate/application-guide/qualifications-experience-languages-funding/english-language-proficiency",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Oxford",
+      "intake_year": 2027,
+      "start": "October 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "15 October 2026 (UCAS, 6pm UK time)",
+      "study_mode": "full-time",
+      "ucas_code": "G400"
+    },
+    {
+      "id": "oxford-msc-adv-cs-2027",
+      "institution_id": "university-of-oxford",
+      "institution": "University of Oxford",
+      "country": "GB",
+      "degree_level": "taught_masters",
+      "official_name": "MSc in Advanced Computer Science",
+      "name_localized": {
+        "zh-CN": "高级计算机科学理学硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "Overseas fee 2027-28; home fee GBP 20,100.",
+        "amount": 46350,
+        "residency": "international",
+        "academic_year": "2027-28"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "oxford-msc-adv-cs-2027-req-1",
+          "category": "academic",
+          "description": "First-class undergraduate degree in computer science or a related subject.",
+          "threshold": {
+            "degree_class": "First-class"
+          },
+          "source_ids": [
+            "oxford-msc-adv-cs"
+          ]
+        },
+        {
+          "id": "oxford-msc-adv-cs-2027-req-2",
+          "category": "language",
+          "description": "English language higher level: IELTS Academic 7.5 overall with 7.0 in each component.",
+          "threshold": {
+            "ielts_overall": 7.5,
+            "ielts_min_each": 7.0
+          },
+          "source_ids": [
+            "oxford-english-grad"
+          ]
+        },
+        {
+          "id": "oxford-msc-adv-cs-2027-req-3",
+          "category": "other",
+          "description": "Specialist streams in Artificial Intelligence and Foundations of Computer Science.",
+          "threshold": null,
+          "source_ids": [
+            "oxford-msc-adv-cs"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "oxford-msc-adv-cs",
+          "url": "https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science?wssl=1",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "oxford-english-grad",
+          "url": "https://www.ox.ac.uk/admissions/graduate/application-guide/qualifications-experience-languages-funding/english-language-proficiency",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Oxford",
+      "intake_year": 2027,
+      "start": "10 October 2027",
+      "duration": "12 months",
+      "duration_months": 12,
+      "application_deadline": "6 January 2027 (12:00 midday UK time)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "harvard-cs-ab-2027",
+      "institution_id": "harvard-university",
+      "institution": "Harvard University",
+      "country": "US",
+      "degree_level": "undergraduate",
+      "official_name": "Computer Science AB",
+      "name_localized": {
+        "zh-CN": "计算机科学文学学士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Tuition 2026-27; total cost of attendance USD 95,134-100,134.",
+        "amount": 62226,
+        "residency": "international",
+        "academic_year": "2026-27",
+        "application_fee": {
+          "amount": 95,
+          "currency": "USD"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "harvard-cs-ab-2027-req-1",
+          "category": "academic",
+          "description": "Admission to Harvard College as a whole; the Computer Science concentration is declared after enrolment. No per-major threshold is published.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-college-apply"
+          ]
+        },
+        {
+          "id": "harvard-cs-ab-2027-req-2",
+          "category": "test",
+          "description": "SAT or ACT required for first-year applicants.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-college-apply"
+          ]
+        },
+        {
+          "id": "harvard-cs-ab-2027-req-3",
+          "category": "language",
+          "description": "No English proficiency exam is required for first-year applicants; TOEFL/IELTS/Duolingo scores are optional and cannot replace the SAT/ACT.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-college-apply"
+          ]
+        },
+        {
+          "id": "harvard-cs-ab-2027-req-4",
+          "category": "other",
+          "description": "School report with transcript and two teacher reports are required.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-college-apply"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "harvard-college-apply",
+          "url": "https://college.harvard.edu/admissions/apply",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "harvard-college-vus-cost",
+          "url": "https://college.harvard.edu/index%2ephp/admissions/apply/visiting-undergraduate-students",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "Fall 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "1 November 2026 (Restrictive Early Action); 1 January 2027 (Regular Decision)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "harvard-cse-sm-2027",
+      "institution_id": "harvard-university",
+      "institution": "Harvard University",
+      "country": "US",
+      "degree_level": "taught_masters",
+      "official_name": "Master of Science in Computational Science and Engineering",
+      "name_localized": {
+        "zh-CN": "计算科学与工程理学硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Tuition 2026-27 for the one-year S.M.; 2025-26 tuition was USD 65,536.",
+        "amount": 67504,
+        "residency": "international",
+        "academic_year": "2026-27"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "harvard-cse-sm-2027-req-1",
+          "category": "academic",
+          "description": "Bachelor's degree in the natural sciences, mathematics, computer science or engineering. No GPA cutoff; applicants must demonstrate capacity for advanced computational work.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-seas-how-apply",
+            "harvard-seas-faqs"
+          ]
+        },
+        {
+          "id": "harvard-cse-sm-2027-req-2",
+          "category": "language",
+          "description": "English proficiency required where applicable; Harvard Griffin GSAS minimum is IELTS Academic 7.0 overall.",
+          "threshold": {
+            "ielts_overall": 7.0
+          },
+          "source_ids": [
+            "harvard-seas-how-apply"
+          ]
+        },
+        {
+          "id": "harvard-cse-sm-2027-req-3",
+          "category": "test",
+          "description": "GRE General and Subject tests are optional.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-seas-how-apply"
+          ]
+        },
+        {
+          "id": "harvard-cse-sm-2027-req-4",
+          "category": "other",
+          "description": "Working knowledge of calculus, linear algebra, differential equations, probability and statistical inference, fluency in a programming language (e.g. Python or R), and basic computer science concepts are expected. No formal prerequisites. The S.M. in CSE is a one-year (two-term) coursework degree with no thesis.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-seas-how-apply"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "harvard-seas-how-apply",
+          "url": "https://seas.harvard.edu/masters-data-science/how-apply",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "harvard-seas-faqs",
+          "url": "https://seas.harvard.edu/prospective-students/prospective-graduate-students/frequently-asked-questions-faqs-graduate",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "Fall 2027",
+      "duration": "1 year (two terms)",
+      "duration_months": 12,
+      "application_deadline": "1 December 2026",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "harvard-ds-sm-2027",
+      "institution_id": "harvard-university",
+      "institution": "Harvard University",
+      "country": "US",
+      "degree_level": "taught_masters",
+      "official_name": "Master of Science in Data Science",
+      "name_localized": {
+        "zh-CN": "数据科学理学硕士"
+      },
+      "field": "data-science",
+      "field_zh": "数据科学",
+      "subject": "data-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Annual tuition rate 2026-27; the programme runs for three terms.",
+        "amount": 67504,
+        "residency": "international",
+        "academic_year": "2026-27"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "harvard-ds-sm-2027-req-1",
+          "category": "academic",
+          "description": "Bachelor's degree in the natural sciences, mathematics, computer science or engineering. No GPA cutoff; applicants must demonstrate capacity for advanced computational work.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-seas-how-apply",
+            "harvard-seas-faqs"
+          ]
+        },
+        {
+          "id": "harvard-ds-sm-2027-req-2",
+          "category": "language",
+          "description": "English proficiency required where applicable; Harvard Griffin GSAS minimum is IELTS Academic 7.0 overall.",
+          "threshold": {
+            "ielts_overall": 7.0
+          },
+          "source_ids": [
+            "harvard-seas-how-apply"
+          ]
+        },
+        {
+          "id": "harvard-ds-sm-2027-req-3",
+          "category": "test",
+          "description": "GRE General and Subject tests are optional.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-seas-how-apply"
+          ]
+        },
+        {
+          "id": "harvard-ds-sm-2027-req-4",
+          "category": "other",
+          "description": "Working knowledge of calculus, linear algebra, differential equations, probability and statistical inference, fluency in a programming language (e.g. Python or R), and basic computer science concepts are expected. No formal prerequisites. The S.M. in Data Science is a one-and-a-half-year (three-term) coursework degree with no thesis.",
+          "threshold": null,
+          "source_ids": [
+            "harvard-seas-how-apply"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "harvard-seas-how-apply",
+          "url": "https://seas.harvard.edu/masters-data-science/how-apply",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "harvard-seas-faqs",
+          "url": "https://seas.harvard.edu/prospective-students/prospective-graduate-students/frequently-asked-questions-faqs-graduate",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "Fall 2027",
+      "duration": "1.5 years (three terms)",
+      "duration_months": 18,
+      "application_deadline": "1 December 2026",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "cambridge-cs-ba-2027",
+      "institution_id": "university-of-cambridge",
+      "institution": "University of Cambridge",
+      "country": "GB",
+      "degree_level": "undergraduate",
+      "official_name": "Computer Science BA (Hons)",
+      "name_localized": {
+        "zh-CN": "计算机科学文学学士（荣誉）"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "University tuition fee Group 4 (Computer Science) 2026-27; a College fee is charged in addition (e.g. Trinity Hall GBP 13,245; Trinity GBP 13,689 after bursary, 2026-27). The 2027/28 fee was not published on the page checked.",
+        "amount": 44214,
+        "residency": "international",
+        "academic_year": "2026-27"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "cambridge-cs-ba-2027-req-1",
+          "category": "academic",
+          "description": "Typical offer A*A*A at A-level (or IB 42-43 points with 776-777 at Higher Level); A-level or IB Higher Level Mathematics and Further Mathematics are essential.",
+          "threshold": {
+            "a_level": "A*A*A"
+          },
+          "source_ids": [
+            "cambridge-cs-ba",
+            "cambridge-trinity-cs"
+          ]
+        },
+        {
+          "id": "cambridge-cs-ba-2027-req-2",
+          "category": "test",
+          "description": "TMUA (Test of Mathematics for University Admission) is required; applicants also sit the Computer Science Aptitudes Test (CSAT) at interview.",
+          "threshold": null,
+          "source_ids": [
+            "cambridge-cs-ba",
+            "cambridge-trinity-cs"
+          ]
+        },
+        {
+          "id": "cambridge-cs-ba-2027-req-3",
+          "category": "language",
+          "description": "IELTS Academic 7.5 overall with 7.0 in each element.",
+          "threshold": {
+            "ielts_overall": 7.5,
+            "ielts_min_each": 7.0
+          },
+          "source_ids": [
+            "cambridge-cs-ba"
+          ]
+        },
+        {
+          "id": "cambridge-cs-ba-2027-req-4",
+          "category": "other",
+          "description": "Three-year BA (Hons); the fourth year adds the MEng for students who continue.",
+          "threshold": null,
+          "source_ids": [
+            "cambridge-cs-ba"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "cambridge-cs-ba",
+          "url": "https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "cambridge-trinity-cs",
+          "url": "https://www.trin.cam.ac.uk/subjects/computer-science/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "cambridge-fees-trinity",
+          "url": "https://www.trin.cam.ac.uk/download/financial-arrangements-for-new-undergraduates/?wpdmdl=30414&masterkey=60940458c2bcc",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "October 2027",
+      "duration": "3 years",
+      "duration_months": 36,
+      "application_deadline": "15 October 2026 (UCAS)",
+      "study_mode": "full-time",
+      "ucas_code": null
+    },
+    {
+      "id": "cambridge-cs-meng-2027",
+      "institution_id": "university-of-cambridge",
+      "institution": "University of Cambridge",
+      "country": "GB",
+      "degree_level": "undergraduate",
+      "official_name": "Computer Science MEng (BA + MEng)",
+      "name_localized": {
+        "zh-CN": "计算机科学工程硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "University tuition fee Group 4 (Computer Science) 2026-27; a College fee is charged in addition (e.g. Trinity Hall GBP 13,245; Trinity GBP 13,689 after bursary, 2026-27). The 2027/28 fee was not published on the page checked.",
+        "amount": 44214,
+        "residency": "international",
+        "academic_year": "2026-27"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "cambridge-cs-meng-2027-req-1",
+          "category": "academic",
+          "description": "Typical offer A*A*A at A-level (or IB 42-43 points with 776-777 at Higher Level); A-level or IB Higher Level Mathematics and Further Mathematics are essential.",
+          "threshold": {
+            "a_level": "A*A*A"
+          },
+          "source_ids": [
+            "cambridge-cs-ba",
+            "cambridge-trinity-cs"
+          ]
+        },
+        {
+          "id": "cambridge-cs-meng-2027-req-2",
+          "category": "test",
+          "description": "TMUA (Test of Mathematics for University Admission) is required; applicants also sit the Computer Science Aptitudes Test (CSAT) at interview.",
+          "threshold": null,
+          "source_ids": [
+            "cambridge-cs-ba",
+            "cambridge-trinity-cs"
+          ]
+        },
+        {
+          "id": "cambridge-cs-meng-2027-req-3",
+          "category": "language",
+          "description": "IELTS Academic 7.5 overall with 7.0 in each element.",
+          "threshold": {
+            "ielts_overall": 7.5,
+            "ielts_min_each": 7.0
+          },
+          "source_ids": [
+            "cambridge-cs-ba"
+          ]
+        },
+        {
+          "id": "cambridge-cs-meng-2027-req-4",
+          "category": "other",
+          "description": "Students apply for the 3-year BA course and continue to the 4th year (BA + MEng) subject to a sufficiently high standard in Year 3.",
+          "threshold": null,
+          "source_ids": [
+            "cambridge-cs-ba"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "cambridge-cs-ba",
+          "url": "https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "cambridge-trinity-cs",
+          "url": "https://www.trin.cam.ac.uk/subjects/computer-science/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "cambridge-fees-trinity",
+          "url": "https://www.trin.cam.ac.uk/download/financial-arrangements-for-new-undergraduates/?wpdmdl=30414&masterkey=60940458c2bcc",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "October 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "15 October 2026 (UCAS)",
+      "study_mode": "full-time",
+      "ucas_code": null
+    },
+    {
+      "id": "cambridge-mphil-acs-2027",
+      "institution_id": "university-of-cambridge",
+      "institution": "University of Cambridge",
+      "country": "GB",
+      "degree_level": "taught_masters",
+      "official_name": "MPhil in Advanced Computer Science",
+      "name_localized": {
+        "zh-CN": "高级计算机科学哲学硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "Overseas fee 2027/28 as published in the Cambridge fee schedule. Application fee GBP 85 per course.",
+        "amount": 51084,
+        "residency": "international",
+        "academic_year": "2027/28",
+        "application_fee": {
+          "amount": 85,
+          "currency": "GBP"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "cambridge-mphil-acs-2027-req-1",
+          "category": "academic",
+          "description": "First-class honours degree, or equivalent, in computer science; mathematics to A-level standard or equivalent and programming experience are expected.",
+          "threshold": {
+            "degree_class": "First-class"
+          },
+          "source_ids": [
+            "cambridge-acs"
+          ]
+        },
+        {
+          "id": "cambridge-mphil-acs-2027-req-2",
+          "category": "language",
+          "description": "IELTS Academic 7.5 overall with 7.0 in each element, or TOEFL iBT 107.",
+          "threshold": {
+            "ielts_overall": 7.5,
+            "ielts_min_each": 7.0,
+            "toefl_ibt": 107
+          },
+          "source_ids": [
+            "cambridge-acs"
+          ]
+        },
+        {
+          "id": "cambridge-mphil-acs-2027-req-3",
+          "category": "other",
+          "description": "A project proposal of no more than 400 words is required; shortlisted applicants are interviewed.",
+          "threshold": null,
+          "source_ids": [
+            "cambridge-acs"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "cambridge-acs",
+          "url": "https://www.cl.cam.ac.uk/admissions/acs/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Cambridge",
+      "intake_year": 2027,
+      "start": "4 October 2027",
+      "duration": "9 months",
+      "duration_months": 9,
+      "application_deadline": "25 February 2027 (funding deadline 8 December 2026)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "caltech-cs-bs-2027",
+      "institution_id": "california-institute-of-technology",
+      "institution": "California Institute of Technology",
+      "country": "US",
+      "degree_level": "undergraduate",
+      "official_name": "Bachelor of Science in Computer Science",
+      "name_localized": {
+        "zh-CN": "计算机科学理学学士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "USD",
+        "period": "per_year",
+        "notes": "Tuition 2026-27; fees USD 2,655; total direct costs USD 93,225 on campus.",
+        "amount": 68574,
+        "residency": "international",
+        "academic_year": "2026-27",
+        "application_fee": {
+          "amount": 85,
+          "currency": "USD"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "caltech-cs-bs-2027-req-1",
+          "category": "academic",
+          "description": "First-year admission to Caltech as a whole; students choose a major after enrolment. No per-major threshold is published.",
+          "threshold": null,
+          "source_ids": [
+            "caltech-ug-requirements"
+          ]
+        },
+        {
+          "id": "caltech-cs-bs-2027-req-2",
+          "category": "language",
+          "description": "International applicants must take an English proficiency exam before the application deadline.",
+          "threshold": null,
+          "source_ids": [
+            "caltech-ug-international"
+          ]
+        },
+        {
+          "id": "caltech-cs-bs-2027-req-3",
+          "category": "other",
+          "description": "Two letters of recommendation are required: one from a STEM teacher and one from a humanities or social sciences teacher.",
+          "threshold": null,
+          "source_ids": [
+            "caltech-ug-requirements"
+          ]
+        },
+        {
+          "id": "caltech-cs-bs-2027-req-4",
+          "category": "other",
+          "description": "Admission is need-aware for international applicants.",
+          "threshold": null,
+          "source_ids": [
+            "caltech-ug-international"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "caltech-ug-deadlines",
+          "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/deadlines",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "caltech-ug-requirements",
+          "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/application-requirements",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "caltech-ug-international",
+          "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/international-applicants",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "caltech-ug-expenses",
+          "url": "https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Pasadena",
+      "intake_year": 2027,
+      "start": "September 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "1 November 2026 (Restrictive Early Action); 4 January 2027 (Regular Decision)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "eth-cs-msc-2027",
+      "institution_id": "eth-zurich",
+      "institution": "ETH Zurich",
+      "country": "CH",
+      "degree_level": "taught_masters",
+      "official_name": "MSc in Computer Science",
+      "name_localized": {
+        "zh-CN": "计算机科学理学硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "CHF",
+        "period": "per_year",
+        "notes": "CHF 2,190 per semester (Group 2, all other foreign students, from Autumn Semester 2025); CHF 730 per semester for Group 1; plus CHF 74 compulsory semester fees per semester. Application fee CHF 150 for applicants without a Swiss matriculation.",
+        "amount": 4380,
+        "residency": "international",
+        "application_fee": {
+          "amount": 150,
+          "currency": "CHF"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "eth-cs-msc-2027-req-1",
+          "category": "academic",
+          "description": "Bachelor's degree in computer science or a closely related field (at least 180 ECTS), with strong grades in mathematics, algorithms and programming. Students choose one of five majors: Data Management Systems, Machine Intelligence, Secure and Reliable Systems, Visual and Interactive Computing, or Theoretical Computer Science.",
+          "threshold": null,
+          "source_ids": [
+            "eth-dinfk-msc-cs"
+          ]
+        },
+        {
+          "id": "eth-cs-msc-2027-req-2",
+          "category": "language",
+          "description": "English proficiency required; the programme is taught in English. The minimum score was not verified on the official page checked.",
+          "threshold": null,
+          "source_ids": [
+            "eth-dinfk-msc-cs"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "eth-dinfk-msc-cs",
+          "url": "https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "eth-tuition",
+          "url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "eth-tuition-pdf",
+          "url": "https://ethz.ch/content/dam/ethz/main/education/finanzielles/files-en/tuition-fees.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Zurich",
+      "intake_year": 2027,
+      "start": "Autumn 2027",
+      "duration": "2 years (4 semesters, 120 ECTS)",
+      "duration_months": 24,
+      "application_deadline": "30 November 2026",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "eth-ds-msc-2027",
+      "institution_id": "eth-zurich",
+      "institution": "ETH Zurich",
+      "country": "CH",
+      "degree_level": "taught_masters",
+      "official_name": "MSc in Data Science",
+      "name_localized": {
+        "zh-CN": "数据科学理学硕士"
+      },
+      "field": "data-science",
+      "field_zh": "数据科学",
+      "subject": "data-science",
+      "fees": {
+        "currency": "CHF",
+        "period": "per_year",
+        "notes": "CHF 2,190 per semester (Group 2, all other foreign students, from Autumn Semester 2025); CHF 730 per semester for Group 1; plus CHF 74 compulsory semester fees per semester. Application fee CHF 150 for applicants without a Swiss matriculation.",
+        "amount": 4380,
+        "residency": "international",
+        "application_fee": {
+          "amount": 150,
+          "currency": "CHF"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "eth-ds-msc-2027-req-1",
+          "category": "academic",
+          "description": "University bachelor's degree of at least 180 ECTS in computer science, electrical engineering, mechanical engineering, mathematics, physics or a related discipline, with basic knowledge in mathematics and computer science equivalent to the ETH bachelor's programmes.",
+          "threshold": null,
+          "source_ids": [
+            "eth-ds-appendix"
+          ]
+        },
+        {
+          "id": "eth-ds-msc-2027-req-2",
+          "category": "language",
+          "description": "English proficiency required; the programme is taught in English. The minimum score was not verified on the official page checked.",
+          "threshold": null,
+          "source_ids": [
+            "eth-ds-appendix"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "eth-ds-appendix",
+          "url": "https://www.ethz.org/content/dam/ethz/common/docs/master-profile/englisch/ingenieurwissenschaften/MSc-DataScience-Appendix.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "eth-tuition",
+          "url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "eth-tuition-pdf",
+          "url": "https://ethz.ch/content/dam/ethz/main/education/finanzielles/files-en/tuition-fees.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Zurich",
+      "intake_year": 2027,
+      "start": "Autumn 2027",
+      "duration": "2 years (4 semesters, 120 ECTS)",
+      "duration_months": 24,
+      "application_deadline": "30 November 2026",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "eth-cybersec-msc-2027",
+      "institution_id": "eth-zurich",
+      "institution": "ETH Zurich",
+      "country": "CH",
+      "degree_level": "taught_masters",
+      "official_name": "MSc in Cyber Security",
+      "name_localized": {
+        "zh-CN": "网络安全理学硕士"
+      },
+      "field": "cybersecurity",
+      "field_zh": "网络安全",
+      "subject": "cybersecurity",
+      "fees": {
+        "currency": "CHF",
+        "period": "per_year",
+        "notes": "CHF 2,190 per semester (Group 2, all other foreign students, from Autumn Semester 2025); CHF 730 per semester for Group 1; plus CHF 74 compulsory semester fees per semester. Application fee CHF 150 for applicants without a Swiss matriculation.",
+        "amount": 4380,
+        "residency": "international",
+        "application_fee": {
+          "amount": 150,
+          "currency": "CHF"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "eth-cybersec-msc-2027-req-1",
+          "category": "academic",
+          "description": "Bachelor's degree in computer science or a closely related field; the programme is one of the Department of Computer Science master's programmes.",
+          "threshold": null,
+          "source_ids": [
+            "eth-dinfk-msc-cs"
+          ]
+        },
+        {
+          "id": "eth-cybersec-msc-2027-req-2",
+          "category": "language",
+          "description": "English proficiency required; the programme is taught in English. The minimum score was not verified on the official page checked.",
+          "threshold": null,
+          "source_ids": [
+            "eth-dinfk-msc-cs"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "eth-dinfk-msc-cs",
+          "url": "https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "eth-tuition",
+          "url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "eth-tuition-pdf",
+          "url": "https://ethz.ch/content/dam/ethz/main/education/finanzielles/files-en/tuition-fees.pdf",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Zurich",
+      "intake_year": 2027,
+      "start": "Autumn 2027",
+      "duration": "2 years (4 semesters, 120 ECTS)",
+      "duration_months": 24,
+      "application_deadline": "30 November 2026",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "imperial-comp-meng-aiml-2027",
+      "institution_id": "imperial",
+      "institution": "Imperial College London",
+      "country": "GB",
+      "degree_level": "undergraduate",
+      "official_name": "Computing (Artificial Intelligence and Machine Learning) MEng",
+      "name_localized": {
+        "zh-CN": "计算（人工智能与机器学习）工程硕士"
+      },
+      "field": "artificial-intelligence",
+      "field_zh": "人工智能",
+      "subject": "artificial-intelligence",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "Overseas fee unknown - not stated on the course page section retrieved; home fee GBP 10,050 per year.",
+        "amount": null,
+        "residency": "international",
+        "academic_year": "2027/28"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "imperial-comp-meng-aiml-2027-req-1",
+          "category": "academic",
+          "description": "A*A*A or A*AAA at A-level (41 points IB); A* in Mathematics required, with A* or A in two further subjects (Further Mathematics preferred).",
+          "threshold": {
+            "a_level": "A*A*A or A*AAA"
+          },
+          "source_ids": [
+            "imperial-meng-aiml"
+          ]
+        },
+        {
+          "id": "imperial-comp-meng-aiml-2027-req-2",
+          "category": "test",
+          "description": "TMUA (Test of Mathematics for University Admission) and interview.",
+          "threshold": null,
+          "source_ids": [
+            "imperial-meng-aiml"
+          ]
+        },
+        {
+          "id": "imperial-comp-meng-aiml-2027-req-3",
+          "category": "language",
+          "description": "Imperial College London English language requirement applies; the minimum was not verified on the course page checked.",
+          "threshold": null,
+          "source_ids": [
+            "imperial-meng-aiml"
+          ]
+        },
+        {
+          "id": "imperial-comp-meng-aiml-2027-req-4",
+          "category": "other",
+          "description": "Third year includes an industrial placement; the final year is at master's level with a substantial individual project.",
+          "threshold": null,
+          "source_ids": [
+            "imperial-meng-aiml"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "imperial-meng-aiml",
+          "url": "http://www.imperial.ac.uk/study/ug/courses/computing-department/meng-computing-artificial-intelligence/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "London",
+      "intake_year": 2027,
+      "start": "October 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": "13 January 2027 (18:00 UK time)",
+      "study_mode": "full-time",
+      "ucas_code": "G700"
+    },
+    {
+      "id": "imperial-msc-ai-2027",
+      "institution_id": "imperial",
+      "institution": "Imperial College London",
+      "country": "GB",
+      "degree_level": "taught_masters",
+      "official_name": "Computing (Artificial Intelligence and Machine Learning) MSc",
+      "name_localized": {
+        "zh-CN": "计算（人工智能与机器学习）理学硕士"
+      },
+      "field": "artificial-intelligence",
+      "field_zh": "人工智能",
+      "subject": "artificial-intelligence",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "Overseas fee; home fee GBP 25,850.",
+        "amount": 48300,
+        "residency": "international",
+        "academic_year": "2027/28"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "imperial-msc-ai-2027-req-1",
+          "category": "academic",
+          "description": "First-Class Honours degree with a substantial Computing component.",
+          "threshold": {
+            "degree_class": "First-class"
+          },
+          "source_ids": [
+            "imperial-msc-ai"
+          ]
+        },
+        {
+          "id": "imperial-msc-ai-2027-req-2",
+          "category": "language",
+          "description": "Imperial higher level English required: IELTS 7.0 overall with 6.5 in each element.",
+          "threshold": {
+            "ielts_overall": 7.0,
+            "ielts_min_each": 6.5
+          },
+          "source_ids": [
+            "imperial-msc-ai"
+          ]
+        },
+        {
+          "id": "imperial-msc-ai-2027-req-3",
+          "category": "other",
+          "description": "Applications for September 2027 entry are open; applicants may apply for up to two courses.",
+          "threshold": null,
+          "source_ids": [
+            "imperial-msc-ai"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "imperial-msc-ai",
+          "url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/computing-artificial-intelligence-msc/?removeCourse=1194116",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "London",
+      "intake_year": 2027,
+      "start": "October 2027",
+      "duration": "1 year",
+      "duration_months": 12,
+      "application_deadline": "6 January 2027 (Round 2 closes)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "imperial-msc-adv-comp-2027",
+      "institution_id": "imperial",
+      "institution": "Imperial College London",
+      "country": "GB",
+      "degree_level": "taught_masters",
+      "official_name": "MSc in Advanced Computing",
+      "name_localized": {
+        "zh-CN": "高级计算理学硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "Overseas fee; home fee GBP 25,850.",
+        "amount": 48300,
+        "residency": "international",
+        "academic_year": "2027/28"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "imperial-msc-adv-comp-2027-req-1",
+          "category": "academic",
+          "description": "First-Class Honours degree with a substantial computing component.",
+          "threshold": {
+            "degree_class": "First-class"
+          },
+          "source_ids": [
+            "imperial-msc-adv-comp"
+          ]
+        },
+        {
+          "id": "imperial-msc-adv-comp-2027-req-2",
+          "category": "language",
+          "description": "Imperial higher level English required: IELTS 7.0 overall with 6.5 in each element.",
+          "threshold": {
+            "ielts_overall": 7.0,
+            "ielts_min_each": 6.5
+          },
+          "source_ids": [
+            "imperial-msc-adv-comp"
+          ]
+        },
+        {
+          "id": "imperial-msc-adv-comp-2027-req-3",
+          "category": "other",
+          "description": "Nine taught modules over two terms plus a large individual project (dissertation and oral presentation) over the summer.",
+          "threshold": null,
+          "source_ids": [
+            "imperial-msc-adv-comp"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "imperial-msc-adv-comp",
+          "url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/advanced-computing/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "London",
+      "intake_year": 2027,
+      "start": "October 2027",
+      "duration": "1 year",
+      "duration_months": 12,
+      "application_deadline": "6 January 2027 (Round 2 closes)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "ucl-cs-meng-2027",
+      "institution_id": "ucl",
+      "institution": "University College London",
+      "country": "GB",
+      "degree_level": "undergraduate",
+      "official_name": "Computer Science MEng",
+      "name_localized": {
+        "zh-CN": "计算机科学工程硕士"
+      },
+      "field": "computer-science",
+      "field_zh": "计算机科学",
+      "subject": "computer-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "International fee for 2027/28 entrants; UK fee GBP 10,050 per year.",
+        "amount": 48600,
+        "residency": "international",
+        "academic_year": "2027/28"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "ucl-cs-meng-2027-req-1",
+          "category": "academic",
+          "description": "A*A*A at A-level; A* in either Mathematics or Further Mathematics required. Contextual offer A*AB.",
+          "threshold": {
+            "a_level": "A*A*A"
+          },
+          "source_ids": [
+            "ucl-cs-meng"
+          ]
+        },
+        {
+          "id": "ucl-cs-meng-2027-req-2",
+          "category": "test",
+          "description": "TARA (Test of Academic Reasoning for Admissions) required for 2027/28 entry alongside the UCAS application.",
+          "threshold": null,
+          "source_ids": [
+            "ucl-cs-meng"
+          ]
+        },
+        {
+          "id": "ucl-cs-meng-2027-req-3",
+          "category": "language",
+          "description": "GCSE English Language and Mathematics at grade C or 4 required.",
+          "threshold": null,
+          "source_ids": [
+            "ucl-cs-meng"
+          ]
+        },
+        {
+          "id": "ucl-cs-meng-2027-req-4",
+          "category": "other",
+          "description": "Year in Industry and Study Abroad options are available; the final year includes a supervised research project/dissertation.",
+          "threshold": null,
+          "source_ids": [
+            "ucl-cs-meng"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "ucl-cs-meng",
+          "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-meng",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "London",
+      "intake_year": 2027,
+      "start": "September 2027",
+      "duration": "4 academic years",
+      "duration_months": 48,
+      "application_deadline": "13 January 2027 (6pm UK time)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "ucl-dsml-msc-2026",
+      "institution_id": "ucl",
+      "institution": "University College London",
+      "country": "GB",
+      "degree_level": "taught_masters",
+      "official_name": "Data Science and Machine Learning MSc",
+      "name_localized": {
+        "zh-CN": "数据科学与机器学习理学硕士"
+      },
+      "field": "data-science",
+      "field_zh": "数据科学",
+      "subject": "data-science",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "Overseas fee 2026/27; UK fee GBP 21,500.",
+        "amount": 42700,
+        "residency": "international",
+        "academic_year": "2026/27"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "ucl-dsml-msc-2026-req-1",
+          "category": "academic",
+          "description": "Minimum of an upper second-class UK bachelor's degree (or equivalent) in a highly quantitative subject such as computer science, mathematics, electrical engineering or the physical sciences; relevant work experience may also be considered.",
+          "threshold": {
+            "degree_class": "Upper second-class (2:1)"
+          },
+          "source_ids": [
+            "ucl-dsml-msc-2026"
+          ]
+        },
+        {
+          "id": "ucl-dsml-msc-2026-req-2",
+          "category": "language",
+          "description": "English language requirement applies; the level was not verified on the page checked.",
+          "threshold": null,
+          "source_ids": [
+            "ucl-dsml-msc-2026"
+          ]
+        },
+        {
+          "id": "ucl-dsml-msc-2026-req-3",
+          "category": "other",
+          "description": "Applicants must be comfortable with undergraduate mathematics in linear algebra and calculus.",
+          "threshold": null,
+          "source_ids": [
+            "ucl-dsml-msc-2026"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "ucl-dsml-msc-2026",
+          "url": "https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/data-science-and-machine-learning-msc-2026",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "London",
+      "intake_year": 2026,
+      "start": "September 2026",
+      "duration": "1 calendar year",
+      "duration_months": 12,
+      "application_deadline": "27 March 2026 (visa-required applicants); 28 August 2026 (no visa required)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "ucl-ml-msc-2027",
+      "institution_id": "ucl",
+      "institution": "University College London",
+      "country": "GB",
+      "degree_level": "taught_masters",
+      "official_name": "Machine Learning MSc",
+      "name_localized": {
+        "zh-CN": "机器学习理学硕士"
+      },
+      "field": "artificial-intelligence",
+      "field_zh": "人工智能",
+      "subject": "artificial-intelligence",
+      "fees": {
+        "currency": "GBP",
+        "period": "per_year",
+        "notes": "International fee for 2027/28 entrants; UK fee GBP 21,500.",
+        "amount": 44400,
+        "residency": "international",
+        "academic_year": "2027/28"
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "ucl-ml-msc-2027-req-1",
+          "category": "academic",
+          "description": "Minimum of an upper second-class UK bachelor's degree (or equivalent) in a highly quantitative subject such as computer science, mathematics, electrical engineering or the physical sciences; relevant work experience may also be considered.",
+          "threshold": {
+            "degree_class": "Upper second-class (2:1)"
+          },
+          "source_ids": [
+            "ucl-ml-msc"
+          ]
+        },
+        {
+          "id": "ucl-ml-msc-2027-req-2",
+          "category": "language",
+          "description": "UCL English language Level 2 required.",
+          "threshold": null,
+          "source_ids": [
+            "ucl-ml-msc"
+          ]
+        },
+        {
+          "id": "ucl-ml-msc-2027-req-3",
+          "category": "other",
+          "description": "Applicants must be comfortable with undergraduate mathematics in linear algebra and calculus. Specialisation modules run in collaboration with the Gatsby Computational Neuroscience Unit and Google DeepMind.",
+          "threshold": null,
+          "source_ids": [
+            "ucl-ml-msc"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "ucl-ml-msc",
+          "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/machine-learning-msc",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "London",
+      "intake_year": 2027,
+      "start": "September 2027",
+      "duration": "1 calendar year",
+      "duration_months": 12,
+      "application_deadline": "22 March 2027 (visa-required applicants); 27 August 2027 (no visa required)",
+      "study_mode": "full-time"
+    },
+    {
+      "id": "nus-bcomp-isec-2027",
+      "institution_id": "nus",
+      "institution": "National University of Singapore",
+      "country": "SG",
+      "degree_level": "undergraduate",
+      "official_name": "Bachelor of Computing in Information Security",
+      "name_localized": {
+        "zh-CN": "计算机信息安全理学学士"
+      },
+      "field": "cybersecurity",
+      "field_zh": "网络安全",
+      "subject": "cybersecurity",
+      "fees": {
+        "currency": "SGD",
+        "period": "per_year",
+        "notes": "Full international fee without the MOE Tuition Grant (AY2026/27); SGD 21,400 per year with the MOE Tuition Grant (3-year service bond). Application fee SGD 20.",
+        "amount": 39700,
+        "residency": "international",
+        "academic_year": "2026/27",
+        "application_fee": {
+          "amount": 20,
+          "currency": "SGD"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "nus-bcomp-isec-2027-req-1",
+          "category": "academic",
+          "description": "Recognised secondary school qualification with strong academic records; the programme requires at least 160 units including 84 units of programme requirements.",
+          "threshold": null,
+          "source_ids": [
+            "nus-isec-curr",
+            "nus-moe-isec"
+          ]
+        },
+        {
+          "id": "nus-bcomp-isec-2027-req-2",
+          "category": "language",
+          "description": "NUS undergraduate English requirement: IELTS Academic 6.5 overall (minimum 6.5 in Reading and Writing) or TOEFL iBT 92-93.",
+          "threshold": {
+            "ielts_overall": 6.5,
+            "toefl_ibt": 92
+          },
+          "source_ids": [
+            "nus-moe-isec"
+          ]
+        },
+        {
+          "id": "nus-bcomp-isec-2027-req-3",
+          "category": "other",
+          "description": "Six units of Industrial Experience Requirement (6-month Advanced Technology Attachment Programme or 3-month internships); students with GPA 4.00 or higher may opt for the BComp Dissertation.",
+          "threshold": null,
+          "source_ids": [
+            "nus-isec-curr"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "nus-isec-curr",
+          "url": "https://www.comp.nus.edu.sg/programmes/ug/isc/curr/",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "nus-moe-isec",
+          "url": "https://www.moe.gov.sg/coursefinder/coursedetail/38-bachelor-of-computing-in-information-security",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        },
+        {
+          "id": "nus-ug-tuition",
+          "url": "https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Singapore",
+      "intake_year": 2027,
+      "start": "August 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": null,
+      "study_mode": "full-time"
+    },
+    {
+      "id": "nus-bcomp-is-2027",
+      "institution_id": "nus",
+      "institution": "National University of Singapore",
+      "country": "SG",
+      "degree_level": "undergraduate",
+      "official_name": "Bachelor of Computing in Information Systems",
+      "name_localized": {
+        "zh-CN": "计算机信息系统理学学士"
+      },
+      "field": "information-systems",
+      "field_zh": "信息系统",
+      "subject": "information-systems",
+      "fees": {
+        "currency": "SGD",
+        "period": "per_year",
+        "notes": "Full international fee without the MOE Tuition Grant (AY2026/27); SGD 21,400 per year with the MOE Tuition Grant (3-year service bond). Application fee SGD 20.",
+        "amount": 39700,
+        "residency": "international",
+        "academic_year": "2026/27",
+        "application_fee": {
+          "amount": 20,
+          "currency": "SGD"
+        }
+      },
+      "application_status": "unknown",
+      "requirements": [
+        {
+          "id": "nus-bcomp-is-2027-req-1",
+          "category": "academic",
+          "description": "Recognised secondary school qualification with strong academic records.",
+          "threshold": null,
+          "source_ids": [
+            "nus-ug-tuition"
+          ]
+        },
+        {
+          "id": "nus-bcomp-is-2027-req-2",
+          "category": "language",
+          "description": "NUS undergraduate English requirement: IELTS Academic 6.5 overall (minimum 6.5 in Reading and Writing) or TOEFL iBT 92-93.",
+          "threshold": {
+            "ielts_overall": 6.5,
+            "toefl_ibt": 92
+          },
+          "source_ids": [
+            "nus-ug-tuition"
+          ]
+        },
+        {
+          "id": "nus-bcomp-is-2027-req-3",
+          "category": "other",
+          "description": "Four-year honours programme, full-time, on campus.",
+          "threshold": null,
+          "source_ids": [
+            "nus-ug-tuition"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "nus-ug-tuition",
+          "url": "https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs",
+          "retrieved_at": "2026-11-25T12:00:00Z"
+        }
+      ],
+      "matchable": false,
+      "catalogue": "expansion",
+      "synthetic": false,
+      "city": "Singapore",
+      "intake_year": 2027,
+      "start": "August 2027",
+      "duration": "4 years",
+      "duration_months": 48,
+      "application_deadline": null,
+      "study_mode": "full-time"
+    }
+  ],
+  "sources": [
+    {
+      "id": "caltech-kavli",
+      "url": "https://www.caltech.edu/about/news/kavli-foundation-establishes-endowed-professorship-caltech-572",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Caltech news: enrolment of some 2,000 students",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "caltech-ug-deadlines",
+      "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/deadlines",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Caltech Admissions: first-year deadlines",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "caltech-ug-expenses",
+      "url": "https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Caltech Catalog: undergraduate expenses 2026-27",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "caltech-ug-international",
+      "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/international-applicants",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Caltech Admissions: international first-year applicants",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "caltech-ug-requirements",
+      "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/application-requirements",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Caltech Admissions: first-year application requirements",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "cambridge-acs",
+      "url": "https://www.cl.cam.ac.uk/admissions/acs/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Cambridge Computer Science and Technology: MPhil in Advanced Computer Science",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "cambridge-at-a-glance",
+      "url": "https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Cambridge: Cambridge at a glance",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "cambridge-cs-ba",
+      "url": "https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Cambridge: Computer Science BA (Hons) / MEng course page",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "cambridge-fees-trinity",
+      "url": "https://www.trin.cam.ac.uk/download/financial-arrangements-for-new-undergraduates/?wpdmdl=30414&masterkey=60940458c2bcc",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Trinity College Cambridge: financial arrangements for new undergraduates",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "cambridge-intl-share",
+      "url": "https://www.careers.cam.ac.uk/employers/advertise-your-opportunities/hiring-international-graduates",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Cambridge Careers Service: international graduates",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "cambridge-trinity-cs",
+      "url": "https://www.trin.cam.ac.uk/subjects/computer-science/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Trinity College Cambridge: Computer Science",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "eth-about",
+      "url": "https://ethz.ch/en/studies/non-degree-courses/exchange/downloads/for-prospective-students/university.html",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "ETH Zurich: about the university (founded 1855)",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "eth-annual-report-2025",
+      "url": "https://ethz.ch/content/dam/ethz/main/eth-zurich/portraet/geschaeftsbericht-2025/PDF-Downloads/GB25-eth-zuerich-jahresrechnung-EN.pdf",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "ETH Zurich Annual Report 2025",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "eth-dinfk-msc-cs",
+      "url": "https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "ETH Zurich D-INFK: MSc Computer Science programme presentation",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "eth-ds-appendix",
+      "url": "https://www.ethz.org/content/dam/ethz/common/docs/master-profile/englisch/ingenieurwissenschaften/MSc-DataScience-Appendix.pdf",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "ETH Zurich: MSc Data Science programme regulations appendix 1 (admission)",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "eth-tuition",
+      "url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "ETH Zurich: tuition fees",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "eth-tuition-pdf",
+      "url": "https://ethz.ch/content/dam/ethz/main/education/finanzielles/files-en/tuition-fees.pdf",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "ETH Zurich: tuition fee ordinance",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "harvard-about",
+      "url": "https://www.harvard.edu/about/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Harvard University: about",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "harvard-college-about",
+      "url": "https://college.harvard.edu/about",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Harvard College: about",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "harvard-college-apply",
+      "url": "https://college.harvard.edu/admissions/apply",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Harvard College: apply",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "harvard-college-vus-cost",
+      "url": "https://college.harvard.edu/index%2ephp/admissions/apply/visiting-undergraduate-students",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Harvard College: visiting undergraduate students cost",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "harvard-hio-stats",
+      "url": "https://www.hio.harvard.edu/statistics.md",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Harvard International Office: statistics",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "harvard-seas-faqs",
+      "url": "https://seas.harvard.edu/prospective-students/prospective-graduate-students/frequently-asked-questions-faqs-graduate",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Harvard SEAS: graduate programmes FAQs",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "harvard-seas-how-apply",
+      "url": "https://seas.harvard.edu/masters-data-science/how-apply",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Harvard SEAS: how to apply (CSE and Data Science terminal master's)",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "imperial-about",
+      "url": "https://www.imperial.ac.uk/about/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Imperial College London: about",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "imperial-meng-aiml",
+      "url": "http://www.imperial.ac.uk/study/ug/courses/computing-department/meng-computing-artificial-intelligence/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Imperial College London: Computing (Artificial Intelligence and Machine Learning) MEng",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "imperial-msc-adv-comp",
+      "url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/advanced-computing/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Imperial College London: Advanced Computing MSc",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "imperial-msc-ai",
+      "url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/computing-artificial-intelligence-msc/?removeCourse=1194116",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Imperial College London: Computing (Artificial Intelligence and Machine Learning) MSc",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "imperial-strategy",
+      "url": "https://www.imperial.ac.uk/media/imperial-college/about/leadership-and-strategy/president/public/Imperial-Strategy---Science-for-Humanity.pdf?ref=felixonline.co.uk",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Imperial College London: strategy (student numbers)",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "mit-admissions-deadlines",
+      "url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "MIT Admissions: first-year deadlines and requirements",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "mit-eecs-catalogue",
+      "url": "http://catalog.mit.edu/archive/2024-2025/schools/mit-schwarzman-college-computing/electrical-engineering-computer-science/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "MIT Course Catalog: EECS undergraduate programmes",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "mit-eecs-degrees",
+      "url": "https://eecsis.mit.edu/degree_requirements.pcgi?program=6-3",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "MIT EECS degree requirements (Course 6 programmes)",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "mit-eecs-grad-faqs",
+      "url": "https://www.eecs.mit.edu/academics/graduate-programs/admission-process/graduate-admissions-faqs/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "MIT EECS Graduate Admissions FAQs",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "mit-facts-2026",
+      "url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "MIT Facts 2026",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "mit-tuition-2026",
+      "url": "https://apply.mitadmissions.org/portal/ecportal/help/2026ECReunionWorkshop.pdf",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "MIT Admissions presentation: tuition and cost of attendance 2026-27",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "nus-about",
+      "url": "http://www.nus.edu.sg/about",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "National University of Singapore: about",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "nus-isec-curr",
+      "url": "https://www.comp.nus.edu.sg/programmes/ug/isc/curr/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "NUS School of Computing: Bachelor of Computing (Information Security) curriculum",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "nus-moe-isec",
+      "url": "https://www.moe.gov.sg/coursefinder/coursedetail/38-bachelor-of-computing-in-information-security",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Singapore MOE CourseFinder: Bachelor of Computing in Information Security (NUS)",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "nus-ug-tuition",
+      "url": "https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "NUS Registrar: undergraduate tuition fees AY2026/2027",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "oxford-about",
+      "url": "https://www.ox.ac.uk/about",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Oxford: about the University",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "oxford-cs-ba",
+      "url": "https://www.ox.ac.uk/node/842",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Oxford: Computer Science course page",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "oxford-english-grad",
+      "url": "https://www.ox.ac.uk/admissions/graduate/application-guide/qualifications-experience-languages-funding/english-language-proficiency",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Oxford: graduate English language proficiency",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "oxford-facts-figures",
+      "url": "https://www.ox.ac.uk/about/the-university/facts-and-figures?lang=en",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Oxford: facts and figures",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "oxford-msc-adv-cs",
+      "url": "https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science?wssl=1",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Oxford: MSc in Advanced Computer Science",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "oxford-student-numbers",
+      "url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Oxford: student numbers (as of 1 December 2025)",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "oxford-ug-summary-table",
+      "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "University of Oxford: summary table of undergraduate admissions requirements",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "stanford-admission-international",
+      "url": "https://admission.stanford.edu/apply//international/",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Stanford Admission: international first-year applicants",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "stanford-admission-testing",
+      "url": "https://admission.stanford.edu/apply/first-year/testing.html",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Stanford Admission: first-year testing policy",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "stanford-cs-ms-bulletin",
+      "url": "https://bulletin.stanford.edu/programs/graduate/computer-science/master-of-science/admissions",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Stanford Bulletin: Computer Science (MS) admissions",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "stanford-facts",
+      "url": "https://facts.stanford.edu/academics",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Stanford Facts: academics and enrolment",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "stanford-grad-budget",
+      "url": "https://financialaid.stanford.edu/grad/budget/index.html",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Stanford Financial Aid: graduate student budget",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "stanford-mscs-guide",
+      "url": "https://www.joinleland.com/library/a/stanford-mscs",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Stanford MSCS guide (Leland): Fall 2027 deadline and programme structure",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "stanford-tuition-ug",
+      "url": "https://financialaid.stanford.edu/undergrad/budget/index.html?os=ios0&ref=app",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "Stanford Financial Aid: undergraduate student budget 2026-27",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "ucl-about-1826",
+      "url": "https://www.ucl.ac.uk/pg-teaching-opportunities-hub/sites/pg_teaching_opportunities_hub/files/b16-01958_pgta_bsc_sociology_programme_candid_ladislao_dela_cruz_j.pdf",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "UCL: founded in 1826",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "ucl-cs-meng",
+      "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-meng",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "UCL: Computer Science MEng",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "ucl-dsml-msc-2026",
+      "url": "https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/data-science-and-machine-learning-msc-2026",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "UCL: Data Science and Machine Learning MSc (2026/27 entry)",
+      "fetch_status": "ok"
+    },
+    {
+      "id": "ucl-ml-msc",
+      "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/machine-learning-msc",
+      "retrieved_at": "2026-11-25T12:00:00Z",
+      "title": "UCL: Machine Learning MSc",
+      "fetch_status": "ok"
+    }
+  ],
+  "traceability": [
+    {
+      "fact_id": "massachusetts-institute-of-technology-stats-total_students",
+      "scope": "institution",
+      "scope_id": "massachusetts-institute-of-technology",
+      "field": "stats.total_students",
+      "value": "11816",
+      "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "massachusetts-institute-of-technology-stats-student_faculty_ratio",
+      "scope": "institution",
+      "scope_id": "massachusetts-institute-of-technology",
+      "field": "stats.student_faculty_ratio",
+      "value": "3",
+      "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "massachusetts-institute-of-technology-stats-international_pct",
+      "scope": "institution",
+      "scope_id": "massachusetts-institute-of-technology",
+      "field": "stats.international_pct",
+      "value": "29.1",
+      "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "massachusetts-institute-of-technology-stats-graduate_pct",
+      "scope": "institution",
+      "scope_id": "massachusetts-institute-of-technology",
+      "field": "stats.graduate_pct",
+      "value": "61.4",
+      "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "massachusetts-institute-of-technology-founded-year",
+      "scope": "institution",
+      "scope_id": "massachusetts-institute-of-technology",
+      "field": "founded_year",
+      "value": "1861",
+      "source_url": "https://facts.mit.edu/wp-content/uploads/2026/10/MIT-Facts-2026-Accessible.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-stats-total_students",
+      "scope": "institution",
+      "scope_id": "imperial",
+      "field": "stats.total_students",
+      "value": "23000",
+      "source_url": "https://www.imperial.ac.uk/media/imperial-college/about/leadership-and-strategy/president/public/Imperial-Strategy---Science-for-Humanity.pdf?ref=felixonline.co.uk",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-stats-graduate_pct",
+      "scope": "institution",
+      "scope_id": "imperial",
+      "field": "stats.graduate_pct",
+      "value": "47.8",
+      "source_url": "https://www.imperial.ac.uk/media/imperial-college/about/leadership-and-strategy/president/public/Imperial-Strategy---Science-for-Humanity.pdf?ref=felixonline.co.uk",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-founded-year",
+      "scope": "institution",
+      "scope_id": "imperial",
+      "field": "founded_year",
+      "value": "1907",
+      "source_url": "https://www.imperial.ac.uk/about/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "stanford-university-stats-total_students",
+      "scope": "institution",
+      "scope_id": "stanford-university",
+      "field": "stats.total_students",
+      "value": "17314",
+      "source_url": "https://facts.stanford.edu/academics",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "stanford-university-stats-graduate_pct",
+      "scope": "institution",
+      "scope_id": "stanford-university",
+      "field": "stats.graduate_pct",
+      "value": "57.9",
+      "source_url": "https://facts.stanford.edu/academics",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-oxford-stats-total_students",
+      "scope": "institution",
+      "scope_id": "university-of-oxford",
+      "field": "stats.total_students",
+      "value": "26800",
+      "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-oxford-stats-international_pct",
+      "scope": "institution",
+      "scope_id": "university-of-oxford",
+      "field": "stats.international_pct",
+      "value": "43",
+      "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-oxford-stats-graduate_pct",
+      "scope": "institution",
+      "scope_id": "university-of-oxford",
+      "field": "stats.graduate_pct",
+      "value": "51.3",
+      "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-oxford-stats-male_pct",
+      "scope": "institution",
+      "scope_id": "university-of-oxford",
+      "field": "stats.male_pct",
+      "value": "48.9",
+      "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-oxford-stats-female_pct",
+      "scope": "institution",
+      "scope_id": "university-of-oxford",
+      "field": "stats.female_pct",
+      "value": "51.0",
+      "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures/student-numbers",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-oxford-founded-year",
+      "scope": "institution",
+      "scope_id": "university-of-oxford",
+      "field": "founded_year",
+      "value": "1096",
+      "source_url": "https://www.ox.ac.uk/about/the-university/facts-and-figures?lang=en",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-university-stats-total_students",
+      "scope": "institution",
+      "scope_id": "harvard-university",
+      "field": "stats.total_students",
+      "value": "24317",
+      "source_url": "https://www.harvard.edu/about/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-university-stats-student_faculty_ratio",
+      "scope": "institution",
+      "scope_id": "harvard-university",
+      "field": "stats.student_faculty_ratio",
+      "value": "7",
+      "source_url": "https://college.harvard.edu/about",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-university-stats-international_pct",
+      "scope": "institution",
+      "scope_id": "harvard-university",
+      "field": "stats.international_pct",
+      "value": "23",
+      "source_url": "https://www.hio.harvard.edu/statistics.md",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-university-stats-graduate_pct",
+      "scope": "institution",
+      "scope_id": "harvard-university",
+      "field": "stats.graduate_pct",
+      "value": "70.8",
+      "source_url": "https://www.harvard.edu/about/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-university-founded-year",
+      "scope": "institution",
+      "scope_id": "harvard-university",
+      "field": "founded_year",
+      "value": "1636",
+      "source_url": "https://www.harvard.edu/about/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-cambridge-stats-total_students",
+      "scope": "institution",
+      "scope_id": "university-of-cambridge",
+      "field": "stats.total_students",
+      "value": "24927",
+      "source_url": "https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-cambridge-stats-international_pct",
+      "scope": "institution",
+      "scope_id": "university-of-cambridge",
+      "field": "stats.international_pct",
+      "value": "41",
+      "source_url": "https://www.careers.cam.ac.uk/employers/advertise-your-opportunities/hiring-international-graduates",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-cambridge-stats-graduate_pct",
+      "scope": "institution",
+      "scope_id": "university-of-cambridge",
+      "field": "stats.graduate_pct",
+      "value": "48.5",
+      "source_url": "https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "university-of-cambridge-founded-year",
+      "scope": "institution",
+      "scope_id": "university-of-cambridge",
+      "field": "founded_year",
+      "value": "1209",
+      "source_url": "https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "california-institute-of-technology-stats-total_students",
+      "scope": "institution",
+      "scope_id": "california-institute-of-technology",
+      "field": "stats.total_students",
+      "value": "2000",
+      "source_url": "https://www.caltech.edu/about/news/kavli-foundation-establishes-endowed-professorship-caltech-572",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "eth-zurich-stats-total_students",
+      "scope": "institution",
+      "scope_id": "eth-zurich",
+      "field": "stats.total_students",
+      "value": "26942",
+      "source_url": "https://ethz.ch/content/dam/ethz/main/eth-zurich/portraet/geschaeftsbericht-2025/PDF-Downloads/GB25-eth-zuerich-jahresrechnung-EN.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "eth-zurich-founded-year",
+      "scope": "institution",
+      "scope_id": "eth-zurich",
+      "field": "founded_year",
+      "value": "1855",
+      "source_url": "https://ethz.ch/en/studies/non-degree-courses/exchange/downloads/for-prospective-students/university.html",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "ucl-stats-total_students",
+      "scope": "institution",
+      "scope_id": "ucl",
+      "field": "stats.total_students",
+      "value": "51000",
+      "source_url": "https://www.ucl.ac.uk/pg-teaching-opportunities-hub/sites/pg_teaching_opportunities_hub/files/b16-01958_pgta_bsc_sociology_programme_candid_ladislao_dela_cruz_j.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "ucl-founded-year",
+      "scope": "institution",
+      "scope_id": "ucl",
+      "field": "founded_year",
+      "value": "1826",
+      "source_url": "https://www.ucl.ac.uk/pg-teaching-opportunities-hub/sites/pg_teaching_opportunities_hub/files/b16-01958_pgta_bsc_sociology_programme_candid_ladislao_dela_cruz_j.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "nus-stats-total_students",
+      "scope": "institution",
+      "scope_id": "nus",
+      "field": "stats.total_students",
+      "value": "45700",
+      "source_url": "http://www.nus.edu.sg/about",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "nus-stats-graduate_pct",
+      "scope": "institution",
+      "scope_id": "nus",
+      "field": "stats.graduate_pct",
+      "value": "35.9",
+      "source_url": "http://www.nus.edu.sg/about",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "nus-founded-year",
+      "scope": "institution",
+      "scope_id": "nus",
+      "field": "founded_year",
+      "value": "1905",
+      "source_url": "http://www.nus.edu.sg/about",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "mit-cs-sb-2027-fees",
+      "scope": "program",
+      "scope_id": "mit-cs-sb-2027",
+      "field": "fees",
+      "value": "66720",
+      "source_url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "mit-cs-sb-2027-deadline",
+      "scope": "program",
+      "scope_id": "mit-cs-sb-2027",
+      "field": "application_deadline",
+      "value": "1 November 2026 (Early Action); 4 January 2027 (Regular Action)",
+      "source_url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "mit-eecs-sb-2027-fees",
+      "scope": "program",
+      "scope_id": "mit-eecs-sb-2027",
+      "field": "fees",
+      "value": "66720",
+      "source_url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "mit-eecs-sb-2027-deadline",
+      "scope": "program",
+      "scope_id": "mit-eecs-sb-2027",
+      "field": "application_deadline",
+      "value": "1 November 2026 (Early Action); 4 January 2027 (Regular Action)",
+      "source_url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "mit-ceds-sb-2027-fees",
+      "scope": "program",
+      "scope_id": "mit-ceds-sb-2027",
+      "field": "fees",
+      "value": "66720",
+      "source_url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "mit-ceds-sb-2027-deadline",
+      "scope": "program",
+      "scope_id": "mit-ceds-sb-2027",
+      "field": "application_deadline",
+      "value": "1 November 2026 (Early Action); 4 January 2027 (Regular Action)",
+      "source_url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "mit-eecs-meng-2027-fees",
+      "scope": "program",
+      "scope_id": "mit-eecs-meng-2027",
+      "field": "fees",
+      "value": "66720",
+      "source_url": "https://eecsis.mit.edu/degree_requirements.pcgi?program=6-3",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "stanford-cs-bs-2027-fees",
+      "scope": "program",
+      "scope_id": "stanford-cs-bs-2027",
+      "field": "fees",
+      "value": "67731",
+      "source_url": "https://admission.stanford.edu/apply/first-year/testing.html",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "stanford-cs-bs-2027-deadline",
+      "scope": "program",
+      "scope_id": "stanford-cs-bs-2027",
+      "field": "application_deadline",
+      "value": "1 November 2026 (Restrictive Early Action); 5 January 2027 (Regular Decision)",
+      "source_url": "https://admission.stanford.edu/apply/first-year/testing.html",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "stanford-cs-ms-2027-fees",
+      "scope": "program",
+      "scope_id": "stanford-cs-ms-2027",
+      "field": "fees",
+      "value": "69717",
+      "source_url": "https://bulletin.stanford.edu/programs/graduate/computer-science/master-of-science/admissions",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "stanford-cs-ms-2027-deadline",
+      "scope": "program",
+      "scope_id": "stanford-cs-ms-2027",
+      "field": "application_deadline",
+      "value": "8 December 2026",
+      "source_url": "https://bulletin.stanford.edu/programs/graduate/computer-science/master-of-science/admissions",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "oxford-cs-ba-2027-fees",
+      "scope": "program",
+      "scope_id": "oxford-cs-ba-2027",
+      "field": "fees",
+      "value": "66580",
+      "source_url": "https://www.ox.ac.uk/node/842",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "oxford-cs-ba-2027-deadline",
+      "scope": "program",
+      "scope_id": "oxford-cs-ba-2027",
+      "field": "application_deadline",
+      "value": "15 October 2026 (UCAS, 6pm UK time)",
+      "source_url": "https://www.ox.ac.uk/node/842",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "oxford-cs-mcompsci-2027-fees",
+      "scope": "program",
+      "scope_id": "oxford-cs-mcompsci-2027",
+      "field": "fees",
+      "value": "66580",
+      "source_url": "https://www.ox.ac.uk/node/842",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "oxford-cs-mcompsci-2027-deadline",
+      "scope": "program",
+      "scope_id": "oxford-cs-mcompsci-2027",
+      "field": "application_deadline",
+      "value": "15 October 2026 (UCAS, 6pm UK time)",
+      "source_url": "https://www.ox.ac.uk/node/842",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "oxford-msc-adv-cs-2027-fees",
+      "scope": "program",
+      "scope_id": "oxford-msc-adv-cs-2027",
+      "field": "fees",
+      "value": "46350",
+      "source_url": "https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science?wssl=1",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "oxford-msc-adv-cs-2027-deadline",
+      "scope": "program",
+      "scope_id": "oxford-msc-adv-cs-2027",
+      "field": "application_deadline",
+      "value": "6 January 2027 (12:00 midday UK time)",
+      "source_url": "https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science?wssl=1",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-cs-ab-2027-fees",
+      "scope": "program",
+      "scope_id": "harvard-cs-ab-2027",
+      "field": "fees",
+      "value": "62226",
+      "source_url": "https://college.harvard.edu/admissions/apply",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-cs-ab-2027-deadline",
+      "scope": "program",
+      "scope_id": "harvard-cs-ab-2027",
+      "field": "application_deadline",
+      "value": "1 November 2026 (Restrictive Early Action); 1 January 2027 (Regular Decision)",
+      "source_url": "https://college.harvard.edu/admissions/apply",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-cse-sm-2027-fees",
+      "scope": "program",
+      "scope_id": "harvard-cse-sm-2027",
+      "field": "fees",
+      "value": "67504",
+      "source_url": "https://seas.harvard.edu/masters-data-science/how-apply",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-cse-sm-2027-deadline",
+      "scope": "program",
+      "scope_id": "harvard-cse-sm-2027",
+      "field": "application_deadline",
+      "value": "1 December 2026",
+      "source_url": "https://seas.harvard.edu/masters-data-science/how-apply",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-ds-sm-2027-fees",
+      "scope": "program",
+      "scope_id": "harvard-ds-sm-2027",
+      "field": "fees",
+      "value": "67504",
+      "source_url": "https://seas.harvard.edu/masters-data-science/how-apply",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "harvard-ds-sm-2027-deadline",
+      "scope": "program",
+      "scope_id": "harvard-ds-sm-2027",
+      "field": "application_deadline",
+      "value": "1 December 2026",
+      "source_url": "https://seas.harvard.edu/masters-data-science/how-apply",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "cambridge-cs-ba-2027-fees",
+      "scope": "program",
+      "scope_id": "cambridge-cs-ba-2027",
+      "field": "fees",
+      "value": "44214",
+      "source_url": "https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "cambridge-cs-ba-2027-deadline",
+      "scope": "program",
+      "scope_id": "cambridge-cs-ba-2027",
+      "field": "application_deadline",
+      "value": "15 October 2026 (UCAS)",
+      "source_url": "https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "cambridge-cs-meng-2027-fees",
+      "scope": "program",
+      "scope_id": "cambridge-cs-meng-2027",
+      "field": "fees",
+      "value": "44214",
+      "source_url": "https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "cambridge-cs-meng-2027-deadline",
+      "scope": "program",
+      "scope_id": "cambridge-cs-meng-2027",
+      "field": "application_deadline",
+      "value": "15 October 2026 (UCAS)",
+      "source_url": "https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "cambridge-mphil-acs-2027-fees",
+      "scope": "program",
+      "scope_id": "cambridge-mphil-acs-2027",
+      "field": "fees",
+      "value": "51084",
+      "source_url": "https://www.cl.cam.ac.uk/admissions/acs/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "cambridge-mphil-acs-2027-deadline",
+      "scope": "program",
+      "scope_id": "cambridge-mphil-acs-2027",
+      "field": "application_deadline",
+      "value": "25 February 2027 (funding deadline 8 December 2026)",
+      "source_url": "https://www.cl.cam.ac.uk/admissions/acs/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "caltech-cs-bs-2027-fees",
+      "scope": "program",
+      "scope_id": "caltech-cs-bs-2027",
+      "field": "fees",
+      "value": "68574",
+      "source_url": "https://www.admissions.caltech.edu/apply/first-year-applicants/deadlines",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "caltech-cs-bs-2027-deadline",
+      "scope": "program",
+      "scope_id": "caltech-cs-bs-2027",
+      "field": "application_deadline",
+      "value": "1 November 2026 (Restrictive Early Action); 4 January 2027 (Regular Decision)",
+      "source_url": "https://www.admissions.caltech.edu/apply/first-year-applicants/deadlines",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "eth-cs-msc-2027-fees",
+      "scope": "program",
+      "scope_id": "eth-cs-msc-2027",
+      "field": "fees",
+      "value": "4380",
+      "source_url": "https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "eth-cs-msc-2027-deadline",
+      "scope": "program",
+      "scope_id": "eth-cs-msc-2027",
+      "field": "application_deadline",
+      "value": "30 November 2026",
+      "source_url": "https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "eth-ds-msc-2027-fees",
+      "scope": "program",
+      "scope_id": "eth-ds-msc-2027",
+      "field": "fees",
+      "value": "4380",
+      "source_url": "https://www.ethz.org/content/dam/ethz/common/docs/master-profile/englisch/ingenieurwissenschaften/MSc-DataScience-Appendix.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "eth-ds-msc-2027-deadline",
+      "scope": "program",
+      "scope_id": "eth-ds-msc-2027",
+      "field": "application_deadline",
+      "value": "30 November 2026",
+      "source_url": "https://www.ethz.org/content/dam/ethz/common/docs/master-profile/englisch/ingenieurwissenschaften/MSc-DataScience-Appendix.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "eth-cybersec-msc-2027-fees",
+      "scope": "program",
+      "scope_id": "eth-cybersec-msc-2027",
+      "field": "fees",
+      "value": "4380",
+      "source_url": "https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "eth-cybersec-msc-2027-deadline",
+      "scope": "program",
+      "scope_id": "eth-cybersec-msc-2027",
+      "field": "application_deadline",
+      "value": "30 November 2026",
+      "source_url": "https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-comp-meng-aiml-2027-fees",
+      "scope": "program",
+      "scope_id": "imperial-comp-meng-aiml-2027",
+      "field": "fees",
+      "value": "unknown",
+      "source_url": "http://www.imperial.ac.uk/study/ug/courses/computing-department/meng-computing-artificial-intelligence/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-comp-meng-aiml-2027-deadline",
+      "scope": "program",
+      "scope_id": "imperial-comp-meng-aiml-2027",
+      "field": "application_deadline",
+      "value": "13 January 2027 (18:00 UK time)",
+      "source_url": "http://www.imperial.ac.uk/study/ug/courses/computing-department/meng-computing-artificial-intelligence/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-msc-ai-2027-fees",
+      "scope": "program",
+      "scope_id": "imperial-msc-ai-2027",
+      "field": "fees",
+      "value": "48300",
+      "source_url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/computing-artificial-intelligence-msc/?removeCourse=1194116",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-msc-ai-2027-deadline",
+      "scope": "program",
+      "scope_id": "imperial-msc-ai-2027",
+      "field": "application_deadline",
+      "value": "6 January 2027 (Round 2 closes)",
+      "source_url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/computing-artificial-intelligence-msc/?removeCourse=1194116",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-msc-adv-comp-2027-fees",
+      "scope": "program",
+      "scope_id": "imperial-msc-adv-comp-2027",
+      "field": "fees",
+      "value": "48300",
+      "source_url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/advanced-computing/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "imperial-msc-adv-comp-2027-deadline",
+      "scope": "program",
+      "scope_id": "imperial-msc-adv-comp-2027",
+      "field": "application_deadline",
+      "value": "6 January 2027 (Round 2 closes)",
+      "source_url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/advanced-computing/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "ucl-cs-meng-2027-fees",
+      "scope": "program",
+      "scope_id": "ucl-cs-meng-2027",
+      "field": "fees",
+      "value": "48600",
+      "source_url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-meng",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "ucl-cs-meng-2027-deadline",
+      "scope": "program",
+      "scope_id": "ucl-cs-meng-2027",
+      "field": "application_deadline",
+      "value": "13 January 2027 (6pm UK time)",
+      "source_url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-meng",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "ucl-dsml-msc-2026-fees",
+      "scope": "program",
+      "scope_id": "ucl-dsml-msc-2026",
+      "field": "fees",
+      "value": "42700",
+      "source_url": "https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/data-science-and-machine-learning-msc-2026",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "ucl-dsml-msc-2026-deadline",
+      "scope": "program",
+      "scope_id": "ucl-dsml-msc-2026",
+      "field": "application_deadline",
+      "value": "27 March 2026 (visa-required applicants); 28 August 2026 (no visa required)",
+      "source_url": "https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/data-science-and-machine-learning-msc-2026",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "ucl-ml-msc-2027-fees",
+      "scope": "program",
+      "scope_id": "ucl-ml-msc-2027",
+      "field": "fees",
+      "value": "44400",
+      "source_url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/machine-learning-msc",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "ucl-ml-msc-2027-deadline",
+      "scope": "program",
+      "scope_id": "ucl-ml-msc-2027",
+      "field": "application_deadline",
+      "value": "22 March 2027 (visa-required applicants); 27 August 2027 (no visa required)",
+      "source_url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/machine-learning-msc",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "nus-bcomp-isec-2027-fees",
+      "scope": "program",
+      "scope_id": "nus-bcomp-isec-2027",
+      "field": "fees",
+      "value": "39700",
+      "source_url": "https://www.comp.nus.edu.sg/programmes/ug/isc/curr/",
+      "retrieved_at": "2026-11-25"
+    },
+    {
+      "fact_id": "nus-bcomp-is-2027-fees",
+      "scope": "program",
+      "scope_id": "nus-bcomp-is-2027",
+      "field": "fees",
+      "value": "39700",
+      "source_url": "https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs",
+      "retrieved_at": "2026-11-25"
+    }
+  ],
+  "notes": "Band A (QS 2027 ranks 1-10): 10 institution profiles, 27 computer-related programmes. Dropped after verification: MIT EECS SM (admission is into the PhD programme; the SM is earned en route, not a terminal master's for external applicants); Harvard S.M. in Computer Science (SEAS offers terminal S.M. only in Computational Science and Engineering and Data Science); Stanford Data Science BS/MS, Caltech CMS MS, ETH BSc Computer Science, UCL MSc Artificial Intelligence, NUS BEng Computer Engineering and NUS MSc Data Science and Machine Learning (no official programme page with the required facts was retrieved on 2026-11-25); NUS MSc in Computer Science is the same programme as v2 nus-mcomp-cs and is not re-recorded. Derived stats (international/graduate/male/female shares computed from official headcounts) are marked with a note on the stat. A small number of figures are corroborated by secondary sources citing the university and are noted on the programme: Stanford MS CS deadline (8 December 2026), Harvard S.M. tuition, Cambridge MPhil ACS fee, NUS IELTS 6.5, Imperial MSc English level (IELTS 7.0/6.5). Imperial MEng AI/ML overseas fee is recorded as unknown because the course page section retrieved did not state it. All application_status values are unknown: no official page stated open/closed for the current cycle. No campus photo is included: no freely licensed photo was verified. No membership tags: none verified on an official site."
+}

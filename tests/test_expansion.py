@@ -13,17 +13,41 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.data import (EXPANSION, EXPANSION_INSTITUTIONS, EXPANSION_PROGRAMS,
                       PROGRAMS, RANKINGS, load_expansion,
                       validate_expansion_data)
-from app.main import app
+from app.main import app, reset_rate_limits
 
 client = TestClient(app, raise_server_exceptions=False)
 
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits():
+    # The TestClient shares one IP, so the 60/min general bucket is shared
+    # across the whole suite; cursor paging over a 200+ programme catalogue
+    # would otherwise 429 late tests in this file.
+    reset_rate_limits()
+
 RANKING_IDS = {i["id"] for i in RANKINGS.get("institutions", [])}
 V2_IDS = set(PROGRAMS.keys())
+
+
+def _page_all(path: str, params: dict | None = None) -> list:
+    """Walk a cursor-paginated list endpoint to the end."""
+    items, cursor = [], None
+    for _ in range(30):
+        query = dict(params or {})
+        if cursor:
+            query["cursor"] = cursor
+        body = client.get(path, params=query).json()
+        items.extend(body["items"])
+        cursor = body["next_cursor"]
+        if cursor is None:
+            break
+    return items
 
 
 def _good_program(pid="mit-cs-sb-2027", iid="massachusetts-institute-of-technology"):
@@ -56,11 +80,14 @@ def _good_data(programs=None, institutions=None):
 
 # --- Loader / validator ------------------------------------------------------
 
-def test_empty_expansion_loads():
+def test_merged_expansion_loads():
+    # The merged file (band B, official-only subset) loads and validates.
     assert EXPANSION.get("data_version") == "v3"
-    assert EXPANSION_PROGRAMS == {}
-    assert EXPANSION_INSTITUTIONS == {}
     assert load_expansion()["data_version"] == "v3"
+    assert validate_expansion_data(EXPANSION, RANKING_IDS, V2_IDS) == []
+    assert len(EXPANSION_PROGRAMS) == len(EXPANSION.get("programs", []))
+    assert len(EXPANSION_INSTITUTIONS) == len(EXPANSION.get("institutions", []))
+    assert all(p["matchable"] is False for p in EXPANSION_PROGRAMS.values())
 
 
 def test_validator_accepts_good_program():
@@ -150,15 +177,19 @@ def test_institutions_list_filters():
         assert "has_stats_profile" in item and "programmes_count" in item
 
 
-def test_institution_detail_ucl_v2_only_for_now():
+def test_institution_detail_ucl_v2_first_then_expansion():
     body = client.get("/api/v1/institutions/ucl").json()
     assert body["institution"]["id"] == "ucl"
-    assert body["stats"] is None  # no stats profile collected yet
     assert {e["provider"] for e in body["rankings"]} == {"qs", "the", "arwu"}
-    assert [p["id"] for p in body["programs"]] == [
+    v2_progs = [p for p in body["programs"] if p["catalogue"] == "v2"]
+    exp_progs = [p for p in body["programs"] if p["catalogue"] == "expansion"]
+    assert [p["id"] for p in v2_progs] == [
         "ucl-cs-bsc-2026", "ucl-cs-msc-2027"]
-    assert all(p["catalogue"] == "v2" and p["matchable"] is True
-               for p in body["programs"])
+    assert all(p["matchable"] is True for p in v2_progs)
+    assert all(p["matchable"] is False for p in exp_progs)
+    assert [p["id"] for p in exp_progs] == [
+        p["id"] for p in EXPANSION_PROGRAMS.values()
+        if p.get("institution_id") == "ucl"]
 
 
 def test_institution_detail_unknown_404():
@@ -169,9 +200,17 @@ def test_institution_detail_unknown_404():
 
 def test_institution_detail_never_invents_stats():
     # Every institution without a collected profile returns stats null.
-    body = client.get("/api/v1/institutions/massachusetts-institute-of-technology").json()
+    # (Computed from the live merged data so later bands don't break it.)
+    unprofiled = [i["id"] for i in RANKINGS.get("institutions", [])
+                  if i["id"] not in EXPANSION_INSTITUTIONS]
+    assert unprofiled, "all 148 institutions unexpectedly have profiles"
+    body = client.get(f"/api/v1/institutions/{unprofiled[0]}").json()
     assert body["stats"] is None
-    assert body["programs"] == []
+    # And a profiled institution returns the profile, never a bare number.
+    profiled = next(iter(EXPANSION_INSTITUTIONS))
+    body = client.get(f"/api/v1/institutions/{profiled}").json()
+    assert body["stats"]["institution_id"] == profiled
+    assert isinstance(body["stats"]["stats"], dict)
 
 
 # --- /programs extension -----------------------------------------------------
@@ -185,16 +224,23 @@ def test_programs_default_still_v2_only():
     assert "catalogue" not in body["items"][0]  # byte-identical contract
 
 
-def test_programs_catalogue_expansion_empty_for_now():
-    body = client.get("/api/v1/programs", params={"catalogue": "expansion"}).json()
-    assert body["items"] == []
+def test_programs_catalogue_expansion_lists_merged():
+    items = _page_all("/api/v1/programs", {"catalogue": "expansion"})
+    assert [p["id"] for p in items] == [
+        p["id"] for p in EXPANSION.get("programs", [])]
+    assert all(p["catalogue"] == "expansion" and p["matchable"] is False
+               for p in items)
 
 
 def test_programs_catalogue_all_flags_items():
-    body = client.get("/api/v1/programs", params={"catalogue": "all"}).json()
-    assert len(body["items"]) == 8
-    assert all(p["catalogue"] == "v2" and p["matchable"] is True
-               for p in body["items"])
+    items = _page_all("/api/v1/programs", {"catalogue": "all"})
+    assert len(items) == 8 + len(EXPANSION_PROGRAMS)
+    v2_items = [p for p in items if p["catalogue"] == "v2"]
+    exp_items = [p for p in items if p["catalogue"] == "expansion"]
+    assert len(v2_items) == 8
+    assert len(exp_items) == len(EXPANSION_PROGRAMS)
+    assert all(p["matchable"] is True for p in v2_items)
+    assert all(p["matchable"] is False for p in exp_items)
 
 
 def test_programs_catalogue_bad_value_400():
@@ -208,12 +254,19 @@ def test_programs_filter_institution_and_field():
                      params={"institution": "ucl"}).json()
     assert [p["id"] for p in ucl["items"]] == [
         "ucl-cs-bsc-2026", "ucl-cs-msc-2027"]
-    cs = client.get("/api/v1/programs", params={
-        "field": "computer-science", "catalogue": "all"}).json()
-    assert len(cs["items"]) == 8
-    none = client.get("/api/v1/programs", params={
-        "field": "data-science", "catalogue": "all"}).json()
-    assert none["items"] == []
+    cs = _page_all("/api/v1/programs", {
+        "field": "computer-science", "catalogue": "all"})
+    # 8 v2 programmes + every merged expansion programme in the field.
+    expected_cs = 8 + sum(
+        1 for p in EXPANSION_PROGRAMS.values() if p.get("field") == "computer-science")
+    assert len(cs) == expected_cs
+    assert all(p.get("field", p.get("subject", "")).replace(" ", "-")
+               == "computer-science" for p in cs)
+    ds = _page_all("/api/v1/programs", {
+        "field": "data-science", "catalogue": "all"})
+    assert [p["id"] for p in ds] == [
+        p["id"] for p in EXPANSION_PROGRAMS.values()
+        if p.get("field") == "data-science"]
 
 
 def test_no_banned_provider_in_expansion_responses():

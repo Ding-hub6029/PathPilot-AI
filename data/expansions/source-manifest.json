@@ -1,0 +1,1664 @@
+{
+ "data_version": "v3",
+ "sources": [
+  {
+   "id": "cuhk-msc-tuition",
+   "url": "http://msc.cse.cuhk.edu.hk/?page_id=124&lang=en",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Tuition Fee, Master of Science in Computer Science (CUHK)"
+  },
+  {
+   "id": "hku-cds-ug",
+   "url": "https://admissions.hku.hk/programmes/undergraduate-programmes/computing-and-data-science",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Computing and Data Science undergraduate programmes (HKU Admissions)"
+  },
+  {
+   "id": "hku-handbook",
+   "url": "http://handbook.hku.hk/ug/full-time-2026-27/about-the-university/past-and-present.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "General Information about the University (HKU handbook 2026-27)"
+  },
+  {
+   "id": "hku-msc-cs-app",
+   "url": "https://master.cds.hku.hk/msccs/about/msc-in-computer-science-application-procedure-2027-28/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MSc in Computer Science - Application Procedure 2027/28 (HKU CDS)"
+  },
+  {
+   "id": "hku-msc-cs-portal",
+   "url": "https://portal.hku.hk/tpg-admissions/programme-details?programme=master-of-science-in-computer-science-(general,-cyber-security,-financial-computing-and-multimedia-computing-streams)-cds&mode=0",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MSc in Computer Science programme details (HKU TPG portal)"
+  },
+  {
+   "id": "jhu-mse",
+   "url": "https://www.cs.jhu.edu/academic-programs/graduate-studies/masters-computer-science/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Master of Science in Engineering, Computer Science (Johns Hopkins CS)"
+  },
+  {
+   "id": "ntu-ccds-grad",
+   "url": "https://www.ntu.edu.sg/computing/admissions/graduate-programmes",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Graduate Education at CCDS (NTU)"
+  },
+  {
+   "id": "ntu-ccds-ug",
+   "url": "https://www.ntu.edu.sg/computing/discover-ccds/our-programmes",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Our Programmes, College of Computing and Data Science (NTU)"
+  },
+  {
+   "id": "ntu-degree-prog",
+   "url": "https://www.ntu.edu.sg/education/degree-programmes",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Degree Programmes AY2026 (NTU)"
+  },
+  {
+   "id": "ntu-msds",
+   "url": "https://www.ntu.edu.sg/engineering/coe-programmes/graduate/coe-programme-detail/master-of-science-in-data-science-%28msds%29",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Master of Science in Data Science (NTU)"
+  },
+  {
+   "id": "ntu-tuition-ug",
+   "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Tuition fees, undergraduate AY2026/2027 (NTU)"
+  },
+  {
+   "id": "pku-isd",
+   "url": "http://oldisd.pku.edu.cn/info/1454/2532.htm",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "General Information, International Students Division (Peking University)"
+  },
+  {
+   "id": "tsinghua-fees",
+   "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Fees, Tsinghua Undergraduate Admissions (Tsinghua)"
+  },
+  {
+   "id": "caltech-ug-deadlines",
+   "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/deadlines",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Caltech Admissions: first-year deadlines",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "caltech-ug-expenses",
+   "url": "https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Caltech Catalog: undergraduate expenses 2026-27",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "caltech-ug-international",
+   "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/international-applicants",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Caltech Admissions: international first-year applicants",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "caltech-ug-requirements",
+   "url": "https://www.admissions.caltech.edu/apply/first-year-applicants/application-requirements",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Caltech Admissions: first-year application requirements",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "cambridge-acs",
+   "url": "https://www.cl.cam.ac.uk/admissions/acs/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Cambridge Computer Science and Technology: MPhil in Advanced Computer Science",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "cambridge-cs-ba",
+   "url": "https://www.undergraduate.study.cam.ac.uk/courses/computer-science-ba-hons-meng",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Cambridge: Computer Science BA (Hons) / MEng course page",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "cambridge-fees-trinity",
+   "url": "https://www.trin.cam.ac.uk/download/financial-arrangements-for-new-undergraduates/?wpdmdl=30414&masterkey=60940458c2bcc",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Trinity College Cambridge: financial arrangements for new undergraduates",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "cambridge-trinity-cs",
+   "url": "https://www.trin.cam.ac.uk/subjects/computer-science/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Trinity College Cambridge: Computer Science",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "eth-dinfk-msc-cs",
+   "url": "https://ethz.ch/content/dam/ethz/special-interest/infk/department/Images%20and%20Content/Studies/Presentation%20Collection/Welcome_Day_MSc_CS_2024.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ETH Zurich D-INFK: MSc Computer Science programme presentation",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "eth-ds-appendix",
+   "url": "https://www.ethz.org/content/dam/ethz/common/docs/master-profile/englisch/ingenieurwissenschaften/MSc-DataScience-Appendix.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ETH Zurich: MSc Data Science programme regulations appendix 1 (admission)",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "eth-tuition",
+   "url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ETH Zurich: tuition fees",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "eth-tuition-pdf",
+   "url": "https://ethz.ch/content/dam/ethz/main/education/finanzielles/files-en/tuition-fees.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ETH Zurich: tuition fee ordinance",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "harvard-college-apply",
+   "url": "https://college.harvard.edu/admissions/apply",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Harvard College: apply",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "harvard-college-vus-cost",
+   "url": "https://college.harvard.edu/index%2ephp/admissions/apply/visiting-undergraduate-students",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Harvard College: visiting undergraduate students cost",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "harvard-seas-faqs",
+   "url": "https://seas.harvard.edu/prospective-students/prospective-graduate-students/frequently-asked-questions-faqs-graduate",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Harvard SEAS: graduate programmes FAQs",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "harvard-seas-how-apply",
+   "url": "https://seas.harvard.edu/masters-data-science/how-apply",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Harvard SEAS: how to apply (CSE and Data Science terminal master's)",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "imperial-meng-aiml",
+   "url": "http://www.imperial.ac.uk/study/ug/courses/computing-department/meng-computing-artificial-intelligence/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Imperial College London: Computing (Artificial Intelligence and Machine Learning) MEng",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "imperial-msc-adv-comp",
+   "url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/advanced-computing/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Imperial College London: Advanced Computing MSc",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "imperial-msc-ai",
+   "url": "https://www.imperial.ac.uk/study/courses/postgraduate-taught/computing-artificial-intelligence-msc/?removeCourse=1194116",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Imperial College London: Computing (Artificial Intelligence and Machine Learning) MSc",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "mit-admissions-deadlines",
+   "url": "https://mitadmissions.org/apply/firstyear/deadlines-requirements/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MIT Admissions: first-year deadlines and requirements",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "mit-eecs-catalogue",
+   "url": "http://catalog.mit.edu/archive/2024-2025/schools/mit-schwarzman-college-computing/electrical-engineering-computer-science/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MIT Course Catalog: EECS undergraduate programmes",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "mit-eecs-degrees",
+   "url": "https://eecsis.mit.edu/degree_requirements.pcgi?program=6-3",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MIT EECS degree requirements (Course 6 programmes)",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "mit-eecs-grad-faqs",
+   "url": "https://www.eecs.mit.edu/academics/graduate-programs/admission-process/graduate-admissions-faqs/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MIT EECS Graduate Admissions FAQs",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "mit-tuition-2026",
+   "url": "https://apply.mitadmissions.org/portal/ecportal/help/2026ECReunionWorkshop.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "MIT Admissions presentation: tuition and cost of attendance 2026-27",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "nus-isec-curr",
+   "url": "https://www.comp.nus.edu.sg/programmes/ug/isc/curr/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "NUS School of Computing: Bachelor of Computing (Information Security) curriculum",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "nus-moe-isec",
+   "url": "https://www.moe.gov.sg/coursefinder/coursedetail/38-bachelor-of-computing-in-information-security",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Singapore MOE CourseFinder: Bachelor of Computing in Information Security (NUS)",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "nus-ug-tuition",
+   "url": "https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "NUS Registrar: undergraduate tuition fees AY2026/2027",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "oxford-cs-ba",
+   "url": "https://www.ox.ac.uk/node/842",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Oxford: Computer Science course page",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "oxford-english-grad",
+   "url": "https://www.ox.ac.uk/admissions/graduate/application-guide/qualifications-experience-languages-funding/english-language-proficiency",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Oxford: graduate English language proficiency",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "oxford-msc-adv-cs",
+   "url": "https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science?wssl=1",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Oxford: MSc in Advanced Computer Science",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "oxford-ug-summary-table",
+   "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "University of Oxford: summary table of undergraduate admissions requirements",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "stanford-admission-international",
+   "url": "https://admission.stanford.edu/apply//international/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Stanford Admission: international first-year applicants",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "stanford-admission-testing",
+   "url": "https://admission.stanford.edu/apply/first-year/testing.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Stanford Admission: first-year testing policy",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "stanford-cs-ms-bulletin",
+   "url": "https://bulletin.stanford.edu/programs/graduate/computer-science/master-of-science/admissions",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Stanford Bulletin: Computer Science (MS) admissions",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "stanford-grad-budget",
+   "url": "https://financialaid.stanford.edu/grad/budget/index.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Stanford Financial Aid: graduate student budget",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "stanford-tuition-ug",
+   "url": "https://financialaid.stanford.edu/undergrad/budget/index.html?os=ios0&ref=app",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Stanford Financial Aid: undergraduate student budget 2026-27",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "ucl-cs-meng",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-meng",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UCL: Computer Science MEng",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "ucl-dsml-msc-2026",
+   "url": "https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/data-science-and-machine-learning-msc-2026",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UCL: Data Science and Machine Learning MSc (2026/27 entry)",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "ucl-ml-msc",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/machine-learning-msc",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UCL: Machine Learning MSc",
+   "fetch_status": "ok"
+  },
+  {
+   "id": "auckland-mai",
+   "url": "https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/master-of-artificial-intelligence--mai-.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "auckland-mdats",
+   "url": "https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/master-of-data-science-mdats.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "auckland-pg-cs",
+   "url": "https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/computer-science/postgraduate.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "auckland-ug-cs",
+   "url": "https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/computer-science/undergraduate.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "auckland-ug-se",
+   "url": "https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/software-engineering/undergraduate.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-adv-cs-msc",
+   "url": "https://www.birmingham.ac.uk/study/postgraduate/subjects/computer-science-and-data-science-courses/advanced-computer-science-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-ai-msc",
+   "url": "https://www.birmingham.ac.uk/study/postgraduate/subjects/computer-science-and-data-science-courses/artificial-intelligence-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-aics-bsc",
+   "url": "https://www.birmingham.ac.uk/study/undergraduate/subjects/computer-science-courses/artificial-intelligence-ai-computer-science-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-aics-ind",
+   "url": "https://www.birmingham.ac.uk/documents/students/cma/2025/eps/artificial-intelligence-and-computer-science-with-an-industrial-year-b.sc.-4-years-gg74-2025-26-pdf-127kb.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-cs-bsc",
+   "url": "https://www.birmingham.ac.uk/study/undergraduate/subjects/computer-science-courses/computer-science-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-cs-msc",
+   "url": "https://www.birmingham.ac.uk/study/postgraduate/subjects/computer-science-and-data-science-courses/computer-science-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-cyber-msc",
+   "url": "https://www.birmingham.ac.uk/study/postgraduate/subjects/computer-science-and-data-science-courses/cyber-security-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-ai-ds-list",
+   "url": "https://www.bristol.ac.uk/study/postgraduate/search/ai-data-science-programme-list/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-ai-list",
+   "url": "https://www.bristol.ac.uk/study/artificial-intelligence/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-aib",
+   "url": "https://www.bristol.ac.uk/study/postgraduate/taught/msc-artificial-intelligence-for-business/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "brown-apmc",
+   "url": "https://bulletin.brown.edu/the-college/concentrations/apmc/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "brown-cip",
+   "url": "https://oir.brown.edu/institutional-data/browns-cip-codes",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cityu-bsc-cs",
+   "url": "https://www.cityu.edu.hk/admo/programmes/bsc-computer-science",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cityu-cs-overview",
+   "url": "https://www.cs.cityu.edu.hk/en/academic-programmes/programmes-overview",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cityu-deadlines",
+   "url": "https://www.cityu.edu.hk/admo/taxonomy/term/427",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cmu-masters",
+   "url": "https://www.cs.cmu.edu/education/masters/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cmu-scs-catalog",
+   "url": "http://coursecatalog.web.cmu.edu/schools-colleges/schoolofcomputerscience/schoolofcomputerscience.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "duke-ab",
+   "url": "https://cs.duke.edu/undergraduate/degrees/BA",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "duke-cs-grad",
+   "url": "https://cs.duke.edu/graduate/ms/course-options",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "duke-masters",
+   "url": "https://gradschool.duke.edu/academics/programs-and-degrees/masters-programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "duke-why-cs",
+   "url": "https://cs.duke.edu/undergraduate/why-duke-cs",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kaist-programs",
+   "url": "https://admission.kaist.ac.kr/intl-graduate/Discover/ExplorePrograms",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kfupm-ccm",
+   "url": "https://ccm.kfupm.edu.sa/academics/programs",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kfupm-ics",
+   "url": "https://ics.kfupm.edu.sa/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "korea-cse-grad",
+   "url": "https://info.korea.edu/en_info/grad/computer_intro.do",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ku-leuven-mai",
+   "url": "https://www.kuleuven.be/programmes/master-artificial-intelligence/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ku-leuven-mscs",
+   "url": "https://onderwijsaanbod.kuleuven.be/opleidingen/e/CQ_52364384.htm?pdf=1",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kyoto-informatics",
+   "url": "https://www.i.kyoto-u.ac.jp/en/course/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kyoto-ug",
+   "url": "https://www.i.kyoto-u.ac.jp/en/faculty/relationship/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lmu-dsl",
+   "url": "https://dsl.ifi.lmu.de/cms/students/study/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-available",
+   "url": "https://www.lse.ac.uk/study-at-lse/Graduate/Available-programmes",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-bsc-ds",
+   "url": "https://www.lse.ac.uk/study-at-lse/undergraduate/bsc-data-science",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-dsi-grad",
+   "url": "https://www.lse.ac.uk/DSI/study/graduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-dsi-study",
+   "url": "https://www.lse.ac.uk/DSI/study/Study-to-24?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-dsi-ug",
+   "url": "https://www.lse.ac.uk/DSI/study/undergraduate-programmes?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-msc-ds",
+   "url": "https://www.lse.ac.uk/study-at-lse/graduate/msc-data-science?gad_source=1",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lund-ml",
+   "url": "https://www.lunduniversity.lu.se/study/machine-learning-systems-and-control-masters-programme-TAMSR",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "michigan-cs-lsa",
+   "url": "https://cse.engin.umich.edu/academics/undergraduate/programs/computer-science-lsa-major/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "michigan-cse",
+   "url": "http://eecs.umich.edu/cse/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "michigan-eecs-bulletin",
+   "url": "https://bulletin.engin.umich.edu/eecs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-eecs",
+   "url": "https://admissions.ntu.edu.tw/colleges/college-of-electrical-engineering-computer-science/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nyu-courant-ai",
+   "url": "https://cims.nyu.edu/ai/educational-programs/graduate/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nyu-tandon-cs-ms",
+   "url": "https://engineering.nyu.edu/academics/programs/computer-science-ms",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nyu-tandon-cse",
+   "url": "https://engineering.nyu.edu/academics/departments/computer-science-and-engineering/degrees-and-programs",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sorbonne-mind",
+   "url": "https://sciences.sorbonne-universite.fr/en/masters/master-computer-science/mind",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tcd-cs-ds",
+   "url": "https://www.tcd.ie/courses/postgraduate/courses/computer-science---data-science--mscpgraddip/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tcd-cs-ug",
+   "url": "https://www.tcd.ie/courses/undergraduate/courses/computer-science/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tcd-scss-pg",
+   "url": "https://www.tcd.ie/scss/courses/postgraduate/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uiuc-catalog",
+   "url": "http://catalog.illinois.edu/degree-programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uiuc-siebel",
+   "url": "https://siebelschool.illinois.edu/admissions/graduate/degree-program-options",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "um-cs-faculty",
+   "url": "https://www.um.edu.my/computer-science-and-information-technology",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "um-handbook",
+   "url": "https://fsktm.um.edu.my/fsktm/doc/undergraduate/Handbook/UGHB2024_c.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "um-masters",
+   "url": "https://www.um.edu.my/master-of-computer-science-and-information",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ut-cdso",
+   "url": "https://cdso.utexas.edu/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ut-cdso-faq",
+   "url": "https://cdso.utexas.edu/faq?external_link=true",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ut-cns",
+   "url": "https://cns.utexas.edu/academics/why-study-in-texas-science/school-computing",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uva-masters-info",
+   "url": "https://www.uva.nl/en/masters/masters-programmes?areaOfInterest=areaOfInterest.informatics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uva-progress",
+   "url": "https://student.uva.nl/en/information/progressing-to-a-uva-master-s-programme",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-aai",
+   "url": "https://warwick.ac.uk/fac/sci/wmg/study/masters-degrees/applied-artificial-intelligence/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-brochure",
+   "url": "https://warwick.ac.uk/fac/sci/dcs/admissions/undergraduate/departmentofcs_2023_brochure_v2.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-cs-msc-ai",
+   "url": "https://warwick.ac.uk/study/postgraduate/courses/msc-computer-science-artificial-intelligence-machine-learning/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "anu-aacom",
+   "url": "https://programsandcourses.anu.edu.au/2024/program/AACOM",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ANU — Bachelor of Advanced Computing (Honours)"
+  },
+  {
+   "id": "anu-bcomp",
+   "url": "https://programsandcourses.anu.edu.au/2025/program/BCOMP",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ANU — Bachelor of Computing (2025 programme page)"
+  },
+  {
+   "id": "anu-english-policy",
+   "url": "https://policies.anu.edu.au/ppl/document/ANUP_000408",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ANU English language requirements policy (Table 2)"
+  },
+  {
+   "id": "columbia-cost",
+   "url": "https://undergrad.admissions.columbia.edu/affordability/cost",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Columbia Undergraduate Admissions — Cost of attendance"
+  },
+  {
+   "id": "columbia-cs-adm",
+   "url": "https://www.cs.columbia.edu/education/admissions8/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Columbia CS — Admissions"
+  },
+  {
+   "id": "columbia-cs-faq",
+   "url": "https://www.cs.columbia.edu/education/undergraduate/prospectivefaq/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Columbia CS — Undergraduate prospective FAQ"
+  },
+  {
+   "id": "columbia-cvn-ms",
+   "url": "https://cvn.columbia.edu/content/computer-science-masters-degree",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Columbia CVN — Computer Science master's degree"
+  },
+  {
+   "id": "columbia-eng-apply",
+   "url": "https://www.engineering.columbia.edu/admissions-aid/graduate-admissions/how-apply/application-requirements?utm_id=120241673204670286",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Columbia Engineering — Graduate application requirements"
+  },
+  {
+   "id": "delft-bsc-admreq",
+   "url": "https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering/from-application-to-enrollment/admission-requirements",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "TU Delft — BSc CSE admission requirements"
+  },
+  {
+   "id": "delft-bsc-prog",
+   "url": "https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "TU Delft — Bachelor of Computer Science and Engineering"
+  },
+  {
+   "id": "delft-bsc-signup",
+   "url": "https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering/from-application-to-enrollment",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "TU Delft — BSc CSE sign up (Studielink deadline)"
+  },
+  {
+   "id": "delft-bsc-tuition",
+   "url": "https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering/from-application-to-enrollment/tuition-and-fees",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "TU Delft — BSc CSE study costs (tuition and fees)"
+  },
+  {
+   "id": "delft-msc-admreq",
+   "url": "https://www.tudelft.nl/en/education/admission-and-application/msc-international-diploma/admission-requirements",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "TU Delft — MSc international diploma admission requirements"
+  },
+  {
+   "id": "delft-msc-docs",
+   "url": "https://www.tudelft.nl/en/education/admission-and-application/msc-international-diploma/required-documents",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "TU Delft — MSc international diploma required documents"
+  },
+  {
+   "id": "edinburgh-ai-fees",
+   "url": "https://study.ed.ac.uk/programmes/postgraduate-taught-campus-fees?programme_code=PTMSCAINTL1F&year=2027",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Edinburgh — MSc Artificial Intelligence fees 2027/8"
+  },
+  {
+   "id": "edinburgh-ds-msc",
+   "url": "https://study.ed.ac.uk/programmes/postgraduate-taught/902-data-science?utm_source=Topuniversities&utm_medium=programme&utm_campaign=ExternalListings&utm_content=CourseURL",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Edinburgh Degree Finder — MSc Data Science"
+  },
+  {
+   "id": "edinburgh-list",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate?query=computer%20science&page=0",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Edinburgh Degree Finder — undergraduate computer science programmes"
+  },
+  {
+   "id": "edinburgh-ucas-cs",
+   "url": "https://explore.ucas.com/explore/courses/b05b4517-874b-1ee2-1c14-d63e806df2a7/computer-science?studyYear=2026",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UCAS — Edinburgh Computer Science BSc (Hons)"
+  },
+  {
+   "id": "fudan-cs-school",
+   "url": "https://fudan.edu.cn/en/2019/0515/c295a96709/page.htm",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Fudan School of Computer Science / School of Software (programmes)"
+  },
+  {
+   "id": "fudan-iso-pdf",
+   "url": "https://iso.fudan.edu.cn/_upload/article/files/3e/a5/446b78734925997dcd3f0967e4b0/082c79b0-dbba-413a-bdd0-cc201c34c6a6.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Fudan 2027 English-taught undergraduate admission (ISO)"
+  },
+  {
+   "id": "hkust-ai-prog",
+   "url": "https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-ai",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "HKUST — MSc in Artificial Intelligence 2027/28"
+  },
+  {
+   "id": "hkust-ai-seng",
+   "url": "https://seng.hkust.edu.hk/academics/taught-postgraduate/msc-ai?utm_medium=paid&utm_source=fb&utm_id=120211596622640165&utm_content=120211596622690165&utm_term=120211596622660165&utm_campaign=120211596622640165",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "HKUST SENG — MSc in Artificial Intelligence"
+  },
+  {
+   "id": "hkust-cse-ug",
+   "url": "https://cse.hkust.edu.hk/ug/comp/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "HKUST CSE — BEng in Computer Science"
+  },
+  {
+   "id": "hkust-reai-prog",
+   "url": "https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-meng-reai",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "HKUST — MSc/MEng in Robotics and Embodied AI 2027/28"
+  },
+  {
+   "id": "hkust-ug-pdf",
+   "url": "https://ugadmin.hkust.edu.hk/prog_crs/ug/202627/pdf/26-27comp.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "HKUST UG admissions 2026/27 — Computer Science (PDF)"
+  },
+  {
+   "id": "ipp-dataai",
+   "url": "https://www.ip-paris.fr/en/education/graduate-programs/masters-science/computer-science-program/masters-data-and-artificial-intelligence",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "IP Paris — Master's in Data and Artificial Intelligence (DataAI)"
+  },
+  {
+   "id": "ipp-fees",
+   "url": "https://www.ip-paris.fr/sites/default/files/pages/documents/Masters/master-phd-track-registration-fees-EN-26-27%20(2).pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "IP Paris — Master's Tuition Fees 2026-2027"
+  },
+  {
+   "id": "kcl-ai-bsc",
+   "url": "https://www.kcl.ac.uk/study/undergraduate/courses/artificial-intelligence-bsc",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "KCL — Artificial Intelligence BSc"
+  },
+  {
+   "id": "kcl-cs-bsc",
+   "url": "https://www.kcl.ac.uk/study/undergraduate/courses/computer-science-bsc",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "KCL — Computer Science BSc"
+  },
+  {
+   "id": "kcl-ds-fees",
+   "url": "https://www.kcl.ac.uk/study/postgraduate-taught/courses/data-science-msc/fees",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "KCL — Data Science MSc fees"
+  },
+  {
+   "id": "manchester-acs",
+   "url": "https://www.manchester.ac.uk/study/masters/courses/list/21573/msc-advanced-computer-science/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Manchester — MSc Advanced Computer Science"
+  },
+  {
+   "id": "manchester-cs-bsc",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00560/bsc-computer-science/all-content/COMP25212",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Manchester — BSc Computer Science (2027 entry)"
+  },
+  {
+   "id": "manchester-cs-ind",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00559/bsc-computer-science-with-industrial-experience/all-content/COMP10120",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Manchester — BSc Computer Science with Industrial Experience (2027 entry)"
+  },
+  {
+   "id": "manchester-dsai",
+   "url": "https://www.manchester.ac.uk/study/masters/courses/list/22195/msc-data-science-and-artificial-intelligence-computer-science-data-informatics/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Manchester — MSc Data Science and Artificial Intelligence (Computer Science Data Informatics)"
+  },
+  {
+   "id": "mcgill-cs-apply",
+   "url": "https://www.cs.mcgill.ca/undergrad/future/applying/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "McGill CS — Applying (undergraduate)"
+  },
+  {
+   "id": "mcgill-study-bsc",
+   "url": "https://www.mcgill.ca/study/2024-2025/faculties/science/undergraduate/BSC-PEMC_CSI_MINOR_SC",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "McGill Study 2024-25 — BSc Physical, Earth, Math & Computer Science"
+  },
+  {
+   "id": "monash-c2001",
+   "url": "https://www.monash.edu/study/courses/find-a-course/computer-science-c2001?utm_medium=paidsearch&utm_content=ITSEMC2001_AU_WAV_UGSTUDENTT&utm_source=google&utm_campaign=UGRAD_ITE&gclid=Cj0KCQjww4TGBhCKARIsAFLXndTFDK08USDzX43_48TqeIKJMgfmu12sVk-qfW9NYByJjs0tAtQhHZ8aAjnTEALw_wcB",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Monash — Bachelor of Computer Science (C2001)"
+  },
+  {
+   "id": "monash-c6001",
+   "url": "https://www.monash.edu/study/courses/find-a-course/information-technology-c6001",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Monash — Master of Information Technology (C6001)"
+  },
+  {
+   "id": "northwestern-adm",
+   "url": "https://catalogs.northwestern.edu/undergraduate/admission/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Northwestern Catalog — Undergraduate admission"
+  },
+  {
+   "id": "northwestern-cs-acad",
+   "url": "https://www.mccormick.northwestern.edu/computer-science/academics/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Northwestern McCormick CS — Academics (undergraduate programs)"
+  },
+  {
+   "id": "northwestern-mlds-adm",
+   "url": "https://www.mccormick.northwestern.edu/machine-learning-data-science/admissions/?linkId=45359726",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Northwestern — MS in Machine Learning and Data Science admissions"
+  },
+  {
+   "id": "northwestern-mlds-faq",
+   "url": "https://www.mccormick.northwestern.edu/machine-learning-data-science/admissions/faq.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Northwestern — MS MLDS admissions FAQ"
+  },
+  {
+   "id": "northwestern-msai-faq",
+   "url": "https://www.mccormick.northwestern.edu/artificial-intelligence/admissions/frequently-asked-questions.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Northwestern — MS in Artificial Intelligence admissions FAQ"
+  },
+  {
+   "id": "polyu-aai-brochure",
+   "url": "https://www.polyu.edu.hk/comp/-/media/department/comp/programme/2026/2026-aug/polyumsc_brochure_2026-as-20260714_web.pdf?rev=bfb7f6ca96d942e480852f094059a436&hash=C8C78E8A360CF96B62EC9209723A0C50",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "PolyU COMP — MSc in Agentic AI Systems brochure 2026"
+  },
+  {
+   "id": "polyu-infosheet",
+   "url": "https://www.polyu.edu.hk/geo/docdrive/Info_sheet_2627.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "PolyU — Information sheet 2026/27"
+  },
+  {
+   "id": "polyu-leaflet",
+   "url": "https://www.polyu.edu.hk/saso/docdrive/Public/AdmissionLeaflets/pamphlet_International%20Qualification.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "PolyU — Admission leaflet (international qualifications)"
+  },
+  {
+   "id": "polyu-mit-brochure",
+   "url": "https://www.polyu.edu.hk/comp/-/media/department/comp/programme/2026/20260625/polyumsc_brochure_2026-it-20260623_web.pdf?rev=d69f52b2a4e24f11885858a887d5c397&hash=2532FFF9E18DE4D37DA914AA77002129",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "PolyU COMP — MSc in Information Technology brochure 2026"
+  },
+  {
+   "id": "princeton-degrees",
+   "url": "https://admission.princeton.edu/academics/degrees-departments?page=1",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Princeton Admission — Degrees & Departments"
+  },
+  {
+   "id": "princeton-eng-adm",
+   "url": "https://engineering.princeton.edu/undergraduate-studies/admission-and-tours",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Princeton Engineering — Admission and Tours"
+  },
+  {
+   "id": "psl-dauphine-cs",
+   "url": "https://dauphine.psl.eu/en/training/masters-degrees/computer-science",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Dauphine-PSL — Master in Computer Science"
+  },
+  {
+   "id": "psl-ens-faq",
+   "url": "https://pginfo.ens.psl.eu/FAQ_en.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ENS-PSL — Postgraduate FAQ (registration fees)"
+  },
+  {
+   "id": "psl-grad-cs",
+   "url": "https://psl.eu/en/graduate-programs/computer-science",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Universite PSL — Graduate Program in Computer Science"
+  },
+  {
+   "id": "psl-iasd-m2",
+   "url": "https://dauphine.psl.eu/en/training/masters-degrees/computer-science/m2-artificial-intelligence-systems-data",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Dauphine-PSL — M2 Artificial Intelligence, Systems, Data (IASD)"
+  },
+  {
+   "id": "sjtu-isc",
+   "url": "https://isc.sjtu.edu.cn/en/content.aspx?info_lb=213&flag=17",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "SJTU International Students Centre — undergraduate admission"
+  },
+  {
+   "id": "sjtu-smse",
+   "url": "https://en.smse.sjtu.edu.cn/admission/undergraduateEnglish",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "SJTU SMSE — Undergraduate Engineering Cluster Program in English"
+  },
+  {
+   "id": "snu-cse-grad",
+   "url": "https://cse.snu.ac.kr/en/admissions/international/graduate",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "SNU CSE — International graduate admissions"
+  },
+  {
+   "id": "snu-cse-ug",
+   "url": "https://cse.snu.ac.kr/en/admissions/international/undergraduate",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "SNU CSE — International undergraduate admissions"
+  },
+  {
+   "id": "snu-faq",
+   "url": "https://en.snu.ac.kr/admission/overview/faq/admission",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "SNU — Admission FAQ"
+  },
+  {
+   "id": "sydney-advcomp",
+   "url": "https://cusp.sydney.edu.au/students/view-degree-page/print/1/stream/13823/dvid/6222/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Sydney — Bachelor of Advanced Computing degree page"
+  },
+  {
+   "id": "sydney-handbook",
+   "url": "https://www.sydney.edu.au/handbooks/2023/engineering/advanced_computing/advanced_computing_table.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Sydney handbook — Advanced Computing table"
+  },
+  {
+   "id": "sydney-mcs",
+   "url": "https://www.sydney.edu.au/courses/courses/pc/master-of-computer-science.html?ref=abroadbrief.com",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Sydney — Master of Computer Science"
+  },
+  {
+   "id": "sydney-mit",
+   "url": "https://cusp.sydney.edu.au/students/view-degree-page/degree_id/413",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Sydney — Master of Information Technology degree page"
+  },
+  {
+   "id": "tokyo-epiip",
+   "url": "https://www.i.u-tokyo.ac.jp/edu/entra/epiip/epiip2024_guide_e.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "U Tokyo IST — EPIIP guide (2024)"
+  },
+  {
+   "id": "tokyo-sci-grad",
+   "url": "https://www.s.u-tokyo.ac.jp/en/admission/graduate.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "U Tokyo School of Science — graduate admission"
+  },
+  {
+   "id": "toronto-bulletin",
+   "url": "https://future.utoronto.ca/sites/default/files/assets/files/2025/2026-27-International-UAB_1.pdf?utm_source",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "U of T 2026-27 International Undergraduate Admissions Bulletin"
+  },
+  {
+   "id": "toronto-mscac-apply",
+   "url": "https://mscac.utoronto.ca/apply/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "U of T MScAC — Apply"
+  },
+  {
+   "id": "toronto-sgs-degree",
+   "url": "https://sgs.calendar.utoronto.ca/degree/Computer-Science",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "U of T SGS Calendar — Computer Science degree"
+  },
+  {
+   "id": "toronto-sgs-mscac",
+   "url": "https://sgs.calendar.utoronto.ca/computer-science-applied-computing-mscac-concentration-computer-science",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "U of T SGS Calendar — MScAC Computer Science concentration"
+  },
+  {
+   "id": "toronto-utsc-viewbook",
+   "url": "https://www.utsc.utoronto.ca/admissions/sites/utsc.utoronto.ca.admissions/files/docs/viewbook.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UTSC Admissions Viewbook"
+  },
+  {
+   "id": "toronto-viewbook",
+   "url": "https://www.artsci.utoronto.ca/sites/default/files/Viewbook2025spread.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "U of T Faculty of Arts & Science Viewbook 2025"
+  },
+  {
+   "id": "ubc-calendar-bsc",
+   "url": "http://vancouver.calendar.ubc.ca/faculties-colleges-and-schools/faculty-science/bachelor-science/computer-science",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UBC Vancouver Calendar — Bachelor of Science, Computer Science"
+  },
+  {
+   "id": "ubc-cs-bsc",
+   "url": "http://you.ubc.ca/programs/computer-science-vancouver-bsc/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UBC — Bachelor of Science in Computer Science (Vancouver)"
+  },
+  {
+   "id": "ubc-grad-ielts",
+   "url": "https://www.grad.ubc.ca/prospective-students/application-admission/ielts-program-minimum-requirements",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UBC Graduate Studies — IELTS program minimum requirements"
+  },
+  {
+   "id": "ubc-mds-adm",
+   "url": "https://masterdatascience.ubc.ca/admissions/international-students",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UBC MDS — Admissions, international students"
+  },
+  {
+   "id": "ubc-mds-faq",
+   "url": "https://masterdatascience.ubc.ca/admissions/frequently-asked-questions",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UBC MDS — Admissions FAQ"
+  },
+  {
+   "id": "ucla-cs-grad-faq",
+   "url": "https://www.cs.ucla.edu/graduate-admission-frequently-asked-questions/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UCLA CS — Graduate admission FAQ"
+  },
+  {
+   "id": "ucla-cs-grad-req",
+   "url": "https://www.cs.ucla.edu/graduate-requirements/",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UCLA CS — Graduate requirements (MSCS)"
+  },
+  {
+   "id": "ucla-intl-guide",
+   "url": "https://admission.ucla.edu/sites/default/files/documents/UCLA-International-Admission-Guide-2026.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UCLA — International Admission Guide 2026"
+  },
+  {
+   "id": "ucla-seasoasa",
+   "url": "https://www.seasoasa.ucla.edu/curric-25-26/13-ugprg-admis-25.html",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UCLA Samueli — 2025-2026 Undergraduate Programs & Admission"
+  },
+  {
+   "id": "uq-cs-mds",
+   "url": "https://study.uq.edu.au/study-options/programs/bachelor-computer-science-master-data-science-2561",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UQ — Bachelor of Computer Science / Master of Data Science"
+  },
+  {
+   "id": "uq-entry-guide",
+   "url": "https://study.uq.edu.au/sites/default/files/2026-09/International-minimum-entry-score-guide.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UQ — International minimum entry score guide (2026-09)"
+  },
+  {
+   "id": "uq-mcs",
+   "url": "https://study.uq.edu.au/study-options/programs/master-computer-science-5522",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UQ — Master of Computer Science"
+  },
+  {
+   "id": "uq-mds",
+   "url": "https://study.uq.edu.au/study-options/programs/master-data-science-5660?studentType=international&utm_source=topuniversities.com&utm_medium=referral&utm_campaign=int-qstu",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "UQ — Master of Data Science"
+  },
+  {
+   "id": "yonsei-cs-board",
+   "url": "https://design.yonsei.ac.kr/csai_en/board/facultyBoard.do?mode=view&articleNo=466833&article.offset=0&articleLimit=10",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Yonsei CSAI — Computer Science and Engineering (graduate)"
+  },
+  {
+   "id": "yonsei-grad-guide",
+   "url": "https://graduate.yonsei.ac.kr/_res/graduate/etc/s_f_guide_2026-2_e.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Yonsei Graduate School — 2026-2 application guide (Eng)"
+  },
+  {
+   "id": "yonsei-intl-guide",
+   "url": "https://www2.yonsei.ac.kr/entrance/2026/intl/2026.3_Int_Application_Guide(Eng).pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "Yonsei — 2026.3 International Application Guide (Eng)"
+  },
+  {
+   "id": "zju-automation",
+   "url": "http://www.cse.zju.edu.cn/cseenglish/2022/1115/c39728a2678725/page.htm",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ZJU CSE — Automation International Undergraduate Program"
+  },
+  {
+   "id": "zju-zjui-handbook",
+   "url": "https://zjui.intl.zju.edu.cn/sites/default/files/2023-02/2023%20ZJUI%20Admission%20Handbook_0.pdf",
+   "retrieved_at": "2026-11-25T12:00:00Z",
+   "title": "ZJU-UIUC Institute — 2023 Admission Handbook"
+  },
+  {
+   "id": "adelaide-cs-ai",
+   "url": "https://adelaide.edu.au/study/degrees/bachelor-of-computer-science-artificial-intelligence-and-machine-learning/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Bachelor of Computer Science (Artificial Intelligence and Machine Learning)"
+  },
+  {
+   "id": "adelaide-cs-hons",
+   "url": "https://adelaideuni.edu.au/study/degrees/bachelor-of-computer-science-honours/dom/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Bachelor of Computer Science (Honours)"
+  },
+  {
+   "id": "adelaide-mds",
+   "url": "https://adelaide.edu.au/study/degrees/master-of-data-science/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Master of Data Science"
+  },
+  {
+   "id": "alberta-ai-bsc",
+   "url": "https://www.ualberta.ca/en/undergraduate-programs/bachelor-of-science-with-honors-computing-science-artificial-intelligence-option.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "BSc with Honors Computing Science – Artificial Intelligence Option"
+  },
+  {
+   "id": "alberta-calendar",
+   "url": "https://calendar.ualberta.ca/preview_program.php?catoid=56&poid=83565",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computing Science MSc (University Calendar)"
+  },
+  {
+   "id": "boston-grad-adm",
+   "url": "https://www.bu.edu/cds-faculty/programs-admissions/graduate-admissions-requirements/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Graduate admissions requirements (CDS)"
+  },
+  {
+   "id": "boston-met-manual",
+   "url": "https://www.bu.edu/csmet/academic-programs/met-computer-science-academic-policies-manual/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "MS in Computer Science academic policies manual (Metropolitan College)"
+  },
+  {
+   "id": "boston-msds-adm",
+   "url": "https://www.bu.edu/cds-faculty/programs-admissions/ms-data-science/msds-admissions-requirements/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "MS in Data Science admissions requirements"
+  },
+  {
+   "id": "copenhagen-cs",
+   "url": "https://www.ku.dk/fileadmin/site-2596/Studieordninger/Science/datalogi/MSc_Computer_Science_STO.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "MSc Computer Science curriculum"
+  },
+  {
+   "id": "copenhagen-sds",
+   "url": "https://www.ku.dk/studies/masters/social-data-science",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Social Data Science MSc"
+  },
+  {
+   "id": "durham-advcs-msc",
+   "url": "https://www.durham.ac.uk/study/courses/advanced-computer-science-g5t609/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Advanced Computer Science MSc"
+  },
+  {
+   "id": "durham-dept",
+   "url": "https://www.durham.ac.uk/departments/academic/computer-science/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Department of Computer Science"
+  },
+  {
+   "id": "fu-berlin-cs-master",
+   "url": "http://www.mi.fu-berlin.de/en/inf/stud/master/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Master in Computer Science"
+  },
+  {
+   "id": "fu-berlin-ds",
+   "url": "https://www.fu-berlin.de/en/studium/studienangebot/master/data-science/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Data Science MSc"
+  },
+  {
+   "id": "fu-berlin-ds-mi",
+   "url": "https://www.mi.fu-berlin.de/en/data-science/prospective-students/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Data Science (Department of Mathematics and Computer Science)"
+  },
+  {
+   "id": "glasgow-cs-bsc",
+   "url": "https://www.gla.ac.uk/undergraduate/degrees/computingscience/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computing Science BSc (Hons) / MSci"
+  },
+  {
+   "id": "glasgow-cs-msc",
+   "url": "https://www.gla.ac.uk/postgraduate/taught/computingscience/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computing Science MSc"
+  },
+  {
+   "id": "glasgow-ds-ai-msc",
+   "url": "https://www.gla.ac.uk/postgraduate/taught/data-science-artificial-intelligence/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Data Science & Artificial Intelligence MSc"
+  },
+  {
+   "id": "heidelberg-dcs",
+   "url": "https://www.uni-heidelberg.de/en/study/all-subjects/computer-science/data-and-computer-science-master",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Data and Computer Science MSc"
+  },
+  {
+   "id": "ist-niad",
+   "url": "https://jpcup.niad.ac.jp/institute/0901/1Z41.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Institute of Science Tokyo (NIAD university portal)"
+  },
+  {
+   "id": "kth-cs-msc",
+   "url": "https://www.kth.se/en/studies/2.23106/master/computer-science",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science MSc"
+  },
+  {
+   "id": "kth-csse-fee",
+   "url": "https://www.kth.se/en/studies/2.23106/master/computer-simulations-for-science-and-engineering/fees-computer-simulations-science-engineering-1.910144",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Fees for Computer Simulations for Science and Engineering"
+  },
+  {
+   "id": "kth-ml-fee",
+   "url": "https://www.kth.se/en/studies/master/machine-learning/fees-machine-learning-1.909974",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Fees and scholarships for Machine Learning"
+  },
+  {
+   "id": "leeds-advcs-da-msc",
+   "url": "https://courses.leeds.ac.uk/g314/advanced-computer-science-data-analytics-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Advanced Computer Science (Data Analytics) MSc"
+  },
+  {
+   "id": "leeds-ai-msc",
+   "url": "https://courses.leeds.ac.uk/i537/advanced-computer-science-artificial-intelligence-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Advanced Computer Science (Artificial Intelligence) MSc"
+  },
+  {
+   "id": "leeds-cs-bsc",
+   "url": "https://catalogue.leeds.ac.uk/Programme/202627?code=BSCS-R",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science BSc"
+  },
+  {
+   "id": "leeds-cs-industrial-bsc",
+   "url": "https://courses.leeds.ac.uk/202627/3262/computer-science-industrial-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science (Industrial) BSc"
+  },
+  {
+   "id": "leeds-ds-msc",
+   "url": "https://courses.leeds.ac.uk/202627/i071/data-science-and-analytics-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Data Science and Analytics MSc"
+  },
+  {
+   "id": "nanjing-ai",
+   "url": "https://hwxy.nju.edu.cn/lxnd/zsxx/yyskzy/20241113/i301654.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Master's Program in Artificial Intelligence"
+  },
+  {
+   "id": "nanjing-mct",
+   "url": "https://cs.nju.edu.cn/cs_en/52970/list.psp",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Master of Computer Technology"
+  },
+  {
+   "id": "nottingham-cs-ai-bsc",
+   "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/Computer-Science-with-Artificial-Intelligence-BSc-Hons-U6UCMPAI.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science with Artificial Intelligence BSc (Hons)"
+  },
+  {
+   "id": "nottingham-cs-bsc",
+   "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/Computer-Science-BSc-Hons.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science BSc (Hons)"
+  },
+  {
+   "id": "nottingham-ds",
+   "url": "https://www.nottingham.ac.uk/pgstudy/course/taught/Data-Science-MSc",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Data Science MSc"
+  },
+  {
+   "id": "nottingham-pg-csai",
+   "url": "https://www.nottingham.ac.uk/pgstudy/course/taught/computer-science-artificial-intelligence",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science (Artificial Intelligence) MSc"
+  },
+  {
+   "id": "nottingham-pg-index",
+   "url": "https://www.nottingham.ac.uk/computerscience/studywithus/mastersdegrees/index.aspx",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Masters degrees (School of Computer Science)"
+  },
+  {
+   "id": "osaka-guide",
+   "url": "http://www.ist.osaka-u.ac.jp/files/examinees/admission/2025/16_a_EN.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "ITSCE application guide"
+  },
+  {
+   "id": "osaka-tuition",
+   "url": "https://www.osaka-u.ac.jp/en/campus/tuition/tuition.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Tuition and fees (Osaka University)"
+  },
+  {
+   "id": "paris-saclay-cs-msc",
+   "url": "https://www.universite-paris-saclay.fr/en/education/masters-degree/computer-science",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Master in Computer Science"
+  },
+  {
+   "id": "paris-saclay-dkai",
+   "url": "https://www.universite-paris-saclay.fr/en/education/masters-degree/computer-science/m2-data-knowledge-and-hybrid-artificial-intelligence-dkai",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "M2 Data, Knowledge and Hybrid Artificial Intelligence (DKAI)"
+  },
+  {
+   "id": "penn-state-bulletins",
+   "url": "https://bulletins.psu.edu/graduate/programs/majors/computer-science-engineering/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science and Engineering (graduate bulletin)"
+  },
+  {
+   "id": "penn-state-intl",
+   "url": "https://admissions.psu.edu/info/future/international/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "International admissions (Penn State)"
+  },
+  {
+   "id": "polimi-cse",
+   "url": "https://www.polimi.it/en/education/laurea-magistrale-programmes/programme-detail/computer-science-and-engineering",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science and Engineering MSc"
+  },
+  {
+   "id": "polimi-lang",
+   "url": "https://www.polimi.it/en/students/language-requirements/students-of-laurea-magistrale-study-programmes",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Language requirements (Laurea Magistrale)"
+  },
+  {
+   "id": "polimi-tuition",
+   "url": "https://www.polimi.it/en/students/tuition-fees-scholarships-and-financial-aid/tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Tuition fees"
+  },
+  {
+   "id": "sheffield-advcs-msc",
+   "url": "https://sheffield.ac.uk/postgraduate/taught/courses/2027/advanced-computer-science-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Advanced Computer Science MSc"
+  },
+  {
+   "id": "sheffield-ai-msc",
+   "url": "https://sheffield.ac.uk/postgraduate/taught/courses/2027/artificial-intelligence-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Artificial Intelligence MSc"
+  },
+  {
+   "id": "sheffield-cyber-ai-msc",
+   "url": "http://sheffield.ac.uk/postgraduate/taught/courses/2027/cybersecurity-and-artificial-intelligence-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Cybersecurity and Artificial Intelligence MSc"
+  },
+  {
+   "id": "sheffield-ug",
+   "url": "https://sheffield.ac.uk/courses/subjects/computer-science",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science courses"
+  },
+  {
+   "id": "uba-cs",
+   "url": "https://codigo.rec.uba.ar/libro_v__exactas/libro-v-facultad-de-cs-exactas-y-naturales/titulo-12-licenciatura-en-ciencias-de-la-computacion/capitulo-a-plan-1993-y-sus-modificatorias/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Licenciatura en Ciencias de la Computación (plan 1993)"
+  },
+  {
+   "id": "ucsd-first-year",
+   "url": "https://admissions.ucsd.edu/first-year/application-requirements.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "First-year application requirements"
+  },
+  {
+   "id": "ucsd-international",
+   "url": "https://admissions.ucsd.edu/international/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "International admissions"
+  },
+  {
+   "id": "ucsd-ms-faq",
+   "url": "https://cse.ucsd.edu/graduate/graduate-admissions-faq",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "CSE graduate admissions FAQ"
+  },
+  {
+   "id": "ucsd-ms-fin",
+   "url": "https://cse.ucsd.edu/graduate/financial-opportunities",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "CSE graduate financial opportunities"
+  },
+  {
+   "id": "ucsd-ms-prog",
+   "url": "https://cse.ucsd.edu/graduate/degree-programs/ms-program",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "MS Program (CSE)"
+  },
+  {
+   "id": "uppsala-cs-syllabus",
+   "url": "https://www.uu.se/en/study/programme-syllabus?query=1779",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science MSc programme syllabus"
+  },
+  {
+   "id": "uppsala-ds-image",
+   "url": "https://www.uu.se/en/study/programme/masters-programme-data-science-image-analysis-and-machine-learning",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Data Science – Image Analysis and Machine Learning MSc"
+  },
+  {
+   "id": "uppsala-ds-ml",
+   "url": "https://www.uu.se/en/study/programme/masters-programme-data-science-machine-learning-and-statistics",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Data Science – Machine Learning and Statistics MSc"
+  },
+  {
+   "id": "uts-bai",
+   "url": "https://www.uts.edu.au/courses/bachelor-of-artificial-intelligence",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Bachelor of Artificial Intelligence"
+  },
+  {
+   "id": "uts-bai-handbook",
+   "url": "https://handbookpre2025.uts.edu.au/2024/courses/c10474.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "C10474 Bachelor of Artificial Intelligence (Handbook)"
+  },
+  {
+   "id": "uts-compsci-hons",
+   "url": "https://handbookpre2025.uts.edu.au/2023/courses/c09119.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Bachelor of Computing Science (Honours)"
+  },
+  {
+   "id": "uts-mai",
+   "url": "https://handbookpre2025.uts.edu.au/2024/courses/c04443.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Master of Artificial Intelligence (Handbook)"
+  },
+  {
+   "id": "uts-summary-2027",
+   "url": "https://dp.uat.uts.edu.au/for-students/international/guides-for-international-students/contentassets/utsi-listing-grid-international-undergraduate-course-summary-table.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "2027 International Undergraduate Course Summary Tables"
+  },
+  {
+   "id": "uwa-cs-major",
+   "url": "https://www.uwa.edu.au/study/Courses/Computer-Science",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Computer Science (major)"
+  },
+  {
+   "id": "uwa-handbook",
+   "url": "https://www.handbooks.uwa.edu.au/search/?searchtext=Computer%20Science&type=all",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "UWA Handbook course search: Computer Science"
+  },
+  {
+   "id": "uwa-mds",
+   "url": "https://www.uwa.edu.au/study/courses/master-of-data-science",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Master of Data Science"
+  },
+  {
+   "id": "uwa-mds-fee",
+   "url": "https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTPG&feeYear=2026",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "International postgraduate coursework fees 2026"
+  },
+  {
+   "id": "washington-by-numbers",
+   "url": "https://admit.washington.edu/apply/first-year/by-the-numbers/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "First-year admission by the numbers"
+  },
+  {
+   "id": "washington-coa",
+   "url": "https://admit.washington.edu/costs/coa/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Cost of attendance (admissions)"
+  },
+  {
+   "id": "washington-cost",
+   "url": "https://www.washington.edu/financialaid/cost-of-attendance/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Cost of attendance"
+  },
+  {
+   "id": "washington-msds-adm",
+   "url": "https://www.washington.edu/datasciencemasters/admission-requirements/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "MS in Data Science admission requirements"
+  },
+  {
+   "id": "washington-msds-intl",
+   "url": "https://www.washington.edu/datasciencemasters/international-students/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "MS in Data Science international students"
+  },
+  {
+   "id": "washington-msds-tuition",
+   "url": "https://www.washington.edu/datasciencemasters/tuitionfinancialaid/",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "MS in Data Science tuition and financial aid"
+  },
+  {
+   "id": "zurich-fees",
+   "url": "https://www.uzh.ch/cmsssl/en/studies/application/fees.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Tuition fees (University of Zurich)"
+  },
+  {
+   "id": "zurich-nsc",
+   "url": "https://www.nsc.uzh.ch/en/Admission.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Neural Systems and Computation — Admission"
+  },
+  {
+   "id": "zurich-spec-msc",
+   "url": "https://www.ics.uzh.ch/en/studies/msc/spec_msc_cs.html",
+   "retrieved_at": "2026-11-25T00:00:00Z",
+   "title": "Specialized Master in Computational Science"
+  }
+ ]
+}
