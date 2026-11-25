@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../lib/store';
 import { usePrograms } from '../lib/usePrograms';
 import { sampleUndergrad, sampleMasters } from '../lib/types';
+import { formatProgramLine } from '../lib/format';
+import { WelcomeModal } from '../components/WelcomeModal';
 
 export default function HomePage() {
-  const { t, setProfile } = useApp();
+  const { t, locale, setProfile } = useApp();
   const { programs, live: programsLive, loading: programsLoading } = usePrograms();
   const router = useRouter();
 
@@ -17,6 +19,7 @@ export default function HomePage() {
 
   return (
     <div className="page-enter mx-auto max-w-6xl px-4 py-8">
+      <WelcomeModal />
       {/* Hero with compass-rose / route-line draw-in */}
       <section className="grid items-center gap-8 rounded-3xl bg-navy p-8 text-white md:grid-cols-2">
         <div>
@@ -68,7 +71,7 @@ export default function HomePage() {
               <p className="text-sm font-semibold text-teal">{p.institution} · {p.country}</p>
               <h3 className="mt-1 text-lg font-bold">{p.officialName}</h3>
               <p className="mt-2 text-sm text-navy/75">
-                {p.intakeLabel} · {p.duration} · {p.feeItems.map((f) => `${f.currency} ${f.amount.toLocaleString()} ${f.period}`).join(', ')}
+                {formatProgramLine(p, t, locale)}
                 {p.ucasCode ? ` · UCAS ${p.ucasCode}` : ''}
               </p>
               <div className="mt-4 flex gap-2">

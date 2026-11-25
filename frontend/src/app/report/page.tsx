@@ -5,10 +5,12 @@ import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
 import { matchProfile } from '../../lib/api';
 import { MatchResponse } from '../../lib/types';
-import { StatusChip } from '../../components/StatusChip';
+import { RuleRow } from '../../components/RuleRow';
+import { formatProgramLine } from '../../lib/format';
 
 export default function ReportPage() {
-  const { t, profile } = useApp();
+  const { t, tf, locale, profile } = useApp();
+  const f = { t, tf, locale };
   const { programs } = usePrograms();
   const [data, setData] = useState<MatchResponse | null>(null);
 
@@ -43,6 +45,7 @@ export default function ReportPage() {
       <div className="mt-4 flex flex-wrap gap-2">
         <button type="button" onClick={downloadJson} className="btn-press rounded-full bg-navy px-5 py-2 font-semibold text-white">{t('report.downloadJson')}</button>
         <button type="button" onClick={() => window.print()} className="btn-press rounded-full border border-navy/30 bg-white px-5 py-2 font-semibold">{t('report.print')}</button>
+        <Link href="/results" className="btn-press rounded-full border border-navy/30 bg-white px-5 py-2 font-semibold">{t('report.backToResults')}</Link>
       </div>
       <div className="mt-6 space-y-4">
         {(data?.results ?? []).map((r) => {
@@ -51,12 +54,11 @@ export default function ReportPage() {
           return (
             <section key={r.programId} className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-bold">{p.institution} — {p.officialName}</h2>
-              <p className="text-sm text-navy/70">{p.intakeLabel} · {p.feeItems.map((f) => `${f.currency} ${f.amount.toLocaleString()} ${f.period}`).join(', ')}</p>
+              <p className="text-sm text-navy/70">{formatProgramLine(p, t, locale)}</p>
               <ul className="mt-3 space-y-2">
                 {r.ruleResults.map((rule) => (
-                  <li key={rule.ruleId} className="flex flex-wrap items-center justify-between gap-2 border-b border-navy/5 pb-2 text-sm">
-                    <span>{rule.expected} — <span className="text-navy/70">{rule.observed}</span></span>
-                    <StatusChip status={rule.status} />
+                  <li key={rule.ruleId} className="border-b border-navy/5 pb-2">
+                    <RuleRow program={p} rule={rule} />
                   </li>
                 ))}
               </ul>
