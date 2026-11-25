@@ -10,6 +10,7 @@ import { displayProgramName } from '../../lib/programs';
 import { displayProgramInstitutionName } from '../../lib/rankings';
 import { StatusChip } from '../../components/StatusChip';
 import { RuleRow } from '../../components/RuleRow';
+import { CompassFace } from '../../components/CompassPet';
 import { ViewTransitionLink } from '../../components/ViewTransitionLink';
 import { vtRef } from '../../lib/viewTransition';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
@@ -40,8 +41,9 @@ export default function ResultsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.track, JSON.stringify(profile.targetProgramIds)]);
 
-  // A completed check suppresses the homepage welcome modal (fix
-  // 2026-11-25): the modal shows only while no check has ever completed.
+  // A completed check is remembered so the homepage banner can greet
+  // returning users with their results (2026-11-25: the banner shows
+  // every session; this flag only switches its copy).
   useEffect(() => {
     if (data && data.results.length > 0) {
       try { localStorage.setItem('pp-check-done', '1'); } catch { /* ignore */ }
@@ -136,6 +138,29 @@ export default function ResultsPage() {
             <Link href="/wizard" className="btn-press rounded-full border border-navy/30 bg-white px-4 py-1.5 text-sm font-semibold">{t('results.prefEdit')}</Link>
           </div>
           <p className="mt-1 text-sm text-navy/80">{prefSummary(profile, t)}</p>
+          {/* Pet-voiced line (2026-11-25): not just a field list. Only
+              countries / cities that actually appear in the verified
+              results are named — the country line is true because
+              matching programmes carry the preference hint chip below. */}
+          {(() => {
+            const matchedCountries = (profile.prefCountries ?? []).filter((c) => resultCountries.includes(c));
+            const wantCity = (profile.prefCity ?? '').trim().toLowerCase();
+            const cityCount = wantCity ? resultPrograms.filter((p) => (p.city ?? '').toLowerCase() === wantCity).length : 0;
+            if (matchedCountries.length === 0 && cityCount === 0) return null;
+            return (
+              <div className="mt-3 flex items-start gap-2">
+                <span className="inline-flex shrink-0 rounded-full bg-teal/10 p-0.5"><CompassFace size={32} mood="idle" /></span>
+                <div className="text-sm">
+                  {matchedCountries.length > 0 && (
+                    <p>{tf('results.prefVoiceCountries', { countries: matchedCountries.map((c) => t(`country.${c}`)).join(locale === 'zh-CN' ? '、' : ', ') })}</p>
+                  )}
+                  {cityCount > 0 && (
+                    <p className={matchedCountries.length > 0 ? 'mt-1' : ''}>{tf('results.prefVoiceCity', { city: profile.prefCity ?? '', count: cityCount })}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
           {profile.prefSalary !== '' && profile.prefSalary !== undefined && (
             <>
               <p className="mt-2 text-sm font-semibold">{tf('results.prefSalaryLine', { salary: `${profile.prefSalary} ${profile.prefSalaryCurrency ?? ''}`.trim() })}</p>

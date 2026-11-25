@@ -77,11 +77,14 @@ def test_render_sites_use_display_helpers():
     raw officialName, on every page that shows a programme title."""
     pages = [
         ROOT / "frontend" / "src" / "app" / "page.tsx",
-        ROOT / "frontend" / "src" / "app" / "wizard" / "page.tsx",
         ROOT / "frontend" / "src" / "app" / "results" / "page.tsx",
         ROOT / "frontend" / "src" / "app" / "report" / "page.tsx",
         ROOT / "frontend" / "src" / "app" / "institutions" / "[id]" / "page.tsx",
         ROOT / "frontend" / "src" / "app" / "programs" / "[id]" / "page.tsx",
+        # The wizard's recommendation titles moved to RecChat
+        # (2026-11-25: the recommend step became a chat); the wizard
+        # page itself renders no programme title anymore.
+        ROOT / "frontend" / "src" / "components" / "RecChat.tsx",
     ]
     for page in pages:
         src = page.read_text(encoding="utf-8")

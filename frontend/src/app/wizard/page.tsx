@@ -1,16 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
 import { evaluateLocal, matchProfile } from '../../lib/api';
 import { sampleUndergrad, sampleMasters, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
-import { formatFeeItems, formatIntake } from '../../lib/format';
-import { displayProgramTitle } from '../../lib/programs';
-import { PREF_COUNTRY_CODES, prefSummary } from '../../lib/preferences';
-import { StatusChip } from '../../components/StatusChip';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
+import { PrefChat } from '../../components/PrefChat';
+import { RecChat } from '../../components/RecChat';
 
 // Flow (fixes 2026-11-25, user testing): field/direction FIRST, then
 // conditions, then preferences, and only then recommendations. Programmes
@@ -38,26 +35,6 @@ function NumField({ label, value, onChange, step = '0.1', min, max }: { label: s
         onChange={(e) => { const v = e.target.value; onChange(v === '' ? '' : Number(v)); }}
         className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2" />
     </label>
-  );
-}
-
-/** One preference question: a sentence, quick-reply chips, and an optional
- * free-text line. Nothing here is required — every question can be skipped. */
-function PrefQuestion({ q, children }: { q: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <p className="font-semibold">{q}</p>
-      <div className="mt-2 space-y-2">{children}</div>
-    </div>
-  );
-}
-
-function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button type="button" onClick={onClick} aria-pressed={on}
-      className={`btn-press rounded-full border-2 px-3 py-1.5 text-sm font-semibold ${on ? 'border-teal bg-teal/5 text-teal-dark' : 'border-navy/15 bg-white'}`}>
-      {children}
-    </button>
   );
 }
 
@@ -207,24 +184,6 @@ export default function WizardPage() {
     { id: 'medicine', title: t('wizard.fieldMedicine') },
     { id: 'humanities', title: t('wizard.fieldHumanities') },
     { id: 'arts', title: t('wizard.fieldArts') },
-  ];
-
-  /** The free-text box for a single-choice question shows the value only
-   * when it is NOT one of the chips (a chip value would show as a raw
-   * enum). Typing replaces the chip choice. */
-  const freeTextOf = (v: string | undefined, chipValues: string[]) =>
-    v && !chipValues.includes(v) ? v : '';
-  const toggleCountry = (code: string) => {
-    const cur = profile.prefCountries ?? [];
-    updateProfile({ prefCountries: cur.includes(code) ? cur.filter((c) => c !== code) : [...cur, code] });
-  };
-  const summaryRows: [string, string][] = [
-    [t('wizard.stepCurriculum'), curricula.find((c) => c.id === profile.curriculum)?.title ?? '—'],
-    [t('wizard.trackTitle'), profile.track === 'undergraduate' ? t('wizard.trackUndergrad') : profile.track === 'taught_masters' ? t('wizard.trackMasters') : '—'],
-    [t('wizard.stepField'), fields.find((f) => f.id === profile.field)?.title ?? '—'],
-    [t('wizard.stepBudget'), profile.budget !== '' && profile.budget !== undefined ? `${profile.budget} ${profile.budgetCurrency ?? ''}`.trim() : '—'],
-    [t('wizard.intakeYear'), profile.intakeYear !== '' && profile.intakeYear !== undefined ? String(profile.intakeYear) : '—'],
-    [t('wizard.stepPreferences'), prefSummary(profile, t) || '—'],
   ];
 
   return (
@@ -446,129 +405,18 @@ export default function WizardPage() {
         )}
 
         {step === 6 && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-bold">{t('wizard.prefTitle')}</h2>
-            <p className="text-sm text-navy/70">{t('wizard.prefNote')}</p>
-            <button type="button" onClick={next} className="btn-press text-sm font-semibold text-teal-dark underline underline-offset-2">{t('wizard.prefSkip')}</button>
-
-            <PrefQuestion q={t('wizard.prefClimateQ')}>
-              <div className="flex flex-wrap gap-2">
-                {([['warm', t('wizard.prefClimateWarm')], ['cool', t('wizard.prefClimateCool')], ['four_seasons', t('wizard.prefClimateFourSeasons')], ['mild', t('wizard.prefClimateMild')]] as [string, string][]).map(([v, label]) => (
-                  <Chip key={v} on={profile.prefClimate === v} onClick={() => updateProfile({ prefClimate: profile.prefClimate === v ? '' : v })}>{label}</Chip>
-                ))}
-              </div>
-              <input value={freeTextOf(profile.prefClimate, ['warm', 'cool', 'four_seasons', 'mild'])} onChange={(e) => updateProfile({ prefClimate: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
-            </PrefQuestion>
-
-            <PrefQuestion q={t('wizard.prefCountriesQ')}>
-              <div className="flex flex-wrap gap-2">
-                {PREF_COUNTRY_CODES.map((code) => (
-                  <Chip key={code} on={(profile.prefCountries ?? []).includes(code)} onClick={() => toggleCountry(code)}>{t(`country.${code}`)}</Chip>
-                ))}
-              </div>
-              <input value={profile.prefCountriesNote ?? ''} onChange={(e) => updateProfile({ prefCountriesNote: e.target.value })} placeholder={t('wizard.prefCountriesOther')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
-            </PrefQuestion>
-
-            <PrefQuestion q={t('wizard.prefEnvironmentQ')}>
-              <div className="flex flex-wrap gap-2">
-                {([['big_city', t('wizard.prefEnvironmentBigCity')], ['small_city', t('wizard.prefEnvironmentSmallCity')], ['campus', t('wizard.prefEnvironmentCampus')], ['quiet_town', t('wizard.prefEnvironmentQuietTown')]] as [string, string][]).map(([v, label]) => (
-                  <Chip key={v} on={profile.prefEnvironment === v} onClick={() => updateProfile({ prefEnvironment: profile.prefEnvironment === v ? '' : v })}>{label}</Chip>
-                ))}
-              </div>
-              <input value={freeTextOf(profile.prefEnvironment, ['big_city', 'small_city', 'campus', 'quiet_town'])} onChange={(e) => updateProfile({ prefEnvironment: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
-            </PrefQuestion>
-
-            <PrefQuestion q={t('wizard.prefCityQ')}>
-              <div className="flex flex-wrap gap-2">
-                {['London', 'Singapore', 'Boston', 'Toronto'].map((city) => (
-                  <Chip key={city} on={profile.prefCity === city} onClick={() => updateProfile({ prefCity: profile.prefCity === city ? '' : city })}>{city}</Chip>
-                ))}
-              </div>
-              <input value={profile.prefCity && !['London', 'Singapore', 'Boston', 'Toronto'].includes(profile.prefCity) ? profile.prefCity : ''} onChange={(e) => updateProfile({ prefCity: e.target.value })} placeholder={t('wizard.prefCityPlaceholder')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
-            </PrefQuestion>
-
-            <PrefQuestion q={t('wizard.prefAfterGradQ')}>
-              <div className="flex flex-wrap gap-2">
-                {([['stay', t('wizard.prefAfterGradStay')], ['return_home', t('wizard.prefAfterGradReturnHome')], ['hometown', t('wizard.prefAfterGradHometown')], ['undecided', t('wizard.prefAfterGradUndecided')]] as [string, string][]).map(([v, label]) => (
-                  <Chip key={v} on={profile.prefAfterGrad === v} onClick={() => updateProfile({ prefAfterGrad: profile.prefAfterGrad === v ? '' : v })}>{label}</Chip>
-                ))}
-              </div>
-              <input value={freeTextOf(profile.prefAfterGrad, ['stay', 'return_home', 'hometown', 'undecided'])} onChange={(e) => updateProfile({ prefAfterGrad: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
-            </PrefQuestion>
-
-            <PrefQuestion q={t('wizard.prefSalaryQ')}>
-              <div className="grid max-w-md grid-cols-2 gap-3">
-                <label className="block"><span className="text-sm font-semibold">{t('wizard.prefSalaryQ')}</span>
-                  <input type="number" step="1" min={0} value={profile.prefSalary ?? ''} inputMode="decimal"
-                    onChange={(e) => { const v = e.target.value; updateProfile({ prefSalary: v === '' ? '' : Number(v) }); }}
-                    placeholder={t('wizard.prefSalaryPlaceholder')} className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2" /></label>
-                <label className="block"><span className="text-sm font-semibold">{t('wizard.prefSalaryCurrency')}</span>
-                  <select value={profile.prefSalaryCurrency ?? 'GBP'} onChange={(e) => updateProfile({ prefSalaryCurrency: e.target.value })} className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2">
-                    <option value="GBP">GBP</option><option value="SGD">SGD</option><option value="USD">USD</option>
-                  </select></label>
-              </div>
-            </PrefQuestion>
-
-            <PrefQuestion q={t('wizard.prefPressureQ')}>
-              <div className="flex flex-wrap gap-2">
-                {([['low', t('wizard.prefPressureLow')], ['medium', t('wizard.prefPressureMedium')], ['high', t('wizard.prefPressureHigh')]] as [string, string][]).map(([v, label]) => (
-                  <Chip key={v} on={profile.prefPressure === v} onClick={() => updateProfile({ prefPressure: profile.prefPressure === v ? '' : v })}>{label}</Chip>
-                ))}
-              </div>
-              <input value={freeTextOf(profile.prefPressure, ['low', 'medium', 'high'])} onChange={(e) => updateProfile({ prefPressure: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
-            </PrefQuestion>
-
-            <PrefQuestion q={t('wizard.prefTeachingQ')}>
-              <div className="flex flex-wrap gap-2">
-                {([['lecture', t('wizard.prefTeachingLecture')], ['seminar', t('wizard.prefTeachingSeminar')], ['hands_on', t('wizard.prefTeachingHandsOn')]] as [string, string][]).map(([v, label]) => (
-                  <Chip key={v} on={profile.prefTeaching === v} onClick={() => updateProfile({ prefTeaching: profile.prefTeaching === v ? '' : v })}>{label}</Chip>
-                ))}
-              </div>
-              <input value={freeTextOf(profile.prefTeaching, ['lecture', 'seminar', 'hands_on'])} onChange={(e) => updateProfile({ prefTeaching: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
-            </PrefQuestion>
-          </div>
+          <PrefChat onDone={next} />
         )}
 
         {step === 7 && (
           <div>
-            <h2 className="text-lg font-bold">{t('wizard.recommendTitle')}</h2>
-            <p className="mt-2 text-sm text-navy/70">{t('wizard.recommendNote')}</p>
-
-            <dl className="mt-4 space-y-2 rounded-2xl border border-navy/10 bg-paper p-4 text-sm">
-              {summaryRows.map(([label, value]) => (
-                <div key={label} className="flex flex-wrap gap-x-3">
-                  <dt className="font-semibold text-navy/60">{label}</dt>
-                  <dd className="font-semibold">{value}</dd>
-                </div>
-              ))}
-            </dl>
-
-            {recLoading && <p className="mt-4 text-sm text-navy/60">{t('wizard.recommendLoading')}</p>}
-            {!recLoading && recs !== null && recs.length === 0 && (
-              <div className="mt-4 rounded-2xl border border-navy/10 bg-paper p-5">
-                <p className="font-bold">{t('wizard.recommendEmpty')}</p>
-                <p className="mt-2 text-sm text-navy/70">{t('wizard.recommendEmptyNote')}</p>
-                <Link href="/rankings" className="btn-press mt-3 inline-block rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">{t('nav.rankings')}</Link>
-              </div>
-            )}
-            {!recLoading && recs !== null && recs.length > 0 && (
-              <div className="mt-4 space-y-3">
-                {recs.map((r) => {
-                  const p = programs.find((x) => x.id === r.programId);
-                  if (!p) return null;
-                  const summaryLabel = r.eligibilitySummary === 'MET' ? t('wizard.recMet') : r.eligibilitySummary === 'PARTIAL_UNKNOWN' ? t('wizard.recPartial') : t('wizard.recNotMet');
-                  return (
-                    <div key={r.programId} className="rounded-2xl border border-navy/15 bg-white p-4">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold">{displayProgramTitle(p, locale)}</span>
-                        <StatusChip status={r.eligibilitySummary} label={summaryLabel} />
-                      </span>
-                      <span className="block text-sm text-navy/70">{formatIntake(p, t)} · {formatFeeItems(p, t, locale)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <RecChat
+              recs={recs}
+              recLoading={recLoading}
+              programs={programs}
+              onViewResults={finish}
+              onEditPrefs={() => setStep(6)}
+            />
             <div className="mt-4 max-w-xs">
               <NumField label={t('wizard.intakeYear')} value={profile.intakeYear} onChange={(v) => updateProfile({ intakeYear: v })} step="1" min={2026} max={2030} />
             </div>
@@ -581,9 +429,14 @@ export default function WizardPage() {
           <button type="button" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="btn-press rounded-full border border-navy/30 px-5 py-2 font-semibold disabled:opacity-40">{t('wizard.back')}</button>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={loadSample} className="btn-press rounded-full border border-teal px-4 py-2 text-sm font-semibold text-teal-dark">{t('wizard.sampleProfile')}</button>
-            {step < STEPS.length - 1
-              ? <button type="button" onClick={next} className="btn-press rounded-full bg-navy px-5 py-2 font-semibold text-white">{t('wizard.next')}</button>
-              : <button type="button" onClick={finish} className="btn-press rounded-full bg-amber px-5 py-2 font-semibold text-navy">{t('wizard.finish')}</button>}
+            {/* Chat steps (6 preferences, 7 recommend) drive their own
+                forward navigation from inside the conversation — no
+                duplicate Next / Finish button down here. */}
+            {step < 6 && (
+              step < STEPS.length - 1
+                ? <button type="button" onClick={next} className="btn-press rounded-full bg-navy px-5 py-2 font-semibold text-white">{t('wizard.next')}</button>
+                : <button type="button" onClick={finish} className="btn-press rounded-full bg-amber px-5 py-2 font-semibold text-navy">{t('wizard.finish')}</button>
+            )}
           </div>
         </div>
       </div>

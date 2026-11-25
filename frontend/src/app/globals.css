@@ -83,6 +83,15 @@ body { background: #F7F5F0; color: #0B1F3A; }
    not from a heavier border. Replaces shadow-sm on feature cards. */
 .card-surface { box-shadow: 0 1px 2px rgba(11,31,58,.06), 0 8px 24px rgba(11,31,58,.08); }
 
+/* ---- Fan carousel (2026-11-25, Animated Testimonials layout) ----
+   Entrance flip-fade for the cards; the fan positions themselves
+   (scale / rotateY / opacity) transition on .fan-card so switching
+   glides. Side cards return to full opacity on hover. */
+@keyframes fan-flip-in { from { opacity: 0; transform: perspective(1200px) rotateY(-32deg) translateY(16px); } to { opacity: 1; transform: perspective(1200px) rotateY(0deg) translateY(0); } }
+.anim-fan-flip { animation: fan-flip-in .7s var(--ease-enter) both; }
+.fan-card { transition: transform .55s var(--ease-enter), opacity .55s var(--ease-enter); will-change: transform, opacity; }
+.fan-side:hover { opacity: 1 !important; }
+
 /* ---- 3D perspective helpers (ref 2: tessel tilted panel) ---- */
 .perspective-1200 { perspective: 1200px; }
 .tilt-panel { transform: rotateX(7deg) rotateY(-5deg); transform-style: preserve-3d; transition: transform .35s var(--ease-enter); }

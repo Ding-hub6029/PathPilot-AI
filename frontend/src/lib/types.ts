@@ -290,6 +290,35 @@ export interface SuccessCase {
   collectedDate: string;
 }
 
+// --- School reviews (Day 3, netizen-shared school reviews) -------------
+// Mirrored from data/expansions/school_reviews.json by
+// tools/generate_frontend_mirrors.py (frontend/src/lib/reviews.ts).
+// Netizen-shared impressions, NOT officially verified. Missing fields
+// stay null; the UI renders nothing for them. No rating / stars exist
+// in this data — the UI never shows any. `quote` is the verbatim
+// English original from the source page; `quoteZh` is the collector's
+// own Chinese translation, for reference only.
+export interface SchoolReview {
+  id: string;
+  institutionId?: string | null;
+  institution: string;
+  programme?: string | null;
+  /** 'undergraduate' | 'taught_masters' | null. */
+  level?: string | null;
+  authorDisplay?: string | null;
+  /** Platform the review was collected from ('Shiksha', 'StudentCrowd'). */
+  source?: string | null;
+  sourceUrl?: string | null;
+  postedDate?: string | null;
+  /** Verbatim English quote from the source page. */
+  quote: string;
+  quoteLang?: string | null;
+  /** Collector's Chinese translation of the quote, reference only. */
+  quoteZh?: string | null;
+  label?: string | null; // "网友分享，未经官方核实" when present
+  collectedDate?: string | null;
+}
+
 export const DATA_VERSION = 'v2';
 export const RULES_VERSION = 'rules-v2-2026-11-25';
 

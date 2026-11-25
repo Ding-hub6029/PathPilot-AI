@@ -10,10 +10,14 @@ import { displayProgramInstitutionName } from '../lib/rankings';
 import { WelcomeBanner } from '../components/WelcomeBanner';
 import { TimelinePanel } from '../components/TimelinePanel';
 import { CaseCard } from '../components/CaseCard';
-import { NewsSection } from '../components/NewsSection';
+import { NewsCard } from '../components/NewsCard';
+import { ReviewCard } from '../components/ReviewCard';
+import { FanCarousel } from '../components/FanCarousel';
 import { ViewTransitionLink } from '../components/ViewTransitionLink';
 import { vtRef } from '../lib/viewTransition';
-import { SUCCESS_CASES, FEATURED_CASE_IDS } from '../lib/cases';
+import { SUCCESS_CASES } from '../lib/cases';
+import { NEWS_ITEMS, POLICY_ITEMS } from '../lib/news';
+import { SCHOOL_REVIEWS } from '../lib/reviews';
 
 export default function HomePage() {
   const { t, locale, setProfile } = useApp();
@@ -29,10 +33,6 @@ export default function HomePage() {
     setProfile(which === 'ug' ? sampleUndergrad : sampleMasters);
     router.push('/results');
   };
-
-  const featuredCases = FEATURED_CASE_IDS
-    .map((id) => SUCCESS_CASES.find((c) => c.id === id))
-    .filter((c): c is NonNullable<typeof c> => c !== undefined);
 
   return (
     <>
@@ -88,30 +88,47 @@ export default function HomePage() {
       </section>
 
       {/* Success cases first (user 2026-11-25): the homepage top shows
-          real applicant-shared cases, not programme names. Header spans
-          8 of 12 columns (research move 5) — the 4 empty cells on the
-          right are deliberate. */}
-      <section className="section-rule mt-10" aria-labelledby="home-cases-title">
-        <div className="grid-12">
-          <div className="md:col-span-8">
-            <h2 id="home-cases-title" className="line-mask text-2xl font-bold"><span>{t('home.casesTitle')}</span></h2>
-            <p className="mt-1 text-sm text-navy/70">{t('home.casesSub')}</p>
-          </div>
-        </div>
-        <div className="grid-12 mt-4">
-          {featuredCases.map((c) => (
-            <div key={c.id} className="md:col-span-6">
-              <CaseCard c={c} />
-            </div>
-          ))}
-        </div>
-        <p className="mt-4">
-          <Link href="/cases" className="btn-press inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.casesViewAll')}</Link>
-        </p>
-      </section>
+          real applicant-shared cases, not programme names — now as a
+          3D fan carousel over all 55 cases (no stars: no rating data). */}
+      <FanCarousel
+        titleId="home-cases-title"
+        title={t('home.casesTitle')}
+        note={t('home.casesSub')}
+        items={SUCCESS_CASES}
+        renderCard={(c) => <CaseCard c={c} dark />}
+        prevLabel={t('home.carouselPrev')}
+        nextLabel={t('home.carouselNext')}
+      />
+      <p className="mt-4">
+        <Link href="/cases" className="btn-press inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.casesViewAll')}</Link>
+      </p>
 
-      {/* Latest news & policy from verified official pages and feeds. */}
-      <NewsSection />
+      {/* Latest news & policy from verified official pages and feeds —
+          same fan carousel; link-outs only, titles + one-line summaries. */}
+      <FanCarousel
+        titleId="home-news-title"
+        title={t('home.newsTitle')}
+        note={`${t('home.newsSub')} ${t('evidence.englishOnly')} · ${t('home.newsChecked')}`}
+        items={[...NEWS_ITEMS, ...POLICY_ITEMS]}
+        renderCard={(n) => <NewsCard n={n} />}
+        prevLabel={t('home.carouselPrev')}
+        nextLabel={t('home.carouselNext')}
+      />
+
+      {/* School reviews, same fan carousel. Hidden until the reviews
+          data file lands (the mirror is an empty array meanwhile) —
+          the section must never render an empty carousel. */}
+      {SCHOOL_REVIEWS.length > 0 && (
+        <FanCarousel
+          titleId="home-reviews-title"
+          title={t('home.reviewsTitle')}
+          note={t('home.reviewsSub')}
+          items={SCHOOL_REVIEWS}
+          renderCard={(r) => <ReviewCard r={r} />}
+          prevLabel={t('home.carouselPrev')}
+          nextLabel={t('home.carouselNext')}
+        />
+      )}
 
       {/* How it works */}
       <section className="section-rule mt-10">

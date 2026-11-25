@@ -60,3 +60,40 @@ def test_cases_mirror_matches_source():
     assert "FEATURED_CASE_IDS" in text
     for fid in ["sc-001", "sc-026", "sc-051", "sc-033", "sc-012", "sc-054"]:
         assert fid in src_ids
+
+
+REVIEWS_SRC = ROOT / "data" / "expansions" / "school_reviews.json"
+REVIEWS_TS = ROOT / "frontend" / "src" / "lib" / "reviews.ts"
+
+
+def test_reviews_mirror_matches_source():
+    # The source file is collected by another agent; it may not exist
+    # yet — in that case the mirror must be the empty array (the
+    # generator writes it), never a stale copy.
+    if not REVIEWS_SRC.exists():
+        assert json.loads(REVIEWS_TS.read_text(encoding="utf-8").split("=", 1)[1].rstrip(";\n")) == []
+        return
+    src = json.loads(REVIEWS_SRC.read_text(encoding="utf-8"))
+    src_ids = {r["id"] for r in src["reviews"]}
+    assert len(src_ids) == len(src["reviews"])  # ids unique
+    text = REVIEWS_TS.read_text(encoding="utf-8")
+    ts_ids = set(re.findall(r'"id":"([a-z0-9][a-z0-9\-]*)","institutionId"', text))
+    assert ts_ids == src_ids
+    # Every review keeps a verbatim quote, the unverified label and a
+    # source URL; no review gains a rating — there is no rating data.
+    for r in src["reviews"]:
+        assert (r.get("quote") or "").strip(), r["id"]
+        assert r["label"] == "网友分享，未经官方核实", r["id"]
+        assert r["source_url"], r["id"]
+        assert "rating" not in r and "stars" not in r, r["id"]
+    assert '"rating"' not in text and '"stars"' not in text
+
+
+def test_carousel_cards_have_no_stars():
+    # The reference video's cards show 5 stars; PathPilot has no rating
+    # data anywhere, so no carousel card may render one.
+    root = ROOT / "frontend" / "src" / "components"
+    for name in ["CaseCard.tsx", "NewsCard.tsx", "ReviewCard.tsx", "FanCarousel.tsx"]:
+        text = (root / name).read_text(encoding="utf-8")
+        assert "★" not in text and "☆" not in text, name
+        assert '"rating"' not in text and "rating=" not in text, name

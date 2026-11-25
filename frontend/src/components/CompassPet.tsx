@@ -215,7 +215,7 @@ function rankOffline(message: string): AssistantReply | null {
   };
 }
 
-type PetMood = 'idle' | 'think' | 'celebrate' | 'empathise' | 'bored';
+export type PetMood = 'idle' | 'think' | 'celebrate' | 'empathise' | 'bored';
 
 /** Mouth per mood — the face is the state machine's display. */
 const MOUTH: Record<PetMood, string> = {
@@ -226,7 +226,10 @@ const MOUTH: Record<PetMood, string> = {
   bored: 'M31 51 L41 51',
 };
 
-function CompassFace({
+/** The pet face, shared with the wizard's chat steps (PrefChat / RecChat)
+ * so the same state machine (idle / blink / think / celebrate /
+ * empathise / bored) shows there too — the face moves with the chat. */
+export function CompassFace({
   size = 56,
   mood = 'idle',
   eyesRef,
