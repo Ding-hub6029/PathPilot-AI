@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AppProvider } from '../lib/store';
 import Header from '../components/Header';
+import { CompassPet } from '../components/CompassPet';
 
 export const metadata: Metadata = {
   title: 'PathPilot AI — Evidence-based university selection',
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppProvider>
           <Header />
           <main>{children}</main>
+          <CompassPet />
           <footer className="mx-auto max-w-6xl px-4 pb-10 pt-6 text-center text-sm text-navy/70">
             PathPilot AI — Global AI Builder&apos;s Challenge 2026 · Day 1
           </footer>

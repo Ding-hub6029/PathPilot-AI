@@ -38,15 +38,32 @@ ranks only, verified one by one from each provider's official source on
 `docs/RANKINGS_SOURCES.md`). QS values shown with the exact QS attribution
 notice; THE values labelled "reproduction consent not obtained"; ARWU
 "reuse permission not verified". No combined/average rank across providers
-(BR15); rankings never affect eligibility (BR16). 103 tests passing, 351
-i18n keys × 6 locales, `npm run build` pass. The 12 original entries are
-unchanged; institution names were normalised across providers (35 merged
-variant groups, e.g. EPFL, PSL, KAIST, LMU; the two NTUs kept distinct).
-Institution pages carry a compiled IELTS reference transcribed from the
+(BR15); rankings never affect eligibility (BR16). Institution pages carry a compiled IELTS reference transcribed from the
 user-supplied THE 2027 table images, labelled as a reference in all 6
 locales and never used by the eligibility engine; verified programmes
 link to their full detail, other institutions show "programme admission
-data not yet verified".
+data not yet verified". Language fix 2026-11-25: 127 of the 148
+institutions carry a verified Chinese display name (`name_zh`, from the
+user-supplied THE/ARWU table images, THE preferred on conflicts, plus
+National Taiwan University and Korea University verified on their official
+sites; the 21 QS-only institutions without one fall back to English) and
+country names are localised in all 6 locales — in zh-CN the institution
+and programme pages show the Chinese names, everywhere else the English
+official names. The `/rankings` page itself still renders English names
+until the same display helpers are applied there (see DECISIONS.md #97).
+
+Day 3 desktop-pet assistant 小罗盘 (complete 2026-11-25, not yet pushed):
+a small round compass mascot floating bottom-end on every page; click opens
+a chat panel with at most 3 opening questions (undergraduate/masters,
+UK/Singapore, budget — one-tap quick replies), then a short route
+suggestion (max 3 lines, conclusion first, ONE evidence link) plus
+direct next-step buttons (start eligibility check, view programme).
+Rules/template mode only — no model is connected (`ai_status=unavailable`,
+panel says so); unknown stays unknown, no admission probabilities, no
+personal data collected. Free text answers programme fee / IELTS /
+deadline questions and rank lookups from the verified catalogue only.
+125 tests passing, 386 i18n keys × 6 locales, `npm run build` pass.
+See TASKS.md (pet section) and DECISIONS.md #93–#96.
 
 ## Quick start (one command per service; run backend first)
 
@@ -79,8 +96,9 @@ Next.js 14 + TypeScript + Tailwind. Pages: `/` (home, first-visit modal),
 budget), `/results` (labelled chips, legend, next-steps panel),
 `/programs/[id]` (minimums list + check button, evidence drawer, ranking
 cards), `/rankings` (three providers, top 100 each, filters, compare up to 3 institutions
-within one provider's edition, institution detail pages), `/report` (print + JSON export).
-Six locales (en, zh-CN, es, fr, pt-BR, ar; 351 keys each, checked by
+within one provider's edition, institution detail pages), `/report` (print + JSON export),
+plus the 小罗盘 pet on every page (bottom-end floating compass button).
+Six locales (en, zh-CN, es, fr, pt-BR, ar; 386 keys each, checked by
 `npm run build`), RTL for Arabic, compass-theme motion (navy/teal/amber),
 `prefers-reduced-motion` respected. The frontend proxies `/api/*` to the
 backend; if the backend is down it falls back to a clearly-labelled
@@ -126,7 +144,9 @@ backend host (Railway/Render free tier). Full steps in `DEPLOY.md`.
 | Endpoint | Purpose |
 |---|---|
 | `GET /health`, `GET /ready` | Liveness / readiness (`ai_status` included) |
-| `GET /programs`, `GET /programs/{id}` | The 2 verified real programmes (no fixtures) |
+| `GET /programs`, `GET /programs/{id}` | The 8 verified real programmes (no fixtures) |
+| `POST /assistant/suggest` | 小罗盘 3-question answer: degree + country + budget band -> route suggestion (max 3 lines, one evidence link, `ai_status=unavailable`) |
+| `POST /assistant/ask` | 小罗盘 free-text question: fee / IELTS / deadline / rank from verified data only; personal data refused, never echoed |
 | `POST /profile/validate` | Cross-track validation (422 `TRACK_MISMATCH` on mismatch) |
 | `POST /match` | Rules evaluation for one profile + programme (spec shape) or a flat wizard profile + `program_ids` (frontend shape, multi-program response) |
 | `POST /explain` | Citation-checked template explanation; works with no AI key |

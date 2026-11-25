@@ -246,3 +246,101 @@ def test_rankings_never_leak_into_match():
     body = json.dumps(r.json()).lower()
     assert "ranking" not in body
     assert "ielts_reference" not in body
+
+
+# --- Chinese display names (language fix 2026-11-25) -----------------------
+# name_zh is transcribed from the user-supplied THE 2027 / ARWU 2026
+# ranking-table images (THE preferred where the two compilations differ),
+# plus National Taiwan University and Korea University verified on their
+# own official sites. Nothing is invented: institutions with no verified
+# Chinese name carry no name_zh and the UI falls back to official_name.
+QS_ONLY_MISSING = {
+    "adelaide-university", "durham-university",
+    "freie-universitat-berlin", "institute-of-science-tokyo",
+    "king-fahd-university-of-petroleum-minerals",
+    "kth-royal-institute-of-technology", "lund-university",
+    "osaka-university", "pennsylvania-state-university",
+    "politecnico-di-milano", "trinity-college-dublin",
+    "universidad-de-buenos-aires", "universiti-malaya",
+    "university-of-alberta", "university-of-auckland",
+    "university-of-leeds", "university-of-nottingham",
+    "university-of-sheffield", "university-of-technology-sydney",
+    "university-of-warwick", "university-of-western-australia",
+}
+
+
+def test_institution_chinese_names_present_and_missing():
+    by_id = {i["id"]: i for i in RANKINGS["institutions"]}
+    with_zh = [i for i in RANKINGS["institutions"] if i.get("name_zh")]
+    assert len(with_zh) == 127
+    assert len(RANKINGS["institutions"]) == 148
+    # Spot checks from the images (THE preferred on conflicts).
+    assert by_id["ucl"]["name_zh"] == "伦敦大学学院"
+    assert by_id["university-of-oxford"]["name_zh"] == "牛津大学"
+    assert by_id["nus"]["name_zh"] == "新加坡国立大学"
+    assert by_id["ntu"]["name_zh"] == "新加坡南洋理工大学"
+    assert by_id["tsinghua-university"]["name_zh"] == "清华大学"
+    assert by_id["peking-university"]["name_zh"] == "北京大学"
+    assert by_id["universite-psl"]["name_zh"] == "巴黎文理研究大学"  # not ARWU's 巴黎文理大学
+    assert by_id["university-of-california-berkeley"]["name_zh"] == "加州大学伯克利分校"
+    assert by_id["university-of-minnesota-twin-cities"]["name_zh"] == "明尼苏达大学"
+    # Verified on the institutions' own official sites.
+    assert by_id["national-taiwan-university"]["name_zh"] == "国立台湾大学"
+    assert by_id["korea-university"]["name_zh"] == "高丽大学"
+    # Exactly the 21 QS-only institutions without a verified official
+    # Chinese name are missing — no invented names anywhere.
+    missing = {i["id"] for i in RANKINGS["institutions"] if not i.get("name_zh")}
+    assert missing == QS_ONLY_MISSING
+    assert all(i.get("name_zh") for i in with_zh)
+    # The endpoint exposes name_zh.
+    r = client.get("/api/v1/institutions/ucl/rankings")
+    assert r.json()["institution"]["name_zh"] == "伦敦大学学院"
+    r = client.get("/api/v1/institutions/adelaide-university/rankings")
+    assert r.json()["institution"].get("name_zh") is None
+
+
+def test_rank_entries_unchanged_by_name_zh():
+    # Adding name_zh must not touch any rank value or score: the 300
+    # entries keep their verified values, and no entry gains a name field.
+    assert len(RANKINGS["entries"]) == 300
+    assert all("name_zh" not in e for e in RANKINGS["entries"])
+    qs = {e["institution_id"]: e for e in all_rankings({"provider": "qs"})}
+    assert qs["ucl"]["rank_display"] == "=8" and qs["ucl"]["score"] == 96.3
+    assert qs["imperial"]["rank_display"] == "=2" and qs["imperial"]["score"] == 99.2
+    the = {e["institution_id"]: e for e in all_rankings({"provider": "the"})}
+    assert the["university-of-oxford"]["rank_display"] == "1"
+    arwu = {e["institution_id"]: e for e in all_rankings({"provider": "arwu"})}
+    assert arwu["ucl"]["rank_display"] == "17" and arwu["ucl"]["score"] == 49.4
+
+
+def test_query_matches_chinese_name():
+    # Search by Chinese name finds the institution (official name alone
+    # would miss it).
+    items = all_rankings({"query": "牛津"})
+    assert {e["institution_id"] for e in items} == {"university-of-oxford"}
+    assert len(items) == 3
+    items = all_rankings({"query": "清华"})
+    assert {e["institution_id"] for e in items} == {"tsinghua-university"}
+    assert len(items) == 3
+
+
+def test_country_locale_map_covers_all_countries():
+    # Every country code in the data has a country.<code> key in all six
+    # locale files, non-empty; the English value matches the data's
+    # country_name exactly.
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    codes = {i["country"] for i in RANKINGS["institutions"]}
+    assert len(codes) == 26
+    data_names = {}
+    for i in RANKINGS["institutions"]:
+        data_names.setdefault(i["country"], i["country_name"])
+    for locale in ("en", "zh-CN", "es", "fr", "pt-BR", "ar"):
+        msgs = json.loads((root / "frontend" / "messages" / f"{locale}.json").read_text(encoding="utf-8"))
+        for code in codes:
+            v = msgs.get(f"country.{code}")
+            assert isinstance(v, str) and v.strip(), f"{locale} missing country.{code}"
+        assert msgs["country.GB"] != "GB"  # a real name, not the code
+    en = json.loads((root / "frontend" / "messages" / "en.json").read_text(encoding="utf-8"))
+    for code, name in data_names.items():
+        assert en[f"country.{code}"] == name, code

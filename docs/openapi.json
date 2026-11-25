@@ -1,6 +1,70 @@
 {
   "components": {
     "schemas": {
+      "AssistantAskRequest": {
+        "description": "\u5c0f\u7f57\u76d8 free-text question (Day 3). One message, max 500 chars.\n\nAnswered only from the verified catalogue; nothing is stored. A\nmessage that looks like it contains personal data is refused, never\nechoed and never stored (see ai/assistant.py).",
+        "properties": {
+          "locale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "en",
+            "title": "Locale"
+          },
+          "message": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "AssistantAskRequest",
+        "type": "object"
+      },
+      "AssistantSuggestRequest": {
+        "description": "\u5c0f\u7f57\u76d8 3-question flow (Day 3): the three quick-reply answers.\n\ndegree_level: undergraduate | taught_masters; country: GB | SG;\nbudget_band: low | mid | high (bands are defined per track/country\nin ai/assistant.py \u2014 GB per-year GBP, SG UG per-year SGD, SG TM total\nSGD). locale: en | zh-CN | es | fr | pt-BR | ar (other values fall\nback to en in the template lookup).",
+        "properties": {
+          "budget_band": {
+            "title": "Budget Band",
+            "type": "string"
+          },
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "degree_level": {
+            "title": "Degree Level",
+            "type": "string"
+          },
+          "locale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "en",
+            "title": "Locale"
+          }
+        },
+        "required": [
+          "degree_level",
+          "country",
+          "budget_band"
+        ],
+        "title": "AssistantSuggestRequest",
+        "type": "object"
+      },
       "Budget": {
         "properties": {
           "amount": {
@@ -564,6 +628,80 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/assistant/ask": {
+      "post": {
+        "description": "Free-text question to the pet. Answered only from verified data;\npersonal data is refused, never echoed, never stored.",
+        "operationId": "assistant_ask_endpoint_api_v1_assistant_ask_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantAskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Assistant Ask Endpoint"
+      }
+    },
+    "/api/v1/assistant/suggest": {
+      "post": {
+        "description": "Answer to the pet's 3 quick-reply questions: degree level,\ncountry, budget band -> a short route suggestion (max 3 lines,\nconclusion first, ONE evidence link).",
+        "operationId": "assistant_suggest_endpoint_api_v1_assistant_suggest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantSuggestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Assistant Suggest Endpoint"
+      }
+    },
     "/api/v1/explain": {
       "post": {
         "description": "Server-side recompute (spec Ch12). New shape:\n{\"profile\": <nested StudentProfile | flat wizard profile>,\n \"program_ids\": [...], \"locale\": \"en\"}.\nA client-supplied Evaluation (the Day-1 shape {\"evaluation\": ...}) is\nrejected with 422 EXPLAIN_REQUIRES_PROFILE \u2014 the server recomputes, it\nnever repeats a caller's verdict. Returns one recomputed explanation\nper program, in the same multi-program shape as /match.",
@@ -864,7 +1002,7 @@
     },
     "/api/v1/rankings": {
       "get": {
-        "description": "Filter + cursor pagination (spec Ch9).\n\n``provider`` / ``edition`` / ``ranking_type`` are exact matches\n(case-insensitive). ``subject`` matches a subject name \u2014 this build\nships world ranks only, so any subject filter returns an empty list\nrather than inventing a subject rank. ``country`` matches the\ninstitution's country code (any code in the data, e.g. GB, SG, US, CN).\n``query`` is a case-insensitive\nsubstring on the institution's official name. ``cursor`` is an opaque\noffset token; ``limit`` defaults to 20 and is capped at 20. No entry\nhere is ever a combined or averaged rank (BR15).",
+        "description": "Filter + cursor pagination (spec Ch9).\n\n``provider`` / ``edition`` / ``ranking_type`` are exact matches\n(case-insensitive). ``subject`` matches a subject name \u2014 this build\nships world ranks only, so any subject filter returns an empty list\nrather than inventing a subject rank. ``country`` matches the\ninstitution's country code (any code in the data, e.g. GB, SG, US, CN).\n``query`` is a case-insensitive\nsubstring on the institution's official name or its verified Chinese\ndisplay name (name_zh). ``cursor`` is an opaque\noffset token; ``limit`` defaults to 20 and is capped at 20. No entry\nhere is ever a combined or averaged rank (BR15).",
         "operationId": "list_rankings_api_v1_rankings_get",
         "parameters": [
           {

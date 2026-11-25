@@ -149,6 +149,32 @@ class SimulateRequest(BaseModel):
     patch: dict = Field(default_factory=dict)
 
 
+class AssistantSuggestRequest(BaseModel):
+    """小罗盘 3-question flow (Day 3): the three quick-reply answers.
+
+    degree_level: undergraduate | taught_masters; country: GB | SG;
+    budget_band: low | mid | high (bands are defined per track/country
+    in ai/assistant.py — GB per-year GBP, SG UG per-year SGD, SG TM total
+    SGD). locale: en | zh-CN | es | fr | pt-BR | ar (other values fall
+    back to en in the template lookup).
+    """
+    degree_level: str
+    country: str
+    budget_band: str
+    locale: Optional[str] = "en"
+
+
+class AssistantAskRequest(BaseModel):
+    """小罗盘 free-text question (Day 3). One message, max 500 chars.
+
+    Answered only from the verified catalogue; nothing is stored. A
+    message that looks like it contains personal data is refused, never
+    echoed and never stored (see ai/assistant.py).
+    """
+    message: str = Field(min_length=1, max_length=500)
+    locale: Optional[str] = "en"
+
+
 class ErrorBody(BaseModel):
     code: str
     message: str

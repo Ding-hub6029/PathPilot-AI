@@ -149,6 +149,8 @@ export interface RankingProvider {
 export interface RankingInstitution {
   id: string;
   official_name: string;
+  /** Verified Chinese display name (user-supplied ranking-table images, or the institution's official site). Absent when unverified — the UI falls back to official_name. */
+  name_zh?: string | null;
   country: string;
   country_name: string;
   /** Compiled IELTS reference (user-supplied table images); null outside the THE top 100. */

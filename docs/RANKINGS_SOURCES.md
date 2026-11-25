@@ -197,8 +197,9 @@ PathPilot covers (UCL, Imperial College London, NUS, NTU) are a subset.
 Scope: top 100 institutions per provider — QS 2027 (100 rows, ranks 1–98),
 THE 2027 (100 rows, ranks 1–97), ARWU 2026 (100 rows, ranks 1–100). That
 is 300 entries across 148 institutions: 59 institutions appear in all
-three providers, 34 in two, 55 in one. Countries: 25 (US 44 institutions,
-CN 16, GB 16, AU 9, DE 8, NL 6, FR/HK/KR/CH 5 each). No combined or
+three providers, 34 in two, 55 in one. Countries: 26 (US 44 institutions,
+CN 16, GB 16, AU 9, DE 8, NL 6, FR/HK/KR/CH 5 each, plus AR, AT, BE, DK,
+IE, IL, IT, JP, MY, NO, NZ, SA, SE, TW). No combined or
 averaged rank across providers (BR15); rankings never affect eligibility
 (BR16).
 
@@ -257,6 +258,49 @@ as the stated source. Four rows carry the literal value "以院校官网为准"
 eligibility engine never uses these values — programme matching uses only
 official programme pages. Institutions outside the THE top 100 carry no
 IELTS reference.
+
+### Chinese display names (name_zh, language fix 2026-11-25)
+The rankings data stored official names in English only, so after a
+locale switch the rankings and institution pages stayed in English. Fix:
+a `name_zh` field on each institution in `data/versions/v2/rankings.json`
+(schema: `data/schemas/rankings.json`), mirrored into
+`frontend/src/lib/rankings.ts`, exposed through the backend institution
+endpoints, and rendered by the display rule in `displayInstitutionName` /
+`displayCountryName` / `displayCountryCode` /
+`displayProgramInstitutionName` (same file): in zh-CN show `name_zh` when
+present, else the English official name; every other locale always shows
+the English official name; country names always come from the `country.*`
+keys in the locale message files (26 codes × 6 locales), falling back to
+the English `country_name` from data. The backend `query` filter also
+matches `name_zh` (searching 牛津 finds Oxford). No rank value or score
+was touched — the 300 entries are unchanged (test-pinned).
+
+Sources, in priority order: (1) the 10 user-supplied table images — THE
+2027 top 100 (English-name column, direct match) and ARWU 2026 top 100
+(matched by rank, ties disambiguated explicitly); THE wins on the 19
+conflicts where the two compilations differ (e.g. PSL: THE 巴黎文理研究大学
+vs ARWU 巴黎文理大学； UC Berkeley: THE 加州大学伯克利分校 vs ARWU
+加州大学-伯克利； UBC: THE 不列颠哥伦比亚大学 vs ARWU 英属哥伦比亚大学）.
+(2) The institutions' own official sites: National Taiwan University —
+国立台湾大学 (ntu.edu.tw) and Korea University — 高丽大学
+(oia.korea.ac.kr Chinese admissions guide). Coverage: 127 of 148
+institutions. The remaining 21 are QS-only institutions with no verified
+Chinese name — they carry no `name_zh` and fall back to English (test
+pins the exact missing set): Adelaide, Durham, Freie Universität Berlin,
+Institute of Science Tokyo, KTH, King Fahd University of Petroleum &
+Minerals, Lund, Osaka, Penn State, Politecnico di Milano, Trinity College
+Dublin, Universidad de Buenos Aires, Universiti Malaya, Alberta, Auckland,
+Leeds, Nottingham, Sheffield, University of Technology Sydney, Warwick,
+Western Australia. Nothing was invented.
+
+Scope note: the display rule is implemented on `/institutions/[id]`
+(institution name, country, programme list) and `/programs/[id]`
+(institution name, country). `frontend/src/app/rankings/page.tsx` was NOT
+edited in this pass (the parent fixed its top-to-bottom sort order there
+and owns that file) — its cards, country filter and compare table still
+render the English names until the same helpers are applied there (4
+render sites: card title, card country, country-filter options, compare
+table header; the search should also match `name_zh`). See BLOCKERS #15.
 
 ### Official websites
 Verified official websites are stored only for the four institutions

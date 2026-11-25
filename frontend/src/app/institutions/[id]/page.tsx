@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../../lib/store';
 import { fetchInstitutionRankings } from '../../../lib/api';
+import { displayCountryCode, displayCountryName, displayInstitutionName, displayProgramInstitutionName } from '../../../lib/rankings';
 import { RankingCards } from '../../../components/RankingCards';
 import { PROGRAMS } from '../../../lib/programs';
 import { RankingInstitution } from '../../../lib/types';
@@ -20,7 +21,7 @@ import { RankingInstitution } from '../../../lib/types';
  * official programme requirement and the eligibility engine never uses it.
  */
 export default function InstitutionDetail({ params }: { params: { id: string } }) {
-  const { t } = useApp();
+  const { t, locale } = useApp();
   const [institution, setInstitution] = useState<RankingInstitution | undefined>(undefined);
   const [loaded, setLoaded] = useState(false);
   const [live, setLive] = useState(false);
@@ -51,8 +52,8 @@ export default function InstitutionDetail({ params }: { params: { id: string } }
   return (
     <div className="page-enter mx-auto max-w-4xl px-4 py-8">
       <Link href="/rankings" className="btn-press inline-block rounded-full border border-navy/25 bg-white px-4 py-2 text-sm font-semibold">← {t('institution.backToRankings')}</Link>
-      <h1 className="mt-4 text-2xl font-bold">{institution.official_name}</h1>
-      <p className="mt-1 text-navy/70">{institution.country_name}</p>
+      <h1 className="mt-4 text-2xl font-bold">{displayInstitutionName(institution, locale)}</h1>
+      <p className="mt-1 text-navy/70">{displayCountryName(institution, t)}</p>
       <p className="mt-2 text-sm">
         {institution.official_website && (
           <a href={institution.official_website} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{t('institution.officialSite')}</a>
@@ -90,7 +91,7 @@ export default function InstitutionDetail({ params }: { params: { id: string } }
                 <p className="font-bold">
                   <Link href={`/programs/${p.id}`} className="text-teal-dark underline">{p.officialName}</Link>
                 </p>
-                <p className="mt-1 text-sm text-navy/60">{p.institution} · {p.country}</p>
+                <p className="mt-1 text-sm text-navy/60">{displayProgramInstitutionName(p.institution, locale)} · {displayCountryCode(p.country, p.country, t)}</p>
                 <Link href="/wizard" className="btn-press mt-3 inline-block rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">{t('home.ctaWizard')}</Link>
               </li>
             ))}

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { fetchRankings, RankingsResult } from '../../lib/api';
+import { displayCountryCode, displayCountryName, displayInstitutionName } from '../../lib/rankings';
 import { useApp } from '../../lib/store';
 import { RankingEntry } from '../../lib/types';
 
@@ -44,7 +45,13 @@ export default function RankingsPage() {
   const filteredInstitutions = useMemo(() => {
     return institutions.filter((inst) => {
       if (country !== 'all' && inst.country !== country) return false;
-      if (query.trim() && !inst.official_name.toLowerCase().includes(query.trim().toLowerCase())) return false;
+      // Search matches the English official name and the Chinese display
+      // name, so searching 牛津 finds Oxford.
+      if (query.trim()) {
+        const q = query.trim().toLowerCase();
+        const hay = `${inst.official_name} ${inst.name_zh ?? ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
       return true;
     });
   }, [institutions, country, query]);
@@ -59,6 +66,26 @@ export default function RankingsPage() {
       return true;
     });
   }, [entries, provider, rankType, filteredInstitutions]);
+
+  // Institutions arrive in id order (alphabetical), not rank order — sort
+  // the cards top-to-bottom by rank: the selected provider's rank when one
+  // provider is chosen, otherwise the institution's best rank across the
+  // visible providers. Unranked institutions go last.
+  const rankValue = (e?: RankingEntry): number => {
+    if (!e || e.verification_status !== 'verified') return Number.POSITIVE_INFINITY;
+    const m = /^=?(\d+)/.exec(e.rank_display ?? '');
+    return m ? parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+  };
+  const sortedInstitutions = useMemo(() => {
+    const list = [...filteredInstitutions];
+    list.sort((a, b) => {
+      const ra = Math.min(...visibleEntries.filter((e) => e.institution_id === a.id).map(rankValue));
+      const rb = Math.min(...visibleEntries.filter((e) => e.institution_id === b.id).map(rankValue));
+      if (ra !== rb) return ra - rb;
+      return a.official_name.localeCompare(b.official_name);
+    });
+    return list;
+  }, [filteredInstitutions, visibleEntries]);
 
   const toggleSelect = (id: string) => {
     setSelected((cur) => {
@@ -131,7 +158,7 @@ export default function RankingsPage() {
             <select value={country} onChange={(e) => setCountry(e.target.value)} className="mt-1 block rounded-lg border border-navy/25 px-2 py-1.5 font-normal">
               <option value="all">{t('rankings.allCountries')}</option>
               {countries.map(([code, name]) => (
-                <option key={code} value={code}>{name}</option>
+                <option key={code} value={code}>{displayCountryCode(code, name, t)}</option>
               ))}
             </select>
           </label>
@@ -162,7 +189,7 @@ export default function RankingsPage() {
         )}
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {filteredInstitutions.map((inst) => {
+          {sortedInstitutions.map((inst) => {
             const instEntries = visibleEntries.filter((e) => e.institution_id === inst.id);
             if (rankType === 'world' && instEntries.length === 0) return null;
             return (
@@ -171,10 +198,10 @@ export default function RankingsPage() {
                   <div>
                     <p className="font-bold">
                       <Link href={`/institutions/${inst.id}`} className="text-teal-dark underline">
-                        {inst.official_name}
+                        {displayInstitutionName(inst, locale)}
                       </Link>
                     </p>
-                    <p className="text-sm text-navy/60">{inst.country_name}</p>
+                    <p className="text-sm text-navy/60">{displayCountryName(inst, t)}</p>
                   </div>
                   <label className="flex items-center gap-1 text-sm font-semibold">
                     <input
@@ -232,7 +259,7 @@ export default function RankingsPage() {
                   {compareInstitutions.map((inst) => (
                     <th key={inst.id} scope="col" className="p-3 text-start">
                       <Link href={`/institutions/${inst.id}`} className="text-teal-dark underline">
-                        {inst.official_name}
+                        {displayInstitutionName(inst, locale)}
                       </Link>
                     </th>
                   ))}

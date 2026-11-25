@@ -29,12 +29,15 @@ from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from ai.assistant import (BUDGET_BANDS, COUNTRIES, DEGREE_LEVELS, ask as assistant_ask,
+                        suggest as assistant_suggest)
 from ai.explain import explain_with_status
 from ai.provider import ProviderAdapter
 from app.adapter import (RULES_VERSION, flat_to_student, match_response,
                          rule_to_frontend, source_manifest_hash, summary_for)
 from app.data import DATA_VERSION, PROGRAMS, RANKINGS
-from app.schemas import (ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
+from app.schemas import (AssistantAskRequest, AssistantSuggestRequest,
+                         ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
                          MatchRequest, SimulateRequest, StudentProfile)
 from domain.eligibility import (_parse_test_date, effective_curriculum,
                                 evaluate, overall_status, track_mismatch)
@@ -300,7 +303,8 @@ def list_rankings(request: Request,
     rather than inventing a subject rank. ``country`` matches the
     institution's country code (any code in the data, e.g. GB, SG, US, CN).
     ``query`` is a case-insensitive
-    substring on the institution's official name. ``cursor`` is an opaque
+    substring on the institution's official name or its verified Chinese
+    display name (name_zh). ``cursor`` is an opaque
     offset token; ``limit`` defaults to 20 and is capped at 20. No entry
     here is ever a combined or averaged rank (BR15).
     """
@@ -327,7 +331,8 @@ def list_rankings(request: Request,
     if query:
         needle = query.strip().lower()
         items = [e for e in items
-                 if needle in str((_ranking_institution(e) or {}).get("official_name", "")).lower()]
+                 if needle in str((_ranking_institution(e) or {}).get("official_name", "")).lower()
+                 or needle in str((_ranking_institution(e) or {}).get("name_zh", "") or "").lower()]
     page = items[offset:offset + limit]
     next_offset = offset + len(page)
     next_cursor = _encode_cursor(next_offset) if next_offset < len(items) else None
@@ -351,6 +356,39 @@ def get_institution_rankings(institution_id: str, request: Request):
                if e.get("institution_id") == institution_id]
     return {"data_version": DATA_VERSION, "institution": inst,
             "rankings": entries}
+
+
+# --- 小罗盘 desktop-pet assistant (Day 3) -----------------------------------
+# Rules/template only: no model is connected (ai_status="unavailable"),
+# so these endpoints answer strictly from the verified catalogue — the 8
+# programmes and the 300 ranking entries. See ai/assistant.py for the
+# policy (unknown stays unknown, no probabilities, no personal data).
+@app.post("/api/v1/assistant/suggest")
+def assistant_suggest_endpoint(req: AssistantSuggestRequest, request: Request):
+    """Answer to the pet's 3 quick-reply questions: degree level,
+    country, budget band -> a short route suggestion (max 3 lines,
+    conclusion first, ONE evidence link)."""
+    if req.degree_level not in DEGREE_LEVELS:
+        return _err(request.state.request_id, "VALIDATION_ERROR",
+                    f"degree_level must be one of {list(DEGREE_LEVELS)}, got {req.degree_level!r}.", 422,
+                    field_errors=[{"field": "degree_level", "message": "Must be 'undergraduate' or 'taught_masters'."}])
+    if req.country not in COUNTRIES:
+        return _err(request.state.request_id, "VALIDATION_ERROR",
+                    f"country must be one of {list(COUNTRIES)}, got {req.country!r}.", 422,
+                    field_errors=[{"field": "country", "message": "Must be 'GB' or 'SG'."}])
+    if req.budget_band not in BUDGET_BANDS:
+        return _err(request.state.request_id, "VALIDATION_ERROR",
+                    f"budget_band must be one of {list(BUDGET_BANDS)}, got {req.budget_band!r}.", 422,
+                    field_errors=[{"field": "budget_band", "message": "Must be 'low', 'mid' or 'high'."}])
+    return assistant_suggest(req.degree_level, req.country, req.budget_band,
+                             req.locale or "en")
+
+
+@app.post("/api/v1/assistant/ask")
+def assistant_ask_endpoint(req: AssistantAskRequest, request: Request):
+    """Free-text question to the pet. Answered only from verified data;
+    personal data is refused, never echoed, never stored."""
+    return assistant_ask(req.message, req.locale or "en")
 
 
 def _profile_field_errors(profile: StudentProfile) -> list[dict]:
