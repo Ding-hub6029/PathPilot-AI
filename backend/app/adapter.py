@@ -25,6 +25,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -77,6 +78,7 @@ EXPECTED: dict[str, str] = {
     "ntu-bcomp-fee": "AY2026/27 rates: SC S$8,300; SPR S$11,600; ASEAN IS S$18,050; other IS S$21,400",
     "ntu-msai-academic": "Good honours in CS/CE/related with solid maths, or good bachelor's + 2 years industry experience",
     "ntu-msai-language": "IELTS >= 6.5 or TOEFL iBT >= 100 / >= 5.0 or MOI certification; no component minimums",
+    "ntu-msai-language-components": "No IELTS/TOEFL component minimums stated",
     "ntu-msai-toefl": "TOEFL iBT >= 100 (before 21 Jan 2026) or >= 5.0 on the new scale",
     "ntu-msai-gre": "GRE optional; no rejection rule for a missing or low score",
     "ntu-msai-fee": "SGD 65,748.80 total incl. 9% GST",
@@ -157,6 +159,12 @@ FACT_TO_SOURCE: dict[str, str] = {
     "f-ntu-msai-academic": "ntu-msai-entry",
     "f-ntu-msai-ielts": "ntu-msai-english",
     "f-ntu-msai-gre": "ntu-msai-entry",
+    # Curriculum-branch facts (fix 2026-11-25, DECISIONS #67): UCL China
+    # page (no Gaokao route) and Imperial's accepted-qualifications page
+    # (USA AP standard; no China entry).
+    "f-ucl-china-gaokao": "ucl-china-entry",
+    "f-imperial-usa-ap": "imperial-accepted-qualifications",
+    "f-imperial-china-none": "imperial-accepted-qualifications",
 }
 
 
@@ -247,6 +255,38 @@ def _int_or_none(value: Any) -> int | None:
     return int(n) if n is not None else None
 
 
+def _curriculum(value: Any, grades: list[str], ib_total: int | None) -> str | None:
+    """Wizard curriculum value, or inferred from the grades supplied.
+
+    A valid explicit value wins. Legacy flat profiles without a
+    curriculum keep the old inference (grades -> uk_alevel, IB total ->
+    ib), so existing tests and API clients keep working.
+    """
+    if isinstance(value, str) and value.strip().lower() in (
+            "cn_gaokao", "uk_alevel", "ib", "usa", "sg_alevel", "other"):
+        return value.strip().lower()
+    if grades:
+        return "uk_alevel"
+    if ib_total is not None:
+        return "ib"
+    return None
+
+
+def _parse_ap_grades(value: Any) -> list[int] | None:
+    """AP grades as a list of ints 1-5, from a list or a string like
+    "5,5,5,4,4". Values outside 1-5 are dropped, never rescaled."""
+    if value is None:
+        return None
+    if isinstance(value, (list, tuple)):
+        nums = [_num(v) for v in value]
+    elif isinstance(value, str):
+        nums = [_num(t) for t in value.replace(";", ",").split(",")]
+    else:
+        return None
+    grades = [int(n) for n in nums if n is not None and 1 <= n <= 5]
+    return grades or None
+
+
 def flat_to_student(d: dict) -> StudentProfile:
     """Convert the frontend wizard's flat profile to a StudentProfile.
 
@@ -255,6 +295,12 @@ def flat_to_student(d: dict) -> StudentProfile:
     graduationStatus, itExperienceYears, toefl). IELTS and TOEFL are BOTH
     passed through when both are present — TOEFL is never silently dropped
     (DECISIONS #36).
+
+    Fix 2026-11-25 (DECISIONS #66): maps the wizard's first step,
+    curriculum (cn_gaokao | uk_alevel | ib | usa | sg_alevel | other),
+    plus Gaokao / SAT / ACT / AP fields. qualification_type is derived
+    from the curriculum so the engine's branch logic and the legacy
+    qualification_type inference stay consistent.
     """
     track = d.get("track") or ""
     ielts_fields = ("ieltsOverall", "ieltsListening", "ieltsReading", "ieltsWriting", "ieltsSpeaking")
@@ -291,9 +337,24 @@ def flat_to_student(d: dict) -> StudentProfile:
         grades = _parse_alevels(d.get("alevels"))
         maths = (d.get("mathsGrade") or "").strip().upper() or None
         ib_total = _int_or_none(d.get("ibTotal"))
-        qualification = "a_level" if grades else ("ib" if ib_total is not None else None)
+        curriculum = _curriculum(d.get("curriculum"), grades, ib_total)
+        if curriculum is None:
+            qualification = "a_level" if grades else ("ib" if ib_total is not None else None)
+        elif curriculum in ("uk_alevel", "sg_alevel"):
+            qualification = "a_level"
+        elif curriculum == "ib":
+            qualification = "ib"
+        else:
+            qualification = "other"
         undergrad = UndergradProfile(
             qualification_type=qualification,
+            curriculum=curriculum,
+            gaokao_score=_int_or_none(d.get("gaokaoScore")),
+            gaokao_total=_int_or_none(d.get("gaokaoTotal")),
+            gaokao_maths=_int_or_none(d.get("gaokaoMaths")),
+            sat_total=_int_or_none(d.get("satTotal")),
+            act_composite=_int_or_none(d.get("actComposite")),
+            ap_grades=_parse_ap_grades(d.get("apGrades")),
             a_level_grades=grades or None,
             a_level_maths_grade=maths,
             ib_total=ib_total,
@@ -356,6 +417,73 @@ def _reason_code(rule_id: str, status: str) -> str:
     return "MET" if status == "MET" else "NOT_MET"
 
 
+def _jsonable(value: Any) -> Any:
+    """Recursively turn Decimals into plain JSON numbers.
+
+    RuleResult.observed may hold a Decimal (fee rules); the frontend
+    renders observed text from observedRaw, so it must be a plain
+    number, not a string.
+    """
+    if isinstance(value, Decimal):
+        return int(value) if value == value.to_integral_value() else float(value)
+    if isinstance(value, dict):
+        return {k: _jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(v) for v in value]
+    return value
+
+
+def _derive_reason_key(rule_id: str, status: str, detail: str) -> str | None:
+    """Machine-readable cause for an UNKNOWN rule, so the frontend can
+    render the reason in the current locale instead of the English
+    detail string. Derived from the engine's own detail strings in this
+    one place; anything unrecognised falls back to 'missing-info'.
+    MET / NOT_MET / NOT_APPLICABLE rules need no reason key (their
+    observed + threshold values render the verdict)."""
+    if status != "UNKNOWN":
+        return None
+    d = detail or ""
+    # Rule-specific causes first.
+    if rule_id in ("ucl-tara", "imp-beng-tmua"):
+        return "no-threshold"
+    if rule_id == "ucl-msc-language":
+        return "no-english-level"
+    if rule_id in ("nus-bcomp-academic", "ntu-bcomp-academic"):
+        return "igp-not-threshold"
+    if rule_id in ("nus-gre-gmat", "ntu-msai-gre"):
+        return "no-rejection-rule"
+    # Cause phrases in the detail.
+    if "Gaokao" in d:
+        return "gaokao-no-equivalence"
+    if "contextual" in d:
+        return "contextual-offer"
+    if "no valid test date" in d or "without a date" in d:
+        return "missing-test-date"
+    if "new 1-6 scale" in d:
+        return "toefl-scale-unknown"
+    if "Tuition-grant" in d or "tuition-grant status" in d or "fee band" in d:
+        return "fee-residency-unknown"
+    if "does not match" in d:
+        return "budget-mismatch"
+    if "no rejection rule" in d:
+        return "no-rejection-rule"
+    if "TOEFL supplied" in d and "IELTS" in d:
+        return "toefl-instead"
+    if "Indicative Grade Profile" in d:
+        return "igp-not-threshold"
+    if "AP/SAT/ACT" in d and "general minimum standard" in d:
+        return "usa-ap-general-only"
+    if "SAT/ACT/AP" in d:
+        return "usa-no-equivalence"
+    if "neither A level nor IB" in d:
+        return "no-equivalence"
+    if "Degree field not supplied" in d:
+        return "missing-info"
+    if "Degree field" in d or "not a listed route" in d:
+        return "degree-unverified"
+    return "missing-info"
+
+
 def rule_to_frontend(r: RuleResult) -> dict:
     return {
         "ruleId": r.rule_id,
@@ -365,6 +493,14 @@ def rule_to_frontend(r: RuleResult) -> dict:
         "evidenceIds": [FACT_TO_SOURCE[f] for f in r.evidence_ids if f in FACT_TO_SOURCE],
         "reasonCode": _reason_code(r.rule_id, r.status),
         "unknownReason": r.detail if r.status == "UNKNOWN" else None,
+        # Structured values for the frontend's localized renderer
+        # (fix 2026-11-25): observedRaw/thresholdRaw carry the numbers
+        # and dicts the English strings were formatted from, and
+        # reasonKey names the UNKNOWN cause. The English `observed` /
+        # `expected` / `unknownReason` strings stay as fallbacks.
+        "observedRaw": _jsonable(r.observed),
+        "thresholdRaw": _jsonable(r.threshold),
+        "reasonKey": _derive_reason_key(r.rule_id, r.status, r.detail),
     }
 
 
