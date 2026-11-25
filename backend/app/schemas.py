@@ -10,6 +10,11 @@ Day 2 changes (see DECISIONS.md #43-#48):
 - Budget.amount is Decimal (spec Ch11: money must use Decimal, never float).
   JSON output stays a plain number: FastAPI's encoder renders Decimal as a
   JSON number, and /profile/validate returns jsonable_encoder output.
+
+Fix 2026-11-25 (DECISIONS #66-#68): UndergradProfile gains curriculum
+(cn_gaokao | uk_alevel | ib | usa | sg_alevel | other) plus Gaokao,
+SAT/ACT/AP fields, so the engine can evaluate against the applicant's
+own branch instead of assuming A-level/IB/GCSE for everyone.
 """
 from __future__ import annotations
 
@@ -45,6 +50,19 @@ class Budget(BaseModel):
 
 class UndergradProfile(BaseModel):
     qualification_type: Optional[str] = None  # a_level | ib | other
+    # Country / curriculum branch (fix 2026-11-25, DECISIONS #66):
+    # cn_gaokao | uk_alevel | ib | usa | sg_alevel | other. When None the
+    # engine infers it from qualification_type (a_level -> uk_alevel,
+    # ib -> ib, other -> other) so pre-branch API clients keep working.
+    curriculum: Optional[str] = None
+    # Gaokao (China): score out of gaokao_total (usually 750).
+    gaokao_score: Optional[int] = None
+    gaokao_total: Optional[int] = None
+    gaokao_maths: Optional[int] = None
+    # USA: SAT total (400-1600), ACT composite (1-36), AP grades 1-5.
+    sat_total: Optional[int] = None
+    act_composite: Optional[int] = None
+    ap_grades: Optional[list[int]] = None
     a_level_grades: Optional[list[str]] = None
     a_level_maths_grade: Optional[str] = None
     ib_total: Optional[int] = None
