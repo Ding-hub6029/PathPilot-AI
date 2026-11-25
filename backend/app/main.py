@@ -36,8 +36,8 @@ from app.adapter import (RULES_VERSION, flat_to_student, match_response,
 from app.data import DATA_VERSION, PROGRAMS
 from app.schemas import (ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
                          MatchRequest, SimulateRequest, StudentProfile)
-from domain.eligibility import (_parse_test_date, evaluate, overall_status,
-                                track_mismatch)
+from domain.eligibility import (_parse_test_date, effective_curriculum,
+                                evaluate, overall_status, track_mismatch)
 
 app = FastAPI(title="PathPilot AI — Day 2 backend", version="0.2.0")
 
@@ -272,6 +272,24 @@ def _profile_field_errors(profile: StudentProfile) -> list[dict]:
             add("language.test_date", f"Test date {lang.test_date!r} is not a valid ISO date (YYYY-MM-DD).")
     ug = profile.undergrad_profile
     if ug is not None:
+        if ug.curriculum is not None and str(ug.curriculum).strip().lower() not in (
+                "cn_gaokao", "uk_alevel", "ib", "usa", "sg_alevel", "other"):
+            add("undergrad_profile.curriculum",
+                f"Curriculum {ug.curriculum!r} is not recognised "
+                "(cn_gaokao | uk_alevel | ib | usa | sg_alevel | other).")
+        if ug.gaokao_score is not None and (ug.gaokao_score < 0 or ug.gaokao_score > 750):
+            add("undergrad_profile.gaokao_score", f"Gaokao score {ug.gaokao_score} is out of range 0-750.")
+        if ug.gaokao_total is not None and (ug.gaokao_total <= 0 or ug.gaokao_total > 750):
+            add("undergrad_profile.gaokao_total", f"Gaokao total {ug.gaokao_total} is out of range 1-750.")
+        if ug.gaokao_maths is not None and (ug.gaokao_maths < 0 or ug.gaokao_maths > 150):
+            add("undergrad_profile.gaokao_maths", f"Gaokao maths {ug.gaokao_maths} is out of range 0-150.")
+        if ug.sat_total is not None and (ug.sat_total < 400 or ug.sat_total > 1600):
+            add("undergrad_profile.sat_total", f"SAT total {ug.sat_total} is out of range 400-1600.")
+        if ug.act_composite is not None and (ug.act_composite < 1 or ug.act_composite > 36):
+            add("undergrad_profile.act_composite", f"ACT composite {ug.act_composite} is out of range 1-36.")
+        for g in (ug.ap_grades or []):
+            if not isinstance(g, int) or g < 1 or g > 5:
+                add("undergrad_profile.ap_grades", f"AP grade {g!r} is not a valid AP grade (1-5).")
         if ug.ib_total is not None and (ug.ib_total < 0 or ug.ib_total > 45):
             add("undergrad_profile.ib_total", f"IB total {ug.ib_total} is out of range 0-45.")
         if ug.ib_hl_total is not None and (ug.ib_hl_total < 0 or ug.ib_hl_total > 21):
@@ -326,12 +344,17 @@ def _profile_warnings(profile: StudentProfile) -> list[str]:
         warnings.append("No budget supplied; fee rules will be UNKNOWN.")
     ug = profile.undergrad_profile
     if ug is not None:
-        if not ug.qualification_type:
-            warnings.append("No qualification type supplied; the academic rule will be UNKNOWN.")
+        curriculum = effective_curriculum(ug)
+        if not ug.curriculum and not ug.qualification_type:
+            warnings.append("No curriculum / qualification type supplied; the academic rule will be UNKNOWN.")
         if ug.qualification_type == "ib" and ug.ib_hl_total is None:
             warnings.append("IB HL total not supplied; the IB academic rule will be UNKNOWN.")
-        if ug.gcse_english_grade is None or ug.gcse_maths_grade is None:
+        if curriculum == "uk_alevel" and (ug.gcse_english_grade is None or ug.gcse_maths_grade is None):
             warnings.append("GCSE English/Maths grade(s) not supplied; the GCSE rule will be UNKNOWN.")
+        if curriculum == "cn_gaokao" and ug.gaokao_score is None:
+            warnings.append("Gaokao score not supplied; the academic rule will be UNKNOWN.")
+        if curriculum == "usa" and not ug.ap_grades:
+            warnings.append("No AP grades supplied; the academic rule will be UNKNOWN.")
         if ug.residency is None:
             warnings.append("Residency not supplied; the UCL fee rule assumes the overseas fee (£46,700/yr).")
         if ug.intake_year is None and profile.target_intake is None:
