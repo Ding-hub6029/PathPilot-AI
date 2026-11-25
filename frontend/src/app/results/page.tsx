@@ -6,12 +6,14 @@ import { usePrograms } from '../../lib/usePrograms';
 import { matchProfile, simulate } from '../../lib/api';
 import { MatchResponse, Profile } from '../../lib/types';
 import { StatusChip } from '../../components/StatusChip';
-import { EvidenceDrawer } from '../../components/EvidenceDrawer';
+import { RuleRow } from '../../components/RuleRow';
+import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
 
 type Filter = 'all' | 'met' | 'notmet' | 'unknown';
 
 export default function ResultsPage() {
-  const { t, profile } = useApp();
+  const { t, tf, locale, profile } = useApp();
+  const f = { t, tf, locale };
   const { programs, live: programsLive, loading: programsLoading } = usePrograms();
   const [data, setData] = useState<MatchResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -65,6 +67,36 @@ export default function ResultsPage() {
       {data && data.live && <p className="mt-3 rounded-lg bg-teal/10 p-3 text-sm font-semibold text-teal-dark" role="status">{t('common.online')}</p>}
       {!programsLoading && !programsLive && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('programs.offlineNote')}</p>}
 
+      {/* Status legend: a bare chip ("符合") means nothing without its rule. */}
+      <div className="mt-4 rounded-2xl border border-navy/10 bg-white p-4 text-sm">
+        <p className="font-bold">{t('results.legendTitle')}</p>
+        <ul className="mt-2 space-y-2 text-navy/80">
+          <li className="flex flex-wrap items-center gap-2"><StatusChip status="MET" /><span>{t('results.legendMet')}</span></li>
+          <li className="flex flex-wrap items-center gap-2"><StatusChip status="NOT_MET" /><span>{t('results.legendNotMet')}</span></li>
+          <li className="flex flex-wrap items-center gap-2"><StatusChip status="UNKNOWN" /><span>{t('results.legendUnknown')}</span></li>
+          <li className="flex flex-wrap items-center gap-2"><StatusChip status="NOT_APPLICABLE" /><span>{t('results.legendNotApplicable')}</span></li>
+        </ul>
+      </div>
+
+      {/* Next step (flow fix): the check is done — the report is the
+          analysis, and the wizard is where a profile is refined. */}
+      {data && !loading && (() => {
+        const usable = data.results.filter((r) => !r.trackMismatch && r.ruleResults.length > 0);
+        const metCount = usable.filter((r) => r.ruleResults.every((x) => x.status === 'MET')).length;
+        const blockerCount = usable.filter((r) => r.ruleResults.some((x) => x.status === 'NOT_MET')).length;
+        const unknownCount = usable.filter((r) => r.ruleResults.some((x) => x.status === 'UNKNOWN')).length;
+        return (
+          <section className="mt-4 rounded-2xl border border-teal/30 bg-teal/5 p-5" aria-labelledby="next-title">
+            <h2 id="next-title" className="text-lg font-bold">{t('results.nextTitle')}</h2>
+            <p className="mt-1 text-sm text-navy/75">{tf('results.nextSummary', { met: metCount, blockers: blockerCount, unknown: unknownCount })}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link href="/report" className="btn-press rounded-full bg-navy px-5 py-2 font-semibold text-white">{t('results.nextReport')}</Link>
+              <Link href="/wizard" className="btn-press rounded-full border border-navy/30 bg-white px-5 py-2 font-semibold">{t('results.nextEdit')}</Link>
+            </div>
+          </section>
+        );
+      })()}
+
       <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filters">
         {([['all', t('results.filterAll')], ['met', t('results.filterMet')], ['notmet', t('results.filterNotMet')], ['unknown', t('results.filterUnknown')]] as [Filter, string][]).map(([f, label]) => (
           <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)}
@@ -91,7 +123,7 @@ export default function ResultsPage() {
                 ) : (
                   <>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {r.ruleResults.map((rule) => <StatusChip key={rule.ruleId} status={rule.status} />)}
+                      {r.ruleResults.map((rule) => <StatusChip key={rule.ruleId} status={rule.status} label={chipLabel(rule, f)} />)}
                     </div>
                     <p className="mt-3 text-sm text-navy/70">
                       {unknowns > 0 ? `${unknowns} ${t('results.unknownCount')}` : ''}
@@ -100,30 +132,37 @@ export default function ResultsPage() {
                       <div className="mt-2">
                         <p className="text-sm font-bold">{t('results.blockers')}:</p>
                         <ul className="list-disc ps-5 text-sm text-navy/80">
-                          {blockers.map((b) => <li key={b.ruleId}>{b.expected} — {b.observed}</li>)}
+                          {blockers.map((b) => {
+                            const sentence = formatFeeSentence(b, f);
+                            return (
+                              <li key={b.ruleId}>
+                                {sentence ?? (
+                                  <>
+                                    <strong>{ruleName(b.ruleId, t)}</strong>{t('common.colon')}{ruleExpected(b, t)} — {t('results.yourSituation')}{t('common.colon')}{formatObserved(b, f)}
+                                  </>
+                                )}
+                              </li>
+                            );
+                          })}
                         </ul>
                       </div>
                     )}
                     <div className="mt-3 space-y-2">
-                      {r.ruleResults.map((rule) => (
-                        <div key={rule.ruleId} className="border-t border-navy/5 pt-2">
-                          <p className="text-sm font-semibold">{rule.expected}</p>
-                          <EvidenceDrawer program={p} rule={rule} />
-                        </div>
-                      ))}
+                      {r.ruleResults.map((rule) => <RuleRow key={rule.ruleId} program={p} rule={rule} />)}
                     </div>
                     {sim && (
                       <div className="mt-3 rounded-lg bg-teal/10 p-3 text-sm" aria-live="polite">
                         <p className="font-bold">{t('sim.scenario')}</p>
                         <div className="mt-1 flex flex-wrap gap-2">
-                          {sim.ruleResults.map((rule) => <StatusChip key={rule.ruleId} status={rule.status} />)}
+                          {sim.ruleResults.map((rule) => <StatusChip key={rule.ruleId} status={rule.status} label={chipLabel(rule, f)} />)}
                         </div>
                       </div>
                     )}
                   </>
                 )}
-                <div className="mt-4">
+                <div className="mt-4 flex flex-wrap gap-2">
                   <Link href={`/programs/${p.id}`} className="btn-press inline-block rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">{t('results.viewDetail')}</Link>
+                  <Link href="/report" className="btn-press inline-block rounded-full border border-navy/30 bg-white px-4 py-2 text-sm font-semibold">{t('results.viewReport')}</Link>
                 </div>
               </article>
             );
