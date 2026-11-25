@@ -3,9 +3,10 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
-import { sampleUndergrad, sampleMasters, Profile } from '../../lib/types';
+import { sampleUndergrad, sampleMasters, Profile, Curriculum } from '../../lib/types';
+import { formatFeeItems, formatIntake } from '../../lib/format';
 
-const STEPS = ['track', 'target', 'academic', 'language', 'budget'] as const;
+const STEPS = ['curriculum', 'track', 'target', 'academic', 'language', 'budget'] as const;
 
 function NumField({ label, value, onChange, step = '0.1', min, max }: { label: string; value: number | '' | undefined; onChange: (v: number | '') => void; step?: string; min?: number; max?: number }) {
   return (
@@ -19,7 +20,7 @@ function NumField({ label, value, onChange, step = '0.1', min, max }: { label: s
 }
 
 export default function WizardPage() {
-  const { t, profile, setProfile, updateProfile } = useApp();
+  const { t, locale, profile, setProfile, updateProfile } = useApp();
   const router = useRouter();
   const { programs } = usePrograms();
   const [step, setStep] = useState(0);
@@ -27,18 +28,19 @@ export default function WizardPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const stepLabel = (i: number) =>
-    i === 0 ? t('wizard.trackTitle') : i === 1 ? t('wizard.stepTarget') : i === 2 ? t('wizard.stepAcademic') : i === 3 ? t('wizard.stepLanguage') : t('wizard.stepBudget');
+    i === 0 ? t('wizard.stepCurriculum') : i === 1 ? t('wizard.trackTitle') : i === 2 ? t('wizard.stepTarget') : i === 3 ? t('wizard.stepAcademic') : i === 4 ? t('wizard.stepLanguage') : t('wizard.stepBudget');
 
   const canNext = () => {
-    if (step === 0) return profile.track !== '';
-    if (step === 1) return profile.targetProgramIds.length > 0;
+    if (step === 0) return !!profile.curriculum;
+    if (step === 1) return profile.track !== '';
+    if (step === 2) return profile.targetProgramIds.length > 0;
     return true;
   };
 
   const next = () => {
     if (!canNext()) { setError(t('wizard.required')); return; }
     setError('');
-    if (step === 1 && profile.targetProgramIds.length === 0) {
+    if (step === 2 && profile.targetProgramIds.length === 0) {
       const ids = programs.filter((p) => p.degreeLevel === profile.track).map((p) => p.id);
       updateProfile({ targetProgramIds: ids });
     }
@@ -50,7 +52,7 @@ export default function WizardPage() {
   const loadSample = () => {
     const s = profile.track === 'taught_masters' ? sampleMasters : sampleUndergrad;
     setProfile({ ...s });
-    setStep(4);
+    setStep(5);
   };
 
   const exportProfile = () => {
@@ -69,8 +71,38 @@ export default function WizardPage() {
     r.readAsText(f);
   };
 
+  /** Picking a curriculum keeps only that branch's fields, so stale
+   * values from another branch are never evaluated. */
+  const selectCurriculum = (c: Curriculum) => {
+    updateProfile({
+      curriculum: c,
+      alevels: c === 'uk_alevel' || c === 'sg_alevel' ? profile.alevels : '',
+      mathsGrade: c === 'uk_alevel' || c === 'sg_alevel' ? profile.mathsGrade : '',
+      gcseEnglish: c === 'uk_alevel' ? profile.gcseEnglish : '',
+      gcseMaths: c === 'uk_alevel' ? profile.gcseMaths : '',
+      ibTotal: c === 'ib' ? profile.ibTotal : '',
+      ibHlMaths: c === 'ib' ? profile.ibHlMaths : '',
+      ibHlTotal: c === 'ib' ? profile.ibHlTotal : '',
+      gaokaoScore: c === 'cn_gaokao' ? profile.gaokaoScore : '',
+      gaokaoTotal: c === 'cn_gaokao' ? profile.gaokaoTotal : '',
+      gaokaoMaths: c === 'cn_gaokao' ? profile.gaokaoMaths : '',
+      satTotal: c === 'usa' ? profile.satTotal : '',
+      actComposite: c === 'usa' ? profile.actComposite : '',
+      apGrades: c === 'usa' ? profile.apGrades : '',
+    });
+  };
+
   const trackPrograms = programs.filter((p) => p.degreeLevel === profile.track);
   const progress = ((step + 1) / STEPS.length) * 100;
+
+  const curricula: { id: Curriculum; title: string; desc: string }[] = [
+    { id: 'cn_gaokao', title: t('wizard.curriculumCnGaokao'), desc: t('wizard.curriculumCnGaokaoDesc') },
+    { id: 'uk_alevel', title: t('wizard.curriculumUk'), desc: t('wizard.curriculumUkDesc') },
+    { id: 'ib', title: t('wizard.curriculumIb'), desc: t('wizard.curriculumIbDesc') },
+    { id: 'usa', title: t('wizard.curriculumUsa'), desc: t('wizard.curriculumUsaDesc') },
+    { id: 'sg_alevel', title: t('wizard.curriculumSg'), desc: t('wizard.curriculumSgDesc') },
+    { id: 'other', title: t('wizard.curriculumOther'), desc: t('wizard.curriculumOtherDesc') },
+  ];
 
   return (
     <div className="page-enter mx-auto max-w-3xl px-4 py-8" key={step}>
@@ -93,6 +125,23 @@ export default function WizardPage() {
       <div className="anim-fade-up mt-6 rounded-2xl border border-navy/10 bg-white p-6 shadow-sm" aria-live="polite">
         {step === 0 && (
           <div>
+            <h2 className="text-lg font-bold">{t('wizard.curriculumTitle')}</h2>
+            <p className="mt-2 text-sm text-navy/70">{t('wizard.curriculumNote')}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {curricula.map((o) => (
+                <button key={o.id} type="button" onClick={() => selectCurriculum(o.id)}
+                  aria-pressed={profile.curriculum === o.id}
+                  className={`btn-press card-lift rounded-2xl border-2 p-5 text-start ${profile.curriculum === o.id ? 'border-teal bg-teal/5' : 'border-navy/15'}`}>
+                  <span className="text-lg font-bold">{o.title}</span>
+                  <span className="mt-1 block text-sm text-navy/70">{o.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
+          <div>
             <h2 className="text-lg font-bold">{t('wizard.trackTitle')}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {([
@@ -110,7 +159,7 @@ export default function WizardPage() {
           </div>
         )}
 
-        {step === 1 && (
+        {step === 2 && (
           <div>
             <h2 className="text-lg font-bold">{t('wizard.targetLabel')}</h2>
             <div className="mt-4 space-y-3">
@@ -120,7 +169,7 @@ export default function WizardPage() {
                   <button key={p.id} type="button" aria-pressed={on} onClick={() => updateProfile({ targetProgramIds: on ? profile.targetProgramIds.filter((x) => x !== p.id) : [...profile.targetProgramIds, p.id] })}
                     className={`btn-press block w-full rounded-2xl border-2 p-4 text-start ${on ? 'border-teal bg-teal/5' : 'border-navy/15'}`}>
                     <span className="font-bold">{p.institution} — {p.officialName}</span>
-                    <span className="block text-sm text-navy/70">{p.intakeLabel} · {p.feeItems.map((f) => `${f.currency} ${f.amount.toLocaleString()} ${f.period}`).join(', ')}</span>
+                    <span className="block text-sm text-navy/70">{formatIntake(p, t)} · {formatFeeItems(p, t, locale)}</span>
                   </button>
                 );
               })}
@@ -131,28 +180,65 @@ export default function WizardPage() {
           </div>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <div className="space-y-4">
             <h2 className="text-lg font-bold">{t('wizard.stepAcademic')}</h2>
             {profile.track === 'undergraduate' ? (
               <>
-                <label className="block"><span className="text-sm font-semibold">{t('wizard.alevelLabel')}</span>
-                  <input value={profile.alevels ?? ''} onChange={(e) => updateProfile({ alevels: e.target.value })} placeholder="A*A*A" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-                <label className="block"><span className="text-sm font-semibold">{t('wizard.mathsLabel')}</span>
-                  <input value={profile.mathsGrade ?? ''} onChange={(e) => updateProfile({ mathsGrade: e.target.value })} placeholder="A*" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-                <p className="text-sm text-navy/60">{t('wizard.ibHint')}</p>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <NumField label={t('wizard.ibTotal')} value={profile.ibTotal} onChange={(v) => updateProfile({ ibTotal: v })} step="1" min={0} max={45} />
-                  <NumField label={t('wizard.ibHlMaths')} value={profile.ibHlMaths} onChange={(v) => updateProfile({ ibHlMaths: v })} step="1" min={1} max={7} />
-                  <NumField label={t('wizard.ibHlTotal')} value={profile.ibHlTotal} onChange={(v) => updateProfile({ ibHlTotal: v })} step="1" min={0} max={21} />
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block"><span className="text-sm font-semibold">{t('wizard.gcseEnglish')}</span>
-                    <input value={profile.gcseEnglish ?? ''} onChange={(e) => updateProfile({ gcseEnglish: e.target.value })} placeholder="C / 4" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-                  <label className="block"><span className="text-sm font-semibold">{t('wizard.gcseMaths')}</span>
-                    <input value={profile.gcseMaths ?? ''} onChange={(e) => updateProfile({ gcseMaths: e.target.value })} placeholder="C / 4" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-                </div>
-                <p className="text-sm text-navy/60">{t('wizard.gcseHint')}</p>
+                {(profile.curriculum === 'uk_alevel' || profile.curriculum === 'sg_alevel') && (
+                  <>
+                    <label className="block"><span className="text-sm font-semibold">{t('wizard.alevelLabel')}</span>
+                      <input value={profile.alevels ?? ''} onChange={(e) => updateProfile({ alevels: e.target.value })} placeholder="A*A*A" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
+                    <label className="block"><span className="text-sm font-semibold">{t('wizard.mathsLabel')}</span>
+                      <input value={profile.mathsGrade ?? ''} onChange={(e) => updateProfile({ mathsGrade: e.target.value })} placeholder="A*" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
+                    {profile.curriculum === 'uk_alevel' && (
+                      <>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <label className="block"><span className="text-sm font-semibold">{t('wizard.gcseEnglish')}</span>
+                            <input value={profile.gcseEnglish ?? ''} onChange={(e) => updateProfile({ gcseEnglish: e.target.value })} placeholder="C / 4" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
+                          <label className="block"><span className="text-sm font-semibold">{t('wizard.gcseMaths')}</span>
+                            <input value={profile.gcseMaths ?? ''} onChange={(e) => updateProfile({ gcseMaths: e.target.value })} placeholder="C / 4" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
+                        </div>
+                        <p className="text-sm text-navy/60">{t('wizard.gcseHint')}</p>
+                      </>
+                    )}
+                    {profile.curriculum === 'sg_alevel' && <p className="text-sm text-navy/60">{t('wizard.sgNote')}</p>}
+                  </>
+                )}
+                {profile.curriculum === 'ib' && (
+                  <>
+                    <p className="text-sm text-navy/60">{t('wizard.ibHint')}</p>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <NumField label={t('wizard.ibTotal')} value={profile.ibTotal} onChange={(v) => updateProfile({ ibTotal: v })} step="1" min={0} max={45} />
+                      <NumField label={t('wizard.ibHlMaths')} value={profile.ibHlMaths} onChange={(v) => updateProfile({ ibHlMaths: v })} step="1" min={1} max={7} />
+                      <NumField label={t('wizard.ibHlTotal')} value={profile.ibHlTotal} onChange={(v) => updateProfile({ ibHlTotal: v })} step="1" min={0} max={21} />
+                    </div>
+                  </>
+                )}
+                {profile.curriculum === 'cn_gaokao' && (
+                  <>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <NumField label={t('wizard.gaokaoScore')} value={profile.gaokaoScore} onChange={(v) => updateProfile({ gaokaoScore: v })} step="1" min={0} max={750} />
+                      <NumField label={t('wizard.gaokaoTotal')} value={profile.gaokaoTotal} onChange={(v) => updateProfile({ gaokaoTotal: v })} step="1" min={1} max={750} />
+                      <NumField label={t('wizard.gaokaoMaths')} value={profile.gaokaoMaths} onChange={(v) => updateProfile({ gaokaoMaths: v })} step="1" min={0} max={150} />
+                    </div>
+                    <p className="text-sm text-navy/60">{t('wizard.gaokaoNote')}</p>
+                  </>
+                )}
+                {profile.curriculum === 'usa' && (
+                  <>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <NumField label={t('wizard.satTotal')} value={profile.satTotal} onChange={(v) => updateProfile({ satTotal: v })} step="10" min={400} max={1600} />
+                      <NumField label={t('wizard.actComposite')} value={profile.actComposite} onChange={(v) => updateProfile({ actComposite: v })} step="1" min={1} max={36} />
+                    </div>
+                    <label className="block"><span className="text-sm font-semibold">{t('wizard.apGrades')}</span>
+                      <input value={profile.apGrades ?? ''} onChange={(e) => updateProfile({ apGrades: e.target.value })} placeholder="5,5,5,4,4" className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" />
+                      <span className="text-xs text-navy/60">{t('wizard.apGradesHint')}</span></label>
+                    <p className="text-sm text-navy/60">{t('wizard.usaNote')}</p>
+                  </>
+                )}
+                {profile.curriculum === 'other' && <p className="text-sm text-navy/60">{t('wizard.otherNote')}</p>}
+                {!profile.curriculum && <p className="text-sm text-navy/60">{t('wizard.curriculumMissing')}</p>}
               </>
             ) : (
               <>
@@ -187,7 +273,7 @@ export default function WizardPage() {
           </div>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <div className="space-y-4">
             <h2 className="text-lg font-bold">{t('wizard.stepLanguage')}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -214,7 +300,7 @@ export default function WizardPage() {
           </div>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <div className="space-y-4">
             <h2 className="text-lg font-bold">{t('wizard.stepBudget')}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
