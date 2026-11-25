@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { formatIntake } from '../lib/format';
 import { useApp } from '../lib/store';
 import { Program, RuleResult } from '../lib/types';
 
@@ -49,7 +50,7 @@ export function EvidenceDrawer({ program, rule }: { program: Program; rule: Rule
           <a href={s.url} target="_blank" rel="noreferrer" className="mt-2 inline-block break-all font-semibold text-teal-dark underline">{s.url}</a>
           <p className="mt-1 text-xs text-navy/60">
             {t('program.sourceVerified')}: {s.verifiedDate}
-            {' · '}{t('evidence.intakeApplies')}: {s.appliesTo || program.intakeLabel}
+            {' · '}{t('evidence.intakeApplies')}: {s.appliesTo || formatIntake(program, t)}
           </p>
         </div>
       ))}
