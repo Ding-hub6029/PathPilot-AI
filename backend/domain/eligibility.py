@@ -51,6 +51,85 @@ def _toefl_score(language: Language | None) -> float | None:
     return None
 
 
+# Country / curriculum branches (fix 2026-11-25, DECISIONS #66). The wizard
+# asks this first; the engine evaluates against the applicant's own
+# branch instead of assuming A-level/IB/GCSE for everyone.
+CURRICULA = ("cn_gaokao", "uk_alevel", "ib", "usa", "sg_alevel", "other")
+
+
+def effective_curriculum(ug: UndergradProfile) -> str:
+    """The applicant's curriculum branch.
+
+    An explicit curriculum wins. Otherwise it is inferred from the legacy
+    qualification_type (a_level -> uk_alevel, ib -> ib, other -> other),
+    and a profile with neither is treated as uk_alevel so pre-branch API
+    clients keep the old behaviour (Day 1/2 tests included).
+    """
+    if ug.curriculum:
+        c = str(ug.curriculum).strip().lower()
+        if c in CURRICULA:
+            return c
+    return {"a_level": "uk_alevel", "ib": "ib", "other": "other"}.get(
+        ug.qualification_type or "", "uk_alevel")
+
+
+def _ug_observed(ug: UndergradProfile) -> dict:
+    """Branch-relevant observed values for an undergraduate academic rule.
+
+    Only the current branch's fields are included, so the frontend can
+    render "your situation" from structured data instead of English text.
+    """
+    cur = effective_curriculum(ug)
+    obs: dict[str, Any] = {"curriculum": cur}
+    if cur in ("uk_alevel", "sg_alevel"):
+        obs["grades"] = ug.a_level_grades
+        obs["maths"] = ug.a_level_maths_grade
+    elif cur == "ib":
+        obs["total"] = ug.ib_total
+        obs["hl_maths"] = ug.ib_hl_maths_grade
+        obs["hl_total"] = ug.ib_hl_total
+    elif cur == "cn_gaokao":
+        obs["gaokao_score"] = ug.gaokao_score
+        obs["gaokao_total"] = ug.gaokao_total
+        obs["gaokao_maths"] = ug.gaokao_maths
+    elif cur == "usa":
+        obs["sat_total"] = ug.sat_total
+        obs["act_composite"] = ug.act_composite
+        obs["ap_grades"] = ug.ap_grades
+    return obs
+
+
+def _ap_route_met(ug: UndergradProfile) -> bool | None:
+    """Imperial's published US standard (accepted-qualifications page):
+    five AP tests with grades 5,5,5,4,4, or three AP tests 5,5,4 together
+    with an acceptable school-leaving qualification and SAT 1460+ or
+    ACT 31+. True if met, False if AP grades were supplied but the
+    standard is not met, None if no AP grades were supplied at all.
+    The school-leaving qualification itself is not collected; the met
+    case is therefore only ever UNKNOWN at course level (see
+    evaluate_imperial_beng), never a MET verdict."""
+    grades = sorted((g for g in (ug.ap_grades or []) if isinstance(g, int)),
+                    reverse=True)
+    if not grades:
+        return None
+
+    def _covers(need: list[int]) -> bool:
+        pool = list(grades)
+        for n in need:
+            if n in pool:
+                pool.remove(n)
+            else:
+                return False
+        return True
+
+    if _covers([5, 5, 5, 4, 4]):
+        return True
+    if _covers([5, 5, 4]) and ((ug.sat_total or 0) >= 1460
+                               or (ug.act_composite or 0) >= 31):
+        return True
+    return False
+
+
 def _ucl_toefl_rule(language: Language | None) -> RuleResult | None:
     """Separate UCL TOEFL rule (ucl-toefl), or None if no TOEFL supplied.
 
@@ -100,14 +179,26 @@ def _gcse_pass(grade: str | None) -> bool | None:
     return None
 
 
-def _gcse_rule(ug: UndergradProfile) -> RuleResult:
+def _gcse_rule(ug: UndergradProfile, curriculum: str) -> RuleResult:
     """UCL GCSE rule (ucl-gcse): English + Maths at grade C/4 required.
+
+    GCSEs are a UK-school qualification, so the rule is evaluated for UK
+    A-level applicants, and for any applicant who supplied GCSE grades
+    (legacy / API profiles, e.g. an IB student with GCSEs). For other
+    curriculum branches without GCSE grades it is NOT_APPLICABLE, never
+    UNKNOWN — a Gaokao / USA / IB / Singapore applicant must not be
+    asked for GCSEs they do not have (fix 2026-11-25, DECISIONS #66).
 
     Evidence: the requirement is stated on the UCL BSc page (source
     ucl-bsc). The v1 manifest has no dedicated GCSE fact, so the rule cites
     the forward-reference id f-ucl-gcse, which the v2 manifest must add
     (DECISIONS #45); the frontend maps it to ucl-cs-entry meanwhile.
     """
+    if curriculum != "uk_alevel" and ug.gcse_english_grade is None \
+            and ug.gcse_maths_grade is None:
+        return _r("ucl-gcse", "NOT_APPLICABLE",
+                  "GCSE is a UK-school qualification; this applicant's curriculum branch does not include GCSEs, so there is no GCSE requirement to check.",
+                  ["f-ucl-gcse"], observed={"curriculum": curriculum})
     eng = _gcse_pass(ug.gcse_english_grade)
     maths = _gcse_pass(ug.gcse_maths_grade)
     observed = {"english": ug.gcse_english_grade, "maths": ug.gcse_maths_grade}
@@ -164,6 +255,7 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
     results: list[RuleResult] = []
     lang = profile.language
     ug = profile.undergrad_profile or UndergradProfile()
+    curriculum = effective_curriculum(ug)
 
     # --- Language: IELTS overall ---
     if lang is None or lang.exam in (None, "none"):
@@ -222,11 +314,12 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
     if toefl_rule is not None:
         results.append(toefl_rule)
 
-    # --- GCSE: English + Maths at grade C/4 ---
-    results.append(_gcse_rule(ug))
+    # --- GCSE: English + Maths at grade C/4 (UK A-level branch only;
+    # other branches without GCSE grades are NOT_APPLICABLE) ---
+    results.append(_gcse_rule(ug, curriculum))
 
-    # --- Academic ---
-    if ug.qualification_type == "a_level":
+    # --- Academic: evaluated against the applicant's own curriculum ---
+    if curriculum in ("uk_alevel", "sg_alevel"):
         grades = ug.a_level_grades or []
         maths_ok = ug.a_level_maths_grade == "A*"
         # A*A*A: at least three grades, sorted top three are A*, A*, A or better.
@@ -237,21 +330,27 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
         # route on the official page. Without evidence of contextual
         # eligibility it cannot be MET, but it is not a failure either.
         contextual_ok = len(top) == 3 and top[0] >= 5 and top[1] >= 4 and top[2] >= 3 and maths_ok
-        if grades_ok and maths_ok:
+        if not grades and ug.a_level_maths_grade is None:
+            # No A-level evidence at all (e.g. a profile with no
+            # qualification info): missing, never a failure.
+            results.append(_r("ucl-academic", "UNKNOWN",
+                              "A-level grades not supplied.", ["f-ucl-alevel"],
+                              observed=_ug_observed(ug)))
+        elif grades_ok and maths_ok:
             results.append(_r("ucl-academic", "MET",
                               "A-level grades A*A*A with A* in Mathematics.", ["f-ucl-alevel"],
-                              observed={"grades": grades, "maths": ug.a_level_maths_grade}))
+                              observed=_ug_observed(ug)))
         elif contextual_ok:
             results.append(_r("ucl-academic", "UNKNOWN",
                               "A-level grades meet the UCL contextual offer (A*AB with A* in Mathematics), but contextual eligibility is not confirmed for this applicant.",
                               ["f-ucl-alevel"],
-                              observed={"grades": grades, "maths": ug.a_level_maths_grade}))
+                              observed=_ug_observed(ug)))
         else:
             results.append(_r("ucl-academic", "NOT_MET",
                               "A-level grades do not meet A*A*A with A* in Mathematics.",
                               ["f-ucl-alevel"],
-                              observed={"grades": grades, "maths": ug.a_level_maths_grade}))
-    elif ug.qualification_type == "ib":
+                              observed=_ug_observed(ug)))
+    elif curriculum == "ib":
         if ug.ib_total is None or ug.ib_hl_maths_grade is None:
             results.append(_r("ucl-academic", "UNKNOWN",
                               "IB total or HL Mathematics grade not supplied.", ["f-ucl-ib"]))
@@ -262,21 +361,19 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
             results.append(_r("ucl-academic", "UNKNOWN",
                               "HL total not supplied. UCL requires 20 points in three Higher Level subjects (including grade 7 in Mathematics) for IB 40, so the academic rule cannot be decided without it.",
                               ["f-ucl-ib"],
-                              observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade}))
+                              observed=_ug_observed(ug)))
         elif ug.ib_total >= 40 and ug.ib_hl_maths_grade == 7 and ug.ib_hl_total >= 20:
             results.append(_r("ucl-academic", "MET",
                               "IB total 40+ with 20+ points in three HL subjects including HL Mathematics grade 7.",
                               ["f-ucl-ib"],
-                              observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade,
-                                        "hl_total": ug.ib_hl_total}))
+                              observed=_ug_observed(ug)))
         elif ug.ib_total >= 40 and ug.ib_hl_maths_grade == 7:
             # Total 40 + HL Maths 7 but HL sum below 20: fails the stated
             # "20 points in three HL subjects" requirement.
             results.append(_r("ucl-academic", "NOT_MET",
                               f"IB total {ug.ib_total} with HL Mathematics grade 7, but only {ug.ib_hl_total} points in three HL subjects (20 required).",
                               ["f-ucl-ib"],
-                              observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade,
-                                        "hl_total": ug.ib_hl_total}))
+                              observed=_ug_observed(ug)))
         elif ug.ib_total >= 38 and ug.ib_hl_maths_grade == 7 and ug.ib_hl_total >= 18:
             # Contextual offer is IB 38 (18 points in three HL subjects incl.
             # grade 7 in Maths). Without evidence of contextual eligibility
@@ -284,20 +381,36 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
             results.append(_r("ucl-academic", "UNKNOWN",
                               "IB total 38-39 with HL Mathematics grade 7 and 18+ HL points is within the UCL contextual offer (IB 38), but contextual eligibility is not confirmed for this applicant.",
                               ["f-ucl-ib"],
-                              observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade,
-                                        "hl_total": ug.ib_hl_total}))
+                              observed=_ug_observed(ug)))
         else:
             results.append(_r("ucl-academic", "NOT_MET",
                               "IB total below 40 or HL Mathematics below grade 7 (or HL total below the contextual 18).", ["f-ucl-ib"],
-                              observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade,
-                                        "hl_total": ug.ib_hl_total}))
+                              observed=_ug_observed(ug)))
+    elif curriculum == "cn_gaokao":
+        # No Gaokao direct-entry route is published for this programme:
+        # UCL's China page states the minimum equivalent entry requirement
+        # is ABB at A level or 36 IB points (or one year of a Chinese
+        # bachelor's degree at 90%). A Gaokao score is never converted to
+        # A-level grades. Verified 2026-11-25 (DECISIONS #67).
+        results.append(_r("ucl-academic", "UNKNOWN",
+                          "Gaokao scores cannot be assessed for this programme: UCL's China page states the minimum equivalent entry requirement is ABB at A level or 36 IB points (or one year of a Chinese bachelor's degree at 90%), and no direct Gaokao entry route is published for Computer Science BSc. Gaokao is never treated as A level.",
+                          ["f-ucl-china-gaokao"], observed=_ug_observed(ug)))
+    elif curriculum == "usa":
+        # No US (SAT/ACT/AP) equivalence is stated on the UCL Computer
+        # Science BSc page or in the verified sources, so a US-curriculum
+        # applicant cannot be assessed against A*A*A. Scores are never
+        # converted to A-level grades (DECISIONS #67).
+        results.append(_r("ucl-academic", "UNKNOWN",
+                          "No US (SAT/ACT/AP) equivalence is stated on the UCL Computer Science BSc page or in the verified sources, so a US-curriculum applicant cannot be assessed against the A*A*A requirement. SAT/ACT/AP scores are never converted to A-level grades.",
+                          ["f-ucl-alevel"], observed=_ug_observed(ug)))
     elif ug.qualification_type == "other":
         results.append(_r("ucl-academic", "UNKNOWN",
                           "Qualification is neither A level nor IB; no equivalence evidence in the verified sources.",
-                          ["f-ucl-alevel", "f-ucl-ib"]))
+                          ["f-ucl-alevel", "f-ucl-ib"], observed=_ug_observed(ug)))
     else:
         results.append(_r("ucl-academic", "UNKNOWN",
-                          "Qualification type not supplied.", ["f-ucl-alevel", "f-ucl-ib"]))
+                          "Qualification type not supplied.", ["f-ucl-alevel", "f-ucl-ib"],
+                          observed=_ug_observed(ug)))
 
     # --- TARA: required, no threshold stated -> always UNKNOWN ---
     results.append(_r("ucl-tara", "UNKNOWN",
@@ -607,41 +720,75 @@ def evaluate_imperial_beng(profile: StudentProfile, program: dict) -> list[RuleR
     results: list[RuleResult] = []
     lang = profile.language
     ug = profile.undergrad_profile or UndergradProfile()
+    curriculum = effective_curriculum(ug)
     # --- Academic: A-level A*A*A or A*AAA incl. A* Maths; IB 41 + HL Maths 7
     # + another HL 7 (second HL grade is not collected, so IB can be UNKNOWN
-    # at best once total + HL Maths are met).
-    if ug.qualification_type == "a_level":
+    # at best once total + HL Maths are met). US applicants are assessed
+    # against Imperial's published AP standard; Gaokao has no published
+    # equivalence (China is not in Imperial's accepted-qualifications
+    # table). DECISIONS #67.
+    if curriculum in ("uk_alevel", "sg_alevel"):
         top = _alevel_top3(ug.a_level_grades)
         maths_ok = ug.a_level_maths_grade == "A*"
         if top is None or not maths_ok and ug.a_level_maths_grade is None:
             results.append(_r("imp-beng-academic", "UNKNOWN",
-                              "A-level grades or Maths grade not supplied.", ["f-imperial-beng-alevel"]))
+                              "A-level grades or Maths grade not supplied.", ["f-imperial-beng-alevel"],
+                              observed=_ug_observed(ug)))
         elif top is not None and maths_ok and (top >= [5, 5, 4] or top >= [5, 4, 4]):
             results.append(_r("imp-beng-academic", "MET",
                               "A-level grades A*A*A or A*AAA with A* in Mathematics.", ["f-imperial-beng-alevel"],
-                              observed={"grades": ug.a_level_grades, "maths": ug.a_level_maths_grade}))
+                              observed=_ug_observed(ug)))
         else:
             results.append(_r("imp-beng-academic", "NOT_MET",
                               "A-level grades do not meet A*A*A or A*AAA with A* in Mathematics.",
                               ["f-imperial-beng-alevel"],
-                              observed={"grades": ug.a_level_grades, "maths": ug.a_level_maths_grade}))
-    elif ug.qualification_type == "ib":
+                              observed=_ug_observed(ug)))
+    elif curriculum == "ib":
         if ug.ib_total is None or ug.ib_hl_maths_grade is None:
             results.append(_r("imp-beng-academic", "UNKNOWN",
                               "IB total or HL Mathematics grade not supplied.", ["f-imperial-beng-ib"]))
         elif ug.ib_total < 41 or ug.ib_hl_maths_grade < 7:
             results.append(_r("imp-beng-academic", "NOT_MET",
                               "IB total below 41 or HL Mathematics below grade 7.", ["f-imperial-beng-ib"],
-                              observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade}))
+                              observed=_ug_observed(ug)))
         else:
             results.append(_r("imp-beng-academic", "UNKNOWN",
                               "IB total 41+ with HL Mathematics grade 7, but a second Higher Level subject at grade 7 is also required and was not supplied, so this cannot be decided.",
                               ["f-imperial-beng-ib"],
-                              observed={"total": ug.ib_total, "hl_maths": ug.ib_hl_maths_grade}))
+                              observed=_ug_observed(ug)))
+    elif curriculum == "usa":
+        # Imperial's accepted-qualifications page publishes a US standard
+        # (five AP tests 5,5,5,4,4, or three AP tests 5,5,4 + SAT 1460 /
+        # ACT 31). Meeting it only establishes equivalence to 3 A levels;
+        # the Computing BEng course requirement (A* in Mathematics) cannot
+        # be checked from AP grades alone, and the page states some courses
+        # require higher than the general minimum — so a met standard is
+        # UNKNOWN, never MET. Below the standard is a real NOT_MET.
+        ap = _ap_route_met(ug)
+        if ap is None:
+            results.append(_r("imp-beng-academic", "UNKNOWN",
+                              "No AP grades supplied. Imperial's published US standard is five AP tests with grades 5,5,5,4,4, or three AP tests 5,5,4 with SAT 1460+ or ACT 31+.",
+                              ["f-imperial-usa-ap"], observed=_ug_observed(ug)))
+        elif ap:
+            results.append(_r("imp-beng-academic", "UNKNOWN",
+                              "AP/SAT/ACT scores meet Imperial's published general minimum standard for US applicants (five AP tests 5,5,5,4,4, or three AP tests 5,5,4 with SAT 1460+ or ACT 31+), but the Computing BEng course requirement (A* in Mathematics) cannot be checked from AP grades alone — the course page states higher requirements than the general minimum.",
+                              ["f-imperial-usa-ap"], observed=_ug_observed(ug)))
+        else:
+            results.append(_r("imp-beng-academic", "NOT_MET",
+                              "AP/SAT/ACT scores are below Imperial's published minimum standard for US applicants (five AP tests 5,5,5,4,4, or three AP tests 5,5,4 with SAT 1460+ or ACT 31+).",
+                              ["f-imperial-usa-ap"], observed=_ug_observed(ug)))
+    elif curriculum == "cn_gaokao":
+        # China does not appear in Imperial's accepted-qualifications
+        # table at all, so no Gaokao equivalence is published for this
+        # programme. Verified 2026-11-25 (DECISIONS #67).
+        results.append(_r("imp-beng-academic", "UNKNOWN",
+                          "Gaokao scores cannot be assessed for this programme: China does not appear in Imperial's accepted-qualifications table, so no Gaokao equivalence is published for Computing BEng. Gaokao is never treated as A level.",
+                          ["f-imperial-china-none"], observed=_ug_observed(ug)))
     else:
         results.append(_r("imp-beng-academic", "UNKNOWN",
                           "Qualification type not supplied or neither A level nor IB; no equivalence evidence in the verified sources.",
-                          ["f-imperial-beng-alevel", "f-imperial-beng-ib"]))
+                          ["f-imperial-beng-alevel", "f-imperial-beng-ib"],
+                          observed=_ug_observed(ug)))
     # --- Language ---
     results.append(_ielts_overall_rule("imp-beng-language", lang, 6.5,
                                        ["f-imperial-beng-ielts"], "Imperial BEng (Standard)"))
@@ -784,7 +931,7 @@ def evaluate_nus_bcomp(profile: StudentProfile, program: dict) -> list[RuleResul
     results.append(_r("nus-bcomp-academic", "UNKNOWN",
                       "NUS publishes no fixed A-level/IB minimum for this programme — only the Indicative Grade Profile of admitted students (Common CS Programmes AAA/A at the 10th and 90th percentile). An IGP figure is not a threshold and meeting it does not guarantee admission, so academic eligibility cannot be decided from grades alone.",
                       ["f-nus-bcomp-igp"],
-                      observed={"grades": ug.a_level_grades, "ib_total": ug.ib_total}))
+                      observed=_ug_observed(ug)))
     # --- Language ---
     results.append(_ielts_overall_rule("nus-bcomp-language", lang, 6.5,
                                        ["f-nus-bcomp-ielts"], "NUS BComp CS"))
@@ -812,7 +959,7 @@ def evaluate_ntu_bcomp(profile: StudentProfile, program: dict) -> list[RuleResul
     results.append(_r("ntu-bcomp-academic", "UNKNOWN",
                       "NTU publishes no fixed A-level/IB minimum for this programme — only the Indicative Grade Profile of admitted students (Computer Science AAB/C at the 10th percentile to AAA/A at the 90th percentile). An IGP figure is not a threshold and meeting it does not guarantee admission, so academic eligibility cannot be decided from grades alone. Minimum subject: Mathematics or Physics at Senior High School level (not collected in the wizard yet).",
                       ["f-ntu-bcomp-igp", "f-ntu-bcomp-subject"],
-                      observed={"grades": ug.a_level_grades, "ib_total": ug.ib_total}))
+                      observed=_ug_observed(ug)))
     # --- Language ---
     results.append(_ielts_overall_rule("ntu-bcomp-language", lang, 6.5,
                                        ["f-ntu-bcomp-ielts"], "NTU BComp CS"))
