@@ -1,7 +1,5 @@
 {
   "data_version": "v2",
-  "generated_at": "2026-11-25T00:00:00Z",
-  "note": "v2 = v1 programs/facts/sources/unknowns copied unchanged, plus 6 new programs researched 2026-11-24 16:28-16:32 UTC (2026-11-25 00:28-00:32 CST) from official university pages only. No content hashes: all Day 2 facts come from browser crawls, not direct byte fetches. UCL TOEFL unknown entry updated: TOEFL is now modelled with the Jan 2026 scale split. f-ucl-gcse added (GCSE C/4 requirement, source ucl-bsc).",
   "facts": [
     {
       "excerpt": "Computer Science BSc (page title)",
@@ -184,7 +182,7 @@
       "value": "Computing BEng"
     },
     {
-      "excerpt": "Application deadlines – Wednesday 13 January 2027 at 18.00 (UK time)",
+      "excerpt": "Application deadlines \u2013 Wednesday 13 January 2027 at 18.00 (UK time)",
       "field": "application_deadline",
       "id": "f-imperial-beng-deadline",
       "program_id": "imperial-comp-beng-2027",
@@ -193,7 +191,7 @@
       "value": "13 January 2027 (18:00 UK time)"
     },
     {
-      "excerpt": "Home fee £10,050 per year; Overseas fee £47,800 per year",
+      "excerpt": "Home fee \u00a310,050 per year; Overseas fee \u00a347,800 per year",
       "field": "fees.overseas_per_year_gbp",
       "id": "f-imperial-beng-fee-overseas",
       "program_id": "imperial-comp-beng-2027",
@@ -202,7 +200,7 @@
       "value": 47800
     },
     {
-      "excerpt": "Home fee £10,050 per year",
+      "excerpt": "Home fee \u00a310,050 per year",
       "field": "fees.uk_per_year_gbp",
       "id": "f-imperial-beng-fee-uk",
       "program_id": "imperial-comp-beng-2027",
@@ -238,7 +236,7 @@
       "value": "Standard requirement"
     },
     {
-      "excerpt": "IELTS – Academic: 6.5 overall (minimum 6.0 in all elements) [Standard]; TOEFL (iBT): 92 overall (minimum 20 in all elements) [Standard]; 4.5 (minimum 4.5 in all elements) [new 1-6 scale]",
+      "excerpt": "IELTS \u2013 Academic: 6.5 overall (minimum 6.0 in all elements) [Standard]; TOEFL (iBT): 92 overall (minimum 20 in all elements) [Standard]; 4.5 (minimum 4.5 in all elements) [new 1-6 scale]",
       "field": "requirements.imperial-beng-language",
       "id": "f-imperial-beng-ielts",
       "program_id": "imperial-comp-beng-2027",
@@ -265,7 +263,7 @@
       "value": "Computing MSc"
     },
     {
-      "excerpt": "Application deadlines – Round 2 closes on Wednesday 6 January 2027.",
+      "excerpt": "Application deadlines \u2013 Round 2 closes on Wednesday 6 January 2027.",
       "field": "application_deadline",
       "id": "f-imperial-msc-deadline",
       "program_id": "imperial-msc-computing-2027",
@@ -274,7 +272,7 @@
       "value": "Round 2 closes 6 January 2027"
     },
     {
-      "excerpt": "Home fee £25,850; Overseas fee £48,300",
+      "excerpt": "Home fee \u00a325,850; Overseas fee \u00a348,300",
       "field": "fees.overseas_per_year_gbp",
       "id": "f-imperial-msc-fee-overseas",
       "program_id": "imperial-msc-computing-2027",
@@ -283,7 +281,7 @@
       "value": 48300
     },
     {
-      "excerpt": "Home fee £25,850",
+      "excerpt": "Home fee \u00a325,850",
       "field": "fees.uk_per_year_gbp",
       "id": "f-imperial-msc-fee-uk",
       "program_id": "imperial-msc-computing-2027",
@@ -319,7 +317,7 @@
       "value": "Higher requirement (PG)"
     },
     {
-      "excerpt": "IELTS – Academic: 7.0 overall (minimum 6.5 in all elements) [Higher]; TOEFL (iBT): 100 overall (minimum 22 in all elements) [Higher]; 5.0 (minimum 5.0 in all elements) [new 1-6 scale]",
+      "excerpt": "IELTS \u2013 Academic: 7.0 overall (minimum 6.5 in all elements) [Higher]; TOEFL (iBT): 100 overall (minimum 22 in all elements) [Higher]; 5.0 (minimum 5.0 in all elements) [new 1-6 scale]",
       "field": "requirements.imperial-msc-language",
       "id": "f-imperial-msc-ielts",
       "program_id": "imperial-msc-computing-2027",
@@ -364,7 +362,7 @@
       "value": "Visa-required: 19 Oct 2026 - 22 Mar 2027; no visa required: 19 Oct 2026 - 27 Aug 2027"
     },
     {
-      "excerpt": "UK students: £21,500 per year; International: £44,400 per year",
+      "excerpt": "UK students: \u00a321,500 per year; International: \u00a344,400 per year",
       "field": "fees.overseas_per_year_gbp",
       "id": "f-ucl-msc-fee-overseas",
       "program_id": "ucl-cs-msc-2027",
@@ -373,7 +371,7 @@
       "value": 44400
     },
     {
-      "excerpt": "UK students: £21,500 per year",
+      "excerpt": "UK students: \u00a321,500 per year",
       "field": "fees.uk_per_year_gbp",
       "id": "f-ucl-msc-fee-uk",
       "program_id": "ucl-cs-msc-2027",
@@ -382,7 +380,7 @@
       "value": 21500
     },
     {
-      "excerpt": "There is an application processing fee for this course of £90 for online applications.",
+      "excerpt": "There is an application processing fee for this course of \u00a390 for online applications.",
       "field": "fees.application_fee_gbp",
       "id": "f-ucl-msc-appfee",
       "program_id": "ucl-cs-msc-2027",
@@ -625,16 +623,16 @@
       "value": "Good honours in CS/CE/related with solid maths; OR good bachelor's in CS/CE/related + 2 years relevant industry experience"
     },
     {
-      "excerpt": "English language proficiency – TOEFL (iBT ≥ 100/ ≥5.0) / IELTS (≥ 6.5) OR certification of English as medium of instruction (MOI).",
+      "excerpt": "English language proficiency \u2013 TOEFL (iBT \u2265 100/ \u22655.0) / IELTS (\u2265 6.5) OR certification of English as medium of instruction (MOI).",
       "field": "requirements.ntu-msai-language",
       "id": "f-ntu-msai-ielts",
       "program_id": "ntu-msai-2027",
       "retrieved_at": "2026-11-24T16:32:00Z",
       "source_id": "ntu-msai",
-      "value": "TOEFL iBT ≥100/≥5.0 or IELTS ≥6.5 or MOI certification; no component minimums stated"
+      "value": "TOEFL iBT \u2265100/\u22655.0 or IELTS \u22656.5 or MOI certification; no component minimums stated"
     },
     {
-      "excerpt": "Optional – GRE scores and reference letters.",
+      "excerpt": "Optional \u2013 GRE scores and reference letters.",
       "field": "requirements.ntu-msai-test-gre",
       "id": "f-ntu-msai-gre",
       "program_id": "ntu-msai-2027",
@@ -650,8 +648,37 @@
       "retrieved_at": "2026-11-23T18:39:00Z",
       "source_id": "ucl-bsc",
       "value": "GCSE English Language and Mathematics at grade C or 4"
+    },
+    {
+      "excerpt": "The minimum entry requirements for undergraduate courses at UCL are ABB at A-Level or 36 points for the International Baccalaureate (IB). However, entry requirements for many courses may differ and may also be higher. Successful completion of one year of a Bachelor's Degree at a Chinese university recognised by UCL, with a weighted average mark of 90%, will also be considered as an alternative to A-Levels or the IB.",
+      "field": "requirements.ucl-china-gaokao",
+      "id": "f-ucl-china-gaokao",
+      "program_id": "ucl-cs-bsc-2026",
+      "retrieved_at": "2026-11-24T17:37:00Z",
+      "source_id": "ucl-china",
+      "value": "No direct Gaokao entry route published; minimum equivalent ABB at A level or 36 IB points"
+    },
+    {
+      "excerpt": "USA | Advanced Placement | Minimum of five AP tests with grades 5,5,5,4,4. Alternatively, a minimum of three AP tests with grades 5,5,4 together with an acceptable school leaving qualification (such as the US High School Diploma) and either 1460 in SAT or 31 in ACT.",
+      "field": "requirements.imperial-usa-ap",
+      "id": "f-imperial-usa-ap",
+      "program_id": "imperial-comp-beng-2027",
+      "retrieved_at": "2026-11-24T17:37:00Z",
+      "source_id": "imperial-accepted-qualifications",
+      "value": "Five AP tests 5,5,5,4,4, or three AP tests 5,5,4 with SAT 1460+ or ACT 31+"
+    },
+    {
+      "excerpt": "All of our accepted qualifications are provided below.",
+      "field": "requirements.imperial-china-none",
+      "id": "f-imperial-china-none",
+      "program_id": "imperial-comp-beng-2027",
+      "retrieved_at": "2026-11-24T17:37:00Z",
+      "source_id": "imperial-accepted-qualifications",
+      "value": "China is not listed in Imperial's accepted-qualifications table (checked 2026-11-24)"
     }
   ],
+  "generated_at": "2026-11-25T00:00:00Z",
+  "note": "v2 = v1 programs/facts/sources/unknowns copied unchanged, plus 6 new programs researched 2026-11-24 16:28-16:32 UTC (2026-11-25 00:28-00:32 CST) from official university pages only. No content hashes: all Day 2 facts come from browser crawls, not direct byte fetches. UCL TOEFL unknown entry updated: TOEFL is now modelled with the Jan 2026 scale split. f-ucl-gcse added (GCSE C/4 requirement, source ucl-bsc). Fix 2026-11-25: three facts added (f-ucl-china-gaokao, f-imperial-usa-ap, f-imperial-china-none) and two sources (ucl-china, imperial-accepted-qualifications) for curriculum branching; total 75 facts, 31 sources, 27 unknowns.",
   "sources": [
     {
       "bytes": null,
@@ -678,7 +705,7 @@
       "id": "nus-admissions",
       "retrieved_at": "2026-11-23T18:39:00Z",
       "sha256": "e3d6eb80713349628e21931b071546b4b6c8c096d827ca2f5bec543b697c3b22",
-      "title": "Admissions — Master of Computing",
+      "title": "Admissions \u2014 Master of Computing",
       "url": "https://www.comp.nus.edu.sg/programmes/pg/misc/admissions/"
     },
     {
@@ -687,7 +714,7 @@
       "id": "nus-scholarships",
       "retrieved_at": "2026-11-23T18:39:00Z",
       "sha256": "38b9787584b90b81faefa3b6fc3c05e9a74ce0b579f4d1e438b2aac2cb052253",
-      "title": "Scholarships — Master of Computing",
+      "title": "Scholarships \u2014 Master of Computing",
       "url": "https://www.comp.nus.edu.sg/programmes/pg/mcs/scholarships/"
     },
     {
@@ -697,7 +724,7 @@
       "id": "imperial-bsc-target",
       "retrieved_at": "2026-11-24T16:32:00Z",
       "sha256": null,
-      "title": "Computing BSc (target URL — does not exist)",
+      "title": "Computing BSc (target URL \u2014 does not exist)",
       "url": "https://www.imperial.ac.uk/study/courses/undergraduate/computing-bsc/"
     },
     {
@@ -717,7 +744,7 @@
       "id": "imperial-beng-spec",
       "retrieved_at": "2026-11-24T16:32:00Z",
       "sha256": null,
-      "title": "Programme Specification 2026-27 — Computing G400",
+      "title": "Programme Specification 2026-27 \u2014 Computing G400",
       "url": "https://www.Imperial.ac.UK/media/imperial-college/study/programme-specifications/computing/2627/G400-BEng-Computing-2026-27.pdf"
     },
     {
@@ -737,7 +764,7 @@
       "id": "imperial-msc-spec",
       "retrieved_at": "2026-11-24T16:32:00Z",
       "sha256": null,
-      "title": "Programme Specification (2026-27) — Computing G5U6 (MSc Computing)",
+      "title": "Programme Specification (2026-27) \u2014 Computing G5U6 (MSc Computing)",
       "url": "https://www.imperial.ac.uk/media/imperial-college/study/programme-specifications/computing/G5U6-MSc-Computing-2026-27.pdf"
     },
     {
@@ -752,7 +779,7 @@
     },
     {
       "bytes": null,
-      "fetch_note": "Course page fetched via browser crawl 2026-11-24 16:28 UTC. No English language level is stated anywhere in the fetched page text (checked with find for 'Level 2' — no match).",
+      "fetch_note": "Course page fetched via browser crawl 2026-11-24 16:28 UTC. No English language level is stated anywhere in the fetched page text (checked with find for 'Level 2' \u2014 no match).",
       "fetch_status": "ok",
       "id": "ucl-msc",
       "retrieved_at": "2026-11-24T16:32:00Z",
@@ -827,7 +854,7 @@
       "id": "nus-fees",
       "retrieved_at": "2026-11-24T16:32:00Z",
       "sha256": null,
-      "title": "Tuition Fees Per Annum (AY2026/2027) — Undergraduate Students | NUS Registrar",
+      "title": "Tuition Fees Per Annum (AY2026/2027) \u2014 Undergraduate Students | NUS Registrar",
       "url": "https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?shortlink=c3555dc2&"
     },
     {
@@ -857,7 +884,7 @@
       "id": "ntu-cs-beng-target",
       "retrieved_at": "2026-11-24T16:32:00Z",
       "sha256": null,
-      "title": "Bachelor of Engineering in Computer Science (target URL — does not exist)",
+      "title": "Bachelor of Engineering in Computer Science (target URL \u2014 does not exist)",
       "url": "https://www.ntu.edu.sg/education/undergraduate-programme/bachelor-of-engineering-in-computer-science"
     },
     {
@@ -939,33 +966,55 @@
       "sha256": null,
       "title": "Master of Science in Artificial Intelligence (MSAI) | NTU Singapore",
       "url": "https://www.ntu.edu.sg/engineering/coe-programmes/graduate/coe-programme-detail/master-of-science-in-artificial-intelligence"
+    },
+    {
+      "bytes": null,
+      "fetch_note": "Fetched via browser crawl 2026-11-24 17:37 UTC; states the undergraduate minimum equivalent entry requirement (ABB at A level or 36 IB points, or one year of a Chinese bachelor's degree at 90%) and no Gaokao direct-entry route.",
+      "fetch_status": "ok",
+      "id": "ucl-china",
+      "retrieved_at": "2026-11-24T17:37:00Z",
+      "sha256": null,
+      "title": "China | Study at UCL",
+      "url": "https://www.ucl.ac.uk/study/international/region/east-asia/china"
+    },
+    {
+      "bytes": null,
+      "fetch_note": "Fetched via browser crawl 2026-11-24 17:37 UTC; USA AP standard (five AP tests 5,5,5,4,4, or three AP tests 5,5,4 with SAT 1460 or ACT 31); Singapore A Level (three H2 subjects at grade A); no China entry in the table.",
+      "fetch_status": "ok",
+      "id": "imperial-accepted-qualifications",
+      "retrieved_at": "2026-11-24T17:37:00Z",
+      "sha256": null,
+      "title": "Accepted qualifications | Study | Imperial College London",
+      "url": "https://www.imperial.ac.uk/study/apply/undergraduate/process/entry-requirements/accepted-qualifications/"
     }
   ],
   "unknowns": [
-    "UCL TARA score threshold — required for 2026 cycle, no threshold stated on the page.",
-    "NUS application deadline — not stated on the admissions page; do not copy General Track dates.",
-    "NUS IELTS component minimums — overall 6.0 only; no component minimum stated.",
-    "Living costs for both UCL and NUS — not in the verified sources; not included in any fee rule.",
-    "UCL non-A-level/IB equivalence — no equivalence evidence in the verified sources; other qualifications evaluate to UNKNOWN.",
-    "UCL TOEFL mapping — modelled in Day 2 (backend rules v2, 2026-11-25): tests from 21 Jan 2026 use the new iBT scale (Level 1 overall 4.5); earlier tests use the old scale (92). Without a test date the TOEFL rule stays UNKNOWN, never converted.",
-    "Imperial MSc Computing application fee — not stated on the course page fetched; do not copy the £90 figure reported by third-party aggregators.",
-    "Imperial MSc Computing Round 1 application deadline — the course page states only 'Round 2 closes on Wednesday 6 January 2027'; no Round 1 date was found on the page.",
-    "Imperial Computing BEng TMUA score threshold — TMUA is required, but no score threshold is stated on the programme specification or course page.",
-    "Imperial Computing BEng STEP grade — STEP is required only for IB applicants taking Mathematics Applications and Interpretation at HL; no STEP grade is stated.",
-    "Imperial Computing BEng programme-specific GCSE requirement — none stated on the course page or programme specification fetched.",
-    "UCL Computer Science MSc English language level — the course page fetched does not state which UCL English level applies. Third-party aggregators report Level 2 (IELTS 7.0 overall, 6.5 in each component), but that is not official evidence and was NOT used; the level stays UNKNOWN and so does any TOEFL/PTE mapping for this course.",
-    "NUS Bachelor of Computing (CS) fixed A-level/IB minimum — NUS publishes no fixed minimum threshold; only the Indicative Grade Profile of admitted students (Common CS Programmes AAA/A, 10th and 90th percentile). No IB total or HL Mathematics minimum is published.",
-    "NUS Bachelor of Computing (CS) AY2027/2028 tuition fees — the latest published rates are the AY2026/2027 cohort rates; AY2027/2028 fees were not yet published on the pages fetched.",
-    "NUS Bachelor of Computing (CS) programme subject prerequisites — the OAM prospectus prerequisite table was not verified on a page fetched for this task; the curriculum page only notes a bridging maths course (MA1301/X) for students without H2 Mathematics.",
-    "NTU Bachelor of Computing (CS) fixed A-level/IB minimum — NTU publishes no fixed minimum threshold; only the Indicative Grade Profile of admitted students (AAB/C 10th, AAA/A 90th). No IB total or HL subject minimum is published.",
-    "NTU Bachelor of Computing (CS) application window for 'other international qualifications' — the official Important Dates page gives windows for IB, SG A-Level, polytechnic and NUS High School only; third-party summaries report a 20 January 2027 close for other international qualifications, but that was NOT verified on an official page fetched, so it stays UNKNOWN.",
-    "NTU Bachelor of Computing (CS) non-subsidised fee band — NTU's fee table gives lab-based S$40,600 and non-lab-based S$36,350 for non-subsidised students but does not label Computer Science explicitly as lab-based; the S$40,600 figure is an assumption, not a verified fact.",
-    "NTU Bachelor of Computing (CS) exact term start date — not stated on the pages fetched; intake recorded as AY2027/28 only.",
-    "NTU MSAI application deadline — not stated on the programme page. NTU's central graduate application exercise (NIE page) lists coursework masters Round 1: 11 Nov-30 Nov 2026 and Round 2: 1 Dec 2026-15 Jan 2027, while other NTU engineering MSc pages state 1 Oct 2026-31 Mar 2027 for the August 2027 intake; the two conflict and neither is programme-specific to MSAI, so the deadline stays UNKNOWN.",
-    "NTU MSAI intake start month — the programme page states fees for AY2027/2028 and after but no start month; recorded as AY2027/28 only.",
-    "NTU MSAI IELTS/TOEFL component minimums — only overall minimums are stated (IELTS >= 6.5; TOEFL iBT >= 100 / >= 5.0); no component minimums.",
-    "NTU MSAI GRE — listed as 'Optional'; the page states no rejection rule for a missing or low GRE score, so missing/low GRE is UNKNOWN, never NOT_MET.",
-    "Imperial Computing BEng: the original target 'Computing BSc' does not exist (URL 404); switched to Computing BEng (G400) — see day2_courses.md.",
-    "NTU Computer Science BEng does not exist (target URL 404); switched to Bachelor of Computing (Hons) in Computer Science — see day2_courses.md."
+    "UCL TARA score threshold \u2014 required for 2026 cycle, no threshold stated on the page.",
+    "NUS application deadline \u2014 not stated on the admissions page; do not copy General Track dates.",
+    "NUS IELTS component minimums \u2014 overall 6.0 only; no component minimum stated.",
+    "Living costs for both UCL and NUS \u2014 not in the verified sources; not included in any fee rule.",
+    "UCL non-A-level/IB equivalence \u2014 no equivalence evidence in the verified sources; other qualifications evaluate to UNKNOWN.",
+    "UCL TOEFL mapping \u2014 modelled in Day 2 (backend rules v2, 2026-11-25): tests from 21 Jan 2026 use the new iBT scale (Level 1 overall 4.5); earlier tests use the old scale (92). Without a test date the TOEFL rule stays UNKNOWN, never converted.",
+    "Imperial MSc Computing application fee \u2014 not stated on the course page fetched; do not copy the \u00a390 figure reported by third-party aggregators.",
+    "Imperial MSc Computing Round 1 application deadline \u2014 the course page states only 'Round 2 closes on Wednesday 6 January 2027'; no Round 1 date was found on the page.",
+    "Imperial Computing BEng TMUA score threshold \u2014 TMUA is required, but no score threshold is stated on the programme specification or course page.",
+    "Imperial Computing BEng STEP grade \u2014 STEP is required only for IB applicants taking Mathematics Applications and Interpretation at HL; no STEP grade is stated.",
+    "Imperial Computing BEng programme-specific GCSE requirement \u2014 none stated on the course page or programme specification fetched.",
+    "UCL Computer Science MSc English language level \u2014 the course page fetched does not state which UCL English level applies. Third-party aggregators report Level 2 (IELTS 7.0 overall, 6.5 in each component), but that is not official evidence and was NOT used; the level stays UNKNOWN and so does any TOEFL/PTE mapping for this course.",
+    "NUS Bachelor of Computing (CS) fixed A-level/IB minimum \u2014 NUS publishes no fixed minimum threshold; only the Indicative Grade Profile of admitted students (Common CS Programmes AAA/A, 10th and 90th percentile). No IB total or HL Mathematics minimum is published.",
+    "NUS Bachelor of Computing (CS) AY2027/2028 tuition fees \u2014 the latest published rates are the AY2026/2027 cohort rates; AY2027/2028 fees were not yet published on the pages fetched.",
+    "NUS Bachelor of Computing (CS) programme subject prerequisites \u2014 the OAM prospectus prerequisite table was not verified on a page fetched for this task; the curriculum page only notes a bridging maths course (MA1301/X) for students without H2 Mathematics.",
+    "NTU Bachelor of Computing (CS) fixed A-level/IB minimum \u2014 NTU publishes no fixed minimum threshold; only the Indicative Grade Profile of admitted students (AAB/C 10th, AAA/A 90th). No IB total or HL subject minimum is published.",
+    "NTU Bachelor of Computing (CS) application window for 'other international qualifications' \u2014 the official Important Dates page gives windows for IB, SG A-Level, polytechnic and NUS High School only; third-party summaries report a 20 January 2027 close for other international qualifications, but that was NOT verified on an official page fetched, so it stays UNKNOWN.",
+    "NTU Bachelor of Computing (CS) non-subsidised fee band \u2014 NTU's fee table gives lab-based S$40,600 and non-lab-based S$36,350 for non-subsidised students but does not label Computer Science explicitly as lab-based; the S$40,600 figure is an assumption, not a verified fact.",
+    "NTU Bachelor of Computing (CS) exact term start date \u2014 not stated on the pages fetched; intake recorded as AY2027/28 only.",
+    "NTU MSAI application deadline \u2014 not stated on the programme page. NTU's central graduate application exercise (NIE page) lists coursework masters Round 1: 11 Nov-30 Nov 2026 and Round 2: 1 Dec 2026-15 Jan 2027, while other NTU engineering MSc pages state 1 Oct 2026-31 Mar 2027 for the August 2027 intake; the two conflict and neither is programme-specific to MSAI, so the deadline stays UNKNOWN.",
+    "NTU MSAI intake start month \u2014 the programme page states fees for AY2027/2028 and after but no start month; recorded as AY2027/28 only.",
+    "NTU MSAI IELTS/TOEFL component minimums \u2014 only overall minimums are stated (IELTS >= 6.5; TOEFL iBT >= 100 / >= 5.0); no component minimums.",
+    "NTU MSAI GRE \u2014 listed as 'Optional'; the page states no rejection rule for a missing or low GRE score, so missing/low GRE is UNKNOWN, never NOT_MET.",
+    "Imperial Computing BEng: the original target 'Computing BSc' does not exist (URL 404); switched to Computing BEng (G400) \u2014 see day2_courses.md.",
+    "NTU Computer Science BEng does not exist (target URL 404); switched to Bachelor of Computing (Hons) in Computer Science \u2014 see day2_courses.md.",
+    "Gaokao direct-entry equivalence for UCL Computer Science BSc and Imperial Computing BEng \u2014 no Gaokao route is published (UCL China page; Imperial's accepted-qualifications table has no China entry). Gaokao scores are recorded as UNKNOWN, never converted.",
+    "UCL Computer Science BSc US (SAT/ACT/AP) equivalence \u2014 no US route is stated on the course page or in the verified sources."
   ]
 }
