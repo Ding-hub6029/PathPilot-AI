@@ -652,3 +652,347 @@ rank-76-100-fu-berlin-ds-msc-2027-fees,program,fu-berlin-ds-msc-2027,fees,EUR 0 
 rank-76-100-fu-berlin-cs-msc-2027-fees,program,fu-berlin-cs-msc-2027,fees,EUR 0 per_year,http://www.mi.fu-berlin.de/en/inf/stud/master/index.html,2026-11-25
 rank-76-100-zurich-comp-sci-msc-2027-fees,program,zurich-comp-sci-msc-2027,fees,CHF 1758 per_year,https://www.uzh.ch/cmsssl/en/studies/application/fees.html,2026-11-25
 rank-76-100-zurich-nsc-msc-2027-fees,program,zurich-nsc-msc-2027,fees,CHF 1758 per_year,https://www.uzh.ch/cmsssl/en/studies/application/fees.html,2026-11-25
+business-01-50-business-01-50-f0001,program,mit-business-administration-sb-2027,fees,66720 USD per_year,http://catalog.mit.edu/schools/sloan-management/,2026-11-25
+business-01-50-business-01-50-f0002,program,mit-finance-sb-2027,fees,66720 USD per_year,http://catalog.mit.edu/schools/sloan-management/,2026-11-25
+business-01-50-business-01-50-f0003,program,mit-business-administration-mba-2027,fees,fee not stated on the page consulted — unknown,http://catalog.mit.edu/schools/sloan-management/,2026-11-25
+business-01-50-business-01-50-f0004,program,mit-finance-mfin-2027,fees,fee not stated on the page consulted — unknown,http://catalog.mit.edu/schools/sloan-management/,2026-11-25
+business-01-50-business-01-50-f0005,program,imperial-finance-msc-2027,fees,54000 GBP total,https://www.imperial.ac.uk/business-school/study/masters/compare/finance-masters/,2026-11-25
+business-01-50-business-01-50-f0006,program,imperial-finance-msc-fa-2027,fees,fee not stated on the page consulted — unknown,https://www.imperial.ac.uk/business-school/study/masters/compare/finance-masters/,2026-11-25
+business-01-50-business-01-50-f0007,program,stanford-business-administration-mba-2027,fees,89187 USD per_year,https://www.gsb.stanford.edu/programs/degree,2026-11-25
+business-01-50-business-01-50-f0008,program,stanford-management-msx-2027,fees,fee not stated on the page consulted — unknown,https://www.gsb.stanford.edu/programs/degree,2026-11-25
+business-01-50-business-01-50-f0009,program,oxford-economics-ba-2027,fees,43600 GBP per_year,https://assets-oxweb.admin.ox.ac.uk/2026-02/Economics and Management CIS 2026-entry.pdf,2026-11-25
+business-01-50-business-01-50-f0010,program,harvard-business-administration-mba-2027,fees,84760 USD per_year,https://www.hbs.edu/mba/financial-aid/tuition-assistance/cost-of-attendance,2026-11-25
+business-01-50-business-01-50-f0011,program,cambridge-business-administration-mba-2027,fees,86250 GBP total,https://www.jbs.cam.ac.uk/masters-degrees/mba/fees-funding/,2026-11-25
+business-01-50-business-01-50-f0012,program,caltech-business-administration-bs-2027,fees,68574 USD per_year,https://www.admissions.caltech.edu/why-caltech/academics/majors-minors/business-economics-and-management,2026-11-25
+business-01-50-business-01-50-f0013,program,eth-management-msc-2027,fees,fee not stated on the page consulted — unknown,https://ethz.ch/en/studies/master/degree-programmes/management-and-social-sciences/management-technology-and-economics.html,2026-11-25
+business-01-50-business-01-50-f0014,program,ucl-finance-msc-2027,fees,48250 GBP per_year,https://www.ucl.ac.uk/study/prospective-students/graduate/courses/finance-msc?utm_source=thinkpostgrad&utm_medium=affiliate&utm_campaign=117730_shs_pgt_2024&utm_content=study_advert,2026-11-25
+business-01-50-business-01-50-f0015,program,ucl-management-msc-2027,fees,44400 GBP per_year,https://www.ucl.ac.uk/study/prospective-students/graduate/courses/management-msc,2026-11-25
+business-01-50-business-01-50-f0016,program,nus-business-administration-bba-2027,fees,fee not stated on the page consulted — unknown,https://bschool.nus.edu.sg/,2026-11-25
+business-01-50-business-01-50-f0017,program,nus-finance-msc-2027,fees,77608 SGD total,https://mscfin.nus.edu.sg/fees-finances/programme-fees/,2026-11-25
+business-01-50-business-01-50-f0018,program,hku-business-administration-bba-2027,fees,250000 HKD per_year,https://www4.hku.hk/pubunit/drcd/undergraduate-2026-2027/1129-business,2026-11-25
+business-01-50-business-01-50-f0019,program,hku-accounting-bba-2027,fees,250000 HKD per_year,https://www4.hku.hk/pubunit/drcd/undergraduate-2026-2027/1129-business,2026-11-25
+business-01-50-business-01-50-f0020,program,ntu-finance-msc-2027,fees,78480 SGD total,https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-finance,2026-11-25
+business-01-50-business-01-50-f0021,program,ntu-accounting-msc-2027,fees,70850 SGD total,https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-accountancy,2026-11-25
+business-01-50-business-01-50-f0022,program,pku-finance-mfin-2027,fees,128000 CNY total,https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf,2026-11-25
+business-01-50-business-01-50-f0023,program,pku-business-administration-mba-2027,fees,188000 CNY total,https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf,2026-11-25
+business-01-50-business-01-50-f0024,program,pku-accounting-mpa-2027,fees,158000 CNY total,https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf,2026-11-25
+business-01-50-business-01-50-f0025,program,tsinghua-finance-mfin-2027,fees,198000 CNY total,https://masters.sem.tsinghua.edu.cn/en/info/1007/2172.htm,2026-11-25
+business-01-50-business-01-50-f0026,program,tsinghua-management-mim-2027,fees,30000 CNY per_year,https://masters.sem.tsinghua.edu.cn/en/info/1007/2172.htm,2026-11-25
+business-01-50-business-01-50-f0027,program,upenn-business-administration-mba-2027,fees,87970 USD per_year,https://mba.wharton.upenn.edu/tuition-financial-aid/,2026-11-25
+business-01-50-business-01-50-f0028,program,upenn-economics-bs-2027,fees,65670 USD per_year,https://www.wharton.upenn.edu/academic-programs/,2026-11-25
+business-01-50-business-01-50-f0029,program,cornell-economics-bs-2027,fees,73946 USD per_year,https://business.cornell.edu/programs/,2026-11-25
+business-01-50-business-01-50-f0030,program,cornell-business-administration-mba-2027,fees,88934 USD per_year,https://business.cornell.edu/programs/,2026-11-25
+business-01-50-business-01-50-f0031,program,yale-business-administration-mba-2027,fees,90900 USD per_year,https://som.yale.edu/programs/mba/affording-your-mba/cost-information,2026-11-25
+business-01-50-business-01-50-f0032,program,cuhk-business-administration-bba-2027,fees,230000 HKD per_year,https://www.bschool.cuhk.edu.hk/,2026-11-25
+business-01-50-business-01-50-f0033,program,cuhk-accounting-bba-2027,fees,230000 HKD per_year,https://www.bschool.cuhk.edu.hk/,2026-11-25
+business-01-50-business-01-50-f0034,program,cuhk-economics-bsc-2027,fees,230000 HKD per_year,https://www.bschool.cuhk.edu.hk/,2026-11-25
+business-01-50-business-01-50-f0035,program,cuhk-finance-msc-2027,fees,fee not stated on the page consulted — unknown,https://www.gs.cuhk.edu.hk/programmes/business-administration/msc-finance,2026-11-25
+business-01-50-business-01-50-f0036,program,unsw-finance-mfin-2027,fees,62000 AUD per_year,https://degrees.unsw.edu.au/master-of-finance/,2026-11-25
+business-01-50-business-01-50-f0037,program,jhu-business-administration-mba-2027,fees,154750 USD total,https://carey.jhu.edu/admissions/tuition-fees,2026-11-25
+business-01-50-business-01-50-f0038,program,jhu-finance-ms-2027,fees,78500 USD total,"http://carey.jhu.edu/programs/compare?programs=vet-academy,master-of-science-in-finance-9",2026-11-25
+business-01-50-business-01-50-f0039,program,berkeley-business-administration-bs-2027,fees,fee not stated on the page consulted — unknown,https://haas.berkeley.edu/undergrad/admissions/,2026-11-25
+business-01-50-business-01-50-f0040,program,epfl-management-msc-2027,fees,fee not stated on the page consulted — unknown,https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/,2026-11-25
+business-01-50-business-01-50-f0041,program,epfl-management-msc-2027,application_deadline,31 March 2027,https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/,2026-11-25
+business-01-50-business-01-50-f0042,program,melbourne-finance-mcom-2027,fees,64640 AUD per_year,https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf,2026-11-25
+business-01-50-business-01-50-f0043,program,melbourne-accounting-mcom-2027,fees,64640 AUD per_year,https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf,2026-11-25
+business-01-50-business-01-50-f0044,program,chicago-business-administration-mba-2027,fees,fee not stated on the page consulted — unknown,https://careeradvancement.uchicago.edu/advanced-degrees/professional-school-programs/business-school/chicago-booth-programs/,2026-11-25
+business-01-50-business-01-50-f0045,program,chicago-management-mim-2027,fees,fee not stated on the page consulted — unknown,https://careeradvancement.uchicago.edu/advanced-degrees/professional-school-programs/business-school/chicago-booth-programs/,2026-11-25
+business-01-50-business-01-50-f0046,program,tum-management-msc-2027,fees,fee not stated on the page consulted — unknown,https://www.mgt.tum.de/programs/master-in-management,2026-11-25
+business-01-50-business-01-50-f0047,program,tum-management-technology-msc-2027,fees,8000 EUR per_year,https://www.tum.de/fileadmin/w00bfo/www/Studium/Studienangebot/Lesbare_Fassung/Master/Management_and_Technology_MA_Degree_Program_Documentation_29012025.pdf,2026-11-25
+business-26-50-business-26-50-f0001,program,fudan-business-administration-mba-2027,fees,348000 CNY total,https://www.fdsm.fudan.edu.cn/globalmba/,2026-11-25
+business-26-50-business-26-50-f0002,program,fudan-finance-mif-2027,fees,fee not stated on the page consulted — unknown,https://www.fdsm.fudan.edu.cn/en/programs/mf.html,2026-11-25
+business-26-50-business-26-50-f0003,program,princeton-economics-ab-2027,fees,68140 USD per_year,https://ua.princeton.edu/policies-resources/undergraduate-program,2026-11-25
+business-26-50-business-26-50-f0004,program,sydney-finance-mcom-2027,fees,fee not stated on the page consulted — unknown,https://www.sydney.edu.au/courses/courses/pc/master-of-commerce0.html,2026-11-25
+business-26-50-business-26-50-f0005,program,sydney-finance-mcom-ext-2027,fees,fee not stated on the page consulted — unknown,https://www.sydney.edu.au/courses/courses/pc/master-of-commerce0.html,2026-11-25
+business-26-50-business-26-50-f0006,program,anu-finance-mfin-2027,fees,fee not stated on the page consulted — unknown,https://programsandcourses.anu.edu.au/2024/program/7418XMFIN,2026-11-25
+business-26-50-business-26-50-f0007,program,anu-finance-mfm-2027,fees,fee not stated on the page consulted — unknown,https://programsandcourses.anu.edu.au/2026/program/MFINM,2026-11-25
+business-26-50-business-26-50-f0008,program,mcgill-business-administration-mba-2027,fees,108500 CAD total,https://www.mcgill.ca/desautels/programs/mba/admissions/tuition,2026-11-25
+business-26-50-business-26-50-f0009,program,mcgill-finance-bcom-2027,fees,fee not stated on the page consulted — unknown,https://www.mcgill.ca/desautels/programs,2026-11-25
+business-26-50-business-26-50-f0010,program,monash-business-administration-bcom-2027,fees,fee not stated on the page consulted — unknown,https://www.monash.edu/study/courses/find-a-course/commerce-and-finance-b2043,2026-11-25
+business-26-50-business-26-50-f0011,program,monash-finance-maf-2027,fees,62140 AUD per_year,https://www.monash.edu/study/courses/find-a-course/advanced-finance-b6039?international=true,2026-11-25
+business-26-50-business-26-50-f0012,program,toronto-finance-mfin-2027,fees,80970 CAD total,https://rotman.utoronto.ca/programs/specialized-programs/master-of-finance/tuition-and-scholarships/,2026-11-25
+business-26-50-business-26-50-f0013,program,toronto-business-administration-mba-2027,fees,fee not stated on the page consulted — unknown,https://www.rotman.utoronto.ca/registrar/programs/tuition-fees-and-registration/,2026-11-25
+business-26-50-business-26-50-f0014,program,hkust-finance-msc-2027,fees,460000 HKD total,https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-fina,2026-11-25
+business-26-50-business-26-50-f0015,program,hkust-accounting-msc-2027,fees,390000 HKD total,https://fytgs.hkust.edu.hk/hong-kong-future-talents-scholarship-scheme-advanced-studies,2026-11-25
+business-26-50-business-26-50-f0016,program,hkust-finance-bba-2027,fees,fee not stated on the page consulted — unknown,https://bm.hkust.edu.hk/index%2Ephp/study,2026-11-25
+business-26-50-business-26-50-f0017,program,psl-finance-master-2027,fees,fee not stated on the page consulted — unknown,https://dauphine.psl.eu/en/training/masters-degrees/finance,2026-11-25
+business-26-50-business-26-50-f0018,program,psl-economics-master-2027,fees,fee not stated on the page consulted — unknown,https://dauphine.psl.eu/en/training/masters-degrees/economics-and-finance,2026-11-25
+business-26-50-business-26-50-f0019,program,edinburgh-finance-msc-2027,fees,38130 GBP per_year,https://www.business-school.ed.ac.uk/msc/finance-investment/fees-living-expenses,2026-11-25
+business-26-50-business-26-50-f0020,program,edinburgh-management-msc-2027,fees,36540 GBP per_year,https://www.business-school.ed.ac.uk/msc/management/fees-living-expenses,2026-11-25
+business-26-50-business-26-50-f0021,program,sjtu-business-administration-imba-2027,fees,368000 CNY total,http://mba.sjtu.edu.cn/en/admissions/fee-and-financial-aid.html,2026-11-25
+business-26-50-business-26-50-f0022,program,sjtu-finance-mf-2027,fees,228000 CNY total,https://en.saif.sjtu.edu.cn/mf/admissions/tuition-and-financial-aid,2026-11-25
+business-26-50-business-26-50-f0023,program,kcl-business-administration-bsc-2027,fees,38300 GBP per_year,https://www.kcl.ac.uk/study/undergraduate/courses/business-management-with-year-in-industry-bsc/fees,2026-11-25
+business-26-50-business-26-50-f0024,program,kcl-finance-msc-2027,fees,45100 GBP per_year,https://www.kcl.ac.uk/study/postgraduate-taught/courses/banking-and-finance-msc/fees,2026-11-25
+business-26-50-business-26-50-f0025,program,snu-business-administration-bba-2027,fees,fee not stated on the page consulted — unknown,https://en.snu.ac.kr/snunow/snu_media/news?md=v&bbsidx=71919,2026-11-25
+business-26-50-business-26-50-f0026,program,snu-business-administration-mba-2027,fees,fee not stated on the page consulted — unknown,https://en.snu.ac.kr/admission/overview/notice?bbsidx=159735&md=v,2026-11-25
+business-26-50-business-26-50-f0027,program,tokyo-economics-becon-2027,fees,642960 JPY per_year,https://www.u-tokyo.ac.jp/en/prospective-students/tuition_fees.html,2026-11-25
+business-26-50-business-26-50-f0028,program,tokyo-economics-mecon-2027,fees,535800 JPY per_year,https://www.u-tokyo.ac.jp/en/prospective-students/tuition_fees.html,2026-11-25
+business-26-50-business-26-50-f0029,program,manchester-accounting-bsc-2027,fees,35300 GBP per_year,https://www.alliancembs.manchester.ac.uk/study/undergraduate/bsc-hons-management-accounting-and-finance/,2026-11-25
+business-26-50-business-26-50-f0030,program,manchester-finance-msc-2027,fees,39700 GBP per_year,https://www.alliancembs.manchester.ac.uk/study/masters/msc-finance/,2026-11-25
+business-26-50-business-26-50-f0031,program,queensland-business-administration-bbm-2027,fees,56800 AUD per_year,https://study.uq.edu.au/study-options/programs/bachelors-business-management-commerce-2180,2026-11-25
+business-26-50-business-26-50-f0032,program,queensland-finance-mfim-2027,fees,60952 AUD per_year,https://study.uq.edu.au/study-options/programs/master-finance-and-investment-management-5765,2026-11-25
+business-26-50-business-26-50-f0033,program,yonsei-business-administration-mba-2027,fees,49841000 KRW total,https://applymba.yonsei.ac.kr/applygmba/admission/gmba-faq.do?mode=view&articleNo=52222&article.offset=0&articleLimit=10,2026-11-25
+business-26-50-business-26-50-f0034,program,columbia-business-administration-mba-2027,fees,93908 USD per_year,https://business.columbia.edu/financial-aid/costs/full-time,2026-11-25
+business-26-50-business-26-50-f0035,program,columbia-finance-msfe-2027,fees,fee not stated on the page consulted — unknown,https://students.business.columbia.edu/sites/students/files-efs/imce-uploads/OARR/MSFE-2025-student-handbook.pdf,2026-11-25
+business-26-50-business-26-50-f0036,program,ipparis-finance-maqi-2027,fees,19200 EUR per_year,https://programmes.polytechnique.edu/en/master/admissions-msct/tuition-fees,2026-11-25
+business-26-50-business-26-50-f0037,program,ipparis-finance-edacf-2027,fees,fee not stated on the page consulted — unknown,https://programmes.polytechnique.edu/en/master/admissions-msct/tuition-fees,2026-11-25
+business-26-50-business-26-50-f0038,program,northwestern-business-administration-mba-2027,fees,fee not stated on the page consulted — unknown,https://www.northwestern.edu/sfs/tuition/graduate/kellogg.html,2026-11-25
+business-26-50-business-26-50-f0039,program,ubc-business-administration-mba-2027,fees,112758 CAD total,https://www.sauder.ubc.ca/ubc-mba/application-process/mba-fees-and-expenses,2026-11-25
+business-26-50-business-26-50-f0040,program,ubc-business-administration-bcom-2027,fees,fee not stated on the page consulted — unknown,https://org-www.sauder.ubc.ca/programs,2026-11-25
+business-26-50-business-26-50-f0041,program,zhejiang-finance-imf-2027,fees,148000 CNY total,https://zibs.zju.edu.cn/enzibs/2022/1101/c82302a2948071/page.htm,2026-11-25
+business-26-50-business-26-50-f0042,program,zhejiang-business-administration-imba-2027,fees,218000 CNY total,https://zibs.zju.edu.cn/enzibs/2022/1101/c82302a2948071/page.htm,2026-11-25
+business-26-50-business-26-50-f0043,program,delft-management-msc-mot-2027,fees,fee not stated on the page consulted — unknown,https://www.tudelft.nl/msc/mot,2026-11-25
+business-26-50-business-26-50-f0044,program,delft-management-msc-mot-2027,application_deadline,15 January 2027,https://www.tudelft.nl/msc/mot,2026-11-25
+business-26-50-business-26-50-f0045,program,ucla-business-administration-mba-2027,fees,82733 USD per_year,https://registrar.ucla.edu/fees-residence/self-supporting-degrees,2026-11-25
+business-26-50-business-26-50-f0046,program,polyu-finance-mfin-2027,fees,403200 HKD total,https://www.polyu.edu.hk/af/study/taught-postgraduate-programmes/master-of-finance---investment-management/admissions/,2026-11-25
+business-26-50-business-26-50-f0047,program,polyu-accounting-msc-2027,fees,390000 HKD total,https://www.polyu.edu.hk/en/af/study/taught-postgraduate-programmes/master-of-science-in-accounting-and-finance-analytics/admissions/,2026-11-25
+business-51-75-business-51-75-f0001,program,michigan-business-administration-bba-2027,fees,75836 USD per_year,https://michiganross.umich.edu/undergraduate/bba/admissions/tuition-and-financial-aid,2026-11-25
+business-51-75-business-51-75-f0002,program,michigan-business-administration-mba-2027,fees,83946 USD per_year,https://rossweb.bus.umich.edu/financial-aid/program-overview/mba/,2026-11-25
+business-51-75-business-51-75-f0003,program,cityu-finance-msc-2027,fees,402000 HKD total,https://www.cb.cityu.edu.hk/ef/MSc/?category=tuition,2026-11-25
+business-51-75-business-51-75-f0004,program,cityu-business-administration-mba-2027,fees,560000 HKD total,https://www.cityu.edu.hk/sgs/tuitionfee/sf_p11.htm,2026-11-25
+business-51-75-business-51-75-f0005,program,cityu-finance-bba-2027,fees,fee not stated on the page consulted — unknown,https://www.cb.cityu.edu.hk/en/cb2025/programmes/all-programmes,2026-11-25
+business-51-75-business-51-75-f0006,program,korea-business-administration-mba-2027,fees,46420000 KRW total,http://biz.korea.ac.kr/eng/mba/globalMBA/faq.html,2026-11-25
+business-51-75-business-51-75-f0007,program,korea-finance-mba-2027,fees,50000000 KRW total,https://biz.korea.ac.kr/eng/mba/mba_compare,2026-11-25
+business-51-75-business-51-75-f0008,program,ntu-taiwan-business-administration-gmba-2027,fees,550000 TWD total,https://management.ntu.edu.tw/en/gmba2/facts_figures/program_details,2026-11-25
+business-51-75-business-51-75-f0009,program,ntu-taiwan-business-administration-bba-2027,fees,102440 TWD per_year,https://oia.ntu.edu.tw/en/current-students,2026-11-25
+business-51-75-business-51-75-f0010,program,ntu-taiwan-finance-mfin-2027,fees,103160 TWD per_year,https://oia.ntu.edu.tw/en/current-students,2026-11-25
+business-51-75-business-51-75-f0011,program,cmu-business-administration-mba-2027,fees,84186 USD per_year,https://www.cmu.edu/sfs/tuition/graduate/tepper/full-accel-mba.html,2026-11-25
+business-51-75-business-51-75-f0012,program,malaya-business-administration-mba-2027,fees,79100 MYR total,https://study.um.edu.my/master-of-business-administration-coursework,2026-11-25
+business-51-75-business-51-75-f0013,program,bristol-economics-bsc-2027,fees,29300 GBP per_year,https://www.bristol.ac.uk/study/undergraduate/2027/economics/bsc-economics-and-finance/,2026-11-25
+business-51-75-business-51-75-f0014,program,bristol-finance-msc-2027,fees,39000 GBP per_year,https://www.bristol.ac.uk/study/postgraduate/taught/msc-finance-and-investment/,2026-11-25
+business-51-75-business-51-75-f0015,program,bristol-economics-msc-2027,fees,34500 GBP per_year,http://www.bristol.ac.uk/study/postgraduate/taught/msc-economics-finance-and-management/,2026-11-25
+business-51-75-business-51-75-f0016,program,nyu-business-administration-mba-2027,fees,92658 USD per_year,https://www.stern.nyu.edu/programs-admissions/full-time-mba/financial-aid/tuition-cost-attendance,2026-11-25
+business-51-75-business-51-75-f0017,program,leuven-business-administration-msc-2027,fees,9494 EUR per_year,https://www.kuleuven.be/programmes/master-business-administration,2026-11-25
+business-51-75-business-51-75-f0018,program,amsterdam-business-administration-bsc-2027,fees,15730 EUR per_year,https://www.uva.nl/en/education/fees-and-funding/tuition-fees/tuition-fees.html?cb#Faculty-of-Medicine-AMC,2026-11-25
+business-51-75-business-51-75-f0019,program,amsterdam-finance-msc-2027,fees,25300 EUR per_year,https://www.uva.nl/en/education/fees-and-funding/tuition-fees/tuition-fees.html?cb#Faculty-of-Medicine-AMC,2026-11-25
+business-51-75-business-51-75-f0020,program,amsterdam-business-administration-msc-2027,fees,24500 EUR per_year,https://www.uva.nl/en/education/fees-and-funding/tuition-fees/tuition-fees.html?cb#Faculty-of-Medicine-AMC,2026-11-25
+business-51-75-business-51-75-f0021,program,lmu-business-administration-bsc-2027,fees,0 EUR per_year,https://www.som.lmu.de/en/studies/study-offer/master-business-administration/,2026-11-25
+business-51-75-business-51-75-f0022,program,lmu-business-administration-msc-2027,fees,0 EUR per_year,https://www.som.lmu.de/en/studies/study-offer/master-business-administration/,2026-11-25
+business-51-75-business-51-75-f0023,program,lmu-management-mmt-2027,fees,0 EUR per_year,https://www.som.lmu.de/en/studies/study-offer/master-management-digital-technologies/application-and-submission/index.html,2026-11-25
+business-51-75-business-51-75-f0024,program,lmu-management-mmt-2027,application_deadline,15 May 2027,https://www.som.lmu.de/en/studies/study-offer/master-management-digital-technologies/application-and-submission/index.html,2026-11-25
+business-51-75-business-51-75-f0025,program,lse-management-bsc-2027,fees,35700 GBP per_year,https://info.lse.ac.uk/staff/divisions/Planning-Division/Assets/Documents/Table-of-Fees-2026-27-and-PGR-structure-combined-29July26.pdf,2026-11-25
+business-51-75-business-51-75-f0026,program,lse-finance-bsc-2027,fees,35700 GBP per_year,https://info.lse.ac.uk/staff/divisions/Planning-Division/Assets/Documents/Table-of-Fees-2026-27-and-PGR-structure-combined-29July26.pdf,2026-11-25
+business-51-75-business-51-75-f0027,program,lse-accounting-bsc-2027,fees,35700 GBP per_year,https://info.lse.ac.uk/staff/divisions/Planning-Division/Assets/Documents/Table-of-Fees-2026-27-and-PGR-structure-combined-29July26.pdf,2026-11-25
+business-51-75-business-51-75-f0028,program,lse-accounting-msc-2027,fees,43000 GBP per_year,https://info.lse.ac.uk/staff/divisions/Planning-Division/Assets/Documents/Table-of-Fees-2026-27-and-PGR-structure-combined-29July26.pdf,2026-11-25
+business-51-75-business-51-75-f0029,program,kfupm-business-administration-mba-2027,fees,80000 SAR total,https://ms.kfupm.edu.sa/,2026-11-25
+business-51-75-business-51-75-f0030,program,kfupm-finance-ms-2027,fees,500 SAR per_credit,https://t4.kfupm.edu.sa/study/programs/postgraduate/master-of-science-in-business-studies---finance/,2026-11-25
+business-51-75-business-51-75-f0031,program,kyoto-economics-ba-2027,fees,535800 JPY per_year,https://www.kyoto-u.ac.jp/en/current/how-to/tuition/tuition-and-fees,2026-11-25
+business-51-75-business-51-75-f0032,program,kyoto-economics-ma-2027,fees,535800 JPY per_year,https://www.kyoto-u.ac.jp/en/current/how-to/tuition/tuition-and-fees,2026-11-25
+business-51-75-business-51-75-f0033,program,kyoto-business-administration-mba-2027,fees,fee not stated on the page consulted — unknown,https://www.econ.kyoto-u.ac.jp/en/faqlist/,2026-11-25
+business-51-75-business-51-75-f0034,program,kaist-business-administration-mba-2027,fees,19118000 KRW per_year,https://admission.kaist.ac.kr/intl-graduate/FinancialSupport/CostofAttendance,2026-11-25
+business-51-75-business-51-75-f0035,program,kaist-finance-mba-2027,fees,fee not stated on the page consulted — unknown,https://www.business.kaist.ac.kr/html/en/sub03/sub03_0302.html,2026-11-25
+business-51-75-business-51-75-f0036,program,brown-economics-ba-2027,fees,74568 USD per_year,https://sfs.brown.edu/tuition-and-fees/undergraduate,2026-11-25
+business-51-75-business-51-75-f0037,program,auckland-business-administration-bcom-2027,fees,51020 NZD per_year,https://www.auckland.ac.nz/en/about-us/about-the-university/the-university/official-publications/university-calendar/current-calendar/academic-statutes-and-regulations/fees-statute-2001/fees-schedule-c-international-students.html,2026-11-25
+business-51-75-business-51-75-f0038,program,auckland-finance-mappfin-2027,fees,81990 NZD total,https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/master-of-applied-finance.html,2026-11-25
+business-51-75-business-51-75-f0039,program,warwick-business-administration-mba-2027,fees,62500 GBP total,https://warwick.ac.uk/services/finance/studentfinance/fees/pgfees/,2026-11-25
+business-51-75-business-51-75-f0040,program,warwick-accounting-msc-2027,fees,44500 GBP per_year,https://warwick.ac.uk/services/finance/studentfinance/fees/pgfees/,2026-11-25
+business-51-75-business-51-75-f0041,program,warwick-management-bsc-2027,fees,35530 GBP per_year,https://warwick.ac.uk/study/undergraduate/courses-2026/bsc-management-foundation-year/,2026-11-25
+business-51-75-business-51-75-f0042,program,birmingham-business-administration-bsc-2027,fees,fee not stated on the page consulted — unknown,https://www.birmingham.ac.uk/study/undergraduate/subjects/business-and-management-courses/business-management-with-year-in-industry-bsc,2026-11-25
+business-51-75-business-51-75-f0043,program,birmingham-finance-msc-2027,fees,36000 GBP per_year,https://www.birmingham.ac.uk/study/postgraduate/subjects/accounting-and-finance-courses/financial-management-msc,2026-11-25
+business-51-75-business-51-75-f0044,program,birmingham-management-msc-2027,fees,34830 GBP per_year,https://www.birmingham.ac.uk/study/postgraduate/subjects/business-and-management-courses/management-msc,2026-11-25
+business-51-75-business-51-75-f0045,program,duke-business-administration-mba-2027,fees,83700 USD per_year,https://ai.fuqua.duke.edu/node/383,2026-11-25
+business-51-75-business-51-75-f0046,program,duke-management-mms-2027,fees,69900 USD total,https://fuqua.bulletins.duke.edu/policies/financial/tuition,2026-11-25
+business-51-75-business-51-75-f0047,program,lund-finance-msc-2027,fees,160000 SEK total,https://www.lunduniversity.lu.se/study/finance-masters-programme-one-year-EAGFN,2026-11-25
+business-51-75-business-51-75-f0048,program,lund-accounting-msc-2027,fees,150000 SEK total,http://www.lunduniversity.lu.se/study/accounting-and-finance-masters-programme-one-year-EAGAF,2026-11-25
+business-51-75-business-51-75-f0049,program,lund-business-administration-bsc-2027,fees,fee not stated on the page consulted — unknown,https://www.lunduniversity.lu.se/study/find-education/business-economics-and-management,2026-11-25
+business-51-75-business-51-75-f0050,program,texas-business-administration-mba-2027,fees,61214 USD per_year,https://www.mccombs.utexas.edu/graduate/mba/full-time-mba/tuition-financial-aid/,2026-11-25
+business-51-75-business-51-75-f0051,program,texas-finance-msf-2027,fees,59700 USD total,https://go.mccombs.utexas.edu/MSF-7793_RFI-LP.html?utm_mkto=7104,2026-11-25
+business-51-75-business-51-75-f0052,program,texas-business-administration-bba-2027,fees,46498 USD per_year,https://www.mccombs.utexas.edu/undergraduate-programs/bba/admissions-and-cost/,2026-11-25
+business-51-75-business-51-75-f0053,program,sorbonne-finance-msc-2027,fees,255 EUR per_year,https://sciences.sorbonne-universite.fr/en/masters/master-actuarial-science,2026-11-25
+business-51-75-business-51-75-f0054,program,illinois-accounting-bs-2027,fees,31550 USD per_year,https://cost.illinois.edu/Home/Cost/I/G/Compare/12/120228/120228,2026-11-25
+business-51-75-business-51-75-f0055,program,illinois-business-administration-mba-2027,fees,37316 USD per_year,https://cost.illinois.edu/Home/Cost/I/G/Compare/12/120228/120228,2026-11-25
+business-51-75-business-51-75-f0056,program,illinois-accounting-ms-2027,fees,40080 USD per_year,https://cost.illinois.edu/Home/Cost/I/G/Compare/12/120228/120228,2026-11-25
+business-51-75-business-51-75-f0057,program,trinity-finance-msc-2027,fees,27300 EUR per_year,https://www.tcd.ie/business/programmes/masters-programmes/msc-in-finance/fees/,2026-11-25
+business-51-75-business-51-75-f0058,program,trinity-business-administration-mba-2027,fees,37300 EUR total,https://www.tcd.ie/courses/postgraduate/fees/,2026-11-25
+business-51-75-business-51-75-f0059,program,trinity-management-msc-2027,fees,24600 EUR per_year,https://www.tcd.ie/courses/postgraduate/fees/,2026-11-25
+business-76-100-business-76-100-f0001,program,paris-saclay-business-administration-mibs-2027,fees,254 EUR per_year,http://www.universite-paris-saclay.fr/en/education/masters-degree/strategic-management/m2-international-business-and-sustainability-mibs,2026-11-25
+business-76-100-business-76-100-f0002,program,paris-saclay-economics-msc-2027,fees,254 EUR per_year,https://www.universite-paris-saclay.fr/en/education/masters-programmes-taught-english,2026-11-25
+business-76-100-business-76-100-f0003,program,uwa-business-administration-bcom-2027,fees,50700 AUD per_year,https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTUG&feeYear=2026,2026-11-25
+business-76-100-business-76-100-f0004,program,uwa-business-administration-bbus-2027,fees,50700 AUD per_year,https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTUG&feeYear=2026,2026-11-25
+business-76-100-business-76-100-f0005,program,uwa-business-administration-mba-2027,fees,68100 AUD per_year,https://www.fees.uwa.edu.au/Calculator?category=INTPG&year=2027&course=42520,2026-11-25
+business-76-100-business-76-100-f0006,program,leeds-finance-msc-2027,fees,36600 GBP total,https://courses.leeds.ac.uk/f840/finance-and-investment-msc,2026-11-25
+business-76-100-business-76-100-f0007,program,leeds-management-msc-2027,fees,33700 GBP total,https://courses.leeds.ac.uk/a078/management-msc,2026-11-25
+business-76-100-business-76-100-f0008,program,leeds-business-administration-mba-2027,fees,41200 GBP total,https://courses.leeds.ac.uk/a992/full-time-mba,2026-11-25
+business-76-100-business-76-100-f0009,program,leeds-business-administration-mba-2027,application_deadline,30 July 2027,https://courses.leeds.ac.uk/a992/full-time-mba,2026-11-25
+business-76-100-business-76-100-f0010,program,leeds-marketing-ba-2027,fees,29000 GBP per_year,https://courses.leeds.ac.uk/i476/business-management-with-marketing-ba,2026-11-25
+business-76-100-business-76-100-f0011,program,adelaide-accounting-bcom-2027,fees,54300 AUD per_year,https://adelaide.edu.au/study/degrees/bachelor-of-commerce-accounting/,2026-11-25
+business-76-100-business-76-100-f0012,program,adelaide-business-administration-bbus-2027,fees,52500 AUD per_year,https://adelaide.edu.au/study/degrees/bachelor-of-business/,2026-11-25
+business-76-100-business-76-100-f0013,program,adelaide-marketing-bbus-2027,fees,52500 AUD per_year,https://adelaide.edu.au/study/degrees/bachelor-of-business-marketing/,2026-11-25
+business-76-100-business-76-100-f0014,program,adelaide-business-administration-mba-2027,fees,57100 AUD per_year,https://adelaide.edu.au/study/degrees/master-of-business-administration/,2026-11-25
+business-76-100-business-76-100-f0015,program,adelaide-finance-mfin-2027,fees,54300 AUD per_year,https://adelaide.edu.au/study/degrees/master-of-finance/,2026-11-25
+business-76-100-business-76-100-f0016,program,glasgow-finance-msc-2027,fees,34815 GBP total,https://www.gla.ac.uk/postgraduate/taught/financemanagement/,2026-11-25
+business-76-100-business-76-100-f0017,program,glasgow-business-administration-mba-2027,fees,41100 GBP total,https://www.gla.ac.uk/postgraduate/taught/businessadministration/,2026-11-25
+business-76-100-business-76-100-f0018,program,glasgow-management-msc-2027,fees,37089 GBP total,https://www.gla.ac.uk/postgraduate/taught/managementwithenterprise/,2026-11-25
+business-76-100-business-76-100-f0019,program,ucsd-business-administration-mba-2027,fees,66440 USD per_year,https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html,2026-11-25
+business-76-100-business-76-100-f0020,program,ucsd-finance-mqf-2027,fees,88036 USD total,https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html,2026-11-25
+business-76-100-business-76-100-f0021,program,ucsd-accounting-mpac-2027,fees,78950 USD total,https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html,2026-11-25
+business-76-100-business-76-100-f0022,program,kth-management-msc-2027,fees,385000 SEK total,https://www.kth.se/en/studies/2.23106/master/industrial-management/fees-industrial-management-1.910344,2026-11-25
+business-76-100-business-76-100-f0023,program,sheffield-management-msc-2027,fees,34550 GBP total,https://sheffield.ac.uk/postgraduate/taught/courses/2027/management-msc,2026-11-25
+business-76-100-business-76-100-f0024,program,nanjing-business-administration-mba-2027,fees,185000 CNY total,https://hwxy.nju.edu.cn/English/StudyatNJU/Costs/Tuition/index.html,2026-11-25
+business-76-100-business-76-100-f0025,program,osaka-economics-msc-2027,fees,535800 JPY per_year,https://www.osaka-u.ac.jp/en/education/announcement/files/economics_grad_2023/@@download/file,2026-11-25
+business-76-100-business-76-100-f0026,program,osaka-business-administration-mba-2027,fees,535800 JPY per_year,https://www.osaka-u.ac.jp/en/education/announcement/files/economics_grad_2023/@@download/file,2026-11-25
+business-76-100-business-76-100-f0027,program,pennstate-finance-bs-2027,fees,52656 USD per_year,https://tuition.psu.edu/rates-effective-2026-fall-semester,2026-11-25
+business-76-100-business-76-100-f0028,program,pennstate-business-administration-mba-2027,fees,55806 USD per_year,https://tuition.psu.edu/rates-effective-2026-fall-semester,2026-11-25
+business-76-100-business-76-100-f0029,program,pennstate-accounting-bs-2027,fees,52656 USD per_year,https://tuition.psu.edu/rates-effective-2026-fall-semester,2026-11-25
+business-76-100-business-76-100-f0030,program,pennstate-finance-mfin-2027,fees,50608 USD per_year,https://tuition.psu.edu/rates-effective-2026-fall-semester,2026-11-25
+business-76-100-business-76-100-f0031,program,copenhagen-economics-msc-2027,fees,13400 EUR per_year,https://studyindenmark.dk/portal/university-of-copenhagen-ucph/city-campus/economics,2026-11-25
+business-76-100-business-76-100-f0032,program,uppsala-management-msc-2027,fees,114000 SEK per_year,https://www.uu.se/en/study/masters-studies/fees.html,2026-11-25
+business-76-100-business-76-100-f0033,program,uppsala-accounting-msc-2027,fees,114000 SEK per_year,https://www.uu.se/en/study/masters-studies/fees.html,2026-11-25
+business-76-100-business-76-100-f0034,program,isct-management-msc-2027,fees,635400 JPY per_year,https://students.isct.ac.jp/plugins/cms/component_download_file.php?type=2&pageId=&contentsId=1&contentsDataId=3639&prevId=&key=c7a12209f9c80f977a48e4602dd1b734.pdf&fileName=tuition-tuition-payment-e,2026-11-25
+business-76-100-business-76-100-f0035,program,fuberlin-business-administration-bsc-2027,fees,0 EUR per_year,https://www.polsoz.fu-berlin.de/en/kommwiss/studieninteressierte/faq_ba_studieninteressierte/allgemeine-fragen-studieninteressierte/Weitere-Fragen-von-Studieninteressierten/gebuehren.html,2026-11-25
+business-76-100-business-76-100-f0036,program,fuberlin-economics-bsc-2027,fees,0 EUR per_year,https://www.polsoz.fu-berlin.de/en/kommwiss/studieninteressierte/faq_ba_studieninteressierte/allgemeine-fragen-studieninteressierte/Weitere-Fragen-von-Studieninteressierten/gebuehren.html,2026-11-25
+business-76-100-business-76-100-f0037,program,fuberlin-management-msc-2027,fees,0 EUR per_year,https://www.wiwiss.fu-berlin.de/en/studium-lehre/master/m-m/Application/index.html,2026-11-25
+business-76-100-business-76-100-f0038,program,fuberlin-economics-msc-2027,fees,0 EUR per_year,https://www.wiwiss.fu-berlin.de/en/studium-lehre/master/m-m/Application/index.html,2026-11-25
+engineering-01-10-engineering-01-10-f0001,program,mit-mechanical-engineering-sb-2027,fees,66720 USD per_year,https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate,2026-11-25
+engineering-01-10-engineering-01-10-f0002,program,mit-aerospace-engineering-sb-2027,fees,66720 USD per_year,https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate,2026-11-25
+engineering-01-10-engineering-01-10-f0003,program,mit-chemical-engineering-sb-2027,fees,66720 USD per_year,https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate,2026-11-25
+engineering-01-10-engineering-01-10-f0004,program,mit-civil-engineering-sb-2027,fees,66720 USD per_year,https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate,2026-11-25
+engineering-01-10-engineering-01-10-f0005,program,mit-electrical-engineering-sb-2027,fees,66720 USD per_year,https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate,2026-11-25
+engineering-01-10-engineering-01-10-f0006,program,imperial-mechanical-engineering-meng-2027,fees,45500 GBP per_year,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0007,program,imperial-mechanical-engineering-meng-2027,application_deadline,13 January 2027,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0008,program,imperial-electrical-engineering-meng-2027,fees,45500 GBP per_year,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0009,program,imperial-electrical-engineering-meng-2027,application_deadline,13 January 2027,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0010,program,imperial-aerospace-engineering-meng-2027,fees,45500 GBP per_year,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0011,program,imperial-aerospace-engineering-meng-2027,application_deadline,13 January 2027,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0012,program,imperial-civil-engineering-meng-2027,fees,45500 GBP per_year,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0013,program,imperial-civil-engineering-meng-2027,application_deadline,13 January 2027,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0014,program,imperial-chemical-engineering-meng-2027,fees,45500 GBP per_year,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0015,program,imperial-chemical-engineering-meng-2027,application_deadline,13 January 2027,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0016,program,imperial-biomedical-engineering-meng-2027,fees,45500 GBP per_year,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0017,program,imperial-biomedical-engineering-meng-2027,application_deadline,13 January 2027,https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/,2026-11-25
+engineering-01-10-engineering-01-10-f0018,program,stanford-mechanical-engineering-bs-2027,fees,67731 USD per_year,https://bulletin.stanford.edu/policies/tuition-fees-financial-aid/9-1-tuition,2026-11-25
+engineering-01-10-engineering-01-10-f0019,program,stanford-civil-engineering-bs-2027,fees,67731 USD per_year,https://bulletin.stanford.edu/policies/tuition-fees-financial-aid/9-1-tuition,2026-11-25
+engineering-01-10-engineering-01-10-f0020,program,stanford-chemical-engineering-bs-2027,fees,67731 USD per_year,https://bulletin.stanford.edu/policies/tuition-fees-financial-aid/9-1-tuition,2026-11-25
+engineering-01-10-engineering-01-10-f0021,program,stanford-biomedical-engineering-bs-2027,fees,67731 USD per_year,https://bulletin.stanford.edu/policies/tuition-fees-financial-aid/9-1-tuition,2026-11-25
+engineering-01-10-engineering-01-10-f0022,program,stanford-electrical-engineering-bs-2027,fees,67731 USD per_year,https://bulletin.stanford.edu/policies/tuition-fees-financial-aid/9-1-tuition,2026-11-25
+engineering-01-10-engineering-01-10-f0023,program,stanford-electrical-engineering-ms-2027,fees,69717 USD per_year,https://bulletin.stanford.edu/policies/tuition-fees-financial-aid/9-1-tuition,2026-11-25
+engineering-01-10-engineering-01-10-f0024,program,stanford-mechanical-engineering-ms-2027,fees,69717 USD per_year,https://bulletin.stanford.edu/policies/tuition-fees-financial-aid/9-1-tuition,2026-11-25
+engineering-01-10-engineering-01-10-f0025,program,oxford-general-engineering-meng-2027,fees,62820 GBP per_year,https://assets-oxweb.admin.ox.ac.uk/2026-02/Engineering%20Science%20CIS%202026-entry.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0026,program,oxford-general-engineering-meng-2027,application_deadline,15 October 2026,https://assets-oxweb.admin.ox.ac.uk/2026-02/Engineering%20Science%20CIS%202026-entry.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0027,program,oxford-general-engineering-matsci-meng-2027,fees,62820 GBP per_year,https://assets-oxweb-stage.admin.ox.ac.uk/2026-02/Materials Science CIS 2026-entry.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0028,program,oxford-general-engineering-matsci-meng-2027,application_deadline,15 October 2026,https://assets-oxweb-stage.admin.ox.ac.uk/2026-02/Materials Science CIS 2026-entry.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0029,program,harvard-mechanical-engineering-sb-2027,fees,62226 USD per_year,https://registrar.fas.harvard.edu/tuition-and-fees,2026-11-25
+engineering-01-10-engineering-01-10-f0030,program,harvard-electrical-engineering-sb-2027,fees,62226 USD per_year,https://registrar.fas.harvard.edu/tuition-and-fees,2026-11-25
+engineering-01-10-engineering-01-10-f0031,program,harvard-biomedical-engineering-sb-2027,fees,62226 USD per_year,https://registrar.fas.harvard.edu/tuition-and-fees,2026-11-25
+engineering-01-10-engineering-01-10-f0032,program,harvard-general-engineering-sb-2027,fees,62226 USD per_year,https://registrar.fas.harvard.edu/tuition-and-fees,2026-11-25
+engineering-01-10-engineering-01-10-f0033,program,cambridge-general-engineering-meng-2027,fees,44214 GBP per_year,https://www.undergraduate.study.cam.ac.uk/files/publications/undergraduate_tuition_fees_2026-27.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0034,program,cambridge-general-engineering-meng-2027,application_deadline,15 October 2026,https://www.undergraduate.study.cam.ac.uk/files/publications/undergraduate_tuition_fees_2026-27.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0035,program,cambridge-chemical-engineering-meng-2027,fees,44214 GBP per_year,https://www.undergraduate.study.cam.ac.uk/files/publications/undergraduate_tuition_fees_2026-27.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0036,program,cambridge-chemical-engineering-meng-2027,application_deadline,15 October 2026,https://www.undergraduate.study.cam.ac.uk/files/publications/undergraduate_tuition_fees_2026-27.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0037,program,cambridge-general-engineering-manuf-meng-2027,fees,44214 GBP per_year,https://www.undergraduate.study.cam.ac.uk/files/publications/undergraduate_tuition_fees_2026-27.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0038,program,cambridge-general-engineering-manuf-meng-2027,application_deadline,15 October 2026,https://www.undergraduate.study.cam.ac.uk/files/publications/undergraduate_tuition_fees_2026-27.pdf,2026-11-25
+engineering-01-10-engineering-01-10-f0039,program,caltech-mechanical-engineering-bs-2027,fees,68574 USD per_year,https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/,2026-11-25
+engineering-01-10-engineering-01-10-f0040,program,caltech-electrical-engineering-bs-2027,fees,68574 USD per_year,https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/,2026-11-25
+engineering-01-10-engineering-01-10-f0041,program,caltech-chemical-engineering-bs-2027,fees,68574 USD per_year,https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/,2026-11-25
+engineering-01-10-engineering-01-10-f0042,program,caltech-civil-engineering-bs-2027,fees,68574 USD per_year,https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/,2026-11-25
+engineering-01-10-engineering-01-10-f0043,program,caltech-aerospace-engineering-bs-2027,fees,68574 USD per_year,https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/,2026-11-25
+engineering-01-10-engineering-01-10-f0044,program,caltech-biomedical-engineering-bs-2027,fees,68574 USD per_year,https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/,2026-11-25
+engineering-01-10-engineering-01-10-f0045,program,eth-mechanical-engineering-msc-2027,fees,4380 CHF per_year,https://ethz.ch/students/en/studies/financial/studiengebuehren.html,2026-11-25
+engineering-01-10-engineering-01-10-f0046,program,eth-electrical-engineering-msc-2027,fees,4380 CHF per_year,https://ethz.ch/students/en/studies/financial/studiengebuehren.html,2026-11-25
+engineering-01-10-engineering-01-10-f0047,program,eth-civil-engineering-msc-2027,fees,4380 CHF per_year,https://ethz.ch/students/en/studies/financial/studiengebuehren.html,2026-11-25
+engineering-01-10-engineering-01-10-f0048,program,eth-chemical-engineering-msc-2027,fees,4380 CHF per_year,https://ethz.ch/students/en/studies/financial/studiengebuehren.html,2026-11-25
+engineering-01-10-engineering-01-10-f0049,program,eth-biomedical-engineering-msc-2027,fees,4380 CHF per_year,https://ethz.ch/students/en/studies/financial/studiengebuehren.html,2026-11-25
+engineering-01-10-engineering-01-10-f0050,program,ucl-mechanical-engineering-beng-2027,fees,44400 GBP per_year,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/mechanical-engineering-beng,2026-11-25
+engineering-01-10-engineering-01-10-f0051,program,ucl-mechanical-engineering-beng-2027,application_deadline,13 January 2027,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/mechanical-engineering-beng,2026-11-25
+engineering-01-10-engineering-01-10-f0052,program,ucl-electrical-engineering-beng-2027,fees,44400 GBP per_year,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0053,program,ucl-electrical-engineering-beng-2027,application_deadline,13 January 2027,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0054,program,ucl-civil-engineering-beng-2027,fees,44400 GBP per_year,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0055,program,ucl-civil-engineering-beng-2027,application_deadline,13 January 2027,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0056,program,ucl-chemical-engineering-beng-2027,fees,44400 GBP per_year,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0057,program,ucl-chemical-engineering-beng-2027,application_deadline,13 January 2027,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0058,program,ucl-biomedical-engineering-beng-2027,fees,44400 GBP per_year,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0059,program,ucl-biomedical-engineering-beng-2027,application_deadline,13 January 2027,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0060,program,ucl-chemical-engineering-biochem-beng-2027,fees,44400 GBP per_year,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0061,program,ucl-chemical-engineering-biochem-beng-2027,application_deadline,13 January 2027,https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024,2026-11-25
+engineering-01-10-engineering-01-10-f0062,program,nus-mechanical-engineering-beng-2027,fees,39700 SGD per_year,https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs,2026-11-25
+engineering-01-10-engineering-01-10-f0063,program,nus-electrical-engineering-beng-2027,fees,39700 SGD per_year,https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs,2026-11-25
+engineering-01-10-engineering-01-10-f0064,program,nus-civil-engineering-beng-2027,fees,39700 SGD per_year,https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs,2026-11-25
+engineering-01-10-engineering-01-10-f0065,program,nus-chemical-engineering-beng-2027,fees,39700 SGD per_year,https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs,2026-11-25
+engineering-01-10-engineering-01-10-f0066,program,nus-biomedical-engineering-beng-2027,fees,39700 SGD per_year,https://www.nus.edu.sg/registrar/docs/info/administrative-policies-procedures/ugtuitioncurrent.pdf?fbclid=IwAR26aYk72O3NT7Jun2U5GAR9dfu75syVAjPkoyabLPtQ_qvboFoTsT9nnGs,2026-11-25
+engineering-11-25-engineering-11-25-f0001,program,hku-mechanical-engineering-beng-2027,fees,280000 HKD per_year,https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0002,program,hku-mechanical-engineering-beng-2027,application_deadline,25 August 2027,https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0003,program,hku-electrical-engineering-beng-2027,fees,280000 HKD per_year,https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0004,program,hku-electrical-engineering-beng-2027,application_deadline,25 August 2027,https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0005,program,hku-civil-engineering-beng-2027,fees,280000 HKD per_year,https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0006,program,hku-civil-engineering-beng-2027,application_deadline,25 August 2027,https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0007,program,hku-biomedical-engineering-beng-2027,fees,280000 HKD per_year,https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0008,program,hku-biomedical-engineering-beng-2027,application_deadline,25 August 2027,https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0009,program,ntu-mechanical-engineering-beng-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0010,program,ntu-electrical-electronic-engineering-beng-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0011,program,ntu-civil-engineering-beng-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0012,program,ntu-chemical-biomolecular-engineering-beng-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0013,program,ntu-aerospace-engineering-beng-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0014,program,ntu-bioengineering-beng-2027,fees,40600 SGD per_year,https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0015,program,peking-aerospace-engineering-beng-2027,fees,30000 CNY per_year,https://isd.pku.edu.cn/en/detail.php?id=503,2026-11-25
+engineering-11-25-engineering-11-25-f0016,program,peking-biomedical-engineering-beng-2027,fees,30000 CNY per_year,https://isd.pku.edu.cn/en/detail.php?id=503,2026-11-25
+engineering-11-25-engineering-11-25-f0017,program,peking-energy-resources-engineering-beng-2027,fees,30000 CNY per_year,https://isd.pku.edu.cn/en/detail.php?id=503,2026-11-25
+engineering-11-25-engineering-11-25-f0018,program,peking-theoretical-applied-mechanics-beng-2027,fees,30000 CNY per_year,https://isd.pku.edu.cn/en/detail.php?id=503,2026-11-25
+engineering-11-25-engineering-11-25-f0019,program,tsinghua-mechanical-engineering-beng-2027,fees,30000 CNY per_year,https://international.join-tsinghua.edu.cn/Admission1/Fees.htm,2026-11-25
+engineering-11-25-engineering-11-25-f0020,program,tsinghua-electrical-engineering-beng-2027,fees,30000 CNY per_year,https://international.join-tsinghua.edu.cn/Admission1/Fees.htm,2026-11-25
+engineering-11-25-engineering-11-25-f0021,program,tsinghua-civil-engineering-beng-2027,fees,30000 CNY per_year,https://international.join-tsinghua.edu.cn/Admission1/Fees.htm,2026-11-25
+engineering-11-25-engineering-11-25-f0022,program,tsinghua-chemical-engineering-beng-2027,fees,30000 CNY per_year,https://international.join-tsinghua.edu.cn/Admission1/Fees.htm,2026-11-25
+engineering-11-25-engineering-11-25-f0023,program,tsinghua-aerospace-engineering-beng-2027,fees,30000 CNY per_year,https://international.join-tsinghua.edu.cn/Admission1/Fees.htm,2026-11-25
+engineering-11-25-engineering-11-25-f0024,program,tsinghua-biomedical-engineering-beng-2027,fees,30000 CNY per_year,https://international.join-tsinghua.edu.cn/Admission1/Fees.htm,2026-11-25
+engineering-11-25-engineering-11-25-f0025,program,tsinghua-automation-beng-2027,fees,30000 CNY per_year,https://international.join-tsinghua.edu.cn/Admission1/Fees.htm,2026-11-25
+engineering-11-25-engineering-11-25-f0026,program,upenn-mechanical-engineering-bse-2027,fees,65670 USD per_year,https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0027,program,upenn-electrical-engineering-bse-2027,fees,65670 USD per_year,https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0028,program,upenn-chemical-biomolecular-engineering-bse-2027,fees,65670 USD per_year,https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0029,program,upenn-bioengineering-bse-2027,fees,65670 USD per_year,https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0030,program,upenn-materials-science-engineering-bse-2027,fees,65670 USD per_year,https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0031,program,upenn-systems-engineering-bse-2027,fees,65670 USD per_year,https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees,2026-11-25
+engineering-11-25-engineering-11-25-f0032,program,cornell-mechanical-engineering-bs-2027,fees,73946 USD per_year,https://catalog.cornell.edu/general-information/tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0033,program,cornell-electrical-computer-engineering-bs-2027,fees,73946 USD per_year,https://catalog.cornell.edu/general-information/tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0034,program,cornell-civil-engineering-bs-2027,fees,73946 USD per_year,https://catalog.cornell.edu/general-information/tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0035,program,cornell-chemical-engineering-bs-2027,fees,73946 USD per_year,https://catalog.cornell.edu/general-information/tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0036,program,cornell-biomedical-engineering-bs-2027,fees,73946 USD per_year,https://catalog.cornell.edu/general-information/tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0037,program,cornell-materials-science-engineering-bs-2027,fees,73946 USD per_year,https://catalog.cornell.edu/general-information/tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0038,program,yale-mechanical-engineering-bs-2027,fees,72500 USD per_year,https://finaid.yale.edu/coa,2026-11-25
+engineering-11-25-engineering-11-25-f0039,program,yale-electrical-engineering-bs-2027,fees,72500 USD per_year,https://finaid.yale.edu/coa,2026-11-25
+engineering-11-25-engineering-11-25-f0040,program,yale-chemical-engineering-bs-2027,fees,72500 USD per_year,https://finaid.yale.edu/coa,2026-11-25
+engineering-11-25-engineering-11-25-f0041,program,yale-biomedical-engineering-bs-2027,fees,72500 USD per_year,https://finaid.yale.edu/coa,2026-11-25
+engineering-11-25-engineering-11-25-f0042,program,cuhk-mechanical-engineering-beng-2027,fees,230000 HKD per_year,https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0043,program,cuhk-electronic-engineering-beng-2027,fees,230000 HKD per_year,https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0044,program,cuhk-biomedical-engineering-beng-2027,fees,230000 HKD per_year,https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0045,program,cuhk-systems-engineering-management-beng-2027,fees,230000 HKD per_year,https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0046,program,unsw-mechanical-engineering-beng-hons-2027,fees,63840 AUD per_year,https://www.unsw.edu.au/student/managing-your-studies/fees/international,2026-11-25
+engineering-11-25-engineering-11-25-f0047,program,unsw-electrical-engineering-beng-hons-2027,fees,63840 AUD per_year,https://www.unsw.edu.au/student/managing-your-studies/fees/international,2026-11-25
+engineering-11-25-engineering-11-25-f0048,program,unsw-civil-engineering-beng-hons-2027,fees,63840 AUD per_year,https://www.unsw.edu.au/student/managing-your-studies/fees/international,2026-11-25
+engineering-11-25-engineering-11-25-f0049,program,unsw-chemical-engineering-beng-hons-2027,fees,63840 AUD per_year,https://www.unsw.edu.au/student/managing-your-studies/fees/international,2026-11-25
+engineering-11-25-engineering-11-25-f0050,program,unsw-aerospace-engineering-beng-hons-2027,fees,63840 AUD per_year,https://www.unsw.edu.au/student/managing-your-studies/fees/international,2026-11-25
+engineering-11-25-engineering-11-25-f0051,program,unsw-biomedical-engineering-beng-hons-2027,fees,63840 AUD per_year,https://www.unsw.edu.au/student/managing-your-studies/fees/international,2026-11-25
+engineering-11-25-engineering-11-25-f0052,program,jhu-biomedical-engineering-bs-2027,fees,68670 USD per_year,https://sfs.jhu.edu/cost-tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0053,program,jhu-chemical-biomolecular-engineering-bs-2027,fees,68670 USD per_year,https://sfs.jhu.edu/cost-tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0054,program,jhu-civil-engineering-bs-2027,fees,68670 USD per_year,https://sfs.jhu.edu/cost-tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0055,program,jhu-electrical-engineering-bs-2027,fees,68670 USD per_year,https://sfs.jhu.edu/cost-tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0056,program,jhu-mechanical-engineering-bs-2027,fees,68670 USD per_year,https://sfs.jhu.edu/cost-tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0057,program,jhu-materials-science-engineering-bs-2027,fees,68670 USD per_year,https://sfs.jhu.edu/cost-tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0058,program,jhu-systems-engineering-bs-2027,fees,68670 USD per_year,https://sfs.jhu.edu/cost-tuition/,2026-11-25
+engineering-11-25-engineering-11-25-f0059,program,berkeley-mechanical-engineering-bs-2027,fees,57484 USD per_year,https://registrar.berkeley.edu/tuition-fees/fee-schedule/,2026-11-25
+engineering-11-25-engineering-11-25-f0060,program,berkeley-electrical-engineering-computer-sciences-bs-2027,fees,57484 USD per_year,https://registrar.berkeley.edu/tuition-fees/fee-schedule/,2026-11-25
+engineering-11-25-engineering-11-25-f0061,program,berkeley-civil-engineering-bs-2027,fees,57484 USD per_year,https://registrar.berkeley.edu/tuition-fees/fee-schedule/,2026-11-25
+engineering-11-25-engineering-11-25-f0062,program,berkeley-chemical-engineering-bs-2027,fees,57484 USD per_year,https://registrar.berkeley.edu/tuition-fees/fee-schedule/,2026-11-25
+engineering-11-25-engineering-11-25-f0063,program,berkeley-bioengineering-bs-2027,fees,57484 USD per_year,https://registrar.berkeley.edu/tuition-fees/fee-schedule/,2026-11-25
+engineering-11-25-engineering-11-25-f0064,program,epfl-mechanical-engineering-bsc-2027,fees,4380 CHF per_year,https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0065,program,epfl-electrical-engineering-bsc-2027,fees,4380 CHF per_year,https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0066,program,epfl-civil-engineering-bsc-2027,fees,4380 CHF per_year,https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0067,program,epfl-chemical-engineering-bsc-2027,fees,4380 CHF per_year,https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0068,program,epfl-mechanical-engineering-msc-2027,fees,4380 CHF per_year,https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0069,program,epfl-electrical-engineering-msc-2027,fees,4380 CHF per_year,https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0070,program,epfl-civil-engineering-msc-2027,fees,4380 CHF per_year,https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0071,program,epfl-chemical-engineering-msc-2027,fees,4380 CHF per_year,https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/,2026-11-25
+engineering-11-25-engineering-11-25-f0072,program,melbourne-mechanical-engineering-meng-2027,fees,66752 AUD per_year,https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0073,program,melbourne-civil-engineering-meng-2027,fees,66752 AUD per_year,https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0074,program,melbourne-electrical-engineering-meng-2027,fees,66752 AUD per_year,https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0075,program,melbourne-chemical-engineering-meng-2027,fees,66752 AUD per_year,https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0076,program,melbourne-biomedical-engineering-meng-2027,fees,66752 AUD per_year,https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf,2026-11-25
+engineering-11-25-engineering-11-25-f0077,program,chicago-molecular-engineering-bs-2027,fees,75960 USD per_year,https://pme.uchicago.edu/,2026-11-25
+engineering-11-25-engineering-11-25-f0078,program,tum-mechanical-engineering-bsc-2027,fees,6000 EUR per_year,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0079,program,tum-electrical-engineering-information-technology-bsc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0080,program,tum-civil-engineering-bsc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0081,program,tum-chemical-engineering-bsc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0082,program,tum-aerospace-bsc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0083,program,tum-mechanical-engineering-msc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0084,program,tum-electrical-engineering-information-technology-msc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0085,program,tum-civil-engineering-msc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0086,program,tum-chemical-engineering-msc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25
+engineering-11-25-engineering-11-25-f0087,program,tum-aerospace-msc-2027,fees,fee not stated on the page consulted — unknown,https://www.tum.de/en/studies/fees/tuition,2026-11-25

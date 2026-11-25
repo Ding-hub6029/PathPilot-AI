@@ -3,6 +3,7 @@ import './globals.css';
 import { AppProvider } from '../lib/store';
 import Header from '../components/Header';
 import { CompassPet } from '../components/CompassPet';
+import { RouteTransition } from '../components/RouteTransition';
 
 export const metadata: Metadata = {
   title: 'PathPilot AI — Evidence-based university selection',
@@ -15,7 +16,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen">
         <AppProvider>
           <Header />
-          <main>{children}</main>
+          {/* tabIndex -1 so RouteTransition can move keyboard focus here
+              on route change (preventScroll — scroll restoration intact). */}
+          <main tabIndex={-1} className="outline-none">
+            <RouteTransition>{children}</RouteTransition>
+          </main>
           <CompassPet />
           <footer className="mx-auto max-w-6xl px-4 pb-10 pt-6 text-center text-sm text-navy/70">
             PathPilot AI — Global AI Builder&apos;s Challenge 2026 · Day 1

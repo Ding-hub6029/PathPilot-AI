@@ -10,6 +10,14 @@ import { useApp } from '../lib/store';
  * Positions are computed from real dates on a Dec 2026 → Oct 2027 scale,
  * so the amber NOW marker is always where today actually falls.
  * Logical positioning (insetInlineStart) keeps the line correct in RTL.
+ *
+ * Fix 2026-11-25 (user testing: "这个不应该是横着的吗？你竖着人家怎么看"):
+ * the horizontal track now shows on ALL screen sizes — on phones it
+ * scrolls horizontally (min-width 560px inside overflow-x-auto) instead
+ * of collapsing into a vertical list, which is deleted. The old
+ * below-the-line NOW label wrapped letter-by-letter and overlapped the
+ * line on narrow screens; it is now a pill ABOVE the line, clamped to
+ * 10–90% so it never clips, and the marker dot is clamped to 2–98%.
  */
 const SCALE_START = new Date('2026-12-01T00:00:00Z').getTime();
 const SCALE_END = new Date('2027-10-01T00:00:00Z').getTime();
@@ -29,37 +37,43 @@ function pct(iso: string): number {
 export function TimelinePanel() {
   const { t, locale } = useApp();
   const nowPct = pct(new Date().toISOString().slice(0, 10));
+  // Clamp the visible marker/label so neither clips at the track edges
+  // (today can fall outside the Dec 2026 → Oct 2027 scale).
+  const markerPct = Math.min(98, Math.max(2, nowPct));
+  const labelPct = Math.min(90, Math.max(10, nowPct));
   const fmt = (iso: string) =>
     new Date(`${iso}T00:00:00Z`).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
 
   return (
-    <section className="mt-10" aria-labelledby="timeline-title">
+    <section className="section-rule mt-10" aria-labelledby="timeline-title">
       <p className="microcopy text-teal-dark">{t('home.timelineTitle')}</p>
-      <h2 id="timeline-title" className="mt-1 text-2xl font-bold tracking-tight">{t('home.timelineTitle')}</h2>
+      <h2 id="timeline-title" className="line-mask mt-1 text-2xl font-bold tracking-tight"><span>{t('home.timelineTitle')}</span></h2>
       <p className="mt-2 text-sm text-navy/70">{t('home.timelineNote')}</p>
 
       <div className="perspective-1200 mt-5">
         <div className="tilt-panel anim-tilt-in rounded-3xl border border-navy/10 bg-white p-5 shadow-lg sm:p-6">
-          {/* Horizontal track (desktop): amber NOW line + dated nodes */}
-          <div className="relative hidden h-24 md:block" aria-hidden="true">
-            <div className="absolute inset-x-0 top-1/2 h-px bg-navy/15" />
-            <div
-              className="absolute top-0 bottom-0 w-0.5 bg-amber"
-              style={{ insetInlineStart: `${nowPct}%` }}
-            >
-              <span className="absolute -top-1 start-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-amber ring-4 ring-amber/25 [dir=rtl]:translate-x-1/2" />
-            </div>
-            {NODES.map((n) => (
-              <span key={n.id} className="absolute top-1/2 -translate-y-1/2" style={{ insetInlineStart: `${pct(n.date)}%` }}>
-                <span className="block h-3.5 w-3.5 -translate-x-1/2 rounded-full border-2 border-white bg-navy shadow [dir=rtl]:translate-x-1/2" />
+          {/* Horizontal track on every screen size; scrolls sideways on phones. */}
+          <div className="overflow-x-auto">
+            <div className="relative h-28 min-w-[560px]" aria-hidden="true">
+              <span
+                className="absolute top-0 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber px-2.5 py-0.5 text-xs font-bold text-navy [dir=rtl]:translate-x-1/2"
+                style={{ insetInlineStart: `${labelPct}%` }}
+              >
+                {t('home.timelineNow')}
               </span>
-            ))}
-            <span
-              className="microcopy absolute -bottom-1 -translate-x-1/2 text-amber-dark [dir=rtl]:translate-x-1/2"
-              style={{ insetInlineStart: `${nowPct}%` }}
-            >
-              {t('home.timelineNow')}
-            </span>
+              <div className="absolute inset-x-0 top-1/2 h-px bg-navy/15" />
+              <div
+                className="absolute top-0 bottom-0 w-0.5 bg-amber"
+                style={{ insetInlineStart: `${markerPct}%` }}
+              >
+                <span className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber ring-4 ring-amber/25 [dir=rtl]:translate-x-1/2" />
+              </div>
+              {NODES.map((n) => (
+                <span key={n.id} className="absolute top-1/2 -translate-y-1/2" style={{ insetInlineStart: `${pct(n.date)}%` }}>
+                  <span className="block h-3.5 w-3.5 -translate-x-1/2 rounded-full border-2 border-white bg-navy shadow [dir=rtl]:translate-x-1/2" />
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Node cards slide in one by one */}
@@ -71,19 +85,6 @@ export function TimelinePanel() {
               >
                 <p className="microcopy text-teal-dark" dir="ltr">{fmt(n.date)}</p>
                 <p className="mt-2 text-sm font-semibold leading-snug">{t(n.labelKey)}</p>
-              </li>
-            ))}
-          </ul>
-
-          {/* Vertical list for small screens: same data, no tilt */}
-          <ul className="mt-4 space-y-3 md:hidden">
-            {NODES.map((n) => (
-              <li key={n.id} className="flex items-start gap-3 border-t border-navy/10 pt-3 text-sm">
-                <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-navy" aria-hidden="true" />
-                <span>
-                  <span className="font-bold" dir="ltr">{fmt(n.date)}</span>
-                  {' — '}{t(n.labelKey)}
-                </span>
               </li>
             ))}
           </ul>

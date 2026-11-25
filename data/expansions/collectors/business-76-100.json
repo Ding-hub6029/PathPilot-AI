@@ -1,0 +1,2436 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "paris-saclay-business-administration-mibs-2027",
+   "institution_id": "universite-paris-saclay",
+   "institution": "Université Paris-Saclay",
+   "country": "FR",
+   "degree_level": "taught_masters",
+   "official_name": "Master in International Business and Sustainability",
+   "name_localized": {
+    "zh-CN": "国际商务与可持续发展硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "National master's enrolment fee EUR 254 per year (2025-26); non-EU students are reported to pay a differentiated rate of about EUR 3,950 per year — the non-EU amount is not confirmed on the official tuition page consulted.",
+    "amount": 254,
+    "residency": "domestic",
+    "academic_year": "2025/26"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "paris-saclay-business-administration-mibs-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "paris-saclay-mibs"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "paris-saclay-mibs",
+     "url": "http://www.universite-paris-saclay.fr/en/education/masters-degree/strategic-management/m2-international-business-and-sustainability-mibs",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "paris-saclay-tuition",
+     "url": "http://www.universite-paris-saclay.fr/en/admission/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Orsay",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "paris-saclay-economics-msc-2027",
+   "institution_id": "universite-paris-saclay",
+   "institution": "Université Paris-Saclay",
+   "country": "FR",
+   "degree_level": "taught_masters",
+   "official_name": "Master in Economics",
+   "name_localized": {
+    "zh-CN": "经济学硕士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "National master's enrolment fee EUR 254 per year (2025-26); non-EU students are reported to pay a differentiated rate of about EUR 3,950 per year — the non-EU amount is not confirmed on the official tuition page consulted.",
+    "amount": 254,
+    "residency": "domestic",
+    "academic_year": "2025/26"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "paris-saclay-economics-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "paris-saclay-english-masters"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "paris-saclay-english-masters",
+     "url": "https://www.universite-paris-saclay.fr/en/education/masters-programmes-taught-english",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "paris-saclay-tuition",
+     "url": "http://www.universite-paris-saclay.fr/en/admission/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Orsay",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "uwa-business-administration-bcom-2027",
+   "institution_id": "university-of-western-australia",
+   "institution": "University of Western Australia",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Commerce",
+   "name_localized": {
+    "zh-CN": "商学学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "International undergraduate tuition AUD 50,700 per year for 2026 (official UWA fee browser); the 2027 rate is reported as A$53,000 by fee summaries — not confirmed on the official fee browser consulted.",
+    "amount": 50700,
+    "residency": "international",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "uwa-business-administration-bcom-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "uwa-fees-browse"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uwa-fees-browse",
+     "url": "https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTUG&feeYear=2026",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Perth",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "uwa-business-administration-bbus-2027",
+   "institution_id": "university-of-western-australia",
+   "institution": "University of Western Australia",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Business",
+   "name_localized": {
+    "zh-CN": "商学学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "International undergraduate tuition AUD 50,700 per year for 2026 (official UWA fee browser, course BP009).",
+    "amount": 50700,
+    "residency": "international",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "uwa-business-administration-bbus-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "uwa-fees-browse"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uwa-fees-browse",
+     "url": "https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTUG&feeYear=2026",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Perth",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "uwa-business-administration-mba-2027",
+   "institution_id": "university-of-western-australia",
+   "institution": "University of Western Australia",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "Coursework MBA (course 42520): fee per credit point AUD 1,418.75, fee per EFTSL AUD 68,100 for 2027 (official UWA fee calculator).",
+    "amount": 68100,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "uwa-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "uwa-mba-calc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uwa-mba-calc",
+     "url": "https://www.fees.uwa.edu.au/Calculator?category=INTPG&year=2027&course=42520",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Perth",
+   "duration": "1.5 years",
+   "duration_months": 18
+  },
+  {
+   "id": "leeds-finance-msc-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Finance and Investment",
+   "name_localized": {
+    "zh-CN": "金融与投资理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "International tuition GBP 36,600 total for the 12-month programme, 2027/28 entry.",
+    "amount": 36600,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-finance-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-mscfin"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-mscfin",
+     "url": "https://courses.leeds.ac.uk/f840/finance-and-investment-msc",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "leeds-management-msc-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Management",
+   "name_localized": {
+    "zh-CN": "管理学理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "International tuition GBP 33,700 total for the 12-month programme, 2027/28 entry.",
+    "amount": 33700,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-mscmgmt"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-mscmgmt",
+     "url": "https://courses.leeds.ac.uk/a078/management-msc",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "leeds-business-administration-mba-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "Full-Time MBA international tuition GBP 41,200 total for the 12-month programme, 2027/28 entry.",
+    "amount": 41200,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": "30 July 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-mba"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-mba",
+     "url": "https://courses.leeds.ac.uk/a992/full-time-mba",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "leeds-marketing-ba-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Arts in Business Management with Marketing",
+   "name_localized": {
+    "zh-CN": "商业管理与市场营销文学学士"
+   },
+   "field": "marketing",
+   "field_zh": "市场营销",
+   "subject": "marketing",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "International tuition GBP 29,000 per year for 2027/28 entry.",
+    "amount": 29000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-marketing-ba-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school qualifications as published on the official programme page; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-ba-mktg"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-ba-mktg",
+     "url": "https://courses.leeds.ac.uk/i476/business-management-with-marketing-ba",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "adelaide-accounting-bcom-2027",
+   "institution_id": "adelaide-university",
+   "institution": "Adelaide University",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Commerce (Accounting)",
+   "name_localized": {
+    "zh-CN": "商学学士（会计）"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "Bachelor of Commerce majoring in Accounting: AUD 54,300 per year for 2027. The generic Bachelor of Commerce is reported at A$52,200 per year by some summaries; the Accounting-major rate of A$54,300 is recorded here.",
+    "amount": 54300,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "adelaide-accounting-bcom-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "adelaide-bcom-acc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "adelaide-bcom-acc",
+     "url": "https://adelaide.edu.au/study/degrees/bachelor-of-commerce-accounting/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Adelaide",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "adelaide-business-administration-bbus-2027",
+   "institution_id": "adelaide-university",
+   "institution": "Adelaide University",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Business",
+   "name_localized": {
+    "zh-CN": "商学学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "Bachelor of Business: AUD 52,500 per year for 2027.",
+    "amount": 52500,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "adelaide-business-administration-bbus-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "adelaide-bbus"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "adelaide-bbus",
+     "url": "https://adelaide.edu.au/study/degrees/bachelor-of-business/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Adelaide",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "adelaide-marketing-bbus-2027",
+   "institution_id": "adelaide-university",
+   "institution": "Adelaide University",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Business (Marketing)",
+   "name_localized": {
+    "zh-CN": "商学学士（市场营销）"
+   },
+   "field": "marketing",
+   "field_zh": "市场营销",
+   "subject": "marketing",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "Marketing major within the Bachelor of Business; the same Bachelor of Business rate of AUD 52,500 per year for 2027 applies.",
+    "amount": 52500,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "adelaide-marketing-bbus-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "adelaide-bbus-mktg"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "adelaide-bbus-mktg",
+     "url": "https://adelaide.edu.au/study/degrees/bachelor-of-business-marketing/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Adelaide",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "adelaide-business-administration-mba-2027",
+   "institution_id": "adelaide-university",
+   "institution": "Adelaide University",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "MBA: AUD 57,100 per year for 2027 (1.5-year programme).",
+    "amount": 57100,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "adelaide-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; IELTS 7.0 overall is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "adelaide-mba"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "adelaide-mba",
+     "url": "https://adelaide.edu.au/study/degrees/master-of-business-administration/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Adelaide",
+   "duration": "1.5 years",
+   "duration_months": 18
+  },
+  {
+   "id": "adelaide-finance-mfin-2027",
+   "institution_id": "adelaide-university",
+   "institution": "Adelaide University",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Finance",
+   "name_localized": {
+    "zh-CN": "金融硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "Master of Finance: AUD 54,300 per year for 2027 (2-year programme).",
+    "amount": 54300,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "adelaide-finance-mfin-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "adelaide-mfin"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "adelaide-mfin",
+     "url": "https://adelaide.edu.au/study/degrees/master-of-finance/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Adelaide",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "glasgow-finance-msc-2027",
+   "institution_id": "university-of-glasgow",
+   "institution": "University of Glasgow",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Finance & Management",
+   "name_localized": {
+    "zh-CN": "金融与管理理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "International full-time fee GBP 34,815 for 2027-28 (12-month programme).",
+    "amount": 34815,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "glasgow-finance-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "glasgow-mscfm"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "glasgow-mscfm",
+     "url": "https://www.gla.ac.uk/postgraduate/taught/financemanagement/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Glasgow",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "glasgow-business-administration-mba-2027",
+   "institution_id": "university-of-glasgow",
+   "institution": "University of Glasgow",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "MBA fee GBP 41,100 total for 2027-28; home and international students pay the same fee.",
+    "amount": 41100,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "glasgow-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "glasgow-mba"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "glasgow-mba",
+     "url": "https://www.gla.ac.uk/postgraduate/taught/businessadministration/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Glasgow",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "glasgow-management-msc-2027",
+   "institution_id": "university-of-glasgow",
+   "institution": "University of Glasgow",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Management with Enterprise & Business Growth",
+   "name_localized": {
+    "zh-CN": "管理学理学硕士（企业与业务增长）"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "International full-time fee GBP 37,089 for 2027-28 (12-month programme).",
+    "amount": 37089,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "glasgow-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "glasgow-mscmgmt"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "glasgow-mscmgmt",
+     "url": "https://www.gla.ac.uk/postgraduate/taught/managementwithenterprise/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Glasgow",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "ucsd-business-administration-mba-2027",
+   "institution_id": "university-of-california-san-diego",
+   "institution": "University of California, San Diego",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-Time MBA non-resident tuition USD 66,440 per year for 2026-27; total non-resident cost including fees is USD 75,853 per year (Rady School of Management fees page).",
+    "amount": 66440,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucsd-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ucsd-rady-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucsd-rady-fees",
+     "url": "https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "San Diego",
+   "duration": "21 months",
+   "duration_months": 21
+  },
+  {
+   "id": "ucsd-finance-mqf-2027",
+   "institution_id": "university-of-california-san-diego",
+   "institution": "University of California, San Diego",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Quantitative Finance",
+   "name_localized": {
+    "zh-CN": "定量金融硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "USD",
+    "period": "total",
+    "notes": "Master of Quantitative Finance, Fall 2026 cohort: 52 units at USD 1,693 per unit = USD 88,036 total (12-month programme).",
+    "amount": 88036,
+    "residency": "all",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucsd-finance-mqf-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ucsd-rady-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucsd-rady-fees",
+     "url": "https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "San Diego",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "ucsd-accounting-mpac-2027",
+   "institution_id": "university-of-california-san-diego",
+   "institution": "University of California, San Diego",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Professional Accountancy",
+   "name_localized": {
+    "zh-CN": "专业会计硕士"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "USD",
+    "period": "total",
+    "notes": "Master of Professional Accountancy: 50 units at USD 1,579 per unit = USD 78,950 total (9-month programme).",
+    "amount": 78950,
+    "residency": "all",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucsd-accounting-mpac-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ucsd-rady-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucsd-rady-fees",
+     "url": "https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "San Diego",
+   "duration": "9 months",
+   "duration_months": 9
+  },
+  {
+   "id": "kth-management-msc-2027",
+   "institution_id": "kth-royal-institute-of-technology",
+   "institution": "KTH Royal Institute of Technology",
+   "country": "SE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Industrial Management",
+   "name_localized": {
+    "zh-CN": "工业管理理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "SEK",
+    "period": "total",
+    "notes": "Full programme tuition fee SEK 385,000 for non-EU/EEA citizens (no fee for EU/EEA citizens).",
+    "amount": 385000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kth-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "kth-indmgmt-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kth-indmgmt-fees",
+     "url": "https://www.kth.se/en/studies/2.23106/master/industrial-management/fees-industrial-management-1.910344",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Stockholm",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "sheffield-management-msc-2027",
+   "institution_id": "university-of-sheffield",
+   "institution": "University of Sheffield",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Management",
+   "name_localized": {
+    "zh-CN": "管理学理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "Overseas fee GBP 34,550 for 2027-28 entry (1-year programme).",
+    "amount": 34550,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "sheffield-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "sheffield-mgmt-msc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "sheffield-mgmt-msc",
+     "url": "https://sheffield.ac.uk/postgraduate/taught/courses/2027/management-msc",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sheffield",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "nanjing-business-administration-mba-2027",
+   "institution_id": "nanjing-university",
+   "institution": "Nanjing University",
+   "country": "CN",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "CNY",
+    "period": "total",
+    "notes": "MBA tuition RMB 185,000 total for the 2.5-year programme (Nanjing University tuition page).",
+    "amount": 185000,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nanjing-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "nanjing-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nanjing-tuition",
+     "url": "https://hwxy.nju.edu.cn/English/StudyatNJU/Costs/Tuition/index.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Nanjing",
+   "duration": "2.5 years",
+   "duration_months": 30
+  },
+  {
+   "id": "osaka-economics-msc-2027",
+   "institution_id": "osaka-university",
+   "institution": "Osaka University",
+   "country": "JP",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Economics",
+   "name_localized": {
+    "zh-CN": "经济学硕士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "JPY",
+    "period": "per_year",
+    "notes": "National graduate tuition JPY 535,800 per year (same rate for all graduate schools; Graduate School of Economics application guidelines, April 2027 entry).",
+    "amount": 535800,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "osaka-economics-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "osaka-econ-grad"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "osaka-econ-grad",
+     "url": "https://www.osaka-u.ac.jp/en/education/announcement/files/economics_grad_2023/@@download/file",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Suita",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "osaka-business-administration-mba-2027",
+   "institution_id": "osaka-university",
+   "institution": "Osaka University",
+   "country": "JP",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "JPY",
+    "period": "per_year",
+    "notes": "Department of Business and Management confers the Master of Business Administration; national graduate tuition JPY 535,800 per year.",
+    "amount": 535800,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "osaka-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "osaka-econ-grad"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "osaka-econ-grad",
+     "url": "https://www.osaka-u.ac.jp/en/education/announcement/files/economics_grad_2023/@@download/file",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Suita",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "pennstate-finance-bs-2027",
+   "institution_id": "pennsylvania-state-university",
+   "institution": "Pennsylvania State University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Finance",
+   "name_localized": {
+    "zh-CN": "金融理学学士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Non-Pennsylvania resident, Business and Engineering upper division (junior/senior) tuition USD 52,656 per year for Fall 2026; lower division USD 44,574 per year — upper-division rate recorded.",
+    "amount": 52656,
+    "residency": "international",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "pennstate-finance-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "psu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "psu-tuition",
+     "url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "University Park",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "pennstate-business-administration-mba-2027",
+   "institution_id": "pennsylvania-state-university",
+   "institution": "Pennsylvania State University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "One-year MBA, non-resident tuition USD 55,806 per year for Fall 2026.",
+    "amount": 55806,
+    "residency": "international",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "pennstate-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "psu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "psu-tuition",
+     "url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "University Park",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "pennstate-accounting-bs-2027",
+   "institution_id": "pennsylvania-state-university",
+   "institution": "Pennsylvania State University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Accountancy",
+   "name_localized": {
+    "zh-CN": "会计理学学士"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Non-Pennsylvania resident, Business and Engineering upper division (junior/senior) tuition USD 52,656 per year for Fall 2026; lower division USD 44,574 per year — upper-division rate recorded.",
+    "amount": 52656,
+    "residency": "international",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "pennstate-accounting-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "psu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "psu-tuition",
+     "url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "University Park",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "pennstate-finance-mfin-2027",
+   "institution_id": "pennsylvania-state-university",
+   "institution": "Pennsylvania State University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Finance",
+   "name_localized": {
+    "zh-CN": "金融硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Graduate tuition for Business (and EMS, Science, IST, Engineering) USD 50,608 per year for non-residents, Fall 2026.",
+    "amount": 50608,
+    "residency": "international",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "pennstate-finance-mfin-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "psu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "psu-tuition",
+     "url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "University Park",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "copenhagen-economics-msc-2027",
+   "institution_id": "university-of-copenhagen",
+   "institution": "University of Copenhagen",
+   "country": "DK",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Economics",
+   "name_localized": {
+    "zh-CN": "经济学理学硕士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Non-EU/EEA/CH tuition EUR 6,700 per term (semester), i.e. EUR 13,400 per year; EU/EEA/CH students pay EUR 0 (Study in Denmark government portal, which links the official University of Copenhagen programme page).",
+    "amount": 13400,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "copenhagen-economics-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "copenhagen-econ-studyindenmark"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "copenhagen-econ-studyindenmark",
+     "url": "https://studyindenmark.dk/portal/university-of-copenhagen-ucph/city-campus/economics",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "copenhagen-econ-ku",
+     "url": "https://www.ku.dk/studies/masters/economics",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Copenhagen",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "uppsala-management-msc-2027",
+   "institution_id": "uppsala-university",
+   "institution": "Uppsala University",
+   "country": "SE",
+   "degree_level": "taught_masters",
+   "official_name": "Master's Programme in Business and Management",
+   "name_localized": {
+    "zh-CN": "商业与管理硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "SEK",
+    "period": "per_year",
+    "notes": "Non-EU/EEA tuition SEK 57,000 per semester, SEK 228,000 total for the 2-year programme (SEK 114,000 per year); the official fees page states the per-semester range SEK 49,500-90,000 and the programme rate is as published in the university catalogue.",
+    "amount": 114000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "uppsala-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "uppsala-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uppsala-fees",
+     "url": "https://www.uu.se/en/study/masters-studies/fees.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Uppsala",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "uppsala-accounting-msc-2027",
+   "institution_id": "uppsala-university",
+   "institution": "Uppsala University",
+   "country": "SE",
+   "degree_level": "taught_masters",
+   "official_name": "Master's Programme in Accounting and Financial Management",
+   "name_localized": {
+    "zh-CN": "会计与财务管理硕士"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "SEK",
+    "period": "per_year",
+    "notes": "Non-EU/EEA tuition SEK 57,000 per semester, SEK 228,000 total for the 2-year programme (SEK 114,000 per year); the official fees page states the per-semester range SEK 49,500-90,000 and the programme rate is as published in the university catalogue.",
+    "amount": 114000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "uppsala-accounting-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "uppsala-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uppsala-fees",
+     "url": "https://www.uu.se/en/study/masters-studies/fees.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Uppsala",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "isct-management-msc-2027",
+   "institution_id": "institute-of-science-tokyo",
+   "institution": "Institute of Science Tokyo",
+   "country": "JP",
+   "degree_level": "taught_masters",
+   "official_name": "Master's Programme in Technology and Innovation Management",
+   "name_localized": {
+    "zh-CN": "技术与创新管理硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "JPY",
+    "period": "per_year",
+    "notes": "Master's tuition JPY 317,700 per semester, i.e. JPY 635,400 per year (same rate for all master's programmes; Institute of Science Tokyo tuition notice, spring semester 2026).",
+    "amount": 635400,
+    "residency": "all",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "isct-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "isct-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "isct-tuition",
+     "url": "https://students.isct.ac.jp/plugins/cms/component_download_file.php?type=2&pageId=&contentsId=1&contentsDataId=3639&prevId=&key=c7a12209f9c80f977a48e4602dd1b734.pdf&fileName=tuition-tuition-payment-e",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Tokyo",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "fuberlin-business-administration-bsc-2027",
+   "institution_id": "freie-universitat-berlin",
+   "institution": "Freie Universität Berlin",
+   "country": "DE",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理理学学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Freie Universität Berlin does not charge tuition fees for undergraduate programmes; students pay only the semester contribution (approx. EUR 377 for winter 2026/27).",
+    "amount": 0,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "fuberlin-business-administration-bsc-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "fuberlin-ug-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "fuberlin-ug-fees",
+     "url": "https://www.polsoz.fu-berlin.de/en/kommwiss/studieninteressierte/faq_ba_studieninteressierte/allgemeine-fragen-studieninteressierte/Weitere-Fragen-von-Studieninteressierten/gebuehren.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berlin",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "fuberlin-economics-bsc-2027",
+   "institution_id": "freie-universitat-berlin",
+   "institution": "Freie Universität Berlin",
+   "country": "DE",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Economics",
+   "name_localized": {
+    "zh-CN": "经济学理学学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Freie Universität Berlin does not charge tuition fees for undergraduate programmes; students pay only the semester contribution (approx. EUR 377 for winter 2026/27).",
+    "amount": 0,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "fuberlin-economics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "fuberlin-ug-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "fuberlin-ug-fees",
+     "url": "https://www.polsoz.fu-berlin.de/en/kommwiss/studieninteressierte/faq_ba_studieninteressierte/allgemeine-fragen-studieninteressierte/Weitere-Fragen-von-Studieninteressierten/gebuehren.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berlin",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "fuberlin-management-msc-2027",
+   "institution_id": "freie-universitat-berlin",
+   "institution": "Freie Universität Berlin",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Management and Marketing",
+   "name_localized": {
+    "zh-CN": "管理与市场营销理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "No tuition fees; students pay only the semester contribution of Freie Universität Berlin (approx. EUR 300 per semester) — School of Business & Economics, Management & Marketing application page.",
+    "amount": 0,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "fuberlin-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "fuberlin-mm-application"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "fuberlin-mm-application",
+     "url": "https://www.wiwiss.fu-berlin.de/en/studium-lehre/master/m-m/Application/index.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berlin",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "fuberlin-economics-msc-2027",
+   "institution_id": "freie-universitat-berlin",
+   "institution": "Freie Universität Berlin",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Economics",
+   "name_localized": {
+    "zh-CN": "经济学理学硕士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "No tuition fees for consecutive master's programmes at Freie Universität Berlin; students pay only the semester contribution (approx. EUR 300 per semester) — same School of Business & Economics master's fee statement as the Management & Marketing programme.",
+    "amount": 0,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "fuberlin-economics-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "fuberlin-mm-application"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "fuberlin-mm-application",
+     "url": "https://www.wiwiss.fu-berlin.de/en/studium-lehre/master/m-m/Application/index.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berlin",
+   "duration": "2 years",
+   "duration_months": 24
+  }
+ ],
+ "sources": [
+  {
+   "id": "adelaide-bbus",
+   "url": "https://adelaide.edu.au/study/degrees/bachelor-of-business/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-bbus-mktg",
+   "url": "https://adelaide.edu.au/study/degrees/bachelor-of-business-marketing/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-bcom-acc",
+   "url": "https://adelaide.edu.au/study/degrees/bachelor-of-commerce-accounting/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-mba",
+   "url": "https://adelaide.edu.au/study/degrees/master-of-business-administration/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-mfin",
+   "url": "https://adelaide.edu.au/study/degrees/master-of-finance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "copenhagen-econ-ku",
+   "url": "https://www.ku.dk/studies/masters/economics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "copenhagen-econ-studyindenmark",
+   "url": "https://studyindenmark.dk/portal/university-of-copenhagen-ucph/city-campus/economics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "fuberlin-mm-application",
+   "url": "https://www.wiwiss.fu-berlin.de/en/studium-lehre/master/m-m/Application/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "fuberlin-ug-fees",
+   "url": "https://www.polsoz.fu-berlin.de/en/kommwiss/studieninteressierte/faq_ba_studieninteressierte/allgemeine-fragen-studieninteressierte/Weitere-Fragen-von-Studieninteressierten/gebuehren.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-mba",
+   "url": "https://www.gla.ac.uk/postgraduate/taught/businessadministration/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-mscfm",
+   "url": "https://www.gla.ac.uk/postgraduate/taught/financemanagement/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-mscmgmt",
+   "url": "https://www.gla.ac.uk/postgraduate/taught/managementwithenterprise/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "isct-tuition",
+   "url": "https://students.isct.ac.jp/plugins/cms/component_download_file.php?type=2&pageId=&contentsId=1&contentsDataId=3639&prevId=&key=c7a12209f9c80f977a48e4602dd1b734.pdf&fileName=tuition-tuition-payment-e",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kth-indmgmt-fees",
+   "url": "https://www.kth.se/en/studies/2.23106/master/industrial-management/fees-industrial-management-1.910344",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ba-mktg",
+   "url": "https://courses.leeds.ac.uk/i476/business-management-with-marketing-ba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-mba",
+   "url": "https://courses.leeds.ac.uk/a992/full-time-mba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-mscfin",
+   "url": "https://courses.leeds.ac.uk/f840/finance-and-investment-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-mscmgmt",
+   "url": "https://courses.leeds.ac.uk/a078/management-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nanjing-tuition",
+   "url": "https://hwxy.nju.edu.cn/English/StudyatNJU/Costs/Tuition/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "osaka-econ-grad",
+   "url": "https://www.osaka-u.ac.jp/en/education/announcement/files/economics_grad_2023/@@download/file",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "paris-saclay-english-masters",
+   "url": "https://www.universite-paris-saclay.fr/en/education/masters-programmes-taught-english",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "paris-saclay-mibs",
+   "url": "http://www.universite-paris-saclay.fr/en/education/masters-degree/strategic-management/m2-international-business-and-sustainability-mibs",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "paris-saclay-tuition",
+   "url": "http://www.universite-paris-saclay.fr/en/admission/tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "psu-tuition",
+   "url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sheffield-mgmt-msc",
+   "url": "https://sheffield.ac.uk/postgraduate/taught/courses/2027/management-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucsd-rady-fees",
+   "url": "https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uppsala-fees",
+   "url": "https://www.uu.se/en/study/masters-studies/fees.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uwa-fees-browse",
+   "url": "https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTUG&feeYear=2026",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uwa-mba-calc",
+   "url": "https://www.fees.uwa.edu.au/Calculator?category=INTPG&year=2027&course=42520",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "business-76-100-f0001",
+   "scope": "program",
+   "scope_id": "paris-saclay-business-administration-mibs-2027",
+   "field": "fees",
+   "value": "254 EUR per_year",
+   "source_url": "http://www.universite-paris-saclay.fr/en/education/masters-degree/strategic-management/m2-international-business-and-sustainability-mibs",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0002",
+   "scope": "program",
+   "scope_id": "paris-saclay-economics-msc-2027",
+   "field": "fees",
+   "value": "254 EUR per_year",
+   "source_url": "https://www.universite-paris-saclay.fr/en/education/masters-programmes-taught-english",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0003",
+   "scope": "program",
+   "scope_id": "uwa-business-administration-bcom-2027",
+   "field": "fees",
+   "value": "50700 AUD per_year",
+   "source_url": "https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTUG&feeYear=2026",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0004",
+   "scope": "program",
+   "scope_id": "uwa-business-administration-bbus-2027",
+   "field": "fees",
+   "value": "50700 AUD per_year",
+   "source_url": "https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTUG&feeYear=2026",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0005",
+   "scope": "program",
+   "scope_id": "uwa-business-administration-mba-2027",
+   "field": "fees",
+   "value": "68100 AUD per_year",
+   "source_url": "https://www.fees.uwa.edu.au/Calculator?category=INTPG&year=2027&course=42520",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0006",
+   "scope": "program",
+   "scope_id": "leeds-finance-msc-2027",
+   "field": "fees",
+   "value": "36600 GBP total",
+   "source_url": "https://courses.leeds.ac.uk/f840/finance-and-investment-msc",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0007",
+   "scope": "program",
+   "scope_id": "leeds-management-msc-2027",
+   "field": "fees",
+   "value": "33700 GBP total",
+   "source_url": "https://courses.leeds.ac.uk/a078/management-msc",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0008",
+   "scope": "program",
+   "scope_id": "leeds-business-administration-mba-2027",
+   "field": "fees",
+   "value": "41200 GBP total",
+   "source_url": "https://courses.leeds.ac.uk/a992/full-time-mba",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0009",
+   "scope": "program",
+   "scope_id": "leeds-business-administration-mba-2027",
+   "field": "application_deadline",
+   "value": "30 July 2027",
+   "source_url": "https://courses.leeds.ac.uk/a992/full-time-mba",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0010",
+   "scope": "program",
+   "scope_id": "leeds-marketing-ba-2027",
+   "field": "fees",
+   "value": "29000 GBP per_year",
+   "source_url": "https://courses.leeds.ac.uk/i476/business-management-with-marketing-ba",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0011",
+   "scope": "program",
+   "scope_id": "adelaide-accounting-bcom-2027",
+   "field": "fees",
+   "value": "54300 AUD per_year",
+   "source_url": "https://adelaide.edu.au/study/degrees/bachelor-of-commerce-accounting/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0012",
+   "scope": "program",
+   "scope_id": "adelaide-business-administration-bbus-2027",
+   "field": "fees",
+   "value": "52500 AUD per_year",
+   "source_url": "https://adelaide.edu.au/study/degrees/bachelor-of-business/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0013",
+   "scope": "program",
+   "scope_id": "adelaide-marketing-bbus-2027",
+   "field": "fees",
+   "value": "52500 AUD per_year",
+   "source_url": "https://adelaide.edu.au/study/degrees/bachelor-of-business-marketing/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0014",
+   "scope": "program",
+   "scope_id": "adelaide-business-administration-mba-2027",
+   "field": "fees",
+   "value": "57100 AUD per_year",
+   "source_url": "https://adelaide.edu.au/study/degrees/master-of-business-administration/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0015",
+   "scope": "program",
+   "scope_id": "adelaide-finance-mfin-2027",
+   "field": "fees",
+   "value": "54300 AUD per_year",
+   "source_url": "https://adelaide.edu.au/study/degrees/master-of-finance/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0016",
+   "scope": "program",
+   "scope_id": "glasgow-finance-msc-2027",
+   "field": "fees",
+   "value": "34815 GBP total",
+   "source_url": "https://www.gla.ac.uk/postgraduate/taught/financemanagement/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0017",
+   "scope": "program",
+   "scope_id": "glasgow-business-administration-mba-2027",
+   "field": "fees",
+   "value": "41100 GBP total",
+   "source_url": "https://www.gla.ac.uk/postgraduate/taught/businessadministration/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0018",
+   "scope": "program",
+   "scope_id": "glasgow-management-msc-2027",
+   "field": "fees",
+   "value": "37089 GBP total",
+   "source_url": "https://www.gla.ac.uk/postgraduate/taught/managementwithenterprise/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0019",
+   "scope": "program",
+   "scope_id": "ucsd-business-administration-mba-2027",
+   "field": "fees",
+   "value": "66440 USD per_year",
+   "source_url": "https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0020",
+   "scope": "program",
+   "scope_id": "ucsd-finance-mqf-2027",
+   "field": "fees",
+   "value": "88036 USD total",
+   "source_url": "https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0021",
+   "scope": "program",
+   "scope_id": "ucsd-accounting-mpac-2027",
+   "field": "fees",
+   "value": "78950 USD total",
+   "source_url": "https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0022",
+   "scope": "program",
+   "scope_id": "kth-management-msc-2027",
+   "field": "fees",
+   "value": "385000 SEK total",
+   "source_url": "https://www.kth.se/en/studies/2.23106/master/industrial-management/fees-industrial-management-1.910344",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0023",
+   "scope": "program",
+   "scope_id": "sheffield-management-msc-2027",
+   "field": "fees",
+   "value": "34550 GBP total",
+   "source_url": "https://sheffield.ac.uk/postgraduate/taught/courses/2027/management-msc",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0024",
+   "scope": "program",
+   "scope_id": "nanjing-business-administration-mba-2027",
+   "field": "fees",
+   "value": "185000 CNY total",
+   "source_url": "https://hwxy.nju.edu.cn/English/StudyatNJU/Costs/Tuition/index.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0025",
+   "scope": "program",
+   "scope_id": "osaka-economics-msc-2027",
+   "field": "fees",
+   "value": "535800 JPY per_year",
+   "source_url": "https://www.osaka-u.ac.jp/en/education/announcement/files/economics_grad_2023/@@download/file",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0026",
+   "scope": "program",
+   "scope_id": "osaka-business-administration-mba-2027",
+   "field": "fees",
+   "value": "535800 JPY per_year",
+   "source_url": "https://www.osaka-u.ac.jp/en/education/announcement/files/economics_grad_2023/@@download/file",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0027",
+   "scope": "program",
+   "scope_id": "pennstate-finance-bs-2027",
+   "field": "fees",
+   "value": "52656 USD per_year",
+   "source_url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0028",
+   "scope": "program",
+   "scope_id": "pennstate-business-administration-mba-2027",
+   "field": "fees",
+   "value": "55806 USD per_year",
+   "source_url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0029",
+   "scope": "program",
+   "scope_id": "pennstate-accounting-bs-2027",
+   "field": "fees",
+   "value": "52656 USD per_year",
+   "source_url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0030",
+   "scope": "program",
+   "scope_id": "pennstate-finance-mfin-2027",
+   "field": "fees",
+   "value": "50608 USD per_year",
+   "source_url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0031",
+   "scope": "program",
+   "scope_id": "copenhagen-economics-msc-2027",
+   "field": "fees",
+   "value": "13400 EUR per_year",
+   "source_url": "https://studyindenmark.dk/portal/university-of-copenhagen-ucph/city-campus/economics",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0032",
+   "scope": "program",
+   "scope_id": "uppsala-management-msc-2027",
+   "field": "fees",
+   "value": "114000 SEK per_year",
+   "source_url": "https://www.uu.se/en/study/masters-studies/fees.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0033",
+   "scope": "program",
+   "scope_id": "uppsala-accounting-msc-2027",
+   "field": "fees",
+   "value": "114000 SEK per_year",
+   "source_url": "https://www.uu.se/en/study/masters-studies/fees.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0034",
+   "scope": "program",
+   "scope_id": "isct-management-msc-2027",
+   "field": "fees",
+   "value": "635400 JPY per_year",
+   "source_url": "https://students.isct.ac.jp/plugins/cms/component_download_file.php?type=2&pageId=&contentsId=1&contentsDataId=3639&prevId=&key=c7a12209f9c80f977a48e4602dd1b734.pdf&fileName=tuition-tuition-payment-e",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0035",
+   "scope": "program",
+   "scope_id": "fuberlin-business-administration-bsc-2027",
+   "field": "fees",
+   "value": "0 EUR per_year",
+   "source_url": "https://www.polsoz.fu-berlin.de/en/kommwiss/studieninteressierte/faq_ba_studieninteressierte/allgemeine-fragen-studieninteressierte/Weitere-Fragen-von-Studieninteressierten/gebuehren.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0036",
+   "scope": "program",
+   "scope_id": "fuberlin-economics-bsc-2027",
+   "field": "fees",
+   "value": "0 EUR per_year",
+   "source_url": "https://www.polsoz.fu-berlin.de/en/kommwiss/studieninteressierte/faq_ba_studieninteressierte/allgemeine-fragen-studieninteressierte/Weitere-Fragen-von-Studieninteressierten/gebuehren.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0037",
+   "scope": "program",
+   "scope_id": "fuberlin-management-msc-2027",
+   "field": "fees",
+   "value": "0 EUR per_year",
+   "source_url": "https://www.wiwiss.fu-berlin.de/en/studium-lehre/master/m-m/Application/index.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-76-100-f0038",
+   "scope": "program",
+   "scope_id": "fuberlin-economics-msc-2027",
+   "field": "fees",
+   "value": "0 EUR per_year",
+   "source_url": "https://www.wiwiss.fu-berlin.de/en/studium-lehre/master/m-m/Application/index.html",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

@@ -1,0 +1,3108 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "mit-business-administration-sb-2027",
+   "institution_id": "massachusetts-institute-of-technology",
+   "institution": "Massachusetts Institute of Technology",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Management",
+   "name_localized": {
+    "zh-CN": "工商管理理学学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 66,720 per year, 2026-27 (MIT Registrar: USD 33,360 per term); same rate for all undergraduate majors.",
+    "amount": 66720,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "mit-business-administration-sb-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "mit-sloan-catalog"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "mit-sloan-catalog",
+     "url": "http://catalog.mit.edu/schools/sloan-management/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "mit-registrar-tuition",
+     "url": "https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Cambridge",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "mit-finance-sb-2027",
+   "institution_id": "massachusetts-institute-of-technology",
+   "institution": "Massachusetts Institute of Technology",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Finance",
+   "name_localized": {
+    "zh-CN": "金融理学学士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 66,720 per year, 2026-27 (MIT Registrar: USD 33,360 per term); same rate for all undergraduate majors.",
+    "amount": 66720,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "mit-finance-sb-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "mit-sloan-catalog"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "mit-sloan-catalog",
+     "url": "http://catalog.mit.edu/schools/sloan-management/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "mit-registrar-tuition",
+     "url": "https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Cambridge",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "mit-business-administration-mba-2027",
+   "institution_id": "massachusetts-institute-of-technology",
+   "institution": "Massachusetts Institute of Technology",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "MBA tuition not stated on the programme page consulted — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "mit-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "mit-sloan-catalog"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "mit-sloan-catalog",
+     "url": "http://catalog.mit.edu/schools/sloan-management/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Cambridge",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "mit-finance-mfin-2027",
+   "institution_id": "massachusetts-institute-of-technology",
+   "institution": "Massachusetts Institute of Technology",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Finance",
+   "name_localized": {
+    "zh-CN": "金融理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Master of Finance tuition not stated on the programme page consulted — unknown; an 18-month option also exists.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "mit-finance-mfin-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "mit-sloan-catalog"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "mit-sloan-catalog",
+     "url": "http://catalog.mit.edu/schools/sloan-management/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Cambridge",
+   "duration": "12 months",
+   "duration_months": 12
+  },
+  {
+   "id": "imperial-finance-msc-2027",
+   "institution_id": "imperial",
+   "institution": "Imperial College London",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "MSc Finance",
+   "name_localized": {
+    "zh-CN": "金融理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "Fees and funding GBP 54,000 as listed on the Imperial Finance masters compare page; programme runs 12 or 16 months.",
+    "amount": 54000,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "imperial-finance-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "imperial-fin-compare"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "imperial-fin-compare",
+     "url": "https://www.imperial.ac.uk/business-school/study/masters/compare/finance-masters/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "12 months",
+   "duration_months": 12,
+   "start": "August 2027"
+  },
+  {
+   "id": "imperial-finance-msc-fa-2027",
+   "institution_id": "imperial",
+   "institution": "Imperial College London",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "MSc Finance and Accounting",
+   "name_localized": {
+    "zh-CN": "金融与会计理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "Fee for MSc Finance and Accounting not separately stated on the compare page consulted — unknown.",
+    "amount": null,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "imperial-finance-msc-fa-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "imperial-fin-compare"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "imperial-fin-compare",
+     "url": "https://www.imperial.ac.uk/business-school/study/masters/compare/finance-masters/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "12 months",
+   "duration_months": 12,
+   "start": "August 2027"
+  },
+  {
+   "id": "stanford-business-administration-mba-2027",
+   "institution_id": "stanford-university",
+   "institution": "Stanford University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "First-year MBA tuition USD 89,187, 2026-27 cost of attendance.",
+    "amount": 89187,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "stanford-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "stanford-gsb-degree"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "stanford-gsb-degree",
+     "url": "https://www.gsb.stanford.edu/programs/degree",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "stanford-gsb-cost",
+     "url": "https://www.gsb.stanford.edu/programs/mba/tuition-financial-aid/cost-attendance",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Stanford",
+   "duration": "2 years",
+   "duration_months": 24,
+   "start": "September 2027"
+  },
+  {
+   "id": "stanford-management-msx-2027",
+   "institution_id": "stanford-university",
+   "institution": "Stanford University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "MSx Program (Master of Science in Management)",
+   "name_localized": {
+    "zh-CN": "管理学理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "MSx tuition not stated on the programme page consulted — unknown.",
+    "amount": null,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "stanford-management-msx-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "stanford-gsb-degree"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "stanford-gsb-degree",
+     "url": "https://www.gsb.stanford.edu/programs/degree",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Stanford",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "oxford-economics-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "undergraduate",
+   "official_name": "Economics and Management BA",
+   "name_localized": {
+    "zh-CN": "经济学与管理学文学学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Overseas course fee GBP 43,600 per year, 2026/27 (Home GBP 9,790).",
+    "amount": 43600,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-economics-ba-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school qualifications as published on the official programme page; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-em-cis"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-em-cis",
+     "url": "https://assets-oxweb.admin.ox.ac.uk/2026-02/Economics and Management CIS 2026-entry.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "harvard-business-administration-mba-2027",
+   "institution_id": "harvard-university",
+   "institution": "Harvard University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "MBA tuition USD 84,760 per year, 2026-27 cost of attendance.",
+    "amount": 84760,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "harvard-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "hbs-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hbs-cost",
+     "url": "https://www.hbs.edu/mba/financial-aid/tuition-assistance/cost-of-attendance",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Cambridge",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "cambridge-business-administration-mba-2027",
+   "institution_id": "university-of-cambridge",
+   "institution": "University of Cambridge",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration (Cambridge MBA)",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "MBA fees for entry in September 2027 are GBP 86,250 (same for British and overseas students).",
+    "amount": 86250,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cambridge-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cambridge-judge-mba-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cambridge-judge-mba-fees",
+     "url": "https://www.jbs.cam.ac.uk/masters-degrees/mba/fees-funding/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Cambridge",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": "September 2027"
+  },
+  {
+   "id": "caltech-business-administration-bs-2027",
+   "institution_id": "california-institute-of-technology",
+   "institution": "California Institute of Technology",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Business, Economics, and Management",
+   "name_localized": {
+    "zh-CN": "商业、经济学与管理学理学学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 68,574 per year, 2026-27 cost of attendance; same rate for all undergraduate majors.",
+    "amount": 68574,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "caltech-business-administration-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "caltech-bem"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "caltech-bem",
+     "url": "https://www.admissions.caltech.edu/why-caltech/academics/majors-minors/business-economics-and-management",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "caltech-expenses",
+     "url": "https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Pasadena",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "eth-management-msc-2027",
+   "institution_id": "eth-zurich",
+   "institution": "ETH Zurich",
+   "country": "CH",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science ETH in Management, Technology, and Economics",
+   "name_localized": {
+    "zh-CN": "管理、技术与经济理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "ETH charges tuition per semester: CHF 730 simple fee or CHF 2,190 threefold fee for other foreign students from Autumn Semester 2025; no single annual amount applies, so the annual fee is unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "eth-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in engineering or the natural sciences is required for entry (per the programme page); no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "eth-mtec"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "eth-mtec",
+     "url": "https://ethz.ch/en/studies/master/degree-programmes/management-and-social-sciences/management-technology-and-economics.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "eth-tuition",
+     "url": "https://ethz.ch/students/en/studies/financial/tuition-fees.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Zurich",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "ucl-finance-msc-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Finance MSc",
+   "name_localized": {
+    "zh-CN": "金融理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition GBP 48,250 per year for 2027/28 entrants (UK and international).",
+    "amount": 48250,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-finance-msc-2027-academic",
+     "category": "academic",
+     "description": "A quantitative undergraduate degree at 2:1 Honours (or equivalent) from a recognised university is required for entry.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-finance-msc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-finance-msc",
+     "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/finance-msc?utm_source=thinkpostgrad&utm_medium=affiliate&utm_campaign=117730_shs_pgt_2024&utm_content=study_advert",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "11 months",
+   "duration_months": 11,
+   "start": "September 2027"
+  },
+  {
+   "id": "ucl-management-msc-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "taught_masters",
+   "official_name": "Management MSc",
+   "name_localized": {
+    "zh-CN": "管理学理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition GBP 44,400 per year for 2027/28 entrants (UK and international).",
+    "amount": 44400,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-management-msc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-management-msc",
+     "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/management-msc",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": "September 2027"
+  },
+  {
+   "id": "nus-business-administration-bba-2027",
+   "institution_id": "nus",
+   "institution": "National University of Singapore",
+   "country": "SG",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "BBA tuition not stated on the programme page consulted — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nus-business-administration-bba-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "nus-bschool"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nus-bschool",
+     "url": "https://bschool.nus.edu.sg/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "nus-finance-msc-2027",
+   "institution_id": "nus",
+   "institution": "National University of Singapore",
+   "country": "SG",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Finance",
+   "name_localized": {
+    "zh-CN": "金融理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "SGD",
+    "period": "total",
+    "notes": "Programme fee SGD 77,608 inclusive of 9% GST for the August 2027 intake (SGD 71,200 before GST).",
+    "amount": 77608,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nus-finance-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "nus-mscfin-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nus-mscfin-fees",
+     "url": "https://mscfin.nus.edu.sg/fees-finances/programme-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "start": "August 2027"
+  },
+  {
+   "id": "hku-business-administration-bba-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local tuition HKD 250,000 per year for non-STEM faculties (Business and Economics), 2027/28.",
+    "amount": 250000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "hku-business-administration-bba-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "hku-business-ug"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-business-ug",
+     "url": "https://www4.hku.hk/pubunit/drcd/undergraduate-2026-2027/1129-business",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "hku-admissions-fees",
+     "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "hku-accounting-bba-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Business Administration in Accounting and Finance",
+   "name_localized": {
+    "zh-CN": "会计与金融工商管理学士"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local tuition HKD 250,000 per year for non-STEM faculties (Business and Economics), 2027/28.",
+    "amount": 250000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "hku-accounting-bba-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "hku-business-ug"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-business-ug",
+     "url": "https://www4.hku.hk/pubunit/drcd/undergraduate-2026-2027/1129-business",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "hku-admissions-fees",
+     "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "ntu-finance-msc-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Finance",
+   "name_localized": {
+    "zh-CN": "金融理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "SGD",
+    "period": "total",
+    "notes": "Programme fee SGD 78,480 inclusive of 9% GST and enrolment fee, 2027 intake.",
+    "amount": 78480,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ntu-finance-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-mscfin"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-mscfin",
+     "url": "https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-finance",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "ntu-accounting-msc-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Accountancy",
+   "name_localized": {
+    "zh-CN": "会计理学硕士"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "SGD",
+    "period": "total",
+    "notes": "Programme fee SGD 70,850 inclusive of 9% GST and enrolment fee, 2027 intake.",
+    "amount": 70850,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ntu-accounting-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-mscacc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-mscacc",
+     "url": "https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-accountancy",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "pku-finance-mfin-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Finance",
+   "name_localized": {
+    "zh-CN": "金融硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "CNY",
+    "period": "total",
+    "notes": "Total tuition RMB 128,000 for international students, Guanghua School of Management Master of Finance (2027 fees).",
+    "amount": 128000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "pku-finance-mfin-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "pku-grad-fees-2027"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-grad-fees-2027",
+     "url": "https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "pku-business-administration-mba-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration (Global MBA)",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "CNY",
+    "period": "total",
+    "notes": "Total tuition RMB 188,000 for international students, Guanghua Global MBA (2027 fees).",
+    "amount": 188000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "pku-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "pku-grad-fees-2027"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-grad-fees-2027",
+     "url": "https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "pku-accounting-mpa-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Professional Accounting",
+   "name_localized": {
+    "zh-CN": "会计硕士"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "CNY",
+    "period": "total",
+    "notes": "Total tuition RMB 158,000 for international students, Guanghua Master of Professional Accounting (2027 fees).",
+    "amount": 158000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "pku-accounting-mpa-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "pku-grad-fees-2027"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-grad-fees-2027",
+     "url": "https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "tsinghua-finance-mfin-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Finance",
+   "name_localized": {
+    "zh-CN": "金融硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "CNY",
+    "period": "total",
+    "notes": "Tuition RMB 198,000 for the full programme (SEM Master of Finance, international students).",
+    "amount": 198000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-finance-mfin-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-sem-masters-2027"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-sem-masters-2027",
+     "url": "https://masters.sem.tsinghua.edu.cn/en/info/1007/2172.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "tsinghua-management-mim-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "taught_masters",
+   "official_name": "Master in Management",
+   "name_localized": {
+    "zh-CN": "管理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Tuition RMB 30,000 per year (SEM Master in Management, international students).",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-management-mim-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-sem-masters-2027"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-sem-masters-2027",
+     "url": "https://masters.sem.tsinghua.edu.cn/en/info/1007/2172.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "upenn-business-administration-mba-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Wharton MBA tuition USD 87,970 per year, 2026-27.",
+    "amount": 87970,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "upenn-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "wharton-mba-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "wharton-mba-tuition",
+     "url": "https://mba.wharton.upenn.edu/tuition-financial-aid/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Philadelphia",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "upenn-economics-bs-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Economics",
+   "name_localized": {
+    "zh-CN": "经济学理学学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 65,670 per year, 2026-27 (Wharton undergraduate degree is the Bachelor of Science in Economics).",
+    "amount": 65670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "upenn-economics-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "wharton-programs"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "wharton-programs",
+     "url": "https://www.wharton.upenn.edu/academic-programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "upenn-ug-tuition",
+     "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Philadelphia",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cornell-economics-bs-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Applied Economics and Management",
+   "name_localized": {
+    "zh-CN": "应用经济学与管理学理学学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 73,946 per year, 2026-27 (contract college, nonresident; Dyson School).",
+    "amount": 73946,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cornell-economics-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-business-programs"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-business-programs",
+     "url": "https://business.cornell.edu/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "cornell-tuition",
+     "url": "https://catalog.cornell.edu/general-information/tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Ithaca",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cornell-business-administration-mba-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Two-year MBA tuition USD 88,934 per year, 2026-27 (Johnson).",
+    "amount": 88934,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cornell-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-business-programs"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-business-programs",
+     "url": "https://business.cornell.edu/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "cornell-tuition",
+     "url": "https://catalog.cornell.edu/general-information/tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Ithaca",
+   "duration": "2 years",
+   "duration_months": 24,
+   "start": "August 2027"
+  },
+  {
+   "id": "yale-business-administration-mba-2027",
+   "institution_id": "yale-university",
+   "institution": "Yale University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "MBA tuition USD 90,900 per year, 2026-27 (Yale School of Management).",
+    "amount": 90900,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "yale-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "yale-som-mba-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "yale-som-mba-cost",
+     "url": "https://som.yale.edu/programs/mba/affording-your-mba/cost-information",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "New Haven",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "cuhk-business-administration-bba-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Business Administration in Integrated BBA",
+   "name_localized": {
+    "zh-CN": "工商管理学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local undergraduate tuition HKD 230,000 per year, 2027-28.",
+    "amount": 230000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cuhk-business-administration-bba-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-bschool"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-bschool",
+     "url": "https://www.bschool.cuhk.edu.hk/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "cuhk-ug-fees",
+     "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cuhk-accounting-bba-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Business Administration in Professional Accountancy",
+   "name_localized": {
+    "zh-CN": "工商管理学士（专业会计）"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local undergraduate tuition HKD 230,000 per year, 2027-28.",
+    "amount": 230000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cuhk-accounting-bba-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-bschool"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-bschool",
+     "url": "https://www.bschool.cuhk.edu.hk/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "cuhk-ug-fees",
+     "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cuhk-economics-bsc-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Global Economics and Finance",
+   "name_localized": {
+    "zh-CN": "全球经济学与金融理学学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local undergraduate tuition HKD 230,000 per year, 2027-28.",
+    "amount": 230000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cuhk-economics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-bschool"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-bschool",
+     "url": "https://www.bschool.cuhk.edu.hk/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "cuhk-ug-fees",
+     "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cuhk-finance-msc-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Finance",
+   "name_localized": {
+    "zh-CN": "金融理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "HKD",
+    "period": "total",
+    "notes": "Graduate School page lists HKD 460,000 and HKD 365,000 for the whole programme without distinguishing the two in the excerpt consulted — unknown which applies, so no amount is recorded.",
+    "amount": null,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cuhk-finance-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-mscfin"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-mscfin",
+     "url": "https://www.gs.cuhk.edu.hk/programmes/business-administration/msc-finance",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "unsw-finance-mfin-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Finance",
+   "name_localized": {
+    "zh-CN": "金融硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2026 indicative international first-year fee AUD 62,000 (domestic indicative first-year fee AUD 42,000; international full-degree fee AUD 129,000).",
+    "amount": 62000,
+    "residency": "international",
+    "academic_year": "2026"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "unsw-finance-mfin-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-mfin"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-mfin",
+     "url": "https://degrees.unsw.edu.au/master-of-finance/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sydney",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "jhu-business-administration-mba-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration (Full-Time MBA)",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "total",
+    "notes": "Full-time MBA total tuition USD 154,750 (locked-in rate, Fall 2026 cohort), 2026-27.",
+    "amount": 154750,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-carey-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-carey-tuition",
+     "url": "https://carey.jhu.edu/admissions/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "jhu-finance-ms-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Finance",
+   "name_localized": {
+    "zh-CN": "金融理学硕士"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "USD",
+    "period": "total",
+    "notes": "MS in Finance (9-month, full-time) tuition USD 78,500 as listed on the Carey programme comparison page.",
+    "amount": 78500,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-finance-ms-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-carey-compare"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-carey-compare",
+     "url": "http://carey.jhu.edu/programs/compare?programs=vet-academy,master-of-science-in-finance-9",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "9 months",
+   "duration_months": 9
+  },
+  {
+   "id": "berkeley-business-administration-bs-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理理学学士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Haas BS tuition not stated on the programme page consulted — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "berkeley-business-administration-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-haas-ug"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-haas-ug",
+     "url": "https://haas.berkeley.edu/undergrad/admissions/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berkeley",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "epfl-management-msc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Management, Technology and Entrepreneurship",
+   "name_localized": {
+    "zh-CN": "管理、技术与创业理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 730 to CHF 2,190 per semester (per the MTE application page); no single annual amount applies, so the annual fee is unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": "31 March 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in engineering or in a scientific discipline is required for entry (per the programme page); no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-mte"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-mte",
+     "url": "https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "epfl-mte-admissions",
+     "url": "https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/mte-application-admission/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "2 years",
+   "duration_months": 24,
+   "start": "September 2027"
+  },
+  {
+   "id": "melbourne-finance-mcom-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Commerce (Finance)",
+   "name_localized": {
+    "zh-CN": "商学硕士（金融）"
+   },
+   "field": "finance",
+   "field_zh": "金融",
+   "subject": "finance",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 international course cost AUD 64,640 per EFTSL for Master of Commerce (Finance).",
+    "amount": 64640,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "melbourne-finance-mcom-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "melb-fees-2027"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "melb-fees-2027",
+     "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Melbourne",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "melbourne-accounting-mcom-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Commerce (Accounting)",
+   "name_localized": {
+    "zh-CN": "商学硕士（会计）"
+   },
+   "field": "accounting",
+   "field_zh": "会计",
+   "subject": "accounting",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 international course cost AUD 64,640 per EFTSL for Master of Commerce (Accounting).",
+    "amount": 64640,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "melbourne-accounting-mcom-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "melb-fees-2027"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "melb-fees-2027",
+     "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Melbourne",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "chicago-business-administration-mba-2027",
+   "institution_id": "university-of-chicago",
+   "institution": "University of Chicago",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Business Administration",
+   "name_localized": {
+    "zh-CN": "工商管理硕士"
+   },
+   "field": "business-administration",
+   "field_zh": "工商管理",
+   "subject": "business-administration",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Booth MBA tuition not stated on the programme page consulted — unknown.",
+    "amount": null,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "chicago-business-administration-mba-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree plus work experience is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "uchicago-booth-programs"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uchicago-booth-programs",
+     "url": "https://careeradvancement.uchicago.edu/advanced-degrees/professional-school-programs/business-school/chicago-booth-programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Chicago",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "chicago-management-mim-2027",
+   "institution_id": "university-of-chicago",
+   "institution": "University of Chicago",
+   "country": "US",
+   "degree_level": "taught_masters",
+   "official_name": "Master in Management",
+   "name_localized": {
+    "zh-CN": "管理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Master in Management tuition not stated on the programme page consulted — unknown.",
+    "amount": null,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "chicago-management-mim-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "uchicago-booth-programs"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uchicago-booth-programs",
+     "url": "https://careeradvancement.uchicago.edu/advanced-degrees/professional-school-programs/business-school/chicago-booth-programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Chicago",
+   "duration": "1 year",
+   "duration_months": 12
+  },
+  {
+   "id": "tum-management-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Management",
+   "name_localized": {
+    "zh-CN": "管理学理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Non-EU/EEA master's tuition at TUM is usually EUR 4,000 or EUR 6,000 per semester; the exact category for the Master in Management is not stated on the page consulted — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-management-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree in engineering, natural science, or an equivalent field is required for entry (per the programme page).",
+     "threshold": null,
+     "source_ids": [
+      "tum-mim"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-mim",
+     "url": "https://www.mgt.tum.de/programs/master-in-management",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "2 years",
+   "duration_months": 24,
+   "start": "October 2027"
+  },
+  {
+   "id": "tum-management-technology-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Management and Technology",
+   "name_localized": {
+    "zh-CN": "管理与技术理学硕士"
+   },
+   "field": "management",
+   "field_zh": "管理学",
+   "subject": "management",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Fee category 1, EUR 4,000 per semester for students from non-EU/EEA countries (degree programme documentation), i.e. EUR 8,000 per year.",
+    "amount": 8000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-management-technology-msc-2027-academic",
+     "category": "academic",
+     "description": "A bachelor's degree from a recognised university is required for entry; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-mt-doc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-mt-doc",
+     "url": "https://www.tum.de/fileadmin/w00bfo/www/Studium/Studienangebot/Lesbare_Fassung/Master/Management_and_Technology_MA_Degree_Program_Documentation_29012025.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "2 years",
+   "duration_months": 24
+  }
+ ],
+ "sources": [
+  {
+   "id": "berkeley-haas-ug",
+   "url": "https://haas.berkeley.edu/undergrad/admissions/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "caltech-bem",
+   "url": "https://www.admissions.caltech.edu/why-caltech/academics/majors-minors/business-economics-and-management",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "caltech-expenses",
+   "url": "https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cambridge-judge-mba-fees",
+   "url": "https://www.jbs.cam.ac.uk/masters-degrees/mba/fees-funding/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cornell-business-programs",
+   "url": "https://business.cornell.edu/programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cornell-tuition",
+   "url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cuhk-bschool",
+   "url": "https://www.bschool.cuhk.edu.hk/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cuhk-mscfin",
+   "url": "https://www.gs.cuhk.edu.hk/programmes/business-administration/msc-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cuhk-ug-fees",
+   "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "epfl-mte",
+   "url": "https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "epfl-mte-admissions",
+   "url": "https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/mte-application-admission/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "eth-mtec",
+   "url": "https://ethz.ch/en/studies/master/degree-programmes/management-and-social-sciences/management-technology-and-economics.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "eth-tuition",
+   "url": "https://ethz.ch/students/en/studies/financial/tuition-fees.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hbs-cost",
+   "url": "https://www.hbs.edu/mba/financial-aid/tuition-assistance/cost-of-attendance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hku-admissions-fees",
+   "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hku-business-ug",
+   "url": "https://www4.hku.hk/pubunit/drcd/undergraduate-2026-2027/1129-business",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "imperial-fin-compare",
+   "url": "https://www.imperial.ac.uk/business-school/study/masters/compare/finance-masters/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "jhu-carey-compare",
+   "url": "http://carey.jhu.edu/programs/compare?programs=vet-academy,master-of-science-in-finance-9",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "jhu-carey-tuition",
+   "url": "https://carey.jhu.edu/admissions/tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "melb-fees-2027",
+   "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mit-registrar-tuition",
+   "url": "https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mit-sloan-catalog",
+   "url": "http://catalog.mit.edu/schools/sloan-management/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-mscacc",
+   "url": "https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-accountancy",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-mscfin",
+   "url": "https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nus-bschool",
+   "url": "https://bschool.nus.edu.sg/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nus-mscfin-fees",
+   "url": "https://mscfin.nus.edu.sg/fees-finances/programme-fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-em-cis",
+   "url": "https://assets-oxweb.admin.ox.ac.uk/2026-02/Economics and Management CIS 2026-entry.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "pku-grad-fees-2027",
+   "url": "https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "stanford-gsb-cost",
+   "url": "https://www.gsb.stanford.edu/programs/mba/tuition-financial-aid/cost-attendance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "stanford-gsb-degree",
+   "url": "https://www.gsb.stanford.edu/programs/degree",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tsinghua-sem-masters-2027",
+   "url": "https://masters.sem.tsinghua.edu.cn/en/info/1007/2172.htm",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tum-mim",
+   "url": "https://www.mgt.tum.de/programs/master-in-management",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tum-mt-doc",
+   "url": "https://www.tum.de/fileadmin/w00bfo/www/Studium/Studienangebot/Lesbare_Fassung/Master/Management_and_Technology_MA_Degree_Program_Documentation_29012025.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uchicago-booth-programs",
+   "url": "https://careeradvancement.uchicago.edu/advanced-degrees/professional-school-programs/business-school/chicago-booth-programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-finance-msc",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/finance-msc?utm_source=thinkpostgrad&utm_medium=affiliate&utm_campaign=117730_shs_pgt_2024&utm_content=study_advert",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-management-msc",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/management-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "unsw-mfin",
+   "url": "https://degrees.unsw.edu.au/master-of-finance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "upenn-ug-tuition",
+   "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "wharton-mba-tuition",
+   "url": "https://mba.wharton.upenn.edu/tuition-financial-aid/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "wharton-programs",
+   "url": "https://www.wharton.upenn.edu/academic-programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "yale-som-mba-cost",
+   "url": "https://som.yale.edu/programs/mba/affording-your-mba/cost-information",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "business-01-50-f0001",
+   "scope": "program",
+   "scope_id": "mit-business-administration-sb-2027",
+   "field": "fees",
+   "value": "66720 USD per_year",
+   "source_url": "http://catalog.mit.edu/schools/sloan-management/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0002",
+   "scope": "program",
+   "scope_id": "mit-finance-sb-2027",
+   "field": "fees",
+   "value": "66720 USD per_year",
+   "source_url": "http://catalog.mit.edu/schools/sloan-management/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0003",
+   "scope": "program",
+   "scope_id": "mit-business-administration-mba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://catalog.mit.edu/schools/sloan-management/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0004",
+   "scope": "program",
+   "scope_id": "mit-finance-mfin-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://catalog.mit.edu/schools/sloan-management/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0005",
+   "scope": "program",
+   "scope_id": "imperial-finance-msc-2027",
+   "field": "fees",
+   "value": "54000 GBP total",
+   "source_url": "https://www.imperial.ac.uk/business-school/study/masters/compare/finance-masters/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0006",
+   "scope": "program",
+   "scope_id": "imperial-finance-msc-fa-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.imperial.ac.uk/business-school/study/masters/compare/finance-masters/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0007",
+   "scope": "program",
+   "scope_id": "stanford-business-administration-mba-2027",
+   "field": "fees",
+   "value": "89187 USD per_year",
+   "source_url": "https://www.gsb.stanford.edu/programs/degree",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0008",
+   "scope": "program",
+   "scope_id": "stanford-management-msx-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.gsb.stanford.edu/programs/degree",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0009",
+   "scope": "program",
+   "scope_id": "oxford-economics-ba-2027",
+   "field": "fees",
+   "value": "43600 GBP per_year",
+   "source_url": "https://assets-oxweb.admin.ox.ac.uk/2026-02/Economics and Management CIS 2026-entry.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0010",
+   "scope": "program",
+   "scope_id": "harvard-business-administration-mba-2027",
+   "field": "fees",
+   "value": "84760 USD per_year",
+   "source_url": "https://www.hbs.edu/mba/financial-aid/tuition-assistance/cost-of-attendance",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0011",
+   "scope": "program",
+   "scope_id": "cambridge-business-administration-mba-2027",
+   "field": "fees",
+   "value": "86250 GBP total",
+   "source_url": "https://www.jbs.cam.ac.uk/masters-degrees/mba/fees-funding/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0012",
+   "scope": "program",
+   "scope_id": "caltech-business-administration-bs-2027",
+   "field": "fees",
+   "value": "68574 USD per_year",
+   "source_url": "https://www.admissions.caltech.edu/why-caltech/academics/majors-minors/business-economics-and-management",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0013",
+   "scope": "program",
+   "scope_id": "eth-management-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://ethz.ch/en/studies/master/degree-programmes/management-and-social-sciences/management-technology-and-economics.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0014",
+   "scope": "program",
+   "scope_id": "ucl-finance-msc-2027",
+   "field": "fees",
+   "value": "48250 GBP per_year",
+   "source_url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/finance-msc?utm_source=thinkpostgrad&utm_medium=affiliate&utm_campaign=117730_shs_pgt_2024&utm_content=study_advert",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0015",
+   "scope": "program",
+   "scope_id": "ucl-management-msc-2027",
+   "field": "fees",
+   "value": "44400 GBP per_year",
+   "source_url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/management-msc",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0016",
+   "scope": "program",
+   "scope_id": "nus-business-administration-bba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://bschool.nus.edu.sg/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0017",
+   "scope": "program",
+   "scope_id": "nus-finance-msc-2027",
+   "field": "fees",
+   "value": "77608 SGD total",
+   "source_url": "https://mscfin.nus.edu.sg/fees-finances/programme-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0018",
+   "scope": "program",
+   "scope_id": "hku-business-administration-bba-2027",
+   "field": "fees",
+   "value": "250000 HKD per_year",
+   "source_url": "https://www4.hku.hk/pubunit/drcd/undergraduate-2026-2027/1129-business",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0019",
+   "scope": "program",
+   "scope_id": "hku-accounting-bba-2027",
+   "field": "fees",
+   "value": "250000 HKD per_year",
+   "source_url": "https://www4.hku.hk/pubunit/drcd/undergraduate-2026-2027/1129-business",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0020",
+   "scope": "program",
+   "scope_id": "ntu-finance-msc-2027",
+   "field": "fees",
+   "value": "78480 SGD total",
+   "source_url": "https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-finance",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0021",
+   "scope": "program",
+   "scope_id": "ntu-accounting-msc-2027",
+   "field": "fees",
+   "value": "70850 SGD total",
+   "source_url": "https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-accountancy",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0022",
+   "scope": "program",
+   "scope_id": "pku-finance-mfin-2027",
+   "field": "fees",
+   "value": "128000 CNY total",
+   "source_url": "https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0023",
+   "scope": "program",
+   "scope_id": "pku-business-administration-mba-2027",
+   "field": "fees",
+   "value": "188000 CNY total",
+   "source_url": "https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0024",
+   "scope": "program",
+   "scope_id": "pku-accounting-mpa-2027",
+   "field": "fees",
+   "value": "158000 CNY total",
+   "source_url": "https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0025",
+   "scope": "program",
+   "scope_id": "tsinghua-finance-mfin-2027",
+   "field": "fees",
+   "value": "198000 CNY total",
+   "source_url": "https://masters.sem.tsinghua.edu.cn/en/info/1007/2172.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0026",
+   "scope": "program",
+   "scope_id": "tsinghua-management-mim-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://masters.sem.tsinghua.edu.cn/en/info/1007/2172.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0027",
+   "scope": "program",
+   "scope_id": "upenn-business-administration-mba-2027",
+   "field": "fees",
+   "value": "87970 USD per_year",
+   "source_url": "https://mba.wharton.upenn.edu/tuition-financial-aid/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0028",
+   "scope": "program",
+   "scope_id": "upenn-economics-bs-2027",
+   "field": "fees",
+   "value": "65670 USD per_year",
+   "source_url": "https://www.wharton.upenn.edu/academic-programs/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0029",
+   "scope": "program",
+   "scope_id": "cornell-economics-bs-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://business.cornell.edu/programs/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0030",
+   "scope": "program",
+   "scope_id": "cornell-business-administration-mba-2027",
+   "field": "fees",
+   "value": "88934 USD per_year",
+   "source_url": "https://business.cornell.edu/programs/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0031",
+   "scope": "program",
+   "scope_id": "yale-business-administration-mba-2027",
+   "field": "fees",
+   "value": "90900 USD per_year",
+   "source_url": "https://som.yale.edu/programs/mba/affording-your-mba/cost-information",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0032",
+   "scope": "program",
+   "scope_id": "cuhk-business-administration-bba-2027",
+   "field": "fees",
+   "value": "230000 HKD per_year",
+   "source_url": "https://www.bschool.cuhk.edu.hk/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0033",
+   "scope": "program",
+   "scope_id": "cuhk-accounting-bba-2027",
+   "field": "fees",
+   "value": "230000 HKD per_year",
+   "source_url": "https://www.bschool.cuhk.edu.hk/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0034",
+   "scope": "program",
+   "scope_id": "cuhk-economics-bsc-2027",
+   "field": "fees",
+   "value": "230000 HKD per_year",
+   "source_url": "https://www.bschool.cuhk.edu.hk/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0035",
+   "scope": "program",
+   "scope_id": "cuhk-finance-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.gs.cuhk.edu.hk/programmes/business-administration/msc-finance",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0036",
+   "scope": "program",
+   "scope_id": "unsw-finance-mfin-2027",
+   "field": "fees",
+   "value": "62000 AUD per_year",
+   "source_url": "https://degrees.unsw.edu.au/master-of-finance/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0037",
+   "scope": "program",
+   "scope_id": "jhu-business-administration-mba-2027",
+   "field": "fees",
+   "value": "154750 USD total",
+   "source_url": "https://carey.jhu.edu/admissions/tuition-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0038",
+   "scope": "program",
+   "scope_id": "jhu-finance-ms-2027",
+   "field": "fees",
+   "value": "78500 USD total",
+   "source_url": "http://carey.jhu.edu/programs/compare?programs=vet-academy,master-of-science-in-finance-9",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0039",
+   "scope": "program",
+   "scope_id": "berkeley-business-administration-bs-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://haas.berkeley.edu/undergrad/admissions/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0040",
+   "scope": "program",
+   "scope_id": "epfl-management-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0041",
+   "scope": "program",
+   "scope_id": "epfl-management-msc-2027",
+   "field": "application_deadline",
+   "value": "31 March 2027",
+   "source_url": "https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0042",
+   "scope": "program",
+   "scope_id": "melbourne-finance-mcom-2027",
+   "field": "fees",
+   "value": "64640 AUD per_year",
+   "source_url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0043",
+   "scope": "program",
+   "scope_id": "melbourne-accounting-mcom-2027",
+   "field": "fees",
+   "value": "64640 AUD per_year",
+   "source_url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0044",
+   "scope": "program",
+   "scope_id": "chicago-business-administration-mba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://careeradvancement.uchicago.edu/advanced-degrees/professional-school-programs/business-school/chicago-booth-programs/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0045",
+   "scope": "program",
+   "scope_id": "chicago-management-mim-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://careeradvancement.uchicago.edu/advanced-degrees/professional-school-programs/business-school/chicago-booth-programs/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0046",
+   "scope": "program",
+   "scope_id": "tum-management-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.mgt.tum.de/programs/master-in-management",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "business-01-50-f0047",
+   "scope": "program",
+   "scope_id": "tum-management-technology-msc-2027",
+   "field": "fees",
+   "value": "8000 EUR per_year",
+   "source_url": "https://www.tum.de/fileadmin/w00bfo/www/Studium/Studienangebot/Lesbare_Fassung/Master/Management_and_Technology_MA_Degree_Program_Documentation_29012025.pdf",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

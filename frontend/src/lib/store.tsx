@@ -73,7 +73,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = (patch: Partial<Profile>) => setProfileState((prev) => ({ ...prev, ...patch }));
   const clearData = () => {
     setProfileState(emptyProfile);
-    try { localStorage.removeItem('pp-profile'); } catch { /* ignore */ }
+    try { localStorage.removeItem('pp-profile'); localStorage.removeItem('pp-check-done'); } catch { /* ignore */ }
   };
   const t = (key: string) => MESSAGES[locale][key] ?? MESSAGES.en[key] ?? key;
   const tf = (key: string, vars?: Record<string, string | number>) => {

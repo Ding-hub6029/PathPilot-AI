@@ -1,13 +1,31 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
-import { sampleUndergrad, sampleMasters, Profile, Curriculum } from '../../lib/types';
+import { evaluateLocal, matchProfile } from '../../lib/api';
+import { sampleUndergrad, sampleMasters, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
 import { formatFeeItems, formatIntake } from '../../lib/format';
 import { displayProgramTitle } from '../../lib/programs';
+import { StatusChip } from '../../components/StatusChip';
+import { GaokaoPanel } from '../../components/GaokaoPanel';
 
-const STEPS = ['curriculum', 'track', 'target', 'academic', 'language', 'budget'] as const;
+// Flow (fix 2026-11-25, user testing): field/direction FIRST, then
+// conditions, and only then recommendations. The old step 3 listed
+// specific programmes up front — "我都没了解这些，我怎么选课程" —
+// so programmes are never shown as a blind list: the system recommends
+// from the catalogue filtered by the chosen field, ordered by the
+// eligibility evaluation, and the user picks from the recommendations.
+const STEPS = ['curriculum', 'track', 'field', 'academic', 'language', 'budget', 'recommend'] as const;
+
+/** Only 'computing' has verified matchable programmes in the v2 catalogue
+ * (all 8 carry subject 'Computer Science'); every other field honestly
+ * reports none yet instead of inventing recommendations. */
+function fieldMatches(field: FieldId | undefined, p: Program): boolean {
+  if (field === 'computing') return p.subject === 'Computer Science';
+  return false;
+}
 
 function NumField({ label, value, onChange, step = '0.1', min, max }: { label: string; value: number | '' | undefined; onChange: (v: number | '') => void; step?: string; min?: number; max?: number }) {
   return (
@@ -28,32 +46,38 @@ export default function WizardPage() {
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Recommendation state (step 7): evaluated matches for the chosen
+  // field, ordered by eligibility; the user picks from them.
+  const [recs, setRecs] = useState<MatchResult[] | null>(null);
+  const [recLoading, setRecLoading] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+
   const stepLabel = (i: number) =>
-    i === 0 ? t('wizard.stepCurriculum') : i === 1 ? t('wizard.trackTitle') : i === 2 ? t('wizard.stepTarget') : i === 3 ? t('wizard.stepAcademic') : i === 4 ? t('wizard.stepLanguage') : t('wizard.stepBudget');
+    i === 0 ? t('wizard.stepCurriculum') : i === 1 ? t('wizard.trackTitle') : i === 2 ? t('wizard.stepField') : i === 3 ? t('wizard.stepAcademic') : i === 4 ? t('wizard.stepLanguage') : i === 5 ? t('wizard.stepBudget') : t('wizard.stepRecommend');
 
   const canNext = () => {
     if (step === 0) return !!profile.curriculum;
     if (step === 1) return profile.track !== '';
-    if (step === 2) return profile.targetProgramIds.length > 0;
+    if (step === 2) return !!profile.field;
+    if (step === 6) return selected.length > 0;
     return true;
   };
 
   const next = () => {
     if (!canNext()) { setError(t('wizard.required')); return; }
     setError('');
-    if (step === 2 && profile.targetProgramIds.length === 0) {
-      const ids = programs.filter((p) => p.degreeLevel === profile.track).map((p) => p.id);
-      updateProfile({ targetProgramIds: ids });
-    }
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
   };
 
-  const finish = () => router.push('/results');
+  const finish = () => {
+    if (!canNext()) { setError(t('wizard.required')); return; }
+    router.push('/results');
+  };
 
   const loadSample = () => {
     const s = profile.track === 'taught_masters' ? sampleMasters : sampleUndergrad;
     setProfile({ ...s });
-    setStep(5);
+    setStep(6);
   };
 
   const exportProfile = () => {
@@ -93,7 +117,43 @@ export default function WizardPage() {
     });
   };
 
-  const trackPrograms = programs.filter((p) => p.degreeLevel === profile.track);
+  // Recommendations: when the user reaches the last step, evaluate the
+  // field-filtered catalogue against the conditions already entered and
+  // order by eligibility (MET, then partly unknown, then not met). No
+  // admission probabilities anywhere — only MET / NOT_MET / UNKNOWN.
+  useEffect(() => {
+    if (step !== 6) return;
+    const candidates = programs.filter((p) => p.degreeLevel === profile.track && fieldMatches(profile.field, p));
+    if (candidates.length === 0) { setRecs([]); setSelected([]); return; }
+    setRecLoading(true);
+    const ids = candidates.map((p) => p.id);
+    const rank = (s: string) => s === 'MET' ? 0 : s === 'PARTIAL_UNKNOWN' ? 1 : s === 'NOT_MET' ? 2 : 3;
+    matchProfile({ ...profile, targetProgramIds: ids })
+      .then((res) => {
+        setRecs([...res.results].sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary)));
+        setSelected(profile.targetProgramIds.filter((id) => ids.includes(id)));
+      })
+      .catch(() => {
+        const local = evaluateLocal(profile, ids);
+        setRecs([...local.results].sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary)));
+        setSelected([]);
+      })
+      .finally(() => setRecLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  const toggleSelect = (id: string) => {
+    const nextSel = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
+    setSelected(nextSel);
+    updateProfile({ targetProgramIds: nextSel });
+  };
+
+  const selectAllRecs = () => {
+    const ids = (recs ?? []).map((r) => r.programId);
+    setSelected(ids);
+    updateProfile({ targetProgramIds: ids });
+  };
+
   const progress = ((step + 1) / STEPS.length) * 100;
 
   const curricula: { id: Curriculum; title: string; desc: string }[] = [
@@ -105,9 +165,19 @@ export default function WizardPage() {
     { id: 'other', title: t('wizard.curriculumOther'), desc: t('wizard.curriculumOtherDesc') },
   ];
 
+  const fields: { id: FieldId; title: string }[] = [
+    { id: 'business', title: t('wizard.fieldBusiness') },
+    { id: 'computing', title: t('wizard.fieldComputing') },
+    { id: 'engineering', title: t('wizard.fieldEngineering') },
+    { id: 'science', title: t('wizard.fieldScience') },
+    { id: 'medicine', title: t('wizard.fieldMedicine') },
+    { id: 'humanities', title: t('wizard.fieldHumanities') },
+    { id: 'arts', title: t('wizard.fieldArts') },
+  ];
+
   return (
     <div className="page-enter mx-auto max-w-3xl px-4 py-8" key={step}>
-      <h1 className="text-2xl font-bold">{t('wizard.title')}</h1>
+      <h1 className="line-mask text-2xl font-bold"><span>{t('wizard.title')}</span></h1>
 
       {/* Animated progress route line with compass needle */}
       <div className="mt-4" aria-label={`${step + 1} / ${STEPS.length}`}>
@@ -123,7 +193,7 @@ export default function WizardPage() {
         </ol>
       </div>
 
-      <div className="anim-fade-up mt-6 rounded-2xl border border-navy/10 bg-white p-6 shadow-sm" aria-live="polite">
+      <div className="anim-fade-up mt-6 rounded-2xl border border-navy/10 bg-white p-6 card-surface" aria-live="polite">
         {step === 0 && (
           <div>
             <h2 className="text-lg font-bold">{t('wizard.curriculumTitle')}</h2>
@@ -162,21 +232,16 @@ export default function WizardPage() {
 
         {step === 2 && (
           <div>
-            <h2 className="text-lg font-bold">{t('wizard.targetLabel')}</h2>
-            <div className="mt-4 space-y-3">
-              {trackPrograms.map((p) => {
-                const on = profile.targetProgramIds.includes(p.id);
-                return (
-                  <button key={p.id} type="button" aria-pressed={on} onClick={() => updateProfile({ targetProgramIds: on ? profile.targetProgramIds.filter((x) => x !== p.id) : [...profile.targetProgramIds, p.id] })}
-                    className={`btn-press block w-full rounded-2xl border-2 p-4 text-start ${on ? 'border-teal bg-teal/5' : 'border-navy/15'}`}>
-                    <span className="font-bold">{displayProgramTitle(p, locale)}</span>
-                    <span className="block text-sm text-navy/70">{formatIntake(p, t)} · {formatFeeItems(p, t, locale)}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-4 max-w-xs">
-              <NumField label={t('wizard.intakeYear')} value={profile.intakeYear} onChange={(v) => updateProfile({ intakeYear: v })} step="1" min={2026} max={2030} />
+            <h2 className="text-lg font-bold">{t('wizard.fieldTitle')}</h2>
+            <p className="mt-2 text-sm text-navy/70">{t('wizard.fieldNote')}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {fields.map((o) => (
+                <button key={o.id} type="button" onClick={() => updateProfile({ field: o.id })}
+                  aria-pressed={profile.field === o.id}
+                  className={`btn-press card-lift rounded-2xl border-2 p-5 text-start ${profile.field === o.id ? 'border-teal bg-teal/5' : 'border-navy/15'}`}>
+                  <span className="text-lg font-bold">{o.title}</span>
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -223,7 +288,7 @@ export default function WizardPage() {
                       <NumField label={t('wizard.gaokaoTotal')} value={profile.gaokaoTotal} onChange={(v) => updateProfile({ gaokaoTotal: v })} step="1" min={1} max={750} />
                       <NumField label={t('wizard.gaokaoMaths')} value={profile.gaokaoMaths} onChange={(v) => updateProfile({ gaokaoMaths: v })} step="1" min={0} max={150} />
                     </div>
-                    <p className="text-sm text-navy/60">{t('wizard.gaokaoNote')}</p>
+                    <GaokaoPanel />
                   </>
                 )}
                 {profile.curriculum === 'usa' && (
@@ -325,6 +390,49 @@ export default function WizardPage() {
             <p className="text-sm text-navy/60">{t('wizard.residencyFeeNote')}</p>
             <p className="text-sm text-navy/60">{t('wizard.budgetHint')}</p>
             {profile.sample && <p className="rounded-lg bg-amber/20 p-3 text-sm font-semibold">{t('common.synthetic')}</p>}
+          </div>
+        )}
+
+        {step === 6 && (
+          <div>
+            <h2 className="text-lg font-bold">{t('wizard.recommendTitle')}</h2>
+            <p className="mt-2 text-sm text-navy/70">{t('wizard.recommendNote')}</p>
+            {recLoading && <p className="mt-4 text-sm text-navy/60">{t('wizard.recommendLoading')}</p>}
+            {!recLoading && recs !== null && recs.length === 0 && (
+              <div className="mt-4 rounded-2xl border border-navy/10 bg-paper p-5">
+                <p className="font-bold">{t('wizard.recommendEmpty')}</p>
+                <p className="mt-2 text-sm text-navy/70">{t('wizard.recommendEmptyNote')}</p>
+                <Link href="/rankings" className="btn-press mt-3 inline-block rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">{t('nav.rankings')}</Link>
+              </div>
+            )}
+            {!recLoading && recs !== null && recs.length > 0 && (
+              <>
+                <div className="mt-4 flex justify-end">
+                  <button type="button" onClick={selectAllRecs} className="btn-press rounded-full border border-navy/25 px-4 py-2 text-sm font-semibold">{t('wizard.recommendSelectAll')}</button>
+                </div>
+                <div className="mt-3 space-y-3">
+                  {recs.map((r) => {
+                    const p = programs.find((x) => x.id === r.programId);
+                    if (!p) return null;
+                    const on = selected.includes(r.programId);
+                    const summaryLabel = r.eligibilitySummary === 'MET' ? t('wizard.recMet') : r.eligibilitySummary === 'PARTIAL_UNKNOWN' ? t('wizard.recPartial') : t('wizard.recNotMet');
+                    return (
+                      <button key={r.programId} type="button" aria-pressed={on} onClick={() => toggleSelect(r.programId)}
+                        className={`btn-press block w-full rounded-2xl border-2 p-4 text-start ${on ? 'border-teal bg-teal/5' : 'border-navy/15'}`}>
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span className="font-bold">{displayProgramTitle(p, locale)}</span>
+                          <StatusChip status={r.eligibilitySummary} label={summaryLabel} />
+                        </span>
+                        <span className="block text-sm text-navy/70">{formatIntake(p, t)} · {formatFeeItems(p, t, locale)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+            <div className="mt-4 max-w-xs">
+              <NumField label={t('wizard.intakeYear')} value={profile.intakeYear} onChange={(v) => updateProfile({ intakeYear: v })} step="1" min={2026} max={2030} />
+            </div>
           </div>
         )}
 

@@ -9,6 +9,8 @@ import { displayProgramName } from '../../lib/programs';
 import { displayProgramInstitutionName } from '../../lib/rankings';
 import { StatusChip } from '../../components/StatusChip';
 import { RuleRow } from '../../components/RuleRow';
+import { ViewTransitionLink } from '../../components/ViewTransitionLink';
+import { vtRef } from '../../lib/viewTransition';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
 
 type Filter = 'all' | 'met' | 'notmet' | 'unknown';
@@ -35,6 +37,14 @@ export default function ResultsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.track, JSON.stringify(profile.targetProgramIds)]);
 
+  // A completed check suppresses the homepage welcome modal (fix
+  // 2026-11-25): the modal shows only while no check has ever completed.
+  useEffect(() => {
+    if (data && data.results.length > 0) {
+      try { localStorage.setItem('pp-check-done', '1'); } catch { /* ignore */ }
+    }
+  }, [data]);
+
   const runSim = async () => {
     if (!Object.keys(simPatch).length) return;
     setSimLoading(true);
@@ -54,7 +64,7 @@ export default function ResultsPage() {
 
   if (!profile.track || profile.targetProgramIds.length === 0) {
     return (
-      <div className="page-enter mx-auto max-w-3xl px-4 py-12 text-center">
+      <div className="mx-auto max-w-3xl px-4 py-12 text-center">
         <p className="text-lg">{t('results.empty')}</p>
         <Link href="/wizard" className="btn-press mt-6 inline-block rounded-full bg-navy px-6 py-3 font-semibold text-white">{t('results.goWizard')}</Link>
       </div>
@@ -62,8 +72,8 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="page-enter mx-auto max-w-6xl px-4 py-8">
-      <h1 className="text-2xl font-bold">{t('results.title')}</h1>
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <h1 className="line-mask text-2xl font-bold"><span>{t('results.title')}</span></h1>
       {profile.sample && <p className="mt-2 inline-block rounded-lg bg-amber/25 px-3 py-1 text-sm font-semibold">{t('common.synthetic')}</p>}
       {data && !data.live && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('common.offline')}: {t('results.offlineNote')}</p>}
       {data && data.live && <p className="mt-3 rounded-lg bg-teal/10 p-3 text-sm font-semibold text-teal-dark" role="status">{t('common.online')}</p>}
@@ -117,9 +127,9 @@ export default function ResultsPage() {
             const blockers = r.ruleResults.filter((x) => x.status === 'NOT_MET');
             const sim = simData?.results.find((x) => x.programId === r.programId);
             return (
-              <article key={r.programId} className={`card-lift anim-fade-up stagger-${(i % 4) + 1} rounded-2xl border border-navy/10 bg-white p-5 shadow-sm`}>
+              <article key={r.programId} className="card-lift rounded-2xl border border-navy/10 bg-white p-5 card-surface">
                 <p className="text-sm font-semibold text-teal">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
-                <h2 className="mt-1 text-lg font-bold">{displayProgramName(p, locale)}</h2>
+                <h2 className="mt-1 text-lg font-bold" ref={vtRef(`program-title-${p.id}`)}>{displayProgramName(p, locale)}</h2>
                 {r.trackMismatch ? (
                   <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-800">{t('results.trackMismatch')}</p>
                 ) : (
@@ -163,7 +173,7 @@ export default function ResultsPage() {
                   </>
                 )}
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Link href={`/programs/${p.id}`} className="btn-press inline-block rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">{t('results.viewDetail')}</Link>
+                  <ViewTransitionLink href={`/programs/${p.id}`} className="btn-press inline-block rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">{t('results.viewDetail')}</ViewTransitionLink>
                   <Link href="/report" className="btn-press inline-block rounded-full border border-navy/30 bg-white px-4 py-2 text-sm font-semibold">{t('results.viewReport')}</Link>
                 </div>
               </article>

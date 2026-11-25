@@ -2,7 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: light; }
+:root {
+  color-scheme: light;
+  /* One easing family, used everywhere (design research 2026-11-25, Obys):
+     --ease-enter for entrances, --ease-reveal for reveals. No ad-hoc
+     easings elsewhere; the pet's pop keeps its overshoot (character
+     motion, not UI motion) and is the only exception. */
+  --ease-enter: cubic-bezier(.22,1,.36,1);
+  --ease-reveal: cubic-bezier(.16,1,.3,1);
+  /* One type scale: display / section / body / microcopy. Section
+     titles use text-2xl (= --text-section); body is the 1rem base. */
+  --text-display: clamp(2.6rem, 7vw, 4.4rem);
+  --text-section: 1.5rem;
+  --text-body: 1rem;
+  --text-micro: .68rem;
+}
 html { scroll-behavior: smooth; }
 body { background: #F7F5F0; color: #0B1F3A; }
 
@@ -19,55 +33,137 @@ body { background: #F7F5F0; color: #0B1F3A; }
 @keyframes slide-in-card { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
 [dir="rtl"] .anim-timeline-card { animation-name: slide-in-card-rtl; }
 @keyframes slide-in-card-rtl { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+/* Masked line-reveal (research move 1): text slides up from
+   translateY(110%) inside an overflow-hidden parent. The mask's
+   padding-bottom gives descenders room so they are never clipped. */
+@keyframes line-reveal { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes route-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes route-line-draw { from { stroke-dashoffset: 1300; } to { stroke-dashoffset: 0; } }
+@keyframes brand-turn { from { transform: rotate(-90deg); } to { transform: rotate(0); } }
+/* Pet idle life (research move 3): gentle bob, blink, and a slow
+   look-around when bored. Blink runs on the eye circles themselves
+   (transform-box: fill-box) so it composes with the pointer-follow
+   translate applied to the eyes group. */
+@keyframes pet-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes pet-celebrate { 0% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-10px) rotate(-6deg); } 60% { transform: translateY(0) rotate(5deg); } 100% { transform: translateY(0) rotate(0); } }
+@keyframes needle-look { 0%,100% { transform: rotate(-16deg); } 50% { transform: rotate(16deg); } }
+@keyframes pet-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
 
 /* ---- Editorial / magazine type ---- */
-.hero-display { font-size: clamp(2.6rem, 7vw, 4.4rem); line-height: 1.02; letter-spacing: -0.03em; font-weight: 800; }
-.microcopy { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .22em; }
+.hero-display { font-size: var(--text-display); line-height: 1.02; letter-spacing: -0.03em; font-weight: 800; }
+.microcopy { font-size: var(--text-micro); font-weight: 600; text-transform: uppercase; letter-spacing: .22em; }
 .grad-amber-text { background: linear-gradient(100deg, #F2A541 0%, #F7C873 45%, #F2A541 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Masked line-reveal wrapper: the heading itself is the mask, its first
+   child slides up. Padding gives descenders room (see keyframes above). */
+.line-mask { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+.line-mask > span { display: block; animation: line-reveal .7s var(--ease-reveal) both; }
+
+/* One underline primitive for nav links (research move 1, Obys): a 2px
+   amber mask that scales in from the inline-start side. Active route:
+   the mask stays in. RTL: the origin flips to the right. */
+.link-underline { position: relative; }
+.link-underline::after { content: ""; position: absolute; inset-inline-start: .5rem; inset-inline-end: .5rem; bottom: 0; height: 2px; background: #F2A541; transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease-reveal); }
+[dir="rtl"] .link-underline::after { transform-origin: right; }
+.link-underline:hover::after, .link-underline:focus-visible::after, .nav-active::after { transform: scaleX(1); }
+.nav-active { color: #fff; font-weight: 700; }
+
+/* ---- 12-column grid (research move 5) ---- */
+/* One column on phones, 12 columns from md up; children use Tailwind's
+   md:col-span-* so the same markup collapses cleanly. */
+.grid-12 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+@media (min-width: 768px) {
+  .grid-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}
+
+/* Section rhythm (research move 5): a hairline + breathing room between
+   homepage sections so pages stop feeling like one repeated stack. */
+.section-rule { border-top: 1px solid rgba(11,31,58,.1); padding-top: 2.5rem; }
+/* Layered card surface (research move 5): depth from two soft shadows,
+   not from a heavier border. Replaces shadow-sm on feature cards. */
+.card-surface { box-shadow: 0 1px 2px rgba(11,31,58,.06), 0 8px 24px rgba(11,31,58,.08); }
 
 /* ---- 3D perspective helpers (ref 2: tessel tilted panel) ---- */
 .perspective-1200 { perspective: 1200px; }
-.tilt-panel { transform: rotateX(7deg) rotateY(-5deg); transform-style: preserve-3d; transition: transform .35s ease; }
+.tilt-panel { transform: rotateX(7deg) rotateY(-5deg); transform-style: preserve-3d; transition: transform .35s var(--ease-enter); }
 .tilt-panel:hover { transform: rotateX(3deg) rotateY(-2deg); }
 [dir="rtl"] .tilt-panel { transform: rotateX(7deg) rotateY(5deg); }
 [dir="rtl"] .tilt-panel:hover { transform: rotateX(3deg) rotateY(2deg); }
 @media (max-width: 767px) { .tilt-panel, [dir="rtl"] .tilt-panel { transform: none; } }
 
 /* ---- Entrance animations (refs 1+2: fan-out, tilt-in, staggered cards) ---- */
-.anim-fan { animation: fan-in .6s cubic-bezier(.2,.9,.25,1) both; }
-.anim-tilt-in { animation: tilt-in .7s cubic-bezier(.2,.9,.25,1) both; }
+.anim-fan { animation: fan-in .6s var(--ease-enter) both; }
+.anim-tilt-in { animation: tilt-in .7s var(--ease-enter) both; }
 .anim-orbit { transform-box: fill-box; transform-origin: center; animation: orbit-spin 30s linear infinite; }
-.anim-veil { animation: veil-away 1s cubic-bezier(.65,0,.35,1) .35s both; }
-.anim-ring { stroke-dasharray: 97.4; animation: ring-grow 1s ease-out .3s both; }
-.anim-timeline-card { animation: slide-in-card .5s ease-out both; }
+.anim-veil { animation: veil-away 1s var(--ease-enter) .35s both; }
+.anim-ring { stroke-dasharray: 97.4; animation: ring-grow 1s var(--ease-reveal) .3s both; }
+.anim-timeline-card { animation: slide-in-card .5s var(--ease-reveal) both; }
 .stagger-5 { animation-delay: .45s; } .stagger-6 { animation-delay: .55s; }
 
-/* ---- Before / after split (ref 3: split-screen) ---- */
-.ba-after { clip-path: inset(0 0 0 var(--split, 50%)); }
-[dir="rtl"] .ba-after { clip-path: inset(0 var(--split, 50%) 0 0); }
-.ba-range { accent-color: #F2A541; }
+/* ---- Route transition (research move 2): the compass motif.
+   Full variant: a thin amber route line draws itself across the top of
+   the viewport (left-to-right in LTR, right-to-left in RTL) while the
+   new page rises .5s. Total budget ~.55s, under the 0.8s cap. Quiet
+   variant (evidence pages): a calm .3s fade only, no line, no rise.
+   The wrapper is keyed by pathname in RouteTransition; it remounts on
+   every route change and replays. When a shared-element navigation
+   (ViewTransitionLink) is used, the wrapper renders plain — the crest /
+   title morph is the transition there, and a second entrance would
+   hide it inside an opacity-0 snapshot. */
+.route-line { position: fixed; top: 0; inset-inline: 0; z-index: 60; height: 18px; pointer-events: none; }
+.route-line svg { display: block; width: 100%; height: 18px; }
+.route-line path { stroke-dasharray: 1300; animation: route-line-draw .55s var(--ease-reveal) both; }
+[dir="rtl"] .route-line svg { transform: scaleX(-1); }
+.route-enter { animation: route-rise .5s var(--ease-reveal) both; }
+.route-enter-quiet { animation: fade-in .3s var(--ease-reveal) both; }
+
+/* ---- Shared-element transitions (research move 4) ----
+   The root cross-fade is disabled: only the named elements (crest,
+   programme title) morph; everything else enters via .route-enter.
+   With the root fade left on, the new page's entrance would double up
+   and the morph would be hidden inside an opacity-0 snapshot. */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+
+/* ---- Pet state machine (research move 3) ---- */
+.anim-pet-bob { display: inline-flex; animation: pet-bob 3s ease-in-out infinite; }
+/* Celebrate is defined AFTER the bob so it wins while both classes are
+   present (equal specificity, later rule wins); removing it resumes bob. */
+.anim-pet-celebrate { animation: pet-celebrate .6s var(--ease-enter) both; }
+.pet-thinking { animation: pulse-ring 1.2s ease-out infinite; }
+.pet-lean { transform: translateY(2px) scale(1.07); transition: transform .3s var(--ease-enter); }
+.pet-blink { transform-box: fill-box; transform-origin: center; animation: pet-blink 5s ease-in-out infinite; }
+/* Bored: needle slowly looks around, eyes half-close. The blink
+   animation is switched off so the half-closed transform can hold. */
+.pet-bored .pet-needle-look { animation: needle-look 6s ease-in-out infinite; }
+.pet-bored .pet-blink { animation: none; transform: scaleY(.35); }
+/* Header compass quarter-turn on route change (keyed span replays it). */
+.anim-brand-turn { display: inline-flex; animation: brand-turn .5s var(--ease-enter) both; }
+
+/* ---- Before / after split: static image now (slider deleted 2026-11-25) ---- */
 @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(242,165,65,.45); } 100% { box-shadow: 0 0 0 12px rgba(242,165,65,0); } }
 @keyframes chip-pop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
 @keyframes pet-pop { from { opacity: 0; transform: scale(.5) rotate(-14deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
 
 .anim-pet-pop { animation: pet-pop .45s cubic-bezier(.2,1.4,.4,1) both; }
-.anim-pet-panel { animation: fade-slide-up .3s ease-out both; }
+.anim-pet-panel { animation: fade-slide-up .3s var(--ease-reveal) both; }
 
-.anim-route { stroke-dasharray: 600; animation: draw-route 1.6s ease-out forwards; }
-.anim-fade-up { animation: fade-slide-up .5s ease-out both; }
-.anim-fade-in { animation: fade-in .35s ease-out both; }
+.anim-route { stroke-dasharray: 600; animation: draw-route 1.6s var(--ease-reveal) forwards; }
+.anim-fade-up { animation: fade-slide-up .5s var(--ease-reveal) both; }
+.anim-fade-in { animation: fade-in .35s var(--ease-reveal) both; }
 .anim-needle { transform-origin: center; animation: needle-sway 4s ease-in-out infinite; }
-.anim-chip { animation: chip-pop .3s ease-out both; }
+.anim-chip { animation: chip-pop .3s var(--ease-reveal) both; }
 .stagger-1 { animation-delay: .05s; } .stagger-2 { animation-delay: .15s; }
 .stagger-3 { animation-delay: .25s; } .stagger-4 { animation-delay: .35s; }
 
-/* Page transition wrapper */
-.page-enter { animation: fade-slide-up .35s ease-out both; }
+/* Page transition wrapper — kept for the wizard's step changes only
+   (research move 2: the quietest variant, fade + slight rise). Route
+   changes use .route-enter in RouteTransition instead. */
+.page-enter { animation: fade-slide-up .35s var(--ease-reveal) both; }
 
 /* Click effects: ripple-free press scale + lift */
-.btn-press { transition: transform .12s ease, box-shadow .2s ease, background-color .2s ease; }
+.btn-press { transition: transform .12s var(--ease-enter), box-shadow .2s var(--ease-enter), background-color .2s var(--ease-enter); }
 .btn-press:active { transform: scale(.97); }
-.card-lift { transition: transform .2s ease, box-shadow .2s ease; }
+.card-lift { transition: transform .2s var(--ease-enter), box-shadow .2s var(--ease-enter); }
 .card-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(11,31,58,.14); }
 .card-lift:focus-visible, .btn-press:focus-visible, a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   outline: 3px solid #F2A541; outline-offset: 2px;
@@ -81,4 +177,7 @@ body { background: #F7F5F0; color: #0B1F3A; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  /* No route line, no shared-element morph: a plain page change. */
+  .route-line { display: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }

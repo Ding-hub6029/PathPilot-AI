@@ -6,6 +6,8 @@ import { displayCountryCode, displayCountryName, displayInstitutionName } from '
 import { crestFor, monogramFor } from '../../lib/crests';
 import { useApp } from '../../lib/store';
 import { RankingEntry } from '../../lib/types';
+import { ViewTransitionLink } from '../../components/ViewTransitionLink';
+import { vtRef } from '../../lib/viewTransition';
 
 /**
  * Standalone rankings page (Day 3, FR15/FR16).
@@ -104,8 +106,8 @@ export default function RankingsPage() {
     entries.find((e) => e.provider === providerId && e.institution_id === institutionId);
 
   return (
-    <div className="page-enter mx-auto max-w-6xl px-4 py-8">
-      <h1 className="text-2xl font-bold">{t('rankings.title')}</h1>
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <h1 className="line-mask text-2xl font-bold"><span>{t('rankings.title')}</span></h1>
       <p className="mt-2 text-navy/70">{t('rankings.subtitle')}</p>
       <p className="mt-1 text-sm font-semibold text-navy/70">{t('rankings.noCompare')}</p>
 
@@ -190,7 +192,7 @@ export default function RankingsPage() {
         )}
 
         <ol className="mt-4 flex flex-col gap-3">
-          {sortedInstitutions.map((inst, idx) => {
+          {sortedInstitutions.map((inst) => {
             const instEntries = visibleEntries.filter((e) => e.institution_id === inst.id);
             if (rankType === 'world' && instEntries.length === 0) return null;
             // Rank shown in the row is the same rank the list is sorted by:
@@ -200,25 +202,27 @@ export default function RankingsPage() {
             const bestEntry = [...instEntries].sort((a, b) => rankValue(a) - rankValue(b))[0];
             const crest = crestFor(inst.id);
             return (
-              <li key={inst.id} className="anim-fade-up flex items-center gap-3 rounded-2xl border border-navy/10 bg-white p-3 shadow-sm sm:gap-4 sm:p-4" style={{ animationDelay: `${(idx % 6) * 60}ms` }}>
+              <li key={inst.id} className="flex items-center gap-3 rounded-2xl border border-navy/10 bg-white p-3 shadow-sm sm:gap-4 sm:p-4">
                 <span className="w-12 shrink-0 text-center text-lg font-bold text-navy" dir="ltr">
                   {bestEntry ? bestEntry.rank_display : '—'}
                 </span>
                 {crest && 'src' in crest ? (
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-navy/10 bg-white" aria-hidden="true">
+                  <span ref={vtRef(`crest-${inst.id}`)} className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-navy/10 bg-white" aria-hidden="true">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={crest.src} alt="" className="h-12 w-12 object-contain" />
                   </span>
                 ) : (
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#0B1F3A] text-base font-bold text-white" aria-hidden="true">
+                  <span ref={vtRef(`crest-${inst.id}`)} className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#0B1F3A] text-base font-bold text-white" aria-hidden="true">
                     {monogramFor(inst.official_name)}
                   </span>
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="font-bold">
-                    <Link href={`/institutions/${inst.id}`} className="text-teal-dark underline">
+                    {/* Shared element (research move 4): the crest above
+                        morphs into the institution detail header. */}
+                    <ViewTransitionLink href={`/institutions/${inst.id}`} className="text-teal-dark underline">
                       {displayInstitutionName(inst, locale)}
-                    </Link>
+                    </ViewTransitionLink>
                   </p>
                   <p className="text-sm text-navy/60">{displayCountryName(inst, t)}</p>
                   <ul className="mt-2 flex flex-wrap gap-1.5">
@@ -275,9 +279,9 @@ export default function RankingsPage() {
                   <th scope="col" className="p-3 text-start">{t('rankings.provider')}</th>
                   {compareInstitutions.map((inst) => (
                     <th key={inst.id} scope="col" className="p-3 text-start">
-                      <Link href={`/institutions/${inst.id}`} className="text-teal-dark underline">
+                      <ViewTransitionLink href={`/institutions/${inst.id}`} className="text-teal-dark underline">
                         {displayInstitutionName(inst, locale)}
-                      </Link>
+                      </ViewTransitionLink>
                     </th>
                   ))}
                 </tr>

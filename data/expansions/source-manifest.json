@@ -1659,6 +1659,996 @@
    "url": "https://www.ics.uzh.ch/en/studies/msc/spec_msc_cs.html",
    "retrieved_at": "2026-11-25T00:00:00Z",
    "title": "Specialized Master in Computational Science"
+  },
+  {
+   "id": "berkeley-haas-ug",
+   "url": "https://haas.berkeley.edu/undergrad/admissions/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "caltech-bem",
+   "url": "https://www.admissions.caltech.edu/why-caltech/academics/majors-minors/business-economics-and-management",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "caltech-expenses",
+   "url": "https://www.catalog.caltech.edu/current/information-for-undergraduate-students/undergraduate-expenses/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cambridge-judge-mba-fees",
+   "url": "https://www.jbs.cam.ac.uk/masters-degrees/mba/fees-funding/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cornell-business-programs",
+   "url": "https://business.cornell.edu/programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cornell-tuition",
+   "url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cuhk-bschool",
+   "url": "https://www.bschool.cuhk.edu.hk/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cuhk-mscfin",
+   "url": "https://www.gs.cuhk.edu.hk/programmes/business-administration/msc-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cuhk-ug-fees",
+   "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "epfl-mte",
+   "url": "https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "epfl-mte-admissions",
+   "url": "https://www.epfl.ch/schools/cdm/college-of-management-of-technology/education/masters/master_in_management_technology_entrepreneurship/mte-application-admission/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "eth-mtec",
+   "url": "https://ethz.ch/en/studies/master/degree-programmes/management-and-social-sciences/management-technology-and-economics.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hbs-cost",
+   "url": "https://www.hbs.edu/mba/financial-aid/tuition-assistance/cost-of-attendance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hku-admissions-fees",
+   "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hku-business-ug",
+   "url": "https://www4.hku.hk/pubunit/drcd/undergraduate-2026-2027/1129-business",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "imperial-fin-compare",
+   "url": "https://www.imperial.ac.uk/business-school/study/masters/compare/finance-masters/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "jhu-carey-compare",
+   "url": "http://carey.jhu.edu/programs/compare?programs=vet-academy,master-of-science-in-finance-9",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "jhu-carey-tuition",
+   "url": "https://carey.jhu.edu/admissions/tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "melb-fees-2027",
+   "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mit-registrar-tuition",
+   "url": "https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mit-sloan-catalog",
+   "url": "http://catalog.mit.edu/schools/sloan-management/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-mscacc",
+   "url": "https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-accountancy",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-mscfin",
+   "url": "https://www.ntu.edu.sg/spms/admissions/grad/detail/master-of-science-in-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nus-bschool",
+   "url": "https://bschool.nus.edu.sg/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nus-mscfin-fees",
+   "url": "https://mscfin.nus.edu.sg/fees-finances/programme-fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-em-cis",
+   "url": "https://assets-oxweb.admin.ox.ac.uk/2026-02/Economics and Management CIS 2026-entry.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "pku-grad-fees-2027",
+   "url": "https://isd.pku.edu.cn/userfiles/editor/202610231703556996.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "stanford-gsb-cost",
+   "url": "https://www.gsb.stanford.edu/programs/mba/tuition-financial-aid/cost-attendance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "stanford-gsb-degree",
+   "url": "https://www.gsb.stanford.edu/programs/degree",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tsinghua-sem-masters-2027",
+   "url": "https://masters.sem.tsinghua.edu.cn/en/info/1007/2172.htm",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tum-mim",
+   "url": "https://www.mgt.tum.de/programs/master-in-management",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tum-mt-doc",
+   "url": "https://www.tum.de/fileadmin/w00bfo/www/Studium/Studienangebot/Lesbare_Fassung/Master/Management_and_Technology_MA_Degree_Program_Documentation_29012025.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uchicago-booth-programs",
+   "url": "https://careeradvancement.uchicago.edu/advanced-degrees/professional-school-programs/business-school/chicago-booth-programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-finance-msc",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/finance-msc?utm_source=thinkpostgrad&utm_medium=affiliate&utm_campaign=117730_shs_pgt_2024&utm_content=study_advert",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-management-msc",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/graduate/courses/management-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "unsw-mfin",
+   "url": "https://degrees.unsw.edu.au/master-of-finance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "upenn-ug-tuition",
+   "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "wharton-mba-tuition",
+   "url": "https://mba.wharton.upenn.edu/tuition-financial-aid/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "wharton-programs",
+   "url": "https://www.wharton.upenn.edu/academic-programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "yale-som-mba-cost",
+   "url": "https://som.yale.edu/programs/mba/affording-your-mba/cost-information",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "anu-mfin",
+   "url": "https://programsandcourses.anu.edu.au/2024/program/7418XMFIN",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "anu-mfinm",
+   "url": "https://programsandcourses.anu.edu.au/2026/program/MFINM",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "columbia-mba-cost",
+   "url": "https://business.columbia.edu/financial-aid/costs/full-time",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "columbia-msfe-handbook",
+   "url": "https://students.business.columbia.edu/sites/students/files-efs/imce-uploads/OARR/MSFE-2025-student-handbook.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "dauphine-econfin",
+   "url": "https://dauphine.psl.eu/en/training/masters-degrees/economics-and-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "dauphine-finance",
+   "url": "https://dauphine.psl.eu/en/training/masters-degrees/finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-fin-invest",
+   "url": "https://www.business-school.ed.ac.uk/msc/finance-investment/fees-living-expenses",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-management",
+   "url": "https://www.business-school.ed.ac.uk/msc/management/fees-living-expenses",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "fudan-globalmba",
+   "url": "https://www.fdsm.fudan.edu.cn/globalmba/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "fudan-mf",
+   "url": "https://www.fdsm.fudan.edu.cn/en/programs/mf.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hkust-business-study",
+   "url": "https://bm.hkust.edu.hk/index%2Ephp/study",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hkust-ftss",
+   "url": "https://fytgs.hkust.edu.hk/hong-kong-future-talents-scholarship-scheme-advanced-studies",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hkust-mscfin",
+   "url": "https://prog-crs.hkust.edu.hk/pgprog/2027-28/msc-fina",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ipparis-maqi-news",
+   "url": "https://www.polytechnique.edu/en/news/ecole-polytechnique-and-lensae-paris-launch-msct-program-ai-and-quantitative-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ipparis-tuition",
+   "url": "https://programmes.polytechnique.edu/en/master/admissions-msct/tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-bf-fees",
+   "url": "https://www.kcl.ac.uk/study/postgraduate-taught/courses/banking-and-finance-msc/fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-bm-fees",
+   "url": "https://www.kcl.ac.uk/study/undergraduate/courses/business-management-with-year-in-industry-bsc/fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-maf",
+   "url": "https://www.alliancembs.manchester.ac.uk/study/undergraduate/bsc-hons-management-accounting-and-finance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-mscfin",
+   "url": "https://www.alliancembs.manchester.ac.uk/study/masters/msc-finance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mcgill-desautels-programs",
+   "url": "https://www.mcgill.ca/desautels/programs",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mcgill-mba-tuition",
+   "url": "https://www.mcgill.ca/desautels/programs/mba/admissions/tuition",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "monash-bcomfin",
+   "url": "https://www.monash.edu/study/courses/find-a-course/commerce-and-finance-b2043",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "monash-maf",
+   "url": "https://www.monash.edu/study/courses/find-a-course/advanced-finance-b6039?international=true",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "northwestern-kellogg-tuition",
+   "url": "https://www.northwestern.edu/sfs/tuition/graduate/kellogg.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "polyu-mfin-im",
+   "url": "https://www.polyu.edu.hk/af/study/taught-postgraduate-programmes/master-of-finance---investment-management/admissions/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "polyu-msc-afa",
+   "url": "https://www.polyu.edu.hk/en/af/study/taught-postgraduate-programmes/master-of-science-in-accounting-and-finance-analytics/admissions/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "princeton-cost",
+   "url": "https://admission.princeton.edu/cost-aid",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "princeton-ug-program",
+   "url": "https://ua.princeton.edu/policies-resources/undergraduate-program",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "rotman-mfin-tuition",
+   "url": "https://rotman.utoronto.ca/programs/specialized-programs/master-of-finance/tuition-and-scholarships/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "rotman-tuition",
+   "url": "https://www.rotman.utoronto.ca/registrar/programs/tuition-fees-and-registration/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sjtu-mba-fees",
+   "url": "http://mba.sjtu.edu.cn/en/admissions/fee-and-financial-aid.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sjtu-saif-mf",
+   "url": "https://en.saif.sjtu.edu.cn/mf/admissions/tuition-and-financial-aid",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "snu-mba-notice",
+   "url": "https://en.snu.ac.kr/admission/overview/notice?bbsidx=159735&md=v",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "snu-news-bba",
+   "url": "https://en.snu.ac.kr/snunow/snu_media/news?md=v&bbsidx=71919",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sydney-mcom",
+   "url": "https://www.sydney.edu.au/courses/courses/pc/master-of-commerce0.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tokyo-econ",
+   "url": "https://www.student.e.u-tokyo.ac.jp/nyushingaku-index-e.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tokyo-tuition",
+   "url": "https://www.u-tokyo.ac.jp/en/prospective-students/tuition_fees.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tudelft-mot",
+   "url": "https://www.tudelft.nl/msc/mot",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tudelft-mot-admissions",
+   "url": "https://www.tudelft.nl/en/education/programmes/masters/mot/mot/application-and-admission",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ubc-mba-fees",
+   "url": "https://www.sauder.ubc.ca/ubc-mba/application-process/mba-fees-and-expenses",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ubc-programs",
+   "url": "https://org-www.sauder.ubc.ca/programs",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucla-anderson-paying",
+   "url": "https://www.anderson.ucla.edu/degrees/full-time-mba/admit-central/paying-for-school",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucla-selfsupporting",
+   "url": "https://registrar.ucla.edu/fees-residence/self-supporting-degrees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uq-bbm",
+   "url": "https://study.uq.edu.au/study-options/programs/bachelors-business-management-commerce-2180",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uq-mfim",
+   "url": "https://study.uq.edu.au/study-options/programs/master-finance-and-investment-management-5765",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "yonsei-gmba-faq",
+   "url": "https://applymba.yonsei.ac.kr/applygmba/admission/gmba-faq.do?mode=view&articleNo=52222&article.offset=0&articleLimit=10",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "zibs-imf-bulletin",
+   "url": "https://zibs.zju.edu.cn/enzibs/2022/1101/c82302a2948071/page.htm",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "auckland-fees-schedule",
+   "url": "https://www.auckland.ac.nz/en/about-us/about-the-university/the-university/official-publications/university-calendar/current-calendar/academic-statutes-and-regulations/fees-statute-2001/fees-schedule-c-international-students.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "auckland-mappfin",
+   "url": "https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/master-of-applied-finance.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-bsc-bm",
+   "url": "https://www.birmingham.ac.uk/study/undergraduate/subjects/business-and-management-courses/business-management-with-year-in-industry-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-msc-fm",
+   "url": "https://www.birmingham.ac.uk/study/postgraduate/subjects/accounting-and-finance-courses/financial-management-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-msc-mgmt",
+   "url": "https://www.birmingham.ac.uk/study/postgraduate/subjects/business-and-management-courses/management-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-bsc-ef",
+   "url": "https://www.bristol.ac.uk/study/undergraduate/2027/economics/bsc-economics-and-finance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-msc-efm",
+   "url": "http://www.bristol.ac.uk/study/postgraduate/taught/msc-economics-finance-and-management/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-msc-fi",
+   "url": "https://www.bristol.ac.uk/study/postgraduate/taught/msc-finance-and-investment/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "brown-ug-tuition",
+   "url": "https://sfs.brown.edu/tuition-and-fees/undergraduate",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cityu-all-programmes",
+   "url": "https://www.cb.cityu.edu.hk/en/cb2025/programmes/all-programmes",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cityu-mba",
+   "url": "https://www.cityu.edu.hk/sgs/tuitionfee/sf_p11.htm",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cityu-mscfin",
+   "url": "https://www.cb.cityu.edu.hk/ef/MSc/?category=tuition",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cmu-mba-tuition",
+   "url": "https://www.cmu.edu/sfs/tuition/graduate/tepper/full-accel-mba.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "duke-bulletin",
+   "url": "https://fuqua.bulletins.duke.edu/policies/financial/tuition",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "duke-mba-tuition",
+   "url": "https://ai.fuqua.duke.edu/node/383",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kaist-cob-scholarship",
+   "url": "https://www.business.kaist.ac.kr/html/en/sub03/sub03_0302.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kaist-cost",
+   "url": "https://admission.kaist.ac.kr/intl-graduate/FinancialSupport/CostofAttendance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kfupm-mba-programs",
+   "url": "https://ms.kfupm.edu.sa/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kfupm-msfin",
+   "url": "https://t4.kfupm.edu.sa/study/programs/postgraduate/master-of-science-in-business-studies---finance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "korea-globalmba-faq",
+   "url": "http://biz.korea.ac.kr/eng/mba/globalMBA/faq.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "korea-mba-compare",
+   "url": "https://biz.korea.ac.kr/eng/mba/mba_compare",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kuleuven-fee-breakdown",
+   "url": "https://www.kuleuven.be/english/education/student/fees/tuition-fee-breakdown",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kuleuven-mba",
+   "url": "https://www.kuleuven.be/programmes/master-business-administration",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kyoto-econ-faq",
+   "url": "https://www.econ.kyoto-u.ac.jp/en/faqlist/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kyoto-tuition",
+   "url": "https://www.kyoto-u.ac.jp/en/current/how-to/tuition/tuition-and-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lmu-mba",
+   "url": "https://www.som.lmu.de/en/studies/study-offer/master-business-administration/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lmu-mmt",
+   "url": "https://www.som.lmu.de/en/studies/study-offer/master-management-digital-technologies/application-and-submission/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-fees",
+   "url": "https://info.lse.ac.uk/staff/divisions/Planning-Division/Assets/Documents/Table-of-Fees-2026-27-and-PGR-structure-combined-29July26.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lund-bem",
+   "url": "https://www.lunduniversity.lu.se/study/find-education/business-economics-and-management",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lund-msc-af",
+   "url": "http://www.lunduniversity.lu.se/study/accounting-and-finance-masters-programme-one-year-EAGAF",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lund-mscfin",
+   "url": "https://www.lunduniversity.lu.se/study/finance-masters-programme-one-year-EAGFN",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "michigan-bba-tuition",
+   "url": "https://michiganross.umich.edu/undergraduate/bba/admissions/tuition-and-financial-aid",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "michigan-mba-tuition",
+   "url": "https://rossweb.bus.umich.edu/financial-aid/program-overview/mba/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-com-admissions",
+   "url": "https://admissions.ntu.edu.tw/colleges/college-of-management/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-gmba-details",
+   "url": "https://management.ntu.edu.tw/en/gmba2/facts_figures/program_details",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-gmba-tuition",
+   "url": "http://gmba.ntu.edu.tw/en/financing/tuition_and_living_cost",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-oia-tuition",
+   "url": "https://oia.ntu.edu.tw/en/current-students",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nyu-mba-tuition",
+   "url": "https://www.stern.nyu.edu/programs-admissions/full-time-mba/financial-aid/tuition-cost-attendance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sorbonne-actuarial",
+   "url": "https://sciences.sorbonne-universite.fr/en/masters/master-actuarial-science",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sorbonne-tuition",
+   "url": "https://www.sorbonne-universite.fr/en/education/study-sorbonne-university/enrolment-procedures-and-tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tcd-mscfin-fees",
+   "url": "https://www.tcd.ie/business/programmes/masters-programmes/msc-in-finance/fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tcd-pg-fees",
+   "url": "https://www.tcd.ie/courses/postgraduate/fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uiuc-cost-intl",
+   "url": "https://cost.illinois.edu/Home/Cost/I/G/Compare/12/120228/120228",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "um-mba",
+   "url": "https://study.um.edu.my/master-of-business-administration-coursework",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "utexas-bba-cost",
+   "url": "https://www.mccombs.utexas.edu/undergraduate-programs/bba/admissions-and-cost/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "utexas-mba-tuition",
+   "url": "https://www.mccombs.utexas.edu/graduate/mba/full-time-mba/tuition-financial-aid/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "utexas-msf",
+   "url": "https://go.mccombs.utexas.edu/MSF-7793_RFI-LP.html?utm_mkto=7104",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uva-eb-programmes",
+   "url": "https://www.uva.nl/en/programmes/exchange/economics-and-business/economics-and-business.html?origin=7TD4MDSsQ7S1u2BFEecn3aA&cb",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uva-tuition",
+   "url": "https://www.uva.nl/en/education/fees-and-funding/tuition-fees/tuition-fees.html?cb#Faculty-of-Medicine-AMC",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-pgfees",
+   "url": "https://warwick.ac.uk/services/finance/studentfinance/fees/pgfees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-ug-fees",
+   "url": "https://warwick.ac.uk/study/undergraduate/courses-2026/bsc-management-foundation-year/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-bbus",
+   "url": "https://adelaide.edu.au/study/degrees/bachelor-of-business/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-bbus-mktg",
+   "url": "https://adelaide.edu.au/study/degrees/bachelor-of-business-marketing/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-bcom-acc",
+   "url": "https://adelaide.edu.au/study/degrees/bachelor-of-commerce-accounting/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-mba",
+   "url": "https://adelaide.edu.au/study/degrees/master-of-business-administration/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "adelaide-mfin",
+   "url": "https://adelaide.edu.au/study/degrees/master-of-finance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "copenhagen-econ-ku",
+   "url": "https://www.ku.dk/studies/masters/economics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "copenhagen-econ-studyindenmark",
+   "url": "https://studyindenmark.dk/portal/university-of-copenhagen-ucph/city-campus/economics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "fuberlin-mm-application",
+   "url": "https://www.wiwiss.fu-berlin.de/en/studium-lehre/master/m-m/Application/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "fuberlin-ug-fees",
+   "url": "https://www.polsoz.fu-berlin.de/en/kommwiss/studieninteressierte/faq_ba_studieninteressierte/allgemeine-fragen-studieninteressierte/Weitere-Fragen-von-Studieninteressierten/gebuehren.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-mba",
+   "url": "https://www.gla.ac.uk/postgraduate/taught/businessadministration/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-mscfm",
+   "url": "https://www.gla.ac.uk/postgraduate/taught/financemanagement/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-mscmgmt",
+   "url": "https://www.gla.ac.uk/postgraduate/taught/managementwithenterprise/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "isct-tuition",
+   "url": "https://students.isct.ac.jp/plugins/cms/component_download_file.php?type=2&pageId=&contentsId=1&contentsDataId=3639&prevId=&key=c7a12209f9c80f977a48e4602dd1b734.pdf&fileName=tuition-tuition-payment-e",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kth-indmgmt-fees",
+   "url": "https://www.kth.se/en/studies/2.23106/master/industrial-management/fees-industrial-management-1.910344",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ba-mktg",
+   "url": "https://courses.leeds.ac.uk/i476/business-management-with-marketing-ba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-mba",
+   "url": "https://courses.leeds.ac.uk/a992/full-time-mba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-mscfin",
+   "url": "https://courses.leeds.ac.uk/f840/finance-and-investment-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-mscmgmt",
+   "url": "https://courses.leeds.ac.uk/a078/management-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nanjing-tuition",
+   "url": "https://hwxy.nju.edu.cn/English/StudyatNJU/Costs/Tuition/index.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "osaka-econ-grad",
+   "url": "https://www.osaka-u.ac.jp/en/education/announcement/files/economics_grad_2023/@@download/file",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "paris-saclay-english-masters",
+   "url": "https://www.universite-paris-saclay.fr/en/education/masters-programmes-taught-english",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "paris-saclay-mibs",
+   "url": "http://www.universite-paris-saclay.fr/en/education/masters-degree/strategic-management/m2-international-business-and-sustainability-mibs",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "paris-saclay-tuition",
+   "url": "http://www.universite-paris-saclay.fr/en/admission/tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "psu-tuition",
+   "url": "https://tuition.psu.edu/rates-effective-2026-fall-semester",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sheffield-mgmt-msc",
+   "url": "https://sheffield.ac.uk/postgraduate/taught/courses/2027/management-msc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucsd-rady-fees",
+   "url": "https://students.ucsd.edu/finances/fees/registration/2026-27/rady.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uppsala-fees",
+   "url": "https://www.uu.se/en/study/masters-studies/fees.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uwa-fees-browse",
+   "url": "https://www.fees.uwa.edu.au/Browse/BrowseCourses?feeType=INTUG&feeYear=2026",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uwa-mba-calc",
+   "url": "https://www.fees.uwa.edu.au/Calculator?category=INTPG&year=2027&course=42520",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cambridge-eng-course",
+   "url": "https://www.undergraduate.study.cam.ac.uk/courses/engineering-ba-hons-meng",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cambridge-ug-fees",
+   "url": "https://www.undergraduate.study.cam.ac.uk/files/publications/undergraduate_tuition_fees_2026-27.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "harvard-ug-tuition",
+   "url": "https://registrar.fas.harvard.edu/tuition-and-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "imperial-ug-fees-eng",
+   "url": "https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mit-catalog-costs",
+   "url": "http://catalog.mit.edu/mit/undergraduate-education/costs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mit-ug-tuition",
+   "url": "https://registrar.mit.edu/registration-academics/tuition-fees/undergraduate",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-engsci-cis",
+   "url": "https://assets-oxweb.admin.ox.ac.uk/2026-02/Engineering%20Science%20CIS%202026-entry.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-matsci-cis",
+   "url": "https://assets-oxweb-stage.admin.ox.ac.uk/2026-02/Materials Science CIS 2026-entry.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "stanford-tuition",
+   "url": "https://bulletin.stanford.edu/policies/tuition-fees-financial-aid/9-1-tuition",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "stanford-ug-tuition",
+   "url": "https://studentservices.stanford.edu/tuition-rates/2026-2027-undergraduate-tuition-rates",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-courses-eng",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=mechanical-engineering-beng-2024",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-mecheng-beng",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/mechanical-engineering-beng",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "berkeley-fee-schedule",
+   "url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "berkeley-financial-aid",
+   "url": "https://financialaid.berkeley.edu/how-aid-works/student-budgets-cost-of-attendance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cornell-catalog-tuition",
+   "url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cuhk-fees",
+   "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "epfl-tuition",
+   "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hku-fees",
+   "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hku-general-info-pdf",
+   "url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "jhu-eng-programs",
+   "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "jhu-sfs-cost",
+   "url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-tuition",
+   "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "pku-isd-fees",
+   "url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tsinghua-me-admission",
+   "url": "https://me.tsinghua.edu.cn/en/Academic_Future_Students/Admission/General_Admission.htm",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tum-mech-bsc",
+   "url": "https://www.tum.de/en/studies/degree-programs/detail/mechanical-engineering-bachelor-of-science-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tum-tuition",
+   "url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uchicago-pme",
+   "url": "https://pme.uchicago.edu/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "unimelb-2027-fees-pdf",
+   "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "unsw-intl-fees",
+   "url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "upenn-srfs-tuition",
+   "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "yale-coa",
+   "url": "https://finaid.yale.edu/coa",
+   "retrieved_at": "2026-11-25T00:00:00Z"
   }
  ]
 }

@@ -32,10 +32,20 @@ V2_DIR = ROOT / "data" / "versions" / "v2"
 BANNED = re.compile(r"u\.?\s?s\.?\s?news", re.IGNORECASE)
 ID_RE = re.compile(r"^[a-z0-9-]+$")
 FIELDS = {
-    "artificial-intelligence", "computer-engineering", "computer-science",
-    "computational-biology", "cybersecurity", "data-science",
-    "human-computer-interaction", "information-systems", "other-computing",
-    "robotics", "software-engineering",
+    "accounting", "aerospace-engineering", "agriculture",
+    "anthropology", "architecture", "art-design", "artificial-intelligence",
+    "biology", "biomedical-engineering", "business-administration",
+    "chemical-engineering", "chemistry", "civil-engineering",
+    "computer-engineering", "computer-science", "computational-biology",
+    "cybersecurity", "data-science", "dentistry", "economics", "education",
+    "electrical-engineering", "finance", "general-engineering", "geography",
+    "history", "human-computer-interaction", "information-systems",
+    "international-relations", "law", "linguistics", "literature",
+    "management", "marketing", "mathematics", "mechanical-engineering",
+    "medicine", "music", "nursing", "other", "other-computing", "pharmacy",
+    "philosophy", "physics", "political-science", "psychology",
+    "public-health", "robotics", "sociology", "software-engineering",
+    "statistics", "veterinary-medicine",
 }
 STAT_FIELDS = ("total_students", "student_faculty_ratio", "international_pct",
                "graduate_pct", "male_pct", "female_pct")

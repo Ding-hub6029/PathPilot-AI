@@ -4,12 +4,21 @@ import Link from 'next/link';
 import { useApp } from '../lib/store';
 
 /**
- * First-visit reminder (fix 2026-11-25, req. B): when a user first opens
- * the site with no eligibility check yet, a friendly popup points them
- * to the check. Dismissible; once dismissed — or once a check exists —
- * it never reappears (localStorage 'pp-welcome-dismissed'). Motion uses
- * the existing anim-fade-in class, which the global
- * prefers-reduced-motion rule already neutralises.
+ * First-visit reminder (fix 2026-11-25, user testing: "之前的弹窗提示
+ * 怎么没了"). The old version hid itself forever: a permanent
+ * localStorage 'pp-welcome-dismissed' flag plus suppression whenever a
+ * profile draft with target programmes existed — so after one wizard
+ * try it never came back. Now it shows once per SESSION (sessionStorage
+ * 'pp-welcome-shown') whenever the homepage opens with no completed
+ * eligibility check (localStorage 'pp-check-done', set by the results
+ * page). A profile draft alone never suppresses it.
+ *
+ * Rendered OUTSIDE the homepage's .page-enter wrapper (see page.tsx):
+ * .page-enter's fade-slide-up animation ends at translateY(0), which
+ * still creates a containing block for fixed descendants — inside it
+ * the modal's z-[60] would be scoped to the page container and the pet
+ * (z-50, root layout) would render above it. Outside, z-[60] sits in
+ * the root stacking context, above the pet and the hero veil (z-10).
  */
 export function WelcomeModal() {
   const { t } = useApp();
@@ -17,20 +26,14 @@ export function WelcomeModal() {
 
   useEffect(() => {
     try {
-      if (localStorage.getItem('pp-welcome-dismissed')) return;
-      const saved = localStorage.getItem('pp-profile');
-      if (saved) {
-        const p = JSON.parse(saved) as { track?: string; targetProgramIds?: unknown[] };
-        if (p?.track && Array.isArray(p.targetProgramIds) && p.targetProgramIds.length > 0) return;
-      }
-    } catch { /* ignore corrupt local storage */ }
+      if (sessionStorage.getItem('pp-welcome-shown')) return;
+      if (localStorage.getItem('pp-check-done')) return;
+      sessionStorage.setItem('pp-welcome-shown', '1');
+    } catch { /* ignore storage errors */ }
     setOpen(true);
   }, []);
 
-  const dismiss = () => {
-    try { localStorage.setItem('pp-welcome-dismissed', '1'); } catch { /* ignore */ }
-    setOpen(false);
-  };
+  const dismiss = () => setOpen(false);
 
   if (!open) return null;
   return (

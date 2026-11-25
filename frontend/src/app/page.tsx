@@ -10,7 +10,11 @@ import { displayProgramName } from '../lib/programs';
 import { displayProgramInstitutionName } from '../lib/rankings';
 import { WelcomeModal } from '../components/WelcomeModal';
 import { TimelinePanel } from '../components/TimelinePanel';
-import { BeforeAfter } from '../components/BeforeAfter';
+import { CaseCard } from '../components/CaseCard';
+import { NewsSection } from '../components/NewsSection';
+import { ViewTransitionLink } from '../components/ViewTransitionLink';
+import { vtRef } from '../lib/viewTransition';
+import { SUCCESS_CASES, FEATURED_CASE_IDS } from '../lib/cases';
 
 export default function HomePage() {
   const { t, locale, setProfile } = useApp();
@@ -48,19 +52,31 @@ export default function HomePage() {
     router.push('/results');
   };
 
+  const featuredCases = FEATURED_CASE_IDS
+    .map((id) => SUCCESS_CASES.find((c) => c.id === id))
+    .filter((c): c is NonNullable<typeof c> => c !== undefined);
+
   return (
-    <div className="page-enter mx-auto max-w-6xl px-4 py-8">
+    <>
+      {/* WelcomeModal lives OUTSIDE the .page-enter wrapper: the wrapper's
+          fade-slide-up animation ends at translateY(0), which still
+          creates a containing block for fixed descendants — inside it
+          the modal's z-[60] would be scoped to the page container and
+          the pet (z-50, root layout) would render above it. */}
       <WelcomeModal />
-      {/* Hero with compass-rose / route-line draw-in */}
-      <section className="relative grid items-center gap-8 overflow-hidden rounded-3xl bg-navy p-8 text-white md:grid-cols-2">
+      <div className="mx-auto max-w-6xl px-4 py-8">
+      {/* Hero with compass-rose / route-line draw-in.
+          12-column grid (research move 5): copy spans 7, the compass
+          visual spans 5 — deliberate asymmetry instead of a 6/6 split. */}
+      <section className="relative grid items-center gap-8 overflow-hidden rounded-3xl bg-navy p-8 text-white md:grid-cols-12">
         {veil && (
           <div aria-hidden="true" className="anim-veil absolute inset-0 z-10 flex items-center justify-center bg-navy" onAnimationEnd={dismissVeil}>
             <p className="microcopy text-amber">{t('brand')} — {t('tagline')}</p>
           </div>
         )}
-        <div>
+        <div className="md:col-span-7">
           <p className="microcopy anim-fade-up text-amber">{t('tagline')}</p>
-          <h1 className="hero-display anim-fade-up stagger-1 mt-3"><span className="grad-amber-text">{t('home.heroTitle')}</span></h1>
+          <h1 className="hero-display line-mask mt-3"><span className="grad-amber-text" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
           <p className="anim-fade-up stagger-2 mt-4 max-w-md text-white/85">{t('home.heroSub')}</p>
           <div className="anim-fade-up stagger-3 mt-6 flex flex-wrap gap-3">
             <Link href="/wizard" className="btn-press rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.ctaWizard')}</Link>
@@ -72,7 +88,7 @@ export default function HomePage() {
             <span className="microcopy text-white/50">{t('home.heroKicker')}</span>
           </p>
         </div>
-        <div aria-hidden="true" className="mx-auto w-full max-w-md">
+        <div aria-hidden="true" className="mx-auto w-full max-w-md md:col-span-5">
           <svg viewBox="0 0 400 260" className="w-full">
             <defs>
               <radialGradient id="sphereGrad" cx="35%" cy="30%" r="75%">
@@ -100,12 +116,38 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Success cases first (user 2026-11-25): the homepage top shows
+          real applicant-shared cases, not programme names. Header spans
+          8 of 12 columns (research move 5) — the 4 empty cells on the
+          right are deliberate. */}
+      <section className="section-rule mt-10" aria-labelledby="home-cases-title">
+        <div className="grid-12">
+          <div className="md:col-span-8">
+            <h2 id="home-cases-title" className="line-mask text-2xl font-bold"><span>{t('home.casesTitle')}</span></h2>
+            <p className="mt-1 text-sm text-navy/70">{t('home.casesSub')}</p>
+          </div>
+        </div>
+        <div className="grid-12 mt-4">
+          {featuredCases.map((c) => (
+            <div key={c.id} className="md:col-span-6">
+              <CaseCard c={c} />
+            </div>
+          ))}
+        </div>
+        <p className="mt-4">
+          <Link href="/cases" className="btn-press inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.casesViewAll')}</Link>
+        </p>
+      </section>
+
+      {/* Latest news & policy from verified official pages and feeds. */}
+      <NewsSection />
+
       {/* How it works */}
-      <section className="mt-10">
-        <h2 className="text-2xl font-bold">{t('home.howTitle')}</h2>
-        <ol className="mt-4 grid gap-4 md:grid-cols-3">
+      <section className="section-rule mt-10">
+        <h2 className="line-mask text-2xl font-bold"><span>{t('home.howTitle')}</span></h2>
+        <ol className="grid-12 mt-4">
           {[t('home.step1'), t('home.step2'), t('home.step3')].map((s, i) => (
-            <li key={i} className={`card-lift anim-fade-up stagger-${i + 1} rounded-2xl border border-navy/10 bg-white p-5 shadow-sm`}>
+            <li key={i} className={`card-lift anim-fade-up stagger-${i + 1} rounded-2xl border border-navy/10 bg-white p-5 card-surface md:col-span-4`}>
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-teal font-bold text-white">{i + 1}</span>
               <p className="mt-3">{s}</p>
             </li>
@@ -113,16 +155,32 @@ export default function HomePage() {
         </ol>
       </section>
 
-      {/* Timeline + before/after (design upgrade 2026-11-25) */}
+      {/* Timeline (design upgrade 2026-11-25) */}
       <TimelinePanel />
-      <BeforeAfter />
 
-      {/* Programmes — fan-out stack (ref 1) with a verification ring per card */}
-      <section className="mt-10">
-        <h2 className="text-2xl font-bold">{t('home.programsTitle')}</h2>
+      {/* Before / after as a static image (user testing 2026-11-25: the
+          slider was pointless — "你做个图片就行了"). One SVG per locale,
+          same copy as before, no programme facts stated. */}
+      <section className="section-rule mt-10" aria-labelledby="ba-title">
+        <p className="microcopy text-teal-dark">{t('home.beforeAfterTitle')}</p>
+        <h2 id="ba-title" className="line-mask mt-1 text-2xl font-bold tracking-tight"><span>{t('home.beforeAfterTitle')}</span></h2>
+        <img src={`/before-after-${locale}.svg`} alt={t('home.beforeAfterTitle')} className="mt-5 w-full rounded-3xl border border-navy/10 shadow-lg" />
+      </section>
+
+      {/* Programmes — fan-out stack (ref 1) with a verification ring per card.
+          Moved below cases + news (user 2026-11-25); the 8 fully verified
+          programmes stay here, with the eligibility check covering them.
+          Header spans 8 of 12 columns; cards sit on the 12-column grid. */}
+      <section className="section-rule mt-10">
+        <div className="grid-12">
+          <div className="md:col-span-8">
+            <h2 className="line-mask text-2xl font-bold"><span>{t('home.programsTitle')}</span></h2>
+            <p className="mt-1 text-sm text-navy/70">{t('home.browseSub')}</p>
+          </div>
+        </div>
         {programsLoading && <p className="mt-2 text-sm text-navy/60">{t('programs.loading')}</p>}
         {!programsLoading && !programsLive && <p className="mt-2 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('programs.offlineNote')}</p>}
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="grid-12 mt-4">
           {programs.map((p, i) => {
             // Verification ring: real official-source count, capped at 5 for
             // the ring scale; the number in the middle is the true count.
@@ -130,11 +188,13 @@ export default function HomePage() {
             const frac = Math.min(srcCount, 5) / 5;
             const dash = 97.4 * (1 - frac);
             return (
-            <article key={p.id} className={`card-lift anim-fan stagger-${(i % 4) + 1} rounded-2xl border border-navy/10 bg-white p-5 shadow-sm`} style={{ '--fan-rot': `${((i % 4) - 1.5) * 1.2}deg` } as React.CSSProperties}>
+            <article key={p.id} className={`card-lift anim-fan stagger-${(i % 4) + 1} rounded-2xl border border-navy/10 bg-white p-5 card-surface md:col-span-6`} style={{ '--fan-rot': `${((i % 4) - 1.5) * 1.2}deg` } as React.CSSProperties}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-teal">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
-                  <h3 className="mt-1 text-lg font-bold">{displayProgramName(p, locale)}</h3>
+                  {/* Shared element (research move 4): this title morphs
+                      into the programme detail header on navigation. */}
+                  <h3 className="mt-1 text-lg font-bold" ref={vtRef(`program-title-${p.id}`)}>{displayProgramName(p, locale)}</h3>
                 </div>
                 <span className="flex shrink-0 flex-col items-center" aria-label={`${srcCount} ${t('program.sources')}`}>
                   <svg width="40" height="40" viewBox="0 0 36 36" aria-hidden="true">
@@ -150,7 +210,7 @@ export default function HomePage() {
                 {p.ucasCode ? ` · UCAS ${p.ucasCode}` : ''}
               </p>
               <div className="mt-4 flex gap-2">
-                <Link href={`/programs/${p.id}`} className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">{t('results.viewDetail')}</Link>
+                <ViewTransitionLink href={`/programs/${p.id}`} className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">{t('results.viewDetail')}</ViewTransitionLink>
                 <button type="button" onClick={() => trySample(p.degreeLevel === 'undergraduate' ? 'ug' : 'pg')} className="btn-press rounded-full border border-navy/30 px-4 py-2 text-sm font-semibold">
                   {t('home.ctaSample')} · <span className="text-xs font-normal">({t('common.synthetic')})</span>
                 </button>
@@ -160,7 +220,11 @@ export default function HomePage() {
           })}
         </div>
         <p className="mt-3 text-sm text-navy/60">{t('home.sampleNote')}</p>
+        <p className="mt-3">
+          <Link href="/rankings" className="btn-press inline-block rounded-full border border-navy/30 bg-white px-5 py-2.5 font-semibold">{t('home.browseRankings')}</Link>
+        </p>
       </section>
     </div>
+    </>
   );
 }

@@ -1,33 +1,57 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useApp, LOCALES } from '../lib/store';
 
 export default function Header() {
   const { t, locale, setLocale, clearData } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const pathname = usePathname();
+
+  /** Active route: exact match, plus /institutions/* counts as rankings. */
+  const isActive = (href: string) =>
+    pathname === href || (href === '/rankings' && pathname.startsWith('/institutions/'));
 
   const nav = (
     <>
-      <Link href="/" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.home')}</Link>
-      <Link href="/wizard" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.wizard')}</Link>
-      <Link href="/results" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.results')}</Link>
-      <Link href="/rankings" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.rankings')}</Link>
-      <Link href="/report" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.report')}</Link>
+      {(
+        [
+          ['/', 'nav.home'],
+          ['/cases', 'nav.cases'],
+          ['/wizard', 'nav.wizard'],
+          ['/results', 'nav.results'],
+          ['/rankings', 'nav.rankings'],
+          ['/report', 'nav.report'],
+        ] as const
+      ).map(([href, key]) => (
+        <Link
+          key={href}
+          href={href}
+          aria-current={isActive(href) ? 'page' : undefined}
+          className={`link-underline rounded px-2 py-1 hover:bg-white/10${isActive(href) ? ' nav-active' : ''}`}
+        >
+          {t(key)}
+        </Link>
+      ))}
     </>
   );
 
   return (
-    <header className="sticky top-0 z-50 bg-navy text-white shadow-md">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-navy text-white shadow-md">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight" aria-label="PathPilot AI">
-          <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" className="anim-needle">
-            <circle cx="16" cy="16" r="14" fill="none" stroke="#F2A541" strokeWidth="2" />
-            <path d="M16 6 L19 16 L16 26 L13 16 Z" fill="#F2A541" />
-            <path d="M6 16 L16 13 L26 16 L16 19 Z" fill="#0E7C7B" />
-            <circle cx="16" cy="16" r="2.5" fill="#F7F5F0" />
-          </svg>
+          {/* The keyed span remounts on every route change and replays the
+              quarter-turn (anim-brand-turn); the inner SVG keeps its sway. */}
+          <span key={pathname} className="anim-brand-turn">
+            <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" className="anim-needle">
+              <circle cx="16" cy="16" r="14" fill="none" stroke="#F2A541" strokeWidth="2" />
+              <path d="M16 6 L19 16 L16 26 L13 16 Z" fill="#F2A541" />
+              <path d="M6 16 L16 13 L26 16 L16 19 Z" fill="#0E7C7B" />
+              <circle cx="16" cy="16" r="2.5" fill="#F7F5F0" />
+            </svg>
+          </span>
           {t('brand')}
         </Link>
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main">{nav}</nav>

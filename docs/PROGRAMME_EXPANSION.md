@@ -116,17 +116,23 @@ cd ~/workspace/pathpilot-ai
 
 ## Still missing (by priority)
 
-1. **Re-verification pass for the 30 held band-B programmes** (`data/expansions/hold-list.md`): check their fees against official pages; merge whatever verifies. This also fills the 9 profiled institutions that currently have no programmes at all (Cornell, EPFL, TUM, Berkeley, Chicago, Melbourne, UNSW, UPenn, Yale).
-2. **Non-computer fields** at the top-100 schools (engineering, business,
-   medicine, …) — same schema, same rules, new collection rounds.
+1. **Re-verification pass for the 30 held band-B programmes** (`data/expansions/hold-list.md`): check their fees against official pages; merge whatever verifies. (The 9 profiled institutions that had no programmes at all — Cornell, EPFL, TUM, Berkeley, Chicago, Melbourne, UNSW, UPenn, Yale — were filled by the business band on 2026-11-25; all 100 profiled institutions now have ≥1 programme.)
+2. **Non-computer fields** at the top-100 schools — business is done (92 programmes, merged 2026-11-25); engineering, medicine, … are still open — same schema, same rules, new collection rounds.
 3. **Programme promotion to matchable**: per-programme engine rules +
    tests (the eligibility engine's fee/academic rules are currently
    written per programme — UCL, NUS, Imperial — so this is real work per
    programme, not a flag flip).
-4. **Homepage news/cases tabs** （留学资讯 / 成功案例）: sources scoped in
-   `~/workspace/homepage_content_sources.md` (NUS Newsroom RSS, Imperial
-   news feeds, British Council Study UK blog, UCAS key dates, UCL News);
-   the module itself is not built yet.
+4. **Homepage news/cases** （留学资讯 / 成功案例）: BUILT 2026-11-25 — homepage
+   top is success cases (6 featured, all 55 on `/cases`) + latest news &
+   policy (curated link-outs; sources scoped in
+   `~/workspace/homepage_content_sources.md` — NUS Newsroom RSS, Imperial
+   news feeds, British Council Study UK blog, UCAS key dates, UCL News).
+   The expansion programmes are wired into the frontend as a generated
+   offline mirror (`tools/generate_frontend_mirrors.py` →
+   `frontend/src/lib/expansion.ts`); re-run it after the source data
+   changes — `tests/test_frontend_mirrors.py` fails if the mirror is stale.
+   The business band (92 programmes) was merged 2026-11-25, bringing the
+   total to 458; non-computer fields beyond business are still open.
 5. **Institution stats gaps**: any stat no official page states stays
    null; a second pass can try national statistics offices (e.g. HESA
    for the UK, MOE for Singapore/China) where the university itself

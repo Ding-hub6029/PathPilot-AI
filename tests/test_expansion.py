@@ -38,7 +38,9 @@ V2_IDS = set(PROGRAMS.keys())
 def _page_all(path: str, params: dict | None = None) -> list:
     """Walk a cursor-paginated list endpoint to the end."""
     items, cursor = [], None
-    for _ in range(30):
+    # 602 expansion programmes at 20/page need 31 pages (was 30 when the
+    # catalogue was 366); keep headroom for later bands.
+    for _ in range(40):
         query = dict(params or {})
         if cursor:
             query["cursor"] = cursor

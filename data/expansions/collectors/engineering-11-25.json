@@ -1,0 +1,5299 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "hku-mechanical-engineering-beng-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "STEM faculties and schools non-local tuition HKD 280,000 per year for students admitted 2027-28 (includes the STEM fee); non-STEM HKD 250,000 per year; MBBS/BDS HKD 590,000 per year.",
+    "amount": 280000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": "25 August 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "hku-mechanical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "hku-general-info-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-general-info-pdf",
+     "url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "hku-fees",
+     "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "hku-electrical-engineering-beng-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "STEM faculties and schools non-local tuition HKD 280,000 per year for students admitted 2027-28 (includes the STEM fee); non-STEM HKD 250,000 per year; MBBS/BDS HKD 590,000 per year.",
+    "amount": 280000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": "25 August 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "hku-electrical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "hku-general-info-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-general-info-pdf",
+     "url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "hku-fees",
+     "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "hku-civil-engineering-beng-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程学士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "STEM faculties and schools non-local tuition HKD 280,000 per year for students admitted 2027-28 (includes the STEM fee); non-STEM HKD 250,000 per year; MBBS/BDS HKD 590,000 per year.",
+    "amount": 280000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": "25 August 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "hku-civil-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "hku-general-info-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-general-info-pdf",
+     "url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "hku-fees",
+     "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "hku-biomedical-engineering-beng-2027",
+   "institution_id": "university-of-hong-kong",
+   "institution": "University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "STEM faculties and schools non-local tuition HKD 280,000 per year for students admitted 2027-28 (includes the STEM fee); non-STEM HKD 250,000 per year; MBBS/BDS HKD 590,000 per year.",
+    "amount": 280000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": "25 August 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "hku-biomedical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "hku-general-info-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "hku-general-info-pdf",
+     "url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "hku-fees",
+     "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Hong Kong",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "ntu-mechanical-engineering-beng-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Lab-based programmes, non-subsidised (no MOE Tuition Grant): SGD 40,600 per year for AY2026/27; with the MOE grant SGD 21,400 per year (ASEAN SGD 18,050); fees are fixed for the cohort and inclusive of 9% GST. Non-lab programmes SGD 36,350 per year without grant.",
+    "amount": 40600,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ntu-mechanical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-tuition",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "ntu-electrical-electronic-engineering-beng-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Electrical and Electronic Engineering",
+   "name_localized": {
+    "zh-CN": "电气与电子工程学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Lab-based programmes, non-subsidised (no MOE Tuition Grant): SGD 40,600 per year for AY2026/27; with the MOE grant SGD 21,400 per year (ASEAN SGD 18,050); fees are fixed for the cohort and inclusive of 9% GST. Non-lab programmes SGD 36,350 per year without grant.",
+    "amount": 40600,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ntu-electrical-electronic-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-tuition",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "ntu-civil-engineering-beng-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程学士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Lab-based programmes, non-subsidised (no MOE Tuition Grant): SGD 40,600 per year for AY2026/27; with the MOE grant SGD 21,400 per year (ASEAN SGD 18,050); fees are fixed for the cohort and inclusive of 9% GST. Non-lab programmes SGD 36,350 per year without grant.",
+    "amount": 40600,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ntu-civil-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-tuition",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "ntu-chemical-biomolecular-engineering-beng-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Chemical and Biomolecular Engineering",
+   "name_localized": {
+    "zh-CN": "化学与生物分子工程学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Lab-based programmes, non-subsidised (no MOE Tuition Grant): SGD 40,600 per year for AY2026/27; with the MOE grant SGD 21,400 per year (ASEAN SGD 18,050); fees are fixed for the cohort and inclusive of 9% GST. Non-lab programmes SGD 36,350 per year without grant.",
+    "amount": 40600,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ntu-chemical-biomolecular-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-tuition",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "ntu-aerospace-engineering-beng-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Aerospace Engineering",
+   "name_localized": {
+    "zh-CN": "航空航天工程学士"
+   },
+   "field": "aerospace-engineering",
+   "field_zh": "航空航天工程",
+   "subject": "aerospace-engineering",
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Lab-based programmes, non-subsidised (no MOE Tuition Grant): SGD 40,600 per year for AY2026/27; with the MOE grant SGD 21,400 per year (ASEAN SGD 18,050); fees are fixed for the cohort and inclusive of 9% GST. Non-lab programmes SGD 36,350 per year without grant.",
+    "amount": 40600,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ntu-aerospace-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-tuition",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "ntu-bioengineering-beng-2027",
+   "institution_id": "ntu",
+   "institution": "Nanyang Technological University",
+   "country": "SG",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Bioengineering",
+   "name_localized": {
+    "zh-CN": "生物工程学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "SGD",
+    "period": "per_year",
+    "notes": "Lab-based programmes, non-subsidised (no MOE Tuition Grant): SGD 40,600 per year for AY2026/27; with the MOE grant SGD 21,400 per year (ASEAN SGD 18,050); fees are fixed for the cohort and inclusive of 9% GST. Non-lab programmes SGD 36,350 per year without grant.",
+    "amount": 40600,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ntu-bioengineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "ntu-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ntu-tuition",
+     "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Singapore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "peking-aerospace-engineering-beng-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Aerospace Engineering",
+   "name_localized": {
+    "zh-CN": "航空航天工程学士"
+   },
+   "field": "aerospace-engineering",
+   "field_zh": "航空航天工程",
+   "subject": "aerospace-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Science and Engineering tuition RMB 30,000 per academic year for international undergraduates (International Students Division); Humanities and Social Sciences RMB 26,000 per academic year.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "peking-aerospace-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "pku-isd-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-isd-fees",
+     "url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "peking-biomedical-engineering-beng-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Science and Engineering tuition RMB 30,000 per academic year for international undergraduates (International Students Division); Humanities and Social Sciences RMB 26,000 per academic year.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "peking-biomedical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "pku-isd-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-isd-fees",
+     "url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "peking-energy-resources-engineering-beng-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Energy and Resources Engineering",
+   "name_localized": {
+    "zh-CN": "能源与资源工程学士"
+   },
+   "field": "general-engineering",
+   "field_zh": "工程学",
+   "subject": "general-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Science and Engineering tuition RMB 30,000 per academic year for international undergraduates (International Students Division); Humanities and Social Sciences RMB 26,000 per academic year.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "peking-energy-resources-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "pku-isd-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-isd-fees",
+     "url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "peking-theoretical-applied-mechanics-beng-2027",
+   "institution_id": "peking-university",
+   "institution": "Peking University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Theoretical and Applied Mechanics",
+   "name_localized": {
+    "zh-CN": "理论与应用力学学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Science and Engineering tuition RMB 30,000 per academic year for international undergraduates (International Students Division); Humanities and Social Sciences RMB 26,000 per academic year.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "peking-theoretical-applied-mechanics-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "pku-isd-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "pku-isd-fees",
+     "url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "tsinghua-mechanical-engineering-beng-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Chinese-English taught programmes including Mechanical Engineering, Electronic Information, Automation, Mathematics, Physics and Modern Engineering, Chemistry and Life Science: RMB 30,000 per year for 2027 entry; English-taught Zijing programmes RMB 100,000 per year. Tsinghua admits undergraduates by division/college rather than single major.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-mechanical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-fees",
+     "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "tsinghua-me-admission",
+     "url": "https://me.tsinghua.edu.cn/en/Academic_Future_Students/Admission/General_Admission.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "tsinghua-electrical-engineering-beng-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Chinese-English taught programmes including Electronic Information: RMB 30,000 per year for 2027 entry; English-taught Zijing programmes RMB 100,000 per year. Tsinghua admits undergraduates by division/college rather than single major; this programme is admitted via the Electronic Information division.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-electrical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-fees",
+     "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "tsinghua-civil-engineering-beng-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程学士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Chinese-English taught programmes including Mechanical Engineering, Electronic Information, Automation, Mathematics, Physics and Modern Engineering, Chemistry and Life Science: RMB 30,000 per year for 2027 entry; English-taught Zijing programmes RMB 100,000 per year. Tsinghua admits undergraduates by division/college rather than single major.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-civil-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-fees",
+     "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "tsinghua-chemical-engineering-beng-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Chinese-English taught programmes including Mechanical Engineering, Electronic Information, Automation, Mathematics, Physics and Modern Engineering, Chemistry and Life Science: RMB 30,000 per year for 2027 entry; English-taught Zijing programmes RMB 100,000 per year. Tsinghua admits undergraduates by division/college rather than single major.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-chemical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-fees",
+     "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "tsinghua-aerospace-engineering-beng-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Aerospace Engineering",
+   "name_localized": {
+    "zh-CN": "航空航天工程学士"
+   },
+   "field": "aerospace-engineering",
+   "field_zh": "航空航天工程",
+   "subject": "aerospace-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Chinese-English taught programmes including Mechanical Engineering, Electronic Information, Automation, Mathematics, Physics and Modern Engineering, Chemistry and Life Science: RMB 30,000 per year for 2027 entry; English-taught Zijing programmes RMB 100,000 per year. Tsinghua admits undergraduates by division/college rather than single major.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-aerospace-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-fees",
+     "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "tsinghua-biomedical-engineering-beng-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Chinese-English taught programmes including Mechanical Engineering, Electronic Information, Automation, Mathematics, Physics and Modern Engineering, Chemistry and Life Science: RMB 30,000 per year for 2027 entry; English-taught Zijing programmes RMB 100,000 per year. Tsinghua admits undergraduates by division/college rather than single major.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-biomedical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-fees",
+     "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "tsinghua-automation-beng-2027",
+   "institution_id": "tsinghua-university",
+   "institution": "Tsinghua University",
+   "country": "CN",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Automation",
+   "name_localized": {
+    "zh-CN": "自动化工程学士"
+   },
+   "field": "general-engineering",
+   "field_zh": "工程学",
+   "subject": "general-engineering",
+   "fees": {
+    "currency": "CNY",
+    "period": "per_year",
+    "notes": "Chinese-English taught programmes including Mechanical Engineering, Electronic Information, Automation, Mathematics, Physics and Modern Engineering, Chemistry and Life Science: RMB 30,000 per year for 2027 entry; English-taught Zijing programmes RMB 100,000 per year. Tsinghua admits undergraduates by division/college rather than single major.",
+    "amount": 30000,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tsinghua-automation-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tsinghua-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tsinghua-fees",
+     "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Beijing",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "upenn-mechanical-engineering-bse-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Engineering in Mechanical Engineering and Applied Mechanics",
+   "name_localized": {
+    "zh-CN": "机械工程与应用力学工程学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 65,670 per year for 2026/27; one rate for all undergraduates across all schools; mandatory fees of USD 8,308 per year apply on top.",
+    "amount": 65670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "upenn-mechanical-engineering-bse-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-srfs-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-srfs-tuition",
+     "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Philadelphia",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "upenn-electrical-engineering-bse-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Engineering in Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 65,670 per year for 2026/27; one rate for all undergraduates across all schools; mandatory fees of USD 8,308 per year apply on top.",
+    "amount": 65670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "upenn-electrical-engineering-bse-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-srfs-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-srfs-tuition",
+     "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Philadelphia",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "upenn-chemical-biomolecular-engineering-bse-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Engineering in Chemical and Biomolecular Engineering",
+   "name_localized": {
+    "zh-CN": "化学与生物分子工程学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 65,670 per year for 2026/27; one rate for all undergraduates across all schools; mandatory fees of USD 8,308 per year apply on top.",
+    "amount": 65670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "upenn-chemical-biomolecular-engineering-bse-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-srfs-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-srfs-tuition",
+     "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Philadelphia",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "upenn-bioengineering-bse-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Engineering in Bioengineering",
+   "name_localized": {
+    "zh-CN": "生物工程学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 65,670 per year for 2026/27; one rate for all undergraduates across all schools; mandatory fees of USD 8,308 per year apply on top.",
+    "amount": 65670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "upenn-bioengineering-bse-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-srfs-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-srfs-tuition",
+     "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Philadelphia",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "upenn-materials-science-engineering-bse-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Engineering in Materials Science and Engineering",
+   "name_localized": {
+    "zh-CN": "材料科学与工程学士"
+   },
+   "field": "general-engineering",
+   "field_zh": "工程学",
+   "subject": "general-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 65,670 per year for 2026/27; one rate for all undergraduates across all schools; mandatory fees of USD 8,308 per year apply on top.",
+    "amount": 65670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "upenn-materials-science-engineering-bse-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-srfs-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-srfs-tuition",
+     "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Philadelphia",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "upenn-systems-engineering-bse-2027",
+   "institution_id": "university-of-pennsylvania",
+   "institution": "University of Pennsylvania",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Engineering in Systems Engineering",
+   "name_localized": {
+    "zh-CN": "系统工程学士"
+   },
+   "field": "general-engineering",
+   "field_zh": "工程学",
+   "subject": "general-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Undergraduate tuition USD 65,670 per year for 2026/27; one rate for all undergraduates across all schools; mandatory fees of USD 8,308 per year apply on top.",
+    "amount": 65670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "upenn-systems-engineering-bse-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "upenn-srfs-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "upenn-srfs-tuition",
+     "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Philadelphia",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cornell-mechanical-engineering-bs-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程理学学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Endowed Colleges undergraduate tuition USD 73,946 per year for 2026-27 (the College of Engineering is an endowed college); mandatory fees, housing and food are charged on top.",
+    "amount": 73946,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cornell-mechanical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-catalog-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-catalog-tuition",
+     "url": "https://catalog.cornell.edu/general-information/tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Ithaca",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cornell-electrical-computer-engineering-bs-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Electrical and Computer Engineering",
+   "name_localized": {
+    "zh-CN": "电气与计算机工程理学学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Endowed Colleges undergraduate tuition USD 73,946 per year for 2026-27 (the College of Engineering is an endowed college); mandatory fees, housing and food are charged on top. Joint electrical and computer engineering programme; computer content also present.",
+    "amount": 73946,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cornell-electrical-computer-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-catalog-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-catalog-tuition",
+     "url": "https://catalog.cornell.edu/general-information/tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Ithaca",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cornell-civil-engineering-bs-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程理学学士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Endowed Colleges undergraduate tuition USD 73,946 per year for 2026-27 (the College of Engineering is an endowed college); mandatory fees, housing and food are charged on top.",
+    "amount": 73946,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cornell-civil-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-catalog-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-catalog-tuition",
+     "url": "https://catalog.cornell.edu/general-information/tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Ithaca",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cornell-chemical-engineering-bs-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程理学学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Endowed Colleges undergraduate tuition USD 73,946 per year for 2026-27 (the College of Engineering is an endowed college); mandatory fees, housing and food are charged on top.",
+    "amount": 73946,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cornell-chemical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-catalog-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-catalog-tuition",
+     "url": "https://catalog.cornell.edu/general-information/tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Ithaca",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cornell-biomedical-engineering-bs-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程理学学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Endowed Colleges undergraduate tuition USD 73,946 per year for 2026-27 (the College of Engineering is an endowed college); mandatory fees, housing and food are charged on top.",
+    "amount": 73946,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cornell-biomedical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-catalog-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-catalog-tuition",
+     "url": "https://catalog.cornell.edu/general-information/tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Ithaca",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cornell-materials-science-engineering-bs-2027",
+   "institution_id": "cornell-university",
+   "institution": "Cornell University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Materials Science and Engineering",
+   "name_localized": {
+    "zh-CN": "材料科学与工程理学学士"
+   },
+   "field": "general-engineering",
+   "field_zh": "工程学",
+   "subject": "general-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Endowed Colleges undergraduate tuition USD 73,946 per year for 2026-27 (the College of Engineering is an endowed college); mandatory fees, housing and food are charged on top.",
+    "amount": 73946,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cornell-materials-science-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "cornell-catalog-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cornell-catalog-tuition",
+     "url": "https://catalog.cornell.edu/general-information/tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Ithaca",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "yale-mechanical-engineering-bs-2027",
+   "institution_id": "yale-university",
+   "institution": "Yale University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程理学学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Yale College tuition USD 72,500 per year for 2026-27; one rate for every undergraduate, no separate international rate; Student Activity Fee USD 185 on top.",
+    "amount": 72500,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "yale-mechanical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "yale-coa"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "yale-coa",
+     "url": "https://finaid.yale.edu/coa",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "New Haven",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "yale-electrical-engineering-bs-2027",
+   "institution_id": "yale-university",
+   "institution": "Yale University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程理学学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Yale College tuition USD 72,500 per year for 2026-27; one rate for every undergraduate, no separate international rate; Student Activity Fee USD 185 on top.",
+    "amount": 72500,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "yale-electrical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "yale-coa"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "yale-coa",
+     "url": "https://finaid.yale.edu/coa",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "New Haven",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "yale-chemical-engineering-bs-2027",
+   "institution_id": "yale-university",
+   "institution": "Yale University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程理学学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Yale College tuition USD 72,500 per year for 2026-27; one rate for every undergraduate, no separate international rate; Student Activity Fee USD 185 on top.",
+    "amount": 72500,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "yale-chemical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "yale-coa"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "yale-coa",
+     "url": "https://finaid.yale.edu/coa",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "New Haven",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "yale-biomedical-engineering-bs-2027",
+   "institution_id": "yale-university",
+   "institution": "Yale University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程理学学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Yale College tuition USD 72,500 per year for 2026-27; one rate for every undergraduate, no separate international rate; Student Activity Fee USD 185 on top.",
+    "amount": 72500,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "yale-biomedical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "yale-coa"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "yale-coa",
+     "url": "https://finaid.yale.edu/coa",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "New Haven",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cuhk-mechanical-engineering-beng-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local undergraduate tuition HKD 230,000 per year for 2027-28; any yearly adjustment for the 2027 cohort is capped at 3%; local students HKD 49,500 per year. Mechanical Engineering is offered as Mechanical and Automation Engineering.",
+    "amount": 230000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cuhk-mechanical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-fees",
+     "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sha Tin",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cuhk-electronic-engineering-beng-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Electronic Engineering",
+   "name_localized": {
+    "zh-CN": "电子工程学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local undergraduate tuition HKD 230,000 per year for 2027-28; any yearly adjustment for the 2027 cohort is capped at 3%; local students HKD 49,500 per year.",
+    "amount": 230000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cuhk-electronic-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-fees",
+     "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sha Tin",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cuhk-biomedical-engineering-beng-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local undergraduate tuition HKD 230,000 per year for 2027-28; any yearly adjustment for the 2027 cohort is capped at 3%; local students HKD 49,500 per year.",
+    "amount": 230000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cuhk-biomedical-engineering-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-fees",
+     "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sha Tin",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "cuhk-systems-engineering-management-beng-2027",
+   "institution_id": "chinese-university-of-hong-kong",
+   "institution": "Chinese University of Hong Kong",
+   "country": "HK",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering in Systems Engineering and Engineering Management",
+   "name_localized": {
+    "zh-CN": "系统工程与工程管理学士"
+   },
+   "field": "general-engineering",
+   "field_zh": "工程学",
+   "subject": "general-engineering",
+   "fees": {
+    "currency": "HKD",
+    "period": "per_year",
+    "notes": "Non-local undergraduate tuition HKD 230,000 per year for 2027-28; any yearly adjustment for the 2027 cohort is capped at 3%; local students HKD 49,500 per year.",
+    "amount": 230000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cuhk-systems-engineering-management-beng-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "cuhk-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cuhk-fees",
+     "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sha Tin",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "unsw-mechanical-engineering-beng-hons-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering (Honours) in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程学士（荣誉）"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 international tuition AUD 1,330 per unit of credit for engineering disciplines; 48 units of credit is the standard full-time load for one year, i.e. AUD 63,840 per year.",
+    "amount": 63840,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "unsw-mechanical-engineering-beng-hons-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-intl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-intl-fees",
+     "url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sydney",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "unsw-electrical-engineering-beng-hons-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering (Honours) in Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程学士（荣誉）"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 international tuition AUD 1,330 per unit of credit for engineering disciplines; 48 units of credit is the standard full-time load for one year, i.e. AUD 63,840 per year.",
+    "amount": 63840,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "unsw-electrical-engineering-beng-hons-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-intl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-intl-fees",
+     "url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sydney",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "unsw-civil-engineering-beng-hons-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering (Honours) in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程学士（荣誉）"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 international tuition AUD 1,330 per unit of credit for engineering disciplines; 48 units of credit is the standard full-time load for one year, i.e. AUD 63,840 per year.",
+    "amount": 63840,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "unsw-civil-engineering-beng-hons-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-intl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-intl-fees",
+     "url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sydney",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "unsw-chemical-engineering-beng-hons-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering (Honours) in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程学士（荣誉）"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 international tuition AUD 1,330 per unit of credit for engineering disciplines; 48 units of credit is the standard full-time load for one year, i.e. AUD 63,840 per year.",
+    "amount": 63840,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "unsw-chemical-engineering-beng-hons-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-intl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-intl-fees",
+     "url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sydney",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "unsw-aerospace-engineering-beng-hons-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering (Honours) in Aerospace Engineering",
+   "name_localized": {
+    "zh-CN": "航空航天工程学士（荣誉）"
+   },
+   "field": "aerospace-engineering",
+   "field_zh": "航空航天工程",
+   "subject": "aerospace-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 international tuition AUD 1,330 per unit of credit for engineering disciplines; 48 units of credit is the standard full-time load for one year, i.e. AUD 63,840 per year.",
+    "amount": 63840,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "unsw-aerospace-engineering-beng-hons-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-intl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-intl-fees",
+     "url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sydney",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "unsw-biomedical-engineering-beng-hons-2027",
+   "institution_id": "university-of-new-south-wales",
+   "institution": "University of New South Wales",
+   "country": "AU",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Engineering (Honours) in Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程学士（荣誉）"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 international tuition AUD 1,330 per unit of credit for engineering disciplines; 48 units of credit is the standard full-time load for one year, i.e. AUD 63,840 per year.",
+    "amount": 63840,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "unsw-biomedical-engineering-beng-hons-2027-academic",
+     "category": "academic",
+     "description": "Secondary-school completion and the university's general entrance requirements apply; no programme-specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unsw-intl-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unsw-intl-fees",
+     "url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sydney",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "jhu-biomedical-engineering-bs-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程理学学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time undergraduate tuition USD 68,670 per year for 2026-27 (12+ credits both semesters); one rate for all undergraduates regardless of nationality; one-time matriculation fee USD 500 in the freshman year.",
+    "amount": 68670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-biomedical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-sfs-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-sfs-cost",
+     "url": "https://sfs.jhu.edu/cost-tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "jhu-eng-programs",
+     "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "jhu-chemical-biomolecular-engineering-bs-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Chemical and Biomolecular Engineering",
+   "name_localized": {
+    "zh-CN": "化学与生物分子工程理学学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time undergraduate tuition USD 68,670 per year for 2026-27 (12+ credits both semesters); one rate for all undergraduates regardless of nationality; one-time matriculation fee USD 500 in the freshman year.",
+    "amount": 68670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-chemical-biomolecular-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-sfs-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-sfs-cost",
+     "url": "https://sfs.jhu.edu/cost-tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "jhu-eng-programs",
+     "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "jhu-civil-engineering-bs-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程理学学士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time undergraduate tuition USD 68,670 per year for 2026-27 (12+ credits both semesters); one rate for all undergraduates regardless of nationality; one-time matriculation fee USD 500 in the freshman year.",
+    "amount": 68670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-civil-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-sfs-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-sfs-cost",
+     "url": "https://sfs.jhu.edu/cost-tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "jhu-eng-programs",
+     "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "jhu-electrical-engineering-bs-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程理学学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time undergraduate tuition USD 68,670 per year for 2026-27 (12+ credits both semesters); one rate for all undergraduates regardless of nationality; one-time matriculation fee USD 500 in the freshman year.",
+    "amount": 68670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-electrical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-sfs-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-sfs-cost",
+     "url": "https://sfs.jhu.edu/cost-tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "jhu-eng-programs",
+     "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "jhu-mechanical-engineering-bs-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程理学学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time undergraduate tuition USD 68,670 per year for 2026-27 (12+ credits both semesters); one rate for all undergraduates regardless of nationality; one-time matriculation fee USD 500 in the freshman year.",
+    "amount": 68670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-mechanical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-sfs-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-sfs-cost",
+     "url": "https://sfs.jhu.edu/cost-tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "jhu-eng-programs",
+     "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "jhu-materials-science-engineering-bs-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Materials Science and Engineering",
+   "name_localized": {
+    "zh-CN": "材料科学与工程理学学士"
+   },
+   "field": "general-engineering",
+   "field_zh": "工程学",
+   "subject": "general-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time undergraduate tuition USD 68,670 per year for 2026-27 (12+ credits both semesters); one rate for all undergraduates regardless of nationality; one-time matriculation fee USD 500 in the freshman year.",
+    "amount": 68670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-materials-science-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-sfs-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-sfs-cost",
+     "url": "https://sfs.jhu.edu/cost-tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "jhu-eng-programs",
+     "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "jhu-systems-engineering-bs-2027",
+   "institution_id": "johns-hopkins-university",
+   "institution": "Johns Hopkins University",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Systems Engineering",
+   "name_localized": {
+    "zh-CN": "系统工程理学学士"
+   },
+   "field": "general-engineering",
+   "field_zh": "工程学",
+   "subject": "general-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Full-time undergraduate tuition USD 68,670 per year for 2026-27 (12+ credits both semesters); one rate for all undergraduates regardless of nationality; one-time matriculation fee USD 500 in the freshman year.",
+    "amount": 68670,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "jhu-systems-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "jhu-sfs-cost"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "jhu-sfs-cost",
+     "url": "https://sfs.jhu.edu/cost-tuition/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "jhu-eng-programs",
+     "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Baltimore",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "berkeley-mechanical-engineering-bs-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程理学学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Nonresident undergraduate tuition and fees USD 57,484 per year for students entering 2026-27: USD 18,214 tuition and fees plus USD 39,270 Nonresident Supplemental Tuition; Berkeley SHIP health insurance (USD 5,066 per year) is charged on top unless waived.",
+    "amount": 57484,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "berkeley-mechanical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fee-schedule"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-fee-schedule",
+     "url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "berkeley-financial-aid",
+     "url": "https://financialaid.berkeley.edu/how-aid-works/student-budgets-cost-of-attendance/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berkeley",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "berkeley-electrical-engineering-computer-sciences-bs-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Electrical Engineering and Computer Sciences",
+   "name_localized": {
+    "zh-CN": "电气工程与计算机科学理学学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Nonresident undergraduate tuition and fees USD 57,484 per year for students entering 2026-27: USD 18,214 tuition and fees plus USD 39,270 Nonresident Supplemental Tuition; Berkeley SHIP health insurance (USD 5,066 per year) is charged on top unless waived. Joint electrical engineering and computer sciences programme; computer content also present.",
+    "amount": 57484,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "berkeley-electrical-engineering-computer-sciences-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fee-schedule"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-fee-schedule",
+     "url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "berkeley-financial-aid",
+     "url": "https://financialaid.berkeley.edu/how-aid-works/student-budgets-cost-of-attendance/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berkeley",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "berkeley-civil-engineering-bs-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程理学学士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Nonresident undergraduate tuition and fees USD 57,484 per year for students entering 2026-27: USD 18,214 tuition and fees plus USD 39,270 Nonresident Supplemental Tuition; Berkeley SHIP health insurance (USD 5,066 per year) is charged on top unless waived.",
+    "amount": 57484,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "berkeley-civil-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fee-schedule"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-fee-schedule",
+     "url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "berkeley-financial-aid",
+     "url": "https://financialaid.berkeley.edu/how-aid-works/student-budgets-cost-of-attendance/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berkeley",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "berkeley-chemical-engineering-bs-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程理学学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Nonresident undergraduate tuition and fees USD 57,484 per year for students entering 2026-27: USD 18,214 tuition and fees plus USD 39,270 Nonresident Supplemental Tuition; Berkeley SHIP health insurance (USD 5,066 per year) is charged on top unless waived.",
+    "amount": 57484,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "berkeley-chemical-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fee-schedule"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-fee-schedule",
+     "url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "berkeley-financial-aid",
+     "url": "https://financialaid.berkeley.edu/how-aid-works/student-budgets-cost-of-attendance/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berkeley",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "berkeley-bioengineering-bs-2027",
+   "institution_id": "university-of-california-berkeley",
+   "institution": "University of California, Berkeley",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Bioengineering",
+   "name_localized": {
+    "zh-CN": "生物工程理学学士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "Nonresident undergraduate tuition and fees USD 57,484 per year for students entering 2026-27: USD 18,214 tuition and fees plus USD 39,270 Nonresident Supplemental Tuition; Berkeley SHIP health insurance (USD 5,066 per year) is charged on top unless waived.",
+    "amount": 57484,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "berkeley-bioengineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "berkeley-fee-schedule"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "berkeley-fee-schedule",
+     "url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "berkeley-financial-aid",
+     "url": "https://financialaid.berkeley.edu/how-aid-works/student-budgets-cost-of-attendance/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Berkeley",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "epfl-mechanical-engineering-bsc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程理学学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-mechanical-engineering-bsc-2027-academic",
+     "category": "academic",
+     "description": "Bachelor's programmes are taught mainly in French; French proficiency (B2) is required and applicants whose school certificate does not give direct access must pass EPFL's entrance examination; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "epfl-electrical-engineering-bsc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程理学学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-electrical-engineering-bsc-2027-academic",
+     "category": "academic",
+     "description": "Bachelor's programmes are taught mainly in French; French proficiency (B2) is required and applicants whose school certificate does not give direct access must pass EPFL's entrance examination; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "epfl-civil-engineering-bsc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程理学学士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-civil-engineering-bsc-2027-academic",
+     "category": "academic",
+     "description": "Bachelor's programmes are taught mainly in French; French proficiency (B2) is required and applicants whose school certificate does not give direct access must pass EPFL's entrance examination; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "epfl-chemical-engineering-bsc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程理学学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-chemical-engineering-bsc-2027-academic",
+     "category": "academic",
+     "description": "Bachelor's programmes are taught mainly in French; French proficiency (B2) is required and applicants whose school certificate does not give direct access must pass EPFL's entrance examination; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "epfl-mechanical-engineering-msc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程理学硕士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-mechanical-engineering-msc-2027-academic",
+     "category": "academic",
+     "description": "Master's programmes are taught mainly in English; a relevant bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "epfl-electrical-engineering-msc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程理学硕士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-electrical-engineering-msc-2027-academic",
+     "category": "academic",
+     "description": "Master's programmes are taught mainly in English; a relevant bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "epfl-civil-engineering-msc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程理学硕士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-civil-engineering-msc-2027-academic",
+     "category": "academic",
+     "description": "Master's programmes are taught mainly in English; a relevant bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "epfl-chemical-engineering-msc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程理学硕士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-chemical-engineering-msc-2027-academic",
+     "category": "academic",
+     "description": "Master's programmes are taught mainly in English; a relevant bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "melbourne-mechanical-engineering-meng-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程硕士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 first-year international fee AUD 66,752 per year for the three-year Master of Engineering degrees; indicative total course fee about AUD 220,950 with estimated annual increases. Melbourne Model: no undergraduate engineering degree — engineering is graduate-entry after a bachelor's degree.",
+    "amount": 66752,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "melbourne-mechanical-engineering-meng-2027-academic",
+     "category": "academic",
+     "description": "Melbourne Model: engineering is graduate-entry — a prior bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unimelb-2027-fees-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unimelb-2027-fees-pdf",
+     "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Melbourne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "melbourne-civil-engineering-meng-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程硕士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 first-year international fee AUD 66,752 per year for the three-year Master of Engineering degrees; indicative total course fee about AUD 220,950 with estimated annual increases. Melbourne Model: no undergraduate engineering degree — engineering is graduate-entry after a bachelor's degree.",
+    "amount": 66752,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "melbourne-civil-engineering-meng-2027-academic",
+     "category": "academic",
+     "description": "Melbourne Model: engineering is graduate-entry — a prior bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unimelb-2027-fees-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unimelb-2027-fees-pdf",
+     "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Melbourne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "melbourne-electrical-engineering-meng-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Electrical Engineering",
+   "name_localized": {
+    "zh-CN": "电气工程硕士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 first-year international fee AUD 66,752 per year for the three-year Master of Engineering degrees; indicative total course fee about AUD 220,950 with estimated annual increases. Melbourne Model: no undergraduate engineering degree — engineering is graduate-entry after a bachelor's degree.",
+    "amount": 66752,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "melbourne-electrical-engineering-meng-2027-academic",
+     "category": "academic",
+     "description": "Melbourne Model: engineering is graduate-entry — a prior bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unimelb-2027-fees-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unimelb-2027-fees-pdf",
+     "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Melbourne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "melbourne-chemical-engineering-meng-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程硕士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 first-year international fee AUD 66,752 per year for the three-year Master of Engineering degrees; indicative total course fee about AUD 220,950 with estimated annual increases. Melbourne Model: no undergraduate engineering degree — engineering is graduate-entry after a bachelor's degree.",
+    "amount": 66752,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "melbourne-chemical-engineering-meng-2027-academic",
+     "category": "academic",
+     "description": "Melbourne Model: engineering is graduate-entry — a prior bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unimelb-2027-fees-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unimelb-2027-fees-pdf",
+     "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Melbourne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "melbourne-biomedical-engineering-meng-2027",
+   "institution_id": "university-of-melbourne",
+   "institution": "University of Melbourne",
+   "country": "AU",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Biomedical Engineering",
+   "name_localized": {
+    "zh-CN": "生物医学工程硕士"
+   },
+   "field": "biomedical-engineering",
+   "field_zh": "生物医学工程",
+   "subject": "biomedical-engineering",
+   "fees": {
+    "currency": "AUD",
+    "period": "per_year",
+    "notes": "2027 first-year international fee AUD 66,752 per year for the three-year Master of Engineering degrees; indicative total course fee about AUD 220,950 with estimated annual increases. Melbourne Model: no undergraduate engineering degree — engineering is graduate-entry after a bachelor's degree.",
+    "amount": 66752,
+    "residency": "international",
+    "academic_year": "2027"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "melbourne-biomedical-engineering-meng-2027-academic",
+     "category": "academic",
+     "description": "Melbourne Model: engineering is graduate-entry — a prior bachelor's degree is required; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "unimelb-2027-fees-pdf"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "unimelb-2027-fees-pdf",
+     "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Melbourne",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "chicago-molecular-engineering-bs-2027",
+   "institution_id": "university-of-chicago",
+   "institution": "University of Chicago",
+   "country": "US",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Molecular Engineering",
+   "name_localized": {
+    "zh-CN": "分子工程理学学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "USD",
+    "period": "per_year",
+    "notes": "University of Chicago College tuition USD 75,960 per year for 2026-27 (USD 25,320 per quarter); one rate for all undergraduates. Pritzker School of Molecular Engineering; tracks include Chemical and Biomolecular Engineering.",
+    "amount": 75960,
+    "residency": "all",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "chicago-molecular-engineering-bs-2027-academic",
+     "category": "academic",
+     "description": "Admission is central (applicants do not apply to a major); secondary-school completion and the university's general entrance requirements apply — no per-major threshold is published.",
+     "threshold": null,
+     "source_ids": [
+      "uchicago-pme"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uchicago-pme",
+     "url": "https://pme.uchicago.edu/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Chicago",
+   "duration": "4 years",
+   "duration_months": 48
+  },
+  {
+   "id": "tum-mechanical-engineering-bsc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程理学学士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Non-EU tuition EUR 3,000 per semester, i.e. EUR 6,000 per year, for the Mechanical Engineering BSc (pre-winter-2027/28 rate); TUM announces higher rates (EUR 2,300 or 3,400 per semester for bachelor's) for new entrants from winter semester 2027/28; a semester contribution applies on top.",
+    "amount": 6000,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-mechanical-engineering-bsc-2027-academic",
+     "category": "academic",
+     "description": "German is the teaching language; German proficiency proof is required; a recognised university entrance qualification and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "tum-mech-bsc",
+     "url": "https://www.tum.de/en/studies/degree-programs/detail/mechanical-engineering-bachelor-of-science-bsc",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "tum-electrical-engineering-information-technology-bsc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Electrical Engineering and Information Technology",
+   "name_localized": {
+    "zh-CN": "电气工程与信息技术理学学士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: bachelor's programmes usually EUR 2,000 or EUR 3,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-electrical-engineering-information-technology-bsc-2027-academic",
+     "category": "academic",
+     "description": "German is the teaching language; German proficiency proof is required; a recognised university entrance qualification and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "tum-civil-engineering-bsc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程理学学士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: bachelor's programmes usually EUR 2,000 or EUR 3,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-civil-engineering-bsc-2027-academic",
+     "category": "academic",
+     "description": "German is the teaching language; German proficiency proof is required; a recognised university entrance qualification and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "tum-chemical-engineering-bsc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程理学学士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: bachelor's programmes usually EUR 2,000 or EUR 3,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-chemical-engineering-bsc-2027-academic",
+     "category": "academic",
+     "description": "German is the teaching language; German proficiency proof is required; a recognised university entrance qualification and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "tum-aerospace-bsc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Aerospace",
+   "name_localized": {
+    "zh-CN": "航空航天理学学士"
+   },
+   "field": "aerospace-engineering",
+   "field_zh": "航空航天工程",
+   "subject": "aerospace-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: bachelor's programmes usually EUR 2,000 or EUR 3,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-aerospace-bsc-2027-academic",
+     "category": "academic",
+     "description": "German is the teaching language; German proficiency proof is required; a recognised university entrance qualification and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "3 years",
+   "duration_months": 36
+  },
+  {
+   "id": "tum-mechanical-engineering-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Mechanical Engineering",
+   "name_localized": {
+    "zh-CN": "机械工程理学硕士"
+   },
+   "field": "mechanical-engineering",
+   "field_zh": "机械工程",
+   "subject": "mechanical-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: master's programmes usually EUR 4,000 or EUR 6,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-mechanical-engineering-msc-2027-academic",
+     "category": "academic",
+     "description": "Taught in German or English depending on the programme; a relevant bachelor's degree and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "tum-electrical-engineering-information-technology-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Electrical Engineering and Information Technology",
+   "name_localized": {
+    "zh-CN": "电气工程与信息技术理学硕士"
+   },
+   "field": "electrical-engineering",
+   "field_zh": "电气工程",
+   "subject": "electrical-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: master's programmes usually EUR 4,000 or EUR 6,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-electrical-engineering-information-technology-msc-2027-academic",
+     "category": "academic",
+     "description": "Taught in German or English depending on the programme; a relevant bachelor's degree and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "tum-civil-engineering-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Civil Engineering",
+   "name_localized": {
+    "zh-CN": "土木工程理学硕士"
+   },
+   "field": "civil-engineering",
+   "field_zh": "土木工程",
+   "subject": "civil-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: master's programmes usually EUR 4,000 or EUR 6,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-civil-engineering-msc-2027-academic",
+     "category": "academic",
+     "description": "Taught in German or English depending on the programme; a relevant bachelor's degree and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "tum-chemical-engineering-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Chemical Engineering",
+   "name_localized": {
+    "zh-CN": "化学工程理学硕士"
+   },
+   "field": "chemical-engineering",
+   "field_zh": "化学工程",
+   "subject": "chemical-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: master's programmes usually EUR 4,000 or EUR 6,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-chemical-engineering-msc-2027-academic",
+     "category": "academic",
+     "description": "Taught in German or English depending on the programme; a relevant bachelor's degree and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "2 years",
+   "duration_months": 24
+  },
+  {
+   "id": "tum-aerospace-msc-2027",
+   "institution_id": "technical-university-of-munich",
+   "institution": "Technical University of Munich",
+   "country": "DE",
+   "degree_level": "taught_masters",
+   "official_name": "Master of Science in Aerospace",
+   "name_localized": {
+    "zh-CN": "航空航天理学硕士"
+   },
+   "field": "aerospace-engineering",
+   "field_zh": "航空航天工程",
+   "subject": "aerospace-engineering",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "TUM charges non-EU students per programme: master's programmes usually EUR 4,000 or EUR 6,000 per semester; the exact amount for this programme was not verified against its programme page in this session — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tum-aerospace-msc-2027-academic",
+     "category": "academic",
+     "description": "Taught in German or English depending on the programme; a relevant bachelor's degree and aptitude assessment apply; no specific grade threshold recorded in this pass.",
+     "threshold": null,
+     "source_ids": [
+      "tum-tuition"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tum-tuition",
+     "url": "https://www.tum.de/en/studies/fees/tuition",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Munich",
+   "duration": "2 years",
+   "duration_months": 24
+  }
+ ],
+ "sources": [
+  {
+   "id": "berkeley-fee-schedule",
+   "url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "berkeley-financial-aid",
+   "url": "https://financialaid.berkeley.edu/how-aid-works/student-budgets-cost-of-attendance/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cornell-catalog-tuition",
+   "url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cuhk-fees",
+   "url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "epfl-tuition",
+   "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hku-fees",
+   "url": "https://admissions.hku.hk/fees-and-scholarships/fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hku-general-info-pdf",
+   "url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "jhu-eng-programs",
+   "url": "https://engineering.jhu.edu/ug-academic/advising/eng-101/programs/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "jhu-sfs-cost",
+   "url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ntu-tuition",
+   "url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "pku-isd-fees",
+   "url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tsinghua-fees",
+   "url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tsinghua-me-admission",
+   "url": "https://me.tsinghua.edu.cn/en/Academic_Future_Students/Admission/General_Admission.htm",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tum-mech-bsc",
+   "url": "https://www.tum.de/en/studies/degree-programs/detail/mechanical-engineering-bachelor-of-science-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tum-tuition",
+   "url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uchicago-pme",
+   "url": "https://pme.uchicago.edu/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "unimelb-2027-fees-pdf",
+   "url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "unsw-intl-fees",
+   "url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "upenn-srfs-tuition",
+   "url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "yale-coa",
+   "url": "https://finaid.yale.edu/coa",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "engineering-11-25-f0001",
+   "scope": "program",
+   "scope_id": "hku-mechanical-engineering-beng-2027",
+   "field": "fees",
+   "value": "280000 HKD per_year",
+   "source_url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0002",
+   "scope": "program",
+   "scope_id": "hku-mechanical-engineering-beng-2027",
+   "field": "application_deadline",
+   "value": "25 August 2027",
+   "source_url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0003",
+   "scope": "program",
+   "scope_id": "hku-electrical-engineering-beng-2027",
+   "field": "fees",
+   "value": "280000 HKD per_year",
+   "source_url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0004",
+   "scope": "program",
+   "scope_id": "hku-electrical-engineering-beng-2027",
+   "field": "application_deadline",
+   "value": "25 August 2027",
+   "source_url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0005",
+   "scope": "program",
+   "scope_id": "hku-civil-engineering-beng-2027",
+   "field": "fees",
+   "value": "280000 HKD per_year",
+   "source_url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0006",
+   "scope": "program",
+   "scope_id": "hku-civil-engineering-beng-2027",
+   "field": "application_deadline",
+   "value": "25 August 2027",
+   "source_url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0007",
+   "scope": "program",
+   "scope_id": "hku-biomedical-engineering-beng-2027",
+   "field": "fees",
+   "value": "280000 HKD per_year",
+   "source_url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0008",
+   "scope": "program",
+   "scope_id": "hku-biomedical-engineering-beng-2027",
+   "field": "application_deadline",
+   "value": "25 August 2027",
+   "source_url": "https://admissions.hku.hk/sites/default/files/2026-09/HKU_General_Information_NJ_2027.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0009",
+   "scope": "program",
+   "scope_id": "ntu-mechanical-engineering-beng-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0010",
+   "scope": "program",
+   "scope_id": "ntu-electrical-electronic-engineering-beng-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0011",
+   "scope": "program",
+   "scope_id": "ntu-civil-engineering-beng-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0012",
+   "scope": "program",
+   "scope_id": "ntu-chemical-biomolecular-engineering-beng-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0013",
+   "scope": "program",
+   "scope_id": "ntu-aerospace-engineering-beng-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0014",
+   "scope": "program",
+   "scope_id": "ntu-bioengineering-beng-2027",
+   "field": "fees",
+   "value": "40600 SGD per_year",
+   "source_url": "https://www.ntu.edu.sg/admissions/undergraduate/fees-and-funding/tuition-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0015",
+   "scope": "program",
+   "scope_id": "peking-aerospace-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0016",
+   "scope": "program",
+   "scope_id": "peking-biomedical-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0017",
+   "scope": "program",
+   "scope_id": "peking-energy-resources-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0018",
+   "scope": "program",
+   "scope_id": "peking-theoretical-applied-mechanics-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://isd.pku.edu.cn/en/detail.php?id=503",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0019",
+   "scope": "program",
+   "scope_id": "tsinghua-mechanical-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0020",
+   "scope": "program",
+   "scope_id": "tsinghua-electrical-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0021",
+   "scope": "program",
+   "scope_id": "tsinghua-civil-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0022",
+   "scope": "program",
+   "scope_id": "tsinghua-chemical-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0023",
+   "scope": "program",
+   "scope_id": "tsinghua-aerospace-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0024",
+   "scope": "program",
+   "scope_id": "tsinghua-biomedical-engineering-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0025",
+   "scope": "program",
+   "scope_id": "tsinghua-automation-beng-2027",
+   "field": "fees",
+   "value": "30000 CNY per_year",
+   "source_url": "https://international.join-tsinghua.edu.cn/Admission1/Fees.htm",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0026",
+   "scope": "program",
+   "scope_id": "upenn-mechanical-engineering-bse-2027",
+   "field": "fees",
+   "value": "65670 USD per_year",
+   "source_url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0027",
+   "scope": "program",
+   "scope_id": "upenn-electrical-engineering-bse-2027",
+   "field": "fees",
+   "value": "65670 USD per_year",
+   "source_url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0028",
+   "scope": "program",
+   "scope_id": "upenn-chemical-biomolecular-engineering-bse-2027",
+   "field": "fees",
+   "value": "65670 USD per_year",
+   "source_url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0029",
+   "scope": "program",
+   "scope_id": "upenn-bioengineering-bse-2027",
+   "field": "fees",
+   "value": "65670 USD per_year",
+   "source_url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0030",
+   "scope": "program",
+   "scope_id": "upenn-materials-science-engineering-bse-2027",
+   "field": "fees",
+   "value": "65670 USD per_year",
+   "source_url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0031",
+   "scope": "program",
+   "scope_id": "upenn-systems-engineering-bse-2027",
+   "field": "fees",
+   "value": "65670 USD per_year",
+   "source_url": "https://srfs.upenn.edu/costs-budgeting/undergraduate-tuition-and-fees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0032",
+   "scope": "program",
+   "scope_id": "cornell-mechanical-engineering-bs-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0033",
+   "scope": "program",
+   "scope_id": "cornell-electrical-computer-engineering-bs-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0034",
+   "scope": "program",
+   "scope_id": "cornell-civil-engineering-bs-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0035",
+   "scope": "program",
+   "scope_id": "cornell-chemical-engineering-bs-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0036",
+   "scope": "program",
+   "scope_id": "cornell-biomedical-engineering-bs-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0037",
+   "scope": "program",
+   "scope_id": "cornell-materials-science-engineering-bs-2027",
+   "field": "fees",
+   "value": "73946 USD per_year",
+   "source_url": "https://catalog.cornell.edu/general-information/tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0038",
+   "scope": "program",
+   "scope_id": "yale-mechanical-engineering-bs-2027",
+   "field": "fees",
+   "value": "72500 USD per_year",
+   "source_url": "https://finaid.yale.edu/coa",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0039",
+   "scope": "program",
+   "scope_id": "yale-electrical-engineering-bs-2027",
+   "field": "fees",
+   "value": "72500 USD per_year",
+   "source_url": "https://finaid.yale.edu/coa",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0040",
+   "scope": "program",
+   "scope_id": "yale-chemical-engineering-bs-2027",
+   "field": "fees",
+   "value": "72500 USD per_year",
+   "source_url": "https://finaid.yale.edu/coa",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0041",
+   "scope": "program",
+   "scope_id": "yale-biomedical-engineering-bs-2027",
+   "field": "fees",
+   "value": "72500 USD per_year",
+   "source_url": "https://finaid.yale.edu/coa",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0042",
+   "scope": "program",
+   "scope_id": "cuhk-mechanical-engineering-beng-2027",
+   "field": "fees",
+   "value": "230000 HKD per_year",
+   "source_url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0043",
+   "scope": "program",
+   "scope_id": "cuhk-electronic-engineering-beng-2027",
+   "field": "fees",
+   "value": "230000 HKD per_year",
+   "source_url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0044",
+   "scope": "program",
+   "scope_id": "cuhk-biomedical-engineering-beng-2027",
+   "field": "fees",
+   "value": "230000 HKD per_year",
+   "source_url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0045",
+   "scope": "program",
+   "scope_id": "cuhk-systems-engineering-management-beng-2027",
+   "field": "fees",
+   "value": "230000 HKD per_year",
+   "source_url": "https://admission.cuhk.edu.hk/fees-financing-your-studies/fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0046",
+   "scope": "program",
+   "scope_id": "unsw-mechanical-engineering-beng-hons-2027",
+   "field": "fees",
+   "value": "63840 AUD per_year",
+   "source_url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0047",
+   "scope": "program",
+   "scope_id": "unsw-electrical-engineering-beng-hons-2027",
+   "field": "fees",
+   "value": "63840 AUD per_year",
+   "source_url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0048",
+   "scope": "program",
+   "scope_id": "unsw-civil-engineering-beng-hons-2027",
+   "field": "fees",
+   "value": "63840 AUD per_year",
+   "source_url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0049",
+   "scope": "program",
+   "scope_id": "unsw-chemical-engineering-beng-hons-2027",
+   "field": "fees",
+   "value": "63840 AUD per_year",
+   "source_url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0050",
+   "scope": "program",
+   "scope_id": "unsw-aerospace-engineering-beng-hons-2027",
+   "field": "fees",
+   "value": "63840 AUD per_year",
+   "source_url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0051",
+   "scope": "program",
+   "scope_id": "unsw-biomedical-engineering-beng-hons-2027",
+   "field": "fees",
+   "value": "63840 AUD per_year",
+   "source_url": "https://www.unsw.edu.au/student/managing-your-studies/fees/international",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0052",
+   "scope": "program",
+   "scope_id": "jhu-biomedical-engineering-bs-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0053",
+   "scope": "program",
+   "scope_id": "jhu-chemical-biomolecular-engineering-bs-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0054",
+   "scope": "program",
+   "scope_id": "jhu-civil-engineering-bs-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0055",
+   "scope": "program",
+   "scope_id": "jhu-electrical-engineering-bs-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0056",
+   "scope": "program",
+   "scope_id": "jhu-mechanical-engineering-bs-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0057",
+   "scope": "program",
+   "scope_id": "jhu-materials-science-engineering-bs-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0058",
+   "scope": "program",
+   "scope_id": "jhu-systems-engineering-bs-2027",
+   "field": "fees",
+   "value": "68670 USD per_year",
+   "source_url": "https://sfs.jhu.edu/cost-tuition/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0059",
+   "scope": "program",
+   "scope_id": "berkeley-mechanical-engineering-bs-2027",
+   "field": "fees",
+   "value": "57484 USD per_year",
+   "source_url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0060",
+   "scope": "program",
+   "scope_id": "berkeley-electrical-engineering-computer-sciences-bs-2027",
+   "field": "fees",
+   "value": "57484 USD per_year",
+   "source_url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0061",
+   "scope": "program",
+   "scope_id": "berkeley-civil-engineering-bs-2027",
+   "field": "fees",
+   "value": "57484 USD per_year",
+   "source_url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0062",
+   "scope": "program",
+   "scope_id": "berkeley-chemical-engineering-bs-2027",
+   "field": "fees",
+   "value": "57484 USD per_year",
+   "source_url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0063",
+   "scope": "program",
+   "scope_id": "berkeley-bioengineering-bs-2027",
+   "field": "fees",
+   "value": "57484 USD per_year",
+   "source_url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0064",
+   "scope": "program",
+   "scope_id": "epfl-mechanical-engineering-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0065",
+   "scope": "program",
+   "scope_id": "epfl-electrical-engineering-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0066",
+   "scope": "program",
+   "scope_id": "epfl-civil-engineering-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0067",
+   "scope": "program",
+   "scope_id": "epfl-chemical-engineering-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0068",
+   "scope": "program",
+   "scope_id": "epfl-mechanical-engineering-msc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0069",
+   "scope": "program",
+   "scope_id": "epfl-electrical-engineering-msc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0070",
+   "scope": "program",
+   "scope_id": "epfl-civil-engineering-msc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0071",
+   "scope": "program",
+   "scope_id": "epfl-chemical-engineering-msc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0072",
+   "scope": "program",
+   "scope_id": "melbourne-mechanical-engineering-meng-2027",
+   "field": "fees",
+   "value": "66752 AUD per_year",
+   "source_url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0073",
+   "scope": "program",
+   "scope_id": "melbourne-civil-engineering-meng-2027",
+   "field": "fees",
+   "value": "66752 AUD per_year",
+   "source_url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0074",
+   "scope": "program",
+   "scope_id": "melbourne-electrical-engineering-meng-2027",
+   "field": "fees",
+   "value": "66752 AUD per_year",
+   "source_url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0075",
+   "scope": "program",
+   "scope_id": "melbourne-chemical-engineering-meng-2027",
+   "field": "fees",
+   "value": "66752 AUD per_year",
+   "source_url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0076",
+   "scope": "program",
+   "scope_id": "melbourne-biomedical-engineering-meng-2027",
+   "field": "fees",
+   "value": "66752 AUD per_year",
+   "source_url": "https://students.unimelb.edu.au/__data/assets/pdf_file/0007/5665147/2027-International-Course-Tuition-Fees-OF_20261113.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0077",
+   "scope": "program",
+   "scope_id": "chicago-molecular-engineering-bs-2027",
+   "field": "fees",
+   "value": "75960 USD per_year",
+   "source_url": "https://pme.uchicago.edu/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0078",
+   "scope": "program",
+   "scope_id": "tum-mechanical-engineering-bsc-2027",
+   "field": "fees",
+   "value": "6000 EUR per_year",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0079",
+   "scope": "program",
+   "scope_id": "tum-electrical-engineering-information-technology-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0080",
+   "scope": "program",
+   "scope_id": "tum-civil-engineering-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0081",
+   "scope": "program",
+   "scope_id": "tum-chemical-engineering-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0082",
+   "scope": "program",
+   "scope_id": "tum-aerospace-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0083",
+   "scope": "program",
+   "scope_id": "tum-mechanical-engineering-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0084",
+   "scope": "program",
+   "scope_id": "tum-electrical-engineering-information-technology-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0085",
+   "scope": "program",
+   "scope_id": "tum-civil-engineering-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0086",
+   "scope": "program",
+   "scope_id": "tum-chemical-engineering-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "engineering-11-25-f0087",
+   "scope": "program",
+   "scope_id": "tum-aerospace-msc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tum.de/en/studies/fees/tuition",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

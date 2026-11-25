@@ -126,13 +126,13 @@ cd frontend && npm install && npm run dev   # or: npm run build && npm start
 ```
 
 Next.js 14 + TypeScript + Tailwind. Pages: `/` (home, first-visit modal),
-`/wizard` (curriculum first, then track / target / academic / language /
-budget), `/results` (labelled chips, legend, next-steps panel),
+`/wizard` (curriculum, track, field, academic, language, budget, then the
+system recommends matching programmes to pick from), `/results` (labelled chips, legend, next-steps panel),
 `/programs/[id]` (minimums list + check button, evidence drawer, ranking
 cards), `/rankings` (three providers, top 100 each, filters, compare up to 3 institutions
 within one provider's edition, institution detail pages), `/report` (print + JSON export),
 plus the 小罗盘 pet on every page (bottom-end floating compass button).
-Six locales (en, zh-CN, es, fr, pt-BR, ar; 434 keys each, checked by
+Six locales (en, zh-CN, es, fr, pt-BR, ar; 508 keys each, checked by
 `npm run build`), RTL for Arabic, compass-theme motion (navy/teal/amber),
 `prefers-reduced-motion` respected. Design language (2026-11-25, from three
 Xiaohongshu references — GPT-6 Astra editorial, tessel calendar film, AI+UI
@@ -141,11 +141,29 @@ staggered entrances; luxury from whitespace, tracking and one amber accent,
 not stacked effects. Homepage: navy hero with amber-gradient giant title,
 letterspaced microcopy, palette labels NAVY · TEAL · AMBER, a 3D compass
 sphere (orbit ring + gradient sphere + swaying needle) and a first-visit
-curtain pull-away; a 3D-tilted application timeline with an amber NOW line
-(UCAS 13 Jan 2027, TMUA 8 Jan 2027, UCL UPC 18 Jun 2027, 2027 intakes);
-a before/after split slider; programme cards fan out with a verification
-ring (real official-source count) and amber CTAs. Programme detail pages use
-an editorial magazine header. The frontend proxies `/api/*` to the
+curtain pull-away; then success cases (6 featured netizen-shared cases,
+all 55 on `/cases`, each labelled not officially verified) and latest news
+& policy (curated link-outs to official university news, NUS Newsroom RSS,
+British Council Study UK, UCL News, UCAS key dates); a 3D-tilted application
+timeline with an amber NOW line (UCAS 13 Jan 2027, TMUA 8 Jan 2027, UCL UPC
+18 Jun 2027, 2027 intakes); a static before/after image (per locale, the
+interactive slider was removed as pointless); programme cards fan out with
+a verification ring (real official-source count) and amber CTAs in the
+browse section below. Institution pages show the 8 v2 programmes plus the
+expansion programmes (685 as of 2026-11-25, generated offline mirror —
+re-run `python3 tools/generate_frontend_mirrors.py` after the source data
+changes) with their verified entry requirements verbatim and official-source
+links; the compiled IELTS reference appears only where no verified language
+requirement exists. Programme detail pages use
+an editorial magazine header. Design system (2026-11-25, research round 2):
+one easing family (`--ease-enter` / `--ease-reveal`) and one masked
+line-reveal for all titles; route changes run a compass route-line
+transition (full on home/wizard, quiet fade on evidence pages); the pet is
+a state machine (idle/blink/think/celebrate/empathise/bored) with
+pointer-following eyes; university crests and programme titles morph into
+detail headers (shared-element transitions); the layout uses a 12-column
+grid with deliberate empty cells and hairline section rules; amber is the
+only accent. The frontend proxies `/api/*` to the
 backend; if the backend is down it falls back to a clearly-labelled
 offline evaluator — start the backend first for live results.
 
@@ -153,8 +171,8 @@ offline evaluator — start the backend first for live results.
 
 ```bash
 .venv/bin/python -m pytest tests/ -v
-# real run 2026-11-25: 92 passed, 0 failed (25 Day 1 + 6 contract + 36 Day 2 + 12 v2 + 13 curriculum)
-cd frontend && npm run build   # real run 2026-11-25: pass (locale check 6 x 306 keys + all routes)
+# real run 2026-11-25: 225 passed, 0 failed (223 AI integration + 2 frontend-mirror sync)
+cd frontend && npm run build   # real run 2026-11-25: pass (locale check 6 x 508 keys + all routes)
 ```
 
 Live end-to-end (2026-11-24): backend :8000 + frontend :3000, all 6 pages

@@ -31,7 +31,7 @@ export default function ReportPage() {
 
   if (!profile.track) {
     return (
-      <div className="page-enter mx-auto max-w-3xl px-4 py-12 text-center">
+      <div className="mx-auto max-w-3xl px-4 py-12 text-center">
         <p className="text-lg">{t('results.empty')}</p>
         <Link href="/wizard" className="btn-press mt-6 inline-block rounded-full bg-navy px-6 py-3 font-semibold text-white">{t('results.goWizard')}</Link>
       </div>
@@ -39,8 +39,8 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="page-enter mx-auto max-w-4xl px-4 py-8">
-      <h1 className="text-2xl font-bold">{t('report.title')}</h1>
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <h1 className="line-mask text-2xl font-bold"><span>{t('report.title')}</span></h1>
       <p className="mt-2 text-sm text-navy/70">{t('report.summary')} · {new Date().toLocaleDateString()}</p>
       {profile.sample && <p className="mt-2 inline-block rounded-lg bg-amber/25 px-3 py-1 text-sm font-semibold">{t('common.synthetic')}</p>}
       <div className="mt-4 flex flex-wrap gap-2">

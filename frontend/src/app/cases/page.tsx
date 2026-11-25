@@ -1,0 +1,45 @@
+'use client';
+import { useState } from 'react';
+import { useApp } from '../../lib/store';
+import { SUCCESS_CASES } from '../../lib/cases';
+import { CaseCard } from '../../components/CaseCard';
+
+/**
+ * All 55 netizen-shared success cases, filterable by level. Same rules as
+ * the homepage cards: only what the poster shared, missing fields render
+ * nothing, every card labelled not officially verified, source link out.
+ */
+export default function CasesPage() {
+  const { t } = useApp();
+  const [filter, setFilter] = useState<'all' | 'undergraduate' | 'taught_masters'>('all');
+  const shown = filter === 'all' ? SUCCESS_CASES : SUCCESS_CASES.filter((c) => c.offerLevel === filter);
+  const chip = (key: 'all' | 'undergraduate' | 'taught_masters', label: string) => (
+    <button
+      type="button"
+      onClick={() => setFilter(key)}
+      aria-pressed={filter === key}
+      className={`btn-press rounded-full px-4 py-2 text-sm font-semibold ${filter === key ? 'bg-amber text-navy' : 'border border-navy/30 bg-white'}`}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <h1 className="line-mask text-2xl font-bold"><span>{t('cases.title')}</span></h1>
+      <p className="mt-1 text-sm text-navy/70">{t('cases.sub')}</p>
+      <p className="mt-2">
+        <span className="inline-block rounded-full bg-amber/25 px-3 py-1 text-xs font-semibold text-navy">{t('cases.unverifiedLabel')}</span>
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t('cases.title')}>
+        {chip('all', t('cases.filterAll'))}
+        {chip('undergraduate', t('cases.filterUg'))}
+        {chip('taught_masters', t('cases.filterTm'))}
+      </div>
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        {shown.map((c) => (
+          <CaseCard key={c.id} c={c} />
+        ))}
+      </div>
+    </div>
+  );
+}

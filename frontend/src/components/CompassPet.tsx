@@ -214,9 +214,36 @@ function rankOffline(message: string): AssistantReply | null {
   };
 }
 
-function CompassFace({ size = 56 }: { size?: number }) {
+type PetMood = 'idle' | 'think' | 'celebrate' | 'empathise' | 'bored';
+
+/** Mouth per mood — the face is the state machine's display. */
+const MOUTH: Record<PetMood, string> = {
+  idle: 'M30 50 Q36 55 42 50',
+  think: 'M31 51 L41 51',
+  celebrate: 'M29 49 Q36 58 43 49',
+  empathise: 'M30 53 Q36 48 42 53',
+  bored: 'M31 51 L41 51',
+};
+
+function CompassFace({
+  size = 56,
+  mood = 'idle',
+  eyesRef,
+  needleRef,
+}: {
+  size?: number;
+  mood?: PetMood;
+  /** Pointer-follow targets (button face only): the eyes group is
+      translated by JS and the outer needle group is rotated by JS.
+      They compose with the inner CSS sway / blink because each lives
+      on its own nested group — never two transforms on one element.
+      Callback refs (not RefObject) so the types hold on both React 18
+      and React 19 ref definitions. */
+  eyesRef?: (el: SVGGElement | null) => void;
+  needleRef?: (el: SVGGElement | null) => void;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 72 72" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 72 72" aria-hidden="true" className={mood === 'bored' ? 'pet-bored' : undefined}>
       <circle cx="36" cy="36" r="34" fill="#0E7C7B" />
       <circle cx="36" cy="36" r="27" fill="#F7F5F0" />
       <g stroke="#0B1F3A" strokeWidth="2" strokeLinecap="round">
@@ -225,14 +252,20 @@ function CompassFace({ size = 56 }: { size?: number }) {
         <line x1="12" y1="36" x2="17" y2="36" />
         <line x1="55" y1="36" x2="60" y2="36" />
       </g>
-      <g className="anim-needle" style={{ transformOrigin: '36px 36px' }}>
-        <polygon points="36,18 41,36 36,34 31,36" fill="#F2A541" />
-        <polygon points="36,54 41,36 36,38 31,36" fill="#0B1F3A" />
+      <g ref={needleRef} style={{ transformOrigin: '36px 36px' }}>
+        <g className="pet-needle-look" style={{ transformOrigin: '36px 36px' }}>
+          <g className="anim-needle" style={{ transformOrigin: '36px 36px' }}>
+            <polygon points="36,18 41,36 36,34 31,36" fill="#F2A541" />
+            <polygon points="36,54 41,36 36,38 31,36" fill="#0B1F3A" />
+          </g>
+        </g>
       </g>
       <circle cx="36" cy="36" r="3.5" fill="#0B1F3A" />
-      <circle cx="28" cy="45" r="2.2" fill="#0B1F3A" />
-      <circle cx="44" cy="45" r="2.2" fill="#0B1F3A" />
-      <path d="M30 50 Q36 55 42 50" fill="none" stroke="#0B1F3A" strokeWidth="2.5" strokeLinecap="round" />
+      <g ref={eyesRef}>
+        <circle className="pet-blink" cx="28" cy="45" r="2.2" fill="#0B1F3A" />
+        <circle className="pet-blink" cx="44" cy="45" r="2.2" fill="#0B1F3A" />
+      </g>
+      <path d={MOUTH[mood]} fill="none" stroke="#0B1F3A" strokeWidth="2.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -252,6 +285,87 @@ export function CompassPet() {
   const convRef = useRef(0);
   /** Indices of backend turns currently being re-fetched for a locale. */
   const inFlightRef = useRef<Set<number>>(new Set());
+
+  /** Pet state machine (research move 3): idle / blink (CSS) / think /
+      celebrate / empathise / bored — driven by real app events, never
+      random wiggling. The policy, questions and answers are unchanged. */
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  /** Pointer-follow targets. A plain object inside one ref: the
+      installed React types make RefObject.current read-only, so the
+      elements live as mutable properties (never reassigning current). */
+  const faceElsRef = useRef<{ eyes: SVGGElement | null; needle: SVGGElement | null }>({ eyes: null, needle: null });
+  const [celebrate, setCelebrate] = useState(false);
+  const [bored, setBored] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
+  const celebrateTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const lastActiveRef = useRef(Date.now());
+  const openRef = useRef(open);
+  useEffect(() => { openRef.current = open; }, [open]);
+
+  const doCelebrate = () => {
+    setCelebrate(true);
+    if (celebrateTimerRef.current) clearTimeout(celebrateTimerRef.current);
+    celebrateTimerRef.current = setTimeout(() => setCelebrate(false), 1200);
+  };
+
+  /** Eyes + needle follow the pointer (button face only). rAF-throttled
+      and applied straight to the DOM — no React re-render per move.
+      Skipped entirely under prefers-reduced-motion; beyond 400px the
+      face returns to centre. */
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const btn = buttonRef.current;
+        if (!btn) return;
+        const rect = btn.getBoundingClientRect();
+        const dx = e.clientX - (rect.left + rect.width / 2);
+        const dy = e.clientY - (rect.top + rect.height / 2);
+        const dist = Math.hypot(dx, dy);
+        const ex = dist > 400 ? 0 : Math.max(-2.5, Math.min(2.5, dx * 0.008));
+        const ey = dist > 400 ? 0 : Math.max(-2, Math.min(2, dy * 0.008));
+        const rot = dist > 400 ? 0 : Math.max(-18, Math.min(18, dx * 0.03));
+        if (faceElsRef.current.eyes) faceElsRef.current.eyes.style.transform = `translate(${ex}px, ${ey}px)`;
+        if (faceElsRef.current.needle) faceElsRef.current.needle.style.transform = `rotate(${rot}deg)`;
+      });
+    };
+    window.addEventListener('pointermove', onMove);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /** Boredom: 60s with no pointer/keyboard activity and the panel
+      closed → the pet looks around and half-closes its eyes. Any
+      interaction wakes it. */
+  useEffect(() => {
+    const wake = () => {
+      lastActiveRef.current = Date.now();
+      setBored(false);
+    };
+    window.addEventListener('pointerdown', wake);
+    window.addEventListener('keydown', wake);
+    const timer = setInterval(() => {
+      if (!openRef.current && Date.now() - lastActiveRef.current > 60000) setBored(true);
+    }, 10000);
+    return () => {
+      window.removeEventListener('pointerdown', wake);
+      window.removeEventListener('keydown', wake);
+      clearInterval(timer);
+      if (celebrateTimerRef.current) clearTimeout(celebrateTimerRef.current);
+    };
+  }, []);
+
+  /** Mood precedence: thinking beats everything; a found suggestion
+      celebrates; a failed (offline) call gets sympathy; boredom is
+      last. `offline` is reset on the next live success so empathise
+      never sticks after the backend is reachable again. */
+  const mood: PetMood = busy ? 'think' : celebrate ? 'celebrate' : offline ? 'empathise' : bored ? 'bored' : 'idle';
+  const typing = inputFocused && input.length > 0;
 
   const greet = () => {
     convRef.current += 1;
@@ -306,6 +420,7 @@ export function CompassPet() {
           });
       req.then((fresh) => {
         if (convRef.current !== conv) return;
+        setOffline(false);
         setMessages((prev) => prev.map((x, j) => {
           if (j !== i || (x.kind !== 'suggest' && x.kind !== 'ask')) return x;
           return { ...x, reply: fresh, replyLocale: locale };
@@ -449,6 +564,8 @@ export function CompassPet() {
         method: 'POST',
         body: JSON.stringify({ degree_level: degree, country, budget_band: band, locale: requestLocale }),
       });
+      setOffline(false);
+      if (r.program_id || r.institution_id) doCelebrate();
       push({
         kind: 'suggest', degree, country, band,
         reply: r, replyLocale: requestLocale, offline: false,
@@ -457,6 +574,7 @@ export function CompassPet() {
     } catch {
       setOffline(true);
       const off = suggestOffline(degree, country, band);
+      if (off) doCelebrate();
       push({
         kind: 'suggest', degree, country, band,
         reply: null, replyLocale: null, offline: true,
@@ -514,10 +632,13 @@ export function CompassPet() {
         method: 'POST',
         body: JSON.stringify({ message: text, locale: requestLocale }),
       });
+      setOffline(false);
+      if (r.program_id || r.institution_id) doCelebrate();
       push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null });
     } catch {
       setOffline(true);
       const rank = rankOffline(text);
+      if (rank) doCelebrate();
       push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institution_id ?? null });
     } finally {
       setBusy(false);
@@ -540,13 +661,16 @@ export function CompassPet() {
   return (
     <>
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => toggle(!open)}
         aria-label={t('pet.openLabel')}
         aria-expanded={open}
-        className="btn-press anim-pet-pop fixed bottom-4 end-4 z-50 rounded-full bg-white p-1.5 shadow-lg ring-2 ring-amber"
+        className={`btn-press anim-pet-pop fixed bottom-4 end-4 z-50 rounded-full bg-white p-1.5 shadow-lg ring-2 ring-amber${busy ? ' pet-thinking' : ''}`}
       >
-        <CompassFace size={52} />
+        <span className={`anim-pet-bob${celebrate ? ' anim-pet-celebrate' : ''}`}>
+          <CompassFace size={52} mood={mood} eyesRef={(el) => { faceElsRef.current.eyes = el; }} needleRef={(el) => { faceElsRef.current.needle = el; }} />
+        </span>
       </button>
       {open && (
         <div
@@ -556,7 +680,9 @@ export function CompassPet() {
           onKeyDown={(e) => { if (e.key === 'Escape') toggle(false); }}
         >
           <div className="flex items-center gap-2 bg-teal px-3 py-2 text-white">
-            <CompassFace size={36} />
+            <span className={typing ? 'pet-lean inline-flex' : 'inline-flex'}>
+              <CompassFace size={36} mood={mood} />
+            </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-bold">{t('pet.name')}</p>
               <p className="truncate text-xs text-white/80">{t('pet.subtitle')}</p>
@@ -622,6 +748,8 @@ export function CompassPet() {
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
                 onKeyDown={(e) => { if (e.key === 'Enter') void onSend(); }}
                 placeholder={t('pet.placeholder')}
                 aria-label={t('pet.placeholder')}
