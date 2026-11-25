@@ -1,0 +1,550 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "leeds-ancient-history-politics-ba-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Ancient History and Politics BA",
+   "name_localized": {
+    "zh-CN": "古代史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-ancient-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level AAB excluding General Studies and Critical Thinking; joint honours degree combining Ancient History and Politics.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-ancient-history-politics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-ancient-history-politics",
+     "url": "https://courses.leeds.ac.uk/site/scripts/course.php?courseID=25223&adminID=958&c=2dac4255475c75a5c710b6ba72d2c6bd&preview=1",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "glasgow-scottish-history-politics-ma-2027",
+   "institution_id": "university-of-glasgow",
+   "institution": "University of Glasgow",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Scottish History and Politics MA (Hons)",
+   "name_localized": {
+    "zh-CN": "苏格兰史与政治文学硕士（荣誉）"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "glasgow-scottish-history-politics-ma-2027-academic",
+     "category": "academic",
+     "description": "Scottish History can only be taken as a Joint Honours degree; Scottish History/Politics (UCAS LV22) is a listed combination, studied over 4 years. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "glasgow-scottish-history"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "glasgow-scottish-history",
+     "url": "https://www.gla.ac.uk/undergraduate/degrees/scottishhistory/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Glasgow",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": "LV22"
+  },
+  {
+   "id": "sheffield-history-politics-ba-2027",
+   "institution_id": "university-of-sheffield",
+   "institution": "University of Sheffield",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics BA",
+   "name_localized": {
+    "zh-CN": "历史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "sheffield-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA listed in the University of Sheffield undergraduate programme specifications. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "sheffield-programme-specifications"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "sheffield-programme-specifications",
+     "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sheffield",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "sheffield-maths-philosophy-bsc-2027",
+   "institution_id": "university-of-sheffield",
+   "institution": "University of Sheffield",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Philosophy BSc",
+   "name_localized": {
+    "zh-CN": "数学与哲学学士"
+   },
+   "field": "mathematics",
+   "field_zh": "数学",
+   "subject": "mathematics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "sheffield-maths-philosophy-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed in the University of Sheffield undergraduate programme specifications. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "sheffield-programme-specifications"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "sheffield-programme-specifications",
+     "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sheffield",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "sheffield-ppe-ba-2027",
+   "institution_id": "university-of-sheffield",
+   "institution": "University of Sheffield",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics and Economics BA",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "sheffield-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA listed in the University of Sheffield undergraduate programme specifications. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "sheffield-programme-specifications"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "sheffield-programme-specifications",
+     "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sheffield",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "nottingham-history-politics-ba-2027",
+   "institution_id": "university-of-nottingham",
+   "institution": "University of Nottingham",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics BA",
+   "name_localized": {
+    "zh-CN": "历史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "International tuition fee £24,700 for 2026/27 (BA Jt Hons, UCAS VL12).",
+    "amount": 24700,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nottingham-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA; the programme includes a level-two module co-taught by History and Politics. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "nottingham-history-politics",
+      "nottingham-fees-2026-27"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nottingham-history-politics",
+     "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/History-and-Politics-BA-Jt-Hons.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "nottingham-fees-2026-27",
+     "url": "https://www.nottingham.ac.uk/fees/tuitionfees/202627/undergraduate.aspx?utm_source=meta&utm_medium=cpm&utm_campaign=UG_IN_Meta_Clusters_Traffic_Law&utm_term=52557645023468&utm_content=52557645023668&utm_id=52557607971268",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Nottingham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "VL12"
+  },
+  {
+   "id": "nottingham-mathematical-physics-bsc-2027",
+   "institution_id": "university-of-nottingham",
+   "institution": "University of Nottingham",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematical Physics BSc",
+   "name_localized": {
+    "zh-CN": "数学物理学士"
+   },
+   "field": "physics",
+   "field_zh": "物理学",
+   "subject": "physics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nottingham-mathematical-physics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc combining mathematics and physics (UCAS F326), listed in Nottingham's mathematical sciences course list. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "nottingham-ways-to-study-politics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nottingham-ways-to-study-politics",
+     "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Nottingham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "F326"
+  },
+  {
+   "id": "nottingham-ppe-ba-2027",
+   "institution_id": "university-of-nottingham",
+   "institution": "University of Nottingham",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics and Economics BA",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nottingham-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA listed among Nottingham's joint honours degrees. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "nottingham-ways-to-study-politics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nottingham-ways-to-study-politics",
+     "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Nottingham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  }
+ ],
+ "sources": [
+  {
+   "id": "leeds-ancient-history-politics",
+   "url": "https://courses.leeds.ac.uk/site/scripts/course.php?courseID=25223&adminID=958&c=2dac4255475c75a5c710b6ba72d2c6bd&preview=1",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-scottish-history",
+   "url": "https://www.gla.ac.uk/undergraduate/degrees/scottishhistory/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sheffield-programme-specifications",
+   "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-history-politics",
+   "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/History-and-Politics-BA-Jt-Hons.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-fees-2026-27",
+   "url": "https://www.nottingham.ac.uk/fees/tuitionfees/202627/undergraduate.aspx?utm_source=meta&utm_medium=cpm&utm_campaign=UG_IN_Meta_Clusters_Traffic_Law&utm_term=52557645023468&utm_content=52557645023668&utm_id=52557607971268",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-ways-to-study-politics",
+   "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "joint-honours-76-100-f0001",
+   "scope": "program",
+   "scope_id": "leeds-ancient-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://courses.leeds.ac.uk/site/scripts/course.php?courseID=25223&adminID=958&c=2dac4255475c75a5c710b6ba72d2c6bd&preview=1",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-f0002",
+   "scope": "program",
+   "scope_id": "glasgow-scottish-history-politics-ma-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.gla.ac.uk/undergraduate/degrees/scottishhistory/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-f0003",
+   "scope": "program",
+   "scope_id": "sheffield-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-f0004",
+   "scope": "program",
+   "scope_id": "sheffield-maths-philosophy-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-f0005",
+   "scope": "program",
+   "scope_id": "sheffield-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-f0006",
+   "scope": "program",
+   "scope_id": "nottingham-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee GBP 24700",
+   "source_url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/History-and-Politics-BA-Jt-Hons.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-f0007",
+   "scope": "program",
+   "scope_id": "nottingham-mathematical-physics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-f0008",
+   "scope": "program",
+   "scope_id": "nottingham-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

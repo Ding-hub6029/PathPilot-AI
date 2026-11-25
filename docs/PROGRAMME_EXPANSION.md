@@ -64,10 +64,7 @@ after computer: business, engineering, natural sciences,
 medicine/health, humanities, social sciences, law, arts/design, and any
 remaining fields — UG + taught masters first. The controlled field list
 is 51 slugs (see `tools/validate_expansion.py` FIELDS); "other" is a last
-resort only, every use reported. One schema limit: `degree_level` allows
-only undergraduate / taught_masters, so other levels (PhD, foundation,
-French diplôme d'ingénieur) cannot merge yet and are recorded as gaps,
-never forced in.
+resort only, every use reported. Schema update 2026-11-25 (user decision): `degree_level` now allows undergraduate / taught_masters / foundation / joint_honours, so foundation years and joint honours can merge; other levels (PhD, MSci/MEng variants, conversion MScs, French diplôme d'ingénieur) still cannot merge and are recorded as gaps, never forced in.
 
 ## Coverage so far
 
@@ -145,7 +142,7 @@ cd ~/workspace/pathpilot-ai
 1. **Re-verification pass for the 30 held band-B programmes** (`data/expansions/hold-list.md`): check their fees against official pages; merge whatever verifies. (The 9 profiled institutions that had no programmes at all — Cornell, EPFL, TUM, Berkeley, Chicago, Melbourne, UNSW, UPenn, Yale — were filled by the business/engineering collection on 2026-11-25; all 100 profiled institutions now have ≥1 programme.)
 2. **Engineering ranks 51–100** — not started.
 3. **Non-computer fields, in priority order** — natural sciences, medicine/health, humanities, social sciences, law, arts/design, and any remaining fields; same schema, same rules, new collection rounds. Business (187) and engineering ranks 1–50 (279) are done. The controlled field list (51 slugs) already covers all of these.
-4. **Other degree levels** (PhD, foundation years, French diplôme d'ingénieur, MSci/MEng variants, joint honours, conversion MScs) — cannot merge under the current schema (`degree_level` allows only undergraduate / taught_masters); needs a schema decision before collection. Known gap: PSL engineering (French diplôme d'ingénieur through member schools, no UG/TM mapping).
+4. **Other degree levels** (PhD, French diplôme d'ingénieur, MSci/MEng variants, conversion MScs) — still cannot merge under the current schema (`degree_level` allows only undergraduate / taught_masters / foundation / joint_honours, extended 2026-11-25 by user decision; foundation years and joint honours can now merge). Known gap: PSL engineering (French diplôme d'ingénieur through member schools, no UG/TM mapping).
 5. **Programme promotion to matchable**: per-programme engine rules +
    tests (the eligibility engine's fee/academic rules are currently
    written per programme — UCL, NUS, Imperial — so this is real work per
@@ -162,6 +159,47 @@ cd ~/workspace/pathpilot-ai
    Business (187) and engineering ranks 1–50 (279) have since merged,
    bringing the total to 832; fields beyond business/engineering are
    still open (see items 2–3 above).
+
+   Foundation + joint honours (2026-11-25, same session — collectors
+   `data/expansions/collectors/foundation-*.json` and
+   `joint-honours-*.json`, 8 band files, all validated and merged):
+   **49 new programmes** (12 foundation + 37 joint honours) covering **16
+   institutions**, all `matchable=false`, `catalogue="expansion"`. Merged
+   total: **881 expansion programmes** (455 UG + 377 taught masters + 37
+   joint honours + 12 foundation), 548 sources, 1,209 traceability rows.
+   Foundation (university-run only; third-party pathway colleges such as
+   INTO / Study Group / Kaplan / Navitas-run centres were excluded):
+   UCL UPC (£29,500), Oxford Astrophoria (fully funded, UK-only),
+   Cambridge Foundation Year (fully funded, UK-only), Edinburgh IFP
+   (£31,100), King's International Foundation (£ unknown), Bristol IFP
+   ×2 (£26,900 arts/law/social sciences; £28,000 STEM), Warwick IFP
+   (£27,150), Birmingham Foundation Pathways (£ unknown, Kaplan helps
+   with admissions only), Leeds integrated IFY ×2 (£25,500 arts/social
+   science; £26,000 science, 4-year integrated degrees), Durham
+   Foundation Programme (£ unknown, UK widening-participation). Joint
+   honours (flagship 1–4 per school, not every combination — e.g.
+   Edinburgh and Glasgow list hundreds of combinations): Oxford ×4 (PPE,
+   History and Politics, Mathematics and Philosophy, History and
+   Economics), UCL ×3, Edinburgh ×3, KCL ×3, Manchester ×3, Warwick ×3,
+   Durham ×3, Sheffield ×3, Nottingham ×3, Birmingham ×2, LSE ×2, TCD
+   ×2, Bristol ×1, Leeds ×1, Glasgow ×1. Fees known for 10 of the 49
+   (39 unknown, 80%); deadlines on only 2 (UCL UPC 18 June 2027,
+   Cambridge Foundation Year 13 January 2027); application status unknown
+   for all 49; language requirement recorded for 1 (KCL IELTS 6.0/5.5),
+   admissions-test requirements for 4 (Oxford TARA/TMUA). Field "other"
+   used 13 times (all 12 generic foundations + Durham Combined Honours in
+   Social Sciences). No foundation was found at the other 90 schools in
+   this pass (all US, Asian and continental-European schools, plus
+   Imperial and LSE among the UK schools — neither runs a foundation);
+   no joint honours at the other 85 schools (joint honours is a UK/Irish
+   degree structure; Cambridge has no distinct joint-honours programme
+   pages — its Tripos is flexible combinations — and Imperial is single
+   honours only). MSci/MEng joint degrees (e.g. Bristol Mathematics and
+   Physics MSci) were excluded as instructed. Frontend: institution pages
+   previously labelled every non-undergraduate expansion programme as
+   "Taught masters"; `ExpansionProgram.degreeLevel` now accepts the two
+   new levels and the page shows "Foundation" / "Joint honours" labels
+   (6-locale keys added via `tools/generate_frontend_mirrors.py`).
 5. **Institution stats gaps**: any stat no official page states stays
    null; a second pass can try national statistics offices (e.g. HESA
    for the UK, MOE for Singapore/China) where the university itself

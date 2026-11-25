@@ -506,5 +506,7 @@
  "news.imperialFeeds": "Official news feeds: all Imperial news, plus Computing, AI and East Asia feeds.",
  "policy.ucas": "Equal consideration deadline 13 Jan 2027 for most undergraduate courses; 15 Oct 2026 for Oxford, Cambridge and medicine.",
  "policy.visa": "Official guidance on UK Student visas: requirements, sponsors and conditions.",
- "policy.pass": "Apply 2–3 months before your course starts; your institution registers you in SOLAR first. Check ICA for the current fees and process."
+ "policy.pass": "Apply 2–3 months before your course starts; your institution registers you in SOLAR first. Check ICA for the current fees and process.",
+ "institution.filterFoundation": "Foundation",
+ "institution.filterJointHonours": "Joint honours"
 }

@@ -356,6 +356,14 @@ TRANSLATIONS = {
         "en": "Taught masters", "zh-CN": "授课型硕士", "es": "Máster",
         "fr": "Master", "pt-BR": "Mestrado", "ar": "ماجستير",
     },
+    "institution.filterFoundation": {
+        "en": "Foundation", "zh-CN": "预科", "es": "Fundación",
+        "fr": "Fondation", "pt-BR": "Fundação", "ar": "سنة تأسيسية",
+    },
+    "institution.filterJointHonours": {
+        "en": "Joint honours", "zh-CN": "联合学位", "es": "Doble titulación",
+        "fr": "Double licence", "pt-BR": "Dupla graduação", "ar": "درجة مشتركة",
+    },
     "news.nusAwards": {
         "en": "341 students and graduates recognised for achievements beyond the classroom.",
         "zh-CN": "341 名学生与毕业生因课堂外的成就获得表彰。",

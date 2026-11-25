@@ -1,0 +1,622 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "edinburgh-history-politics-ma-2027",
+   "institution_id": "university-of-edinburgh",
+   "institution": "University of Edinburgh",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics MA (Hons)",
+   "name_localized": {
+    "zh-CN": "历史与政治文学硕士（荣誉）"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "edinburgh-history-politics-ma-2027-academic",
+     "category": "academic",
+     "description": "Joint programme combining history and politics, studied over 4 years. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "edinburgh-history-politics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "edinburgh-history-politics",
+     "url": "https://study.ed.ac.uk/programmes/undergraduate/161-history-and-politics",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Edinburgh",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "edinburgh-economics-politics-ma-2027",
+   "institution_id": "university-of-edinburgh",
+   "institution": "University of Edinburgh",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Economics and Politics MA (Hons)",
+   "name_localized": {
+    "zh-CN": "经济学与政治文学硕士（荣誉）"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "edinburgh-economics-politics-ma-2027-academic",
+     "category": "academic",
+     "description": "Joint honours MA (Hons) listed in the University of Edinburgh degree finder (UCAS LL12). No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "edinburgh-degree-finder-az"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "edinburgh-degree-finder-az",
+     "url": "https://study.ed.ac.uk/programmes/undergraduate-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Edinburgh",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": "LL12"
+  },
+  {
+   "id": "edinburgh-maths-physics-bsc-2027",
+   "institution_id": "university-of-edinburgh",
+   "institution": "University of Edinburgh",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Physics BSc (Hons)",
+   "name_localized": {
+    "zh-CN": "数学与物理理学学士（荣誉）"
+   },
+   "field": "physics",
+   "field_zh": "物理学",
+   "subject": "physics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "edinburgh-maths-physics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours programme splitting time evenly between mathematics and physics, studied over 4 years. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "edinburgh-maths-physics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "edinburgh-maths-physics",
+     "url": "https://study.ed.ac.uk/programmes/undergraduate/61-mathematics-and-physics",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Edinburgh",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": "GF13"
+  },
+  {
+   "id": "kcl-history-ir-ba-2027",
+   "institution_id": "king-s-college-london",
+   "institution": "King's College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History & International Relations BA",
+   "name_localized": {
+    "zh-CN": "历史与国际关系学士"
+   },
+   "field": "international-relations",
+   "field_zh": "国际关系",
+   "subject": "international-relations",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kcl-history-ir-ba-2027-academic",
+     "category": "academic",
+     "description": "Interdepartmental joint honours programme taught by the History and War Studies departments. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-history-ir"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kcl-history-ir",
+     "url": "http://kcl.ac.uk/study/undergraduate/courses/history-and-international-relations",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "VL12"
+  },
+  {
+   "id": "kcl-maths-philosophy-bsc-2027",
+   "institution_id": "king-s-college-london",
+   "institution": "King's College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics & Philosophy BSc",
+   "name_localized": {
+    "zh-CN": "数学与哲学学士"
+   },
+   "field": "mathematics",
+   "field_zh": "数学",
+   "subject": "mathematics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kcl-maths-philosophy-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed by King's Department of Mathematics. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-maths-undergraduate"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kcl-maths-undergraduate",
+     "url": "https://www.kcl.ac.uk/mathematics/study-with-us/undergraduate.aspx",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "GVC5"
+  },
+  {
+   "id": "kcl-ppe-ba-2027",
+   "institution_id": "king-s-college-london",
+   "institution": "King's College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics & Economics BA/BSc",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kcl-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA/BSc listed by King's Faculty of Social Science and Public Policy. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-sspp-undergraduate"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kcl-sspp-undergraduate",
+     "url": "https://www.kcl.ac.uk/sspp/undergraduate.aspx",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "L0V0"
+  },
+  {
+   "id": "manchester-politics-modern-history-ba-2027",
+   "institution_id": "university-of-manchester",
+   "institution": "University of Manchester",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Politics and Modern History BA",
+   "name_localized": {
+    "zh-CN": "政治与现代史学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "manchester-politics-modern-history-ba-2027-academic",
+     "category": "academic",
+     "description": "Typical A-level offer AAA including specific subjects; typical IB offer 36 points overall with 6,6,6 at Higher Level including specific subjects.",
+     "threshold": null,
+     "source_ids": [
+      "manchester-politics-modern-history"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "manchester-politics-modern-history",
+     "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2025/00353/ba-politics-and-modern-history/all-content/HSTM20081",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Manchester",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "manchester-ppe-ba-2027",
+   "institution_id": "university-of-manchester",
+   "institution": "University of Manchester",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Politics, Philosophy and Economics BA",
+   "name_localized": {
+    "zh-CN": "政治、哲学与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "manchester-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Typical A-level offer AAA; typical IB offer 36 points overall with 6,6,6 at Higher Level.",
+     "threshold": null,
+     "source_ids": [
+      "manchester-ppe"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "manchester-ppe",
+     "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00154/ba-politics-philosophy-and-economics/all-content/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Manchester",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "LV25"
+  },
+  {
+   "id": "manchester-history-american-studies-ba-2027",
+   "institution_id": "university-of-manchester",
+   "institution": "University of Manchester",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and American Studies BA",
+   "name_localized": {
+    "zh-CN": "历史与美国研究学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "manchester-history-american-studies-ba-2027-academic",
+     "category": "academic",
+     "description": "Three-year joint honours option: History combined with American Studies. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "manchester-history-guide"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "manchester-history-guide",
+     "url": "https://www.humanities.manchester.ac.uk/modern-languages/study/languages/subject-guides/history/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Manchester",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  }
+ ],
+ "sources": [
+  {
+   "id": "edinburgh-history-politics",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate/161-history-and-politics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-degree-finder-az",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate-a-z",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-maths-physics",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate/61-mathematics-and-physics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-history-ir",
+   "url": "http://kcl.ac.uk/study/undergraduate/courses/history-and-international-relations",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-maths-undergraduate",
+   "url": "https://www.kcl.ac.uk/mathematics/study-with-us/undergraduate.aspx",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-sspp-undergraduate",
+   "url": "https://www.kcl.ac.uk/sspp/undergraduate.aspx",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-politics-modern-history",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2025/00353/ba-politics-and-modern-history/all-content/HSTM20081",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-ppe",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00154/ba-politics-philosophy-and-economics/all-content/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-history-guide",
+   "url": "https://www.humanities.manchester.ac.uk/modern-languages/study/languages/subject-guides/history/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "joint-honours-26-50-f0001",
+   "scope": "program",
+   "scope_id": "edinburgh-history-politics-ma-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://study.ed.ac.uk/programmes/undergraduate/161-history-and-politics",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-f0002",
+   "scope": "program",
+   "scope_id": "edinburgh-economics-politics-ma-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://study.ed.ac.uk/programmes/undergraduate-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-f0003",
+   "scope": "program",
+   "scope_id": "edinburgh-maths-physics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://study.ed.ac.uk/programmes/undergraduate/61-mathematics-and-physics",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-f0004",
+   "scope": "program",
+   "scope_id": "kcl-history-ir-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://kcl.ac.uk/study/undergraduate/courses/history-and-international-relations",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-f0005",
+   "scope": "program",
+   "scope_id": "kcl-maths-philosophy-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.kcl.ac.uk/mathematics/study-with-us/undergraduate.aspx",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-f0006",
+   "scope": "program",
+   "scope_id": "kcl-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.kcl.ac.uk/sspp/undergraduate.aspx",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-f0007",
+   "scope": "program",
+   "scope_id": "manchester-politics-modern-history-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.manchester.ac.uk/study/undergraduate/courses/2025/00353/ba-politics-and-modern-history/all-content/HSTM20081",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-f0008",
+   "scope": "program",
+   "scope_id": "manchester-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00154/ba-politics-philosophy-and-economics/all-content/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-f0009",
+   "scope": "program",
+   "scope_id": "manchester-history-american-studies-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.humanities.manchester.ac.uk/modern-languages/study/languages/subject-guides/history/",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

@@ -1,0 +1,277 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "bristol-ifp-arts-foundation-2027",
+   "institution_id": "university-of-bristol",
+   "institution": "University of Bristol",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "International Foundation Programme — Arts, Law and Social Sciences",
+   "name_localized": {
+    "zh-CN": "国际预科课程（艺术、法律与社会科学方向）"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £26,900 for 2026/27, Arts, Law and Social Sciences pathway.",
+    "amount": 26900,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "bristol-ifp-arts-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year level 3 International Foundation Programme run by the University of Bristol. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "bristol-ifp-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "bristol-ifp-fees",
+     "url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Bristol",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "bristol-ifp-stem-foundation-2027",
+   "institution_id": "university-of-bristol",
+   "institution": "University of Bristol",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "International Foundation Programme — Science, Technology, Engineering and Mathematics",
+   "name_localized": {
+    "zh-CN": "国际预科课程（理工方向）"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £28,000 for 2026/27, Science, Technology, Engineering and Mathematics pathway.",
+    "amount": 28000,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "bristol-ifp-stem-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year level 3 International Foundation Programme run by the University of Bristol. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "bristol-ifp-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "bristol-ifp-fees",
+     "url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Bristol",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "warwick-ifp-foundation-2027",
+   "institution_id": "university-of-warwick",
+   "institution": "University of Warwick",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Warwick International Foundation Programme",
+   "name_localized": {
+    "zh-CN": "国际预科课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £27,150 for 2026/27; the 2027/28 fee was not yet published on the page consulted.",
+    "amount": 27150,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "warwick-ifp-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year International Foundation Programme run by the University of Warwick; IFP students are fully enrolled Warwick students. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "warwick-ifp-dates"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "warwick-ifp-dates",
+     "url": "https://warwick.ac.uk/study/international-foundation-programme/dates/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Coventry",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "birmingham-foundation-pathways-2027",
+   "institution_id": "university-of-birmingham",
+   "institution": "University of Birmingham",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Foundation Pathways",
+   "name_localized": {
+    "zh-CN": "预科衔接课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "birmingham-foundation-pathways-2027-academic",
+     "category": "academic",
+     "description": "One-year foundation pathways (Arts, Social Sciences, Business and Law; Engineering and Physical Sciences; Life and Environmental Sciences; Medicine and Health) with 120 credits, 80 of them subject-specific modules taught by Birmingham academics. Kaplan International Pathways helps deliver the admissions process only. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "birmingham-foundation-pathways"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "birmingham-foundation-pathways",
+     "url": "https://www.birmingham.ac.uk/study/international/bia/foundation-pathways-bia",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Birmingham",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  }
+ ],
+ "sources": [
+  {
+   "id": "bristol-ifp-fees",
+   "url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-ifp-dates",
+   "url": "https://warwick.ac.uk/study/international-foundation-programme/dates/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-foundation-pathways",
+   "url": "https://www.birmingham.ac.uk/study/international/bia/foundation-pathways-bia",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "foundation-51-75-f0001",
+   "scope": "program",
+   "scope_id": "bristol-ifp-arts-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 26900",
+   "source_url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-51-75-f0002",
+   "scope": "program",
+   "scope_id": "bristol-ifp-stem-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 28000",
+   "source_url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-51-75-f0003",
+   "scope": "program",
+   "scope_id": "warwick-ifp-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 27150",
+   "source_url": "https://warwick.ac.uk/study/international-foundation-programme/dates/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-51-75-f0004",
+   "scope": "program",
+   "scope_id": "birmingham-foundation-pathways-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.birmingham.ac.uk/study/international/bia/foundation-pathways-bia",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

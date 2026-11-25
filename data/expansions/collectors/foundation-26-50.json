@@ -1,0 +1,166 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "edinburgh-ifp-foundation-2027",
+   "institution_id": "university-of-edinburgh",
+   "institution": "University of Edinburgh",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "International Foundation Programme",
+   "name_localized": {
+    "zh-CN": "国际预科课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £31,100 for 2027/28; all IFP students pay the same international fee rate.",
+    "amount": 31100,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "edinburgh-ifp-foundation-2027-academic",
+     "category": "academic",
+     "description": "Full-time one-year programme taught on campus by University of Edinburgh academics, for international students not eligible for direct entry to undergraduate study. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "edinburgh-ifp",
+      "edinburgh-ifp-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "edinburgh-ifp",
+     "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "edinburgh-ifp-fees",
+     "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme/applying-for-ifp/fees-and-finance",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Edinburgh",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "kcl-ifp-foundation-2027",
+   "institution_id": "king-s-college-london",
+   "institution": "King's College London",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "King's International Foundation Programme",
+   "name_localized": {
+    "zh-CN": "国际预科课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kcl-ifp-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year specialist foundation course designed by King's Foundations to prepare ambitious international students for undergraduate study at King's or another UK university. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-ifp"
+     ]
+    },
+    {
+     "id": "kcl-ifp-foundation-2027-language",
+     "category": "language",
+     "description": "IELTS 6.0 overall with a minimum of 5.5 in each skill (or an equivalent English language qualification) for the standard programme; IELTS 5.5 overall (5.0 in each skill) for the Extended programme.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-ifp"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kcl-ifp",
+     "url": "http://kcl.ac.uk/international-foundation/programme",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  }
+ ],
+ "sources": [
+  {
+   "id": "edinburgh-ifp",
+   "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-ifp-fees",
+   "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme/applying-for-ifp/fees-and-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-ifp",
+   "url": "http://kcl.ac.uk/international-foundation/programme",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "foundation-26-50-f0001",
+   "scope": "program",
+   "scope_id": "edinburgh-ifp-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 31100",
+   "source_url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-26-50-f0002",
+   "scope": "program",
+   "scope_id": "kcl-ifp-foundation-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://kcl.ac.uk/international-foundation/programme",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

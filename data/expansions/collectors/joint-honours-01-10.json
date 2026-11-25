@@ -1,0 +1,535 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "oxford-ppe-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics and Economics (PPE)",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level AAA, including Maths (recommended) and History (recommended). Joint honours degree combining philosophy, politics and economics.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    },
+    {
+     "id": "oxford-ppe-ba-2027-test",
+     "category": "test",
+     "description": "Admissions test: TARA (Thinking and Reasoning Assessment) required.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-course-listing",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "oxford-admissions-summary",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-history-politics-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics",
+   "name_localized": {
+    "zh-CN": "历史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level AAA, including History; Sociology, Politics or Government and Politics recommended.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    },
+    {
+     "id": "oxford-history-politics-ba-2027-test",
+     "category": "test",
+     "description": "Admissions test: TARA required; one piece of written work.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-course-listing",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "oxford-admissions-summary",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-maths-philosophy-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Philosophy",
+   "name_localized": {
+    "zh-CN": "数学与哲学学士"
+   },
+   "field": "mathematics",
+   "field_zh": "数学",
+   "subject": "mathematics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-maths-philosophy-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level A*A*A with the A*s in Maths and Further Maths if taken.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    },
+    {
+     "id": "oxford-maths-philosophy-ba-2027-test",
+     "category": "test",
+     "description": "Admissions test: TMUA (Test of Mathematics for University Admission) required.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-course-listing",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "oxford-admissions-summary",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-history-economics-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Economics",
+   "name_localized": {
+    "zh-CN": "历史与经济学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-history-economics-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level AAA, including History and Maths.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    },
+    {
+     "id": "oxford-history-economics-ba-2027-test",
+     "category": "test",
+     "description": "Admissions test: TARA required; one piece of written work (History).",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-course-listing",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "oxford-admissions-summary",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "ucl-maths-physics-bsc-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Physics BSc",
+   "name_localized": {
+    "zh-CN": "数学与物理学士"
+   },
+   "field": "physics",
+   "field_zh": "物理学",
+   "subject": "physics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-maths-physics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed by UCL's Faculty of Mathematical and Physical Sciences. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-maps-degrees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-maps-degrees",
+     "url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "ucl-maths-economics-bsc-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics with Economics BSc",
+   "name_localized": {
+    "zh-CN": "数学与经济学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-maths-economics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed by UCL's Faculty of Mathematical and Physical Sciences. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-maps-degrees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-maps-degrees",
+     "url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "ucl-history-politics-economics-ba-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History, Politics and Economics BA",
+   "name_localized": {
+    "zh-CN": "历史、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-history-politics-economics-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA listed in UCL's undergraduate degree list. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-undergraduate-degrees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-undergraduate-degrees",
+     "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=history-art-materials-technology-ba",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  }
+ ],
+ "sources": [
+  {
+   "id": "oxford-course-listing",
+   "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-admissions-summary",
+   "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-maps-degrees",
+   "url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-undergraduate-degrees",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=history-art-materials-technology-ba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "joint-honours-01-10-f0001",
+   "scope": "program",
+   "scope_id": "oxford-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-f0002",
+   "scope": "program",
+   "scope_id": "oxford-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-f0003",
+   "scope": "program",
+   "scope_id": "oxford-maths-philosophy-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-f0004",
+   "scope": "program",
+   "scope_id": "oxford-history-economics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-f0005",
+   "scope": "program",
+   "scope_id": "ucl-maths-physics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-f0006",
+   "scope": "program",
+   "scope_id": "ucl-maths-economics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-f0007",
+   "scope": "program",
+   "scope_id": "ucl-history-politics-economics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=history-art-materials-technology-ba",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

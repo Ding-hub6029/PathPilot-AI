@@ -506,5 +506,7 @@
  "news.imperialFeeds": "Flux d'actualités officiels : toutes les actualités d'Imperial, plus les flux Informatique, IA et Asie de l'Est.",
  "policy.ucas": "Date limite d'examen à égalité : 13 janv. 2027 pour la plupart des licences ; 15 oct. 2026 pour Oxford, Cambridge et la médecine.",
  "policy.visa": "Guide officiel sur les visas étudiant britanniques : exigences, parrains et conditions.",
- "policy.pass": "Candidatez 2 à 3 mois avant le début du cours ; votre établissement vous inscrit d'abord dans SOLAR. Vérifiez les frais et la procédure en vigueur auprès de l'ICA."
+ "policy.pass": "Candidatez 2 à 3 mois avant le début du cours ; votre établissement vous inscrit d'abord dans SOLAR. Vérifiez les frais et la procédure en vigueur auprès de l'ICA.",
+ "institution.filterFoundation": "Fondation",
+ "institution.filterJointHonours": "Double licence"
 }

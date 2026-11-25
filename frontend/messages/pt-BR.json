@@ -506,5 +506,7 @@
  "news.imperialFeeds": "Feeds oficiais de notícias: todas as notícias do Imperial, além de Computação, IA e Leste Asiático.",
  "policy.ucas": "Prazo de consideração igualitária: 13 de jan. de 2027 para a maioria dos cursos de graduação; 15 de out. de 2026 para Oxford, Cambridge e medicina.",
  "policy.visa": "Guia oficial sobre vistos de estudante do Reino Unido: requisitos, patrocinadores e condições.",
- "policy.pass": "Solicite 2–3 meses antes do início do curso; sua instituição registra você no SOLAR primeiro. Confira as taxas e o processo atuais na ICA."
+ "policy.pass": "Solicite 2–3 meses antes do início do curso; sua instituição registra você no SOLAR primeiro. Confira as taxas e o processo atuais na ICA.",
+ "institution.filterFoundation": "Fundação",
+ "institution.filterJointHonours": "Dupla graduação"
 }

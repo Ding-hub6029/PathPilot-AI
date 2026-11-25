@@ -1,0 +1,233 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "ucl-upc-foundation-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Undergraduate Preparatory Certificate (UPC)",
+   "name_localized": {
+    "zh-CN": "本科预科证书"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £29,500 for 2027/28 (architecture stream £31,000), international, per year.",
+    "amount": 29500,
+    "residency": "international",
+    "academic_year": "2027/28",
+    "amount_max": 31000
+   },
+   "application_status": "unknown",
+   "application_deadline": "18 June 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-upc-foundation-2027-academic",
+     "category": "academic",
+     "description": "For international students who have completed high school with a qualification UCL does not accept for direct entry onto an undergraduate degree. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-upc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-upc",
+     "url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": "September 2027",
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-astrophoria-foundation-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Astrophoria Foundation Year",
+   "name_localized": {
+    "zh-CN": "阿斯托里亚预科"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "Fully funded for eligible students — tuition fees, college accommodation and a bursary for living costs are covered; no tuition fee is charged.",
+    "amount": 0,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-astrophoria-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year fully-funded programme for UK state school students with significant academic potential who have experienced severe personal disadvantage and/or disrupted education. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-foundation-year"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-foundation-year",
+     "url": "http://foundationyear.ox.ac.uk/about",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "cambridge-foundation-year-2027",
+   "institution_id": "university-of-cambridge",
+   "institution": "University of Cambridge",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Cambridge Foundation Year",
+   "name_localized": {
+    "zh-CN": "剑桥预科"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "Free and fully funded — no tuition fees are charged and a scholarship covers living costs.",
+    "amount": 0,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": "13 January 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cambridge-foundation-year-2027-academic",
+     "category": "academic",
+     "description": "Typical offer 120 UCAS Tariff Points (equivalent to BBB at A-level). Open only to students ordinarily resident in the UK who have experienced educational disadvantage.",
+     "threshold": null,
+     "source_ids": [
+      "cambridge-foundation-year"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cambridge-foundation-year",
+     "url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Cambridge",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  }
+ ],
+ "sources": [
+  {
+   "id": "ucl-upc",
+   "url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-foundation-year",
+   "url": "http://foundationyear.ox.ac.uk/about",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cambridge-foundation-year",
+   "url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "foundation-01-10-f0001",
+   "scope": "program",
+   "scope_id": "ucl-upc-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 29500",
+   "source_url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-f0002",
+   "scope": "program",
+   "scope_id": "ucl-upc-foundation-2027",
+   "field": "application_deadline",
+   "value": "18 June 2027",
+   "source_url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-f0003",
+   "scope": "program",
+   "scope_id": "oxford-astrophoria-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 0",
+   "source_url": "http://foundationyear.ox.ac.uk/about",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-f0004",
+   "scope": "program",
+   "scope_id": "cambridge-foundation-year-2027",
+   "field": "fees",
+   "value": "fee GBP 0",
+   "source_url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-f0005",
+   "scope": "program",
+   "scope_id": "cambridge-foundation-year-2027",
+   "field": "application_deadline",
+   "value": "13 January 2027",
+   "source_url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

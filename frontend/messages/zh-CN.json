@@ -506,5 +506,7 @@
  "news.imperialFeeds": "官方新闻源：帝国理工全部新闻，以及计算机、人工智能与东亚专题源。",
  "policy.ucas": "多数本科课程的同等考虑截止日期为 2027 年 1 月 13 日；牛津、剑桥与医学为 2026 年 10 月 15 日。",
  "policy.visa": "英国学生签证官方指南：要求、担保人与条件。",
- "policy.pass": "开课前 2–3 个月申请；学校会先在 SOLAR 系统中为你注册。费用与流程以 ICA 官网为准。"
+ "policy.pass": "开课前 2–3 个月申请；学校会先在 SOLAR 系统中为你注册。费用与流程以 ICA 官网为准。",
+ "institution.filterFoundation": "预科",
+ "institution.filterJointHonours": "联合学位"
 }

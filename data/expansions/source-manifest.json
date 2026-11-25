@@ -2794,6 +2794,206 @@
    "id": "zjui-handbook",
    "url": "https://zjui.intl.zju.edu.cn/sites/default/files/2023-02/2023%20ZJUI%20Admission%20Handbook_0.pdf",
    "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cambridge-foundation-year",
+   "url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-foundation-year",
+   "url": "http://foundationyear.ox.ac.uk/about",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-upc",
+   "url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-ifp",
+   "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-ifp-fees",
+   "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme/applying-for-ifp/fees-and-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-ifp",
+   "url": "http://kcl.ac.uk/international-foundation/programme",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-foundation-pathways",
+   "url": "https://www.birmingham.ac.uk/study/international/bia/foundation-pathways-bia",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-ifp-fees",
+   "url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-ifp-dates",
+   "url": "https://warwick.ac.uk/study/international-foundation-programme/dates/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-foundation-programme",
+   "url": "https://www.durham.ac.uk/departments/centres/academic-development/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ify-arts",
+   "url": "https://courses.leeds.ac.uk/202627/j054/bachelor-degree-with-integrated-international-foundation-year-arts-and-social-science-ba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ify-fees",
+   "url": "https://www.leeds.ac.uk/international-foundation-year/doc/ify-fees-scholarships",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ify-science",
+   "url": "https://courses.leeds.ac.uk/j061/bachelor-degree-with-integrated-international-foundation-year-science-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-admissions-summary",
+   "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-course-listing",
+   "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-maps-degrees",
+   "url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-undergraduate-degrees",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=history-art-materials-technology-ba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-degree-finder-az",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate-a-z",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-history-politics",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate/161-history-and-politics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-maths-physics",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate/61-mathematics-and-physics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-history-ir",
+   "url": "http://kcl.ac.uk/study/undergraduate/courses/history-and-international-relations",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-maths-undergraduate",
+   "url": "https://www.kcl.ac.uk/mathematics/study-with-us/undergraduate.aspx",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-sspp-undergraduate",
+   "url": "https://www.kcl.ac.uk/sspp/undergraduate.aspx",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-history-guide",
+   "url": "https://www.humanities.manchester.ac.uk/modern-languages/study/languages/subject-guides/history/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-politics-modern-history",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2025/00353/ba-politics-and-modern-history/all-content/HSTM20081",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-ppe",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00154/ba-politics-philosophy-and-economics/all-content/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-course-search",
+   "url": "https://www.birmingham.ac.uk/study/undergraduate/course-search?term=history",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-modl-route",
+   "url": "https://upc.bristol.ac.uk/unit-programme-catalogue/RouteSpecification.jsa?ayrCode=36%2F37&selectedCatalogue=PROGRAMME&orgCode=MODL&programmeCode=1MODL036U",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-combined-honours-social-sciences",
+   "url": "https://www.durham.ac.uk/study/courses/combined-honours-in-social-sciences-lmv0/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-modern-european-languages-history",
+   "url": "http://durham.ac.uk/study/courses/modern-european-languages-and-history-with-year-abroad-rv92/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-open-day-guide",
+   "url": "https://www.durham.ac.uk/visit-us/open-days/undergraduate/your-on-campus-visit/open-day-guide/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-international-history-degrees",
+   "url": "http://www.lse.ac.uk/International-History/Degrees/Undergraduate?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tcd-tjh-combinations",
+   "url": "https://www.tcd.ie/tjh/prospective-students/tjh-combinations/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-undergraduate-courses",
+   "url": "https://warwick.ac.uk/study/undergraduate/courses-2026/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-scottish-history",
+   "url": "https://www.gla.ac.uk/undergraduate/degrees/scottishhistory/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ancient-history-politics",
+   "url": "https://courses.leeds.ac.uk/site/scripts/course.php?courseID=25223&adminID=958&c=2dac4255475c75a5c710b6ba72d2c6bd&preview=1",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-fees-2026-27",
+   "url": "https://www.nottingham.ac.uk/fees/tuitionfees/202627/undergraduate.aspx?utm_source=meta&utm_medium=cpm&utm_campaign=UG_IN_Meta_Clusters_Traffic_Law&utm_term=52557645023468&utm_content=52557645023668&utm_id=52557607971268",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-history-politics",
+   "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/History-and-Politics-BA-Jt-Hons.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-ways-to-study-politics",
+   "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sheffield-programme-specifications",
+   "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+   "retrieved_at": "2026-11-25T00:00:00Z"
   }
  ]
 }

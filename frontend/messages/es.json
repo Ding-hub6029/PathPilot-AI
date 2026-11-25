@@ -506,5 +506,7 @@
  "news.imperialFeeds": "Fuentes oficiales de noticias: todas las noticias de Imperial, además de Informática, IA y Asia Oriental.",
  "policy.ucas": "Fecha límite de consideración igualitaria: 13 ene 2027 para la mayoría de los grados; 15 oct 2026 para Oxford, Cambridge y medicina.",
  "policy.visa": "Guía oficial sobre visados de estudiante del Reino Unido: requisitos, patrocinadores y condiciones.",
- "policy.pass": "Solicítalo 2–3 meses antes de que empiece el curso; tu institución te registra primero en SOLAR. Consulta en ICA las tasas y el proceso actuales."
+ "policy.pass": "Solicítalo 2–3 meses antes de que empiece el curso; tu institución te registra primero en SOLAR. Consulta en ICA las tasas y el proceso actuales.",
+ "institution.filterFoundation": "Fundación",
+ "institution.filterJointHonours": "Doble titulación"
 }

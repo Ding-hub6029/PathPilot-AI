@@ -1,0 +1,231 @@
+{
+ "data_version": "v3",
+ "institutions": [],
+ "programs": [
+  {
+   "id": "leeds-ify-arts-foundation-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Bachelor Degree with Integrated International Foundation Year (Arts and Social Science)",
+   "name_localized": {
+    "zh-CN": "本科衔接国际预科（艺术与社会科学）"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £25,500 for the initial (foundation) year for September 2027 entry; fees are higher when progressing to the undergraduate degree.",
+    "amount": 25500,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-ify-arts-foundation-2027-academic",
+     "category": "academic",
+     "description": "Four-year integrated degree: the first year is the International Foundation Year, then progression onto a chosen Leeds undergraduate degree. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-ify-arts",
+      "leeds-ify-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-ify-arts",
+     "url": "https://courses.leeds.ac.uk/202627/j054/bachelor-degree-with-integrated-international-foundation-year-arts-and-social-science-ba",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "leeds-ify-fees",
+     "url": "https://www.leeds.ac.uk/international-foundation-year/doc/ify-fees-scholarships",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "leeds-ify-science-foundation-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Bachelor Degree with Integrated International Foundation Year (Science)",
+   "name_localized": {
+    "zh-CN": "本科衔接国际预科（理科）"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £26,000 for the initial (foundation) year for September 2027 entry (Engineering, Science and Healthcare routes); fees are higher when progressing to the undergraduate degree.",
+    "amount": 26000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-ify-science-foundation-2027-academic",
+     "category": "academic",
+     "description": "Four-year integrated degree: the first year is the International Foundation Year, then progression onto a chosen Leeds science undergraduate degree. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-ify-science",
+      "leeds-ify-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-ify-science",
+     "url": "https://courses.leeds.ac.uk/j061/bachelor-degree-with-integrated-international-foundation-year-science-bsc",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "leeds-ify-fees",
+     "url": "https://www.leeds.ac.uk/international-foundation-year/doc/ify-fees-scholarships",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "durham-foundation-programme-2027",
+   "institution_id": "durham-university",
+   "institution": "Durham University",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Foundation Programme",
+   "name_localized": {
+    "zh-CN": "预科课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "durham-foundation-programme-2027-academic",
+     "category": "academic",
+     "description": "Durham's own Foundation Programme (Foundation Centre, running since 1992) for UK students from under-represented groups who have been unable to achieve their academic potential; one foundation year (Year 0) before progressing to a Durham undergraduate degree. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "durham-foundation-programme"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "durham-foundation-programme",
+     "url": "https://www.durham.ac.uk/departments/centres/academic-development/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Durham",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  }
+ ],
+ "sources": [
+  {
+   "id": "leeds-ify-arts",
+   "url": "https://courses.leeds.ac.uk/202627/j054/bachelor-degree-with-integrated-international-foundation-year-arts-and-social-science-ba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ify-fees",
+   "url": "https://www.leeds.ac.uk/international-foundation-year/doc/ify-fees-scholarships",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ify-science",
+   "url": "https://courses.leeds.ac.uk/j061/bachelor-degree-with-integrated-international-foundation-year-science-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-foundation-programme",
+   "url": "https://www.durham.ac.uk/departments/centres/academic-development/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  }
+ ],
+ "traceability": [
+  {
+   "fact_id": "foundation-76-100-f0001",
+   "scope": "program",
+   "scope_id": "leeds-ify-arts-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 25500",
+   "source_url": "https://courses.leeds.ac.uk/202627/j054/bachelor-degree-with-integrated-international-foundation-year-arts-and-social-science-ba",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-76-100-f0002",
+   "scope": "program",
+   "scope_id": "leeds-ify-science-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 26000",
+   "source_url": "https://courses.leeds.ac.uk/j061/bachelor-degree-with-integrated-international-foundation-year-science-bsc",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-76-100-f0003",
+   "scope": "program",
+   "scope_id": "durham-foundation-programme-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.durham.ac.uk/departments/centres/academic-development/",
+   "retrieved_at": "2026-11-25"
+  }
+ ]
+}

@@ -2769,7 +2769,7 @@
    ]
   }
  ],
- "notes": "Merged band rank-11-25. Merged band rank-01-10. Merged band rank-51-75. Merged band rank-26-50. Merged band rank-76-100. Merged band business-01-50. Merged band business-26-50. Merged band business-51-75. Merged band business-76-100. Merged band engineering-01-10. Merged band engineering-11-25. Merged band engineering-26-50.",
+ "notes": "Merged band rank-11-25. Merged band rank-01-10. Merged band rank-51-75. Merged band rank-26-50. Merged band rank-76-100. Merged band business-01-50. Merged band business-26-50. Merged band business-51-75. Merged band business-76-100. Merged band engineering-01-10. Merged band engineering-11-25. Merged band engineering-26-50. Merged band foundation-01-10. Merged band foundation-26-50. Merged band foundation-51-75. Merged band foundation-76-100. Merged band joint-honours-01-10. Merged band joint-honours-26-50. Merged band joint-honours-51-75. Merged band joint-honours-76-100.",
  "programs": [
   {
    "id": "hku-cs-beng-2027",
@@ -51669,6 +51669,2750 @@
    "city": "Hong Kong",
    "duration": "4 years",
    "duration_months": 48
+  },
+  {
+   "id": "ucl-upc-foundation-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Undergraduate Preparatory Certificate (UPC)",
+   "name_localized": {
+    "zh-CN": "本科预科证书"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £29,500 for 2027/28 (architecture stream £31,000), international, per year.",
+    "amount": 29500,
+    "residency": "international",
+    "academic_year": "2027/28",
+    "amount_max": 31000
+   },
+   "application_status": "unknown",
+   "application_deadline": "18 June 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-upc-foundation-2027-academic",
+     "category": "academic",
+     "description": "For international students who have completed high school with a qualification UCL does not accept for direct entry onto an undergraduate degree. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-upc"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-upc",
+     "url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": "September 2027",
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-astrophoria-foundation-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Astrophoria Foundation Year",
+   "name_localized": {
+    "zh-CN": "阿斯托里亚预科"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "Fully funded for eligible students — tuition fees, college accommodation and a bursary for living costs are covered; no tuition fee is charged.",
+    "amount": 0,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-astrophoria-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year fully-funded programme for UK state school students with significant academic potential who have experienced severe personal disadvantage and/or disrupted education. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-foundation-year"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-foundation-year",
+     "url": "http://foundationyear.ox.ac.uk/about",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "cambridge-foundation-year-2027",
+   "institution_id": "university-of-cambridge",
+   "institution": "University of Cambridge",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Cambridge Foundation Year",
+   "name_localized": {
+    "zh-CN": "剑桥预科"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "total",
+    "notes": "Free and fully funded — no tuition fees are charged and a scholarship covers living costs.",
+    "amount": 0,
+    "residency": "all",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": "13 January 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "cambridge-foundation-year-2027-academic",
+     "category": "academic",
+     "description": "Typical offer 120 UCAS Tariff Points (equivalent to BBB at A-level). Open only to students ordinarily resident in the UK who have experienced educational disadvantage.",
+     "threshold": null,
+     "source_ids": [
+      "cambridge-foundation-year"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "cambridge-foundation-year",
+     "url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Cambridge",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "edinburgh-ifp-foundation-2027",
+   "institution_id": "university-of-edinburgh",
+   "institution": "University of Edinburgh",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "International Foundation Programme",
+   "name_localized": {
+    "zh-CN": "国际预科课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £31,100 for 2027/28; all IFP students pay the same international fee rate.",
+    "amount": 31100,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "edinburgh-ifp-foundation-2027-academic",
+     "category": "academic",
+     "description": "Full-time one-year programme taught on campus by University of Edinburgh academics, for international students not eligible for direct entry to undergraduate study. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "edinburgh-ifp",
+      "edinburgh-ifp-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "edinburgh-ifp",
+     "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "edinburgh-ifp-fees",
+     "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme/applying-for-ifp/fees-and-finance",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Edinburgh",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "kcl-ifp-foundation-2027",
+   "institution_id": "king-s-college-london",
+   "institution": "King's College London",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "King's International Foundation Programme",
+   "name_localized": {
+    "zh-CN": "国际预科课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kcl-ifp-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year specialist foundation course designed by King's Foundations to prepare ambitious international students for undergraduate study at King's or another UK university. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-ifp"
+     ]
+    },
+    {
+     "id": "kcl-ifp-foundation-2027-language",
+     "category": "language",
+     "description": "IELTS 6.0 overall with a minimum of 5.5 in each skill (or an equivalent English language qualification) for the standard programme; IELTS 5.5 overall (5.0 in each skill) for the Extended programme.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-ifp"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kcl-ifp",
+     "url": "http://kcl.ac.uk/international-foundation/programme",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "bristol-ifp-arts-foundation-2027",
+   "institution_id": "university-of-bristol",
+   "institution": "University of Bristol",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "International Foundation Programme — Arts, Law and Social Sciences",
+   "name_localized": {
+    "zh-CN": "国际预科课程（艺术、法律与社会科学方向）"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £26,900 for 2026/27, Arts, Law and Social Sciences pathway.",
+    "amount": 26900,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "bristol-ifp-arts-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year level 3 International Foundation Programme run by the University of Bristol. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "bristol-ifp-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "bristol-ifp-fees",
+     "url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Bristol",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "bristol-ifp-stem-foundation-2027",
+   "institution_id": "university-of-bristol",
+   "institution": "University of Bristol",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "International Foundation Programme — Science, Technology, Engineering and Mathematics",
+   "name_localized": {
+    "zh-CN": "国际预科课程（理工方向）"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £28,000 for 2026/27, Science, Technology, Engineering and Mathematics pathway.",
+    "amount": 28000,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "bristol-ifp-stem-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year level 3 International Foundation Programme run by the University of Bristol. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "bristol-ifp-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "bristol-ifp-fees",
+     "url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Bristol",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "warwick-ifp-foundation-2027",
+   "institution_id": "university-of-warwick",
+   "institution": "University of Warwick",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Warwick International Foundation Programme",
+   "name_localized": {
+    "zh-CN": "国际预科课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £27,150 for 2026/27; the 2027/28 fee was not yet published on the page consulted.",
+    "amount": 27150,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "warwick-ifp-foundation-2027-academic",
+     "category": "academic",
+     "description": "One-year International Foundation Programme run by the University of Warwick; IFP students are fully enrolled Warwick students. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "warwick-ifp-dates"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "warwick-ifp-dates",
+     "url": "https://warwick.ac.uk/study/international-foundation-programme/dates/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Coventry",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "birmingham-foundation-pathways-2027",
+   "institution_id": "university-of-birmingham",
+   "institution": "University of Birmingham",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Foundation Pathways",
+   "name_localized": {
+    "zh-CN": "预科衔接课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "birmingham-foundation-pathways-2027-academic",
+     "category": "academic",
+     "description": "One-year foundation pathways (Arts, Social Sciences, Business and Law; Engineering and Physical Sciences; Life and Environmental Sciences; Medicine and Health) with 120 credits, 80 of them subject-specific modules taught by Birmingham academics. Kaplan International Pathways helps deliver the admissions process only. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "birmingham-foundation-pathways"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "birmingham-foundation-pathways",
+     "url": "https://www.birmingham.ac.uk/study/international/bia/foundation-pathways-bia",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Birmingham",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "leeds-ify-arts-foundation-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Bachelor Degree with Integrated International Foundation Year (Arts and Social Science)",
+   "name_localized": {
+    "zh-CN": "本科衔接国际预科（艺术与社会科学）"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £25,500 for the initial (foundation) year for September 2027 entry; fees are higher when progressing to the undergraduate degree.",
+    "amount": 25500,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-ify-arts-foundation-2027-academic",
+     "category": "academic",
+     "description": "Four-year integrated degree: the first year is the International Foundation Year, then progression onto a chosen Leeds undergraduate degree. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-ify-arts",
+      "leeds-ify-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-ify-arts",
+     "url": "https://courses.leeds.ac.uk/202627/j054/bachelor-degree-with-integrated-international-foundation-year-arts-and-social-science-ba",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "leeds-ify-fees",
+     "url": "https://www.leeds.ac.uk/international-foundation-year/doc/ify-fees-scholarships",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "leeds-ify-science-foundation-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Bachelor Degree with Integrated International Foundation Year (Science)",
+   "name_localized": {
+    "zh-CN": "本科衔接国际预科（理科）"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition £26,000 for the initial (foundation) year for September 2027 entry (Engineering, Science and Healthcare routes); fees are higher when progressing to the undergraduate degree.",
+    "amount": 26000,
+    "residency": "international",
+    "academic_year": "2027/28"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-ify-science-foundation-2027-academic",
+     "category": "academic",
+     "description": "Four-year integrated degree: the first year is the International Foundation Year, then progression onto a chosen Leeds science undergraduate degree. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-ify-science",
+      "leeds-ify-fees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-ify-science",
+     "url": "https://courses.leeds.ac.uk/j061/bachelor-degree-with-integrated-international-foundation-year-science-bsc",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "leeds-ify-fees",
+     "url": "https://www.leeds.ac.uk/international-foundation-year/doc/ify-fees-scholarships",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "durham-foundation-programme-2027",
+   "institution_id": "durham-university",
+   "institution": "Durham University",
+   "country": "GB",
+   "degree_level": "foundation",
+   "official_name": "Foundation Programme",
+   "name_localized": {
+    "zh-CN": "预科课程"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "all",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "durham-foundation-programme-2027-academic",
+     "category": "academic",
+     "description": "Durham's own Foundation Programme (Foundation Centre, running since 1992) for UK students from under-represented groups who have been unable to achieve their academic potential; one foundation year (Year 0) before progressing to a Durham undergraduate degree. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "durham-foundation-programme"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "durham-foundation-programme",
+     "url": "https://www.durham.ac.uk/departments/centres/academic-development/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Durham",
+   "duration": "1 year",
+   "duration_months": 12,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-ppe-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics and Economics (PPE)",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level AAA, including Maths (recommended) and History (recommended). Joint honours degree combining philosophy, politics and economics.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    },
+    {
+     "id": "oxford-ppe-ba-2027-test",
+     "category": "test",
+     "description": "Admissions test: TARA (Thinking and Reasoning Assessment) required.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-course-listing",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "oxford-admissions-summary",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-history-politics-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics",
+   "name_localized": {
+    "zh-CN": "历史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level AAA, including History; Sociology, Politics or Government and Politics recommended.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    },
+    {
+     "id": "oxford-history-politics-ba-2027-test",
+     "category": "test",
+     "description": "Admissions test: TARA required; one piece of written work.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-course-listing",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "oxford-admissions-summary",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-maths-philosophy-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Philosophy",
+   "name_localized": {
+    "zh-CN": "数学与哲学学士"
+   },
+   "field": "mathematics",
+   "field_zh": "数学",
+   "subject": "mathematics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-maths-philosophy-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level A*A*A with the A*s in Maths and Further Maths if taken.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    },
+    {
+     "id": "oxford-maths-philosophy-ba-2027-test",
+     "category": "test",
+     "description": "Admissions test: TMUA (Test of Mathematics for University Admission) required.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-course-listing",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "oxford-admissions-summary",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "oxford-history-economics-ba-2027",
+   "institution_id": "university-of-oxford",
+   "institution": "University of Oxford",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Economics",
+   "name_localized": {
+    "zh-CN": "历史与经济学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "oxford-history-economics-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level AAA, including History and Maths.",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    },
+    {
+     "id": "oxford-history-economics-ba-2027-test",
+     "category": "test",
+     "description": "Admissions test: TARA required; one piece of written work (History).",
+     "threshold": null,
+     "source_ids": [
+      "oxford-course-listing",
+      "oxford-admissions-summary"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "oxford-course-listing",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "oxford-admissions-summary",
+     "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Oxford",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "ucl-maths-physics-bsc-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Physics BSc",
+   "name_localized": {
+    "zh-CN": "数学与物理学士"
+   },
+   "field": "physics",
+   "field_zh": "物理学",
+   "subject": "physics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-maths-physics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed by UCL's Faculty of Mathematical and Physical Sciences. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-maps-degrees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-maps-degrees",
+     "url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "ucl-maths-economics-bsc-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics with Economics BSc",
+   "name_localized": {
+    "zh-CN": "数学与经济学士"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-maths-economics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed by UCL's Faculty of Mathematical and Physical Sciences. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-maps-degrees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-maps-degrees",
+     "url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "ucl-history-politics-economics-ba-2027",
+   "institution_id": "ucl",
+   "institution": "University College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History, Politics and Economics BA",
+   "name_localized": {
+    "zh-CN": "历史、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "ucl-history-politics-economics-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA listed in UCL's undergraduate degree list. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "ucl-undergraduate-degrees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "ucl-undergraduate-degrees",
+     "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=history-art-materials-technology-ba",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "edinburgh-history-politics-ma-2027",
+   "institution_id": "university-of-edinburgh",
+   "institution": "University of Edinburgh",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics MA (Hons)",
+   "name_localized": {
+    "zh-CN": "历史与政治文学硕士（荣誉）"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "edinburgh-history-politics-ma-2027-academic",
+     "category": "academic",
+     "description": "Joint programme combining history and politics, studied over 4 years. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "edinburgh-history-politics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "edinburgh-history-politics",
+     "url": "https://study.ed.ac.uk/programmes/undergraduate/161-history-and-politics",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Edinburgh",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "edinburgh-economics-politics-ma-2027",
+   "institution_id": "university-of-edinburgh",
+   "institution": "University of Edinburgh",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Economics and Politics MA (Hons)",
+   "name_localized": {
+    "zh-CN": "经济学与政治文学硕士（荣誉）"
+   },
+   "field": "economics",
+   "field_zh": "经济学",
+   "subject": "economics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "edinburgh-economics-politics-ma-2027-academic",
+     "category": "academic",
+     "description": "Joint honours MA (Hons) listed in the University of Edinburgh degree finder (UCAS LL12). No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "edinburgh-degree-finder-az"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "edinburgh-degree-finder-az",
+     "url": "https://study.ed.ac.uk/programmes/undergraduate-a-z",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Edinburgh",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": "LL12"
+  },
+  {
+   "id": "edinburgh-maths-physics-bsc-2027",
+   "institution_id": "university-of-edinburgh",
+   "institution": "University of Edinburgh",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Physics BSc (Hons)",
+   "name_localized": {
+    "zh-CN": "数学与物理理学学士（荣誉）"
+   },
+   "field": "physics",
+   "field_zh": "物理学",
+   "subject": "physics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "edinburgh-maths-physics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours programme splitting time evenly between mathematics and physics, studied over 4 years. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "edinburgh-maths-physics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "edinburgh-maths-physics",
+     "url": "https://study.ed.ac.uk/programmes/undergraduate/61-mathematics-and-physics",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Edinburgh",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": "GF13"
+  },
+  {
+   "id": "kcl-history-ir-ba-2027",
+   "institution_id": "king-s-college-london",
+   "institution": "King's College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History & International Relations BA",
+   "name_localized": {
+    "zh-CN": "历史与国际关系学士"
+   },
+   "field": "international-relations",
+   "field_zh": "国际关系",
+   "subject": "international-relations",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kcl-history-ir-ba-2027-academic",
+     "category": "academic",
+     "description": "Interdepartmental joint honours programme taught by the History and War Studies departments. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-history-ir"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kcl-history-ir",
+     "url": "http://kcl.ac.uk/study/undergraduate/courses/history-and-international-relations",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "VL12"
+  },
+  {
+   "id": "kcl-maths-philosophy-bsc-2027",
+   "institution_id": "king-s-college-london",
+   "institution": "King's College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics & Philosophy BSc",
+   "name_localized": {
+    "zh-CN": "数学与哲学学士"
+   },
+   "field": "mathematics",
+   "field_zh": "数学",
+   "subject": "mathematics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kcl-maths-philosophy-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed by King's Department of Mathematics. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-maths-undergraduate"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kcl-maths-undergraduate",
+     "url": "https://www.kcl.ac.uk/mathematics/study-with-us/undergraduate.aspx",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "GVC5"
+  },
+  {
+   "id": "kcl-ppe-ba-2027",
+   "institution_id": "king-s-college-london",
+   "institution": "King's College London",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics & Economics BA/BSc",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "kcl-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA/BSc listed by King's Faculty of Social Science and Public Policy. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "kcl-sspp-undergraduate"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "kcl-sspp-undergraduate",
+     "url": "https://www.kcl.ac.uk/sspp/undergraduate.aspx",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "L0V0"
+  },
+  {
+   "id": "manchester-politics-modern-history-ba-2027",
+   "institution_id": "university-of-manchester",
+   "institution": "University of Manchester",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Politics and Modern History BA",
+   "name_localized": {
+    "zh-CN": "政治与现代史学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "manchester-politics-modern-history-ba-2027-academic",
+     "category": "academic",
+     "description": "Typical A-level offer AAA including specific subjects; typical IB offer 36 points overall with 6,6,6 at Higher Level including specific subjects.",
+     "threshold": null,
+     "source_ids": [
+      "manchester-politics-modern-history"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "manchester-politics-modern-history",
+     "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2025/00353/ba-politics-and-modern-history/all-content/HSTM20081",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Manchester",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "manchester-ppe-ba-2027",
+   "institution_id": "university-of-manchester",
+   "institution": "University of Manchester",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Politics, Philosophy and Economics BA",
+   "name_localized": {
+    "zh-CN": "政治、哲学与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "manchester-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Typical A-level offer AAA; typical IB offer 36 points overall with 6,6,6 at Higher Level.",
+     "threshold": null,
+     "source_ids": [
+      "manchester-ppe"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "manchester-ppe",
+     "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00154/ba-politics-philosophy-and-economics/all-content/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Manchester",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "LV25"
+  },
+  {
+   "id": "manchester-history-american-studies-ba-2027",
+   "institution_id": "university-of-manchester",
+   "institution": "University of Manchester",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and American Studies BA",
+   "name_localized": {
+    "zh-CN": "历史与美国研究学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "manchester-history-american-studies-ba-2027-academic",
+     "category": "academic",
+     "description": "Three-year joint honours option: History combined with American Studies. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "manchester-history-guide"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "manchester-history-guide",
+     "url": "https://www.humanities.manchester.ac.uk/modern-languages/study/languages/subject-guides/history/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Manchester",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "bristol-history-modern-languages-ba-2027",
+   "institution_id": "university-of-bristol",
+   "institution": "University of Bristol",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Modern Languages BA",
+   "name_localized": {
+    "zh-CN": "历史与现代语言学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "bristol-history-modern-languages-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint Honours (UG) programme in the University of Bristol unit and programme catalogue, with a year abroad. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "bristol-modl-route"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "bristol-modl-route",
+     "url": "https://upc.bristol.ac.uk/unit-programme-catalogue/RouteSpecification.jsa?ayrCode=36%2F37&selectedCatalogue=PROGRAMME&orgCode=MODL&programmeCode=1MODL036U",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Bristol",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "warwick-maths-physics-bsc-2027",
+   "institution_id": "university-of-warwick",
+   "institution": "University of Warwick",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Physics BSc",
+   "name_localized": {
+    "zh-CN": "数学与物理学士"
+   },
+   "field": "physics",
+   "field_zh": "物理学",
+   "subject": "physics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "warwick-maths-physics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed in Warwick's undergraduate course list. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "warwick-undergraduate-courses"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "warwick-undergraduate-courses",
+     "url": "https://warwick.ac.uk/study/undergraduate/courses-2026/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Coventry",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "GF13"
+  },
+  {
+   "id": "warwick-maths-philosophy-bsc-2027",
+   "institution_id": "university-of-warwick",
+   "institution": "University of Warwick",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Philosophy BA/BSc",
+   "name_localized": {
+    "zh-CN": "数学与哲学学士"
+   },
+   "field": "mathematics",
+   "field_zh": "数学",
+   "subject": "mathematics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "warwick-maths-philosophy-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA/BSc listed in Warwick's undergraduate course list. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "warwick-undergraduate-courses"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "warwick-undergraduate-courses",
+     "url": "https://warwick.ac.uk/study/undergraduate/courses-2026/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Coventry",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "GV15"
+  },
+  {
+   "id": "warwick-ppe-bsc-2027",
+   "institution_id": "university-of-warwick",
+   "institution": "University of Warwick",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics and Economics BSc",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "warwick-ppe-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours degree listed in Warwick's undergraduate course list (BA or BSc). No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "warwick-undergraduate-courses"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "warwick-undergraduate-courses",
+     "url": "https://warwick.ac.uk/study/undergraduate/courses-2026/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Coventry",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "birmingham-history-politics-ba-2027",
+   "institution_id": "university-of-birmingham",
+   "institution": "University of Birmingham",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics BA",
+   "name_localized": {
+    "zh-CN": "历史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "birmingham-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint Honours BA listed in the University of Birmingham course search. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "birmingham-course-search"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "birmingham-course-search",
+     "url": "https://www.birmingham.ac.uk/study/undergraduate/course-search?term=history",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Birmingham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "LV21"
+  },
+  {
+   "id": "birmingham-maths-computer-science-bsc-2027",
+   "institution_id": "university-of-birmingham",
+   "institution": "University of Birmingham",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Computer Science BSc",
+   "name_localized": {
+    "zh-CN": "数学与计算机科学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "birmingham-maths-computer-science-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint Honours BSc listed in the University of Birmingham course search. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "birmingham-course-search"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "birmingham-course-search",
+     "url": "https://www.birmingham.ac.uk/study/undergraduate/course-search?term=history",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Birmingham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "GG14"
+  },
+  {
+   "id": "lse-ir-history-bsc-2027",
+   "institution_id": "london-school-of-economics-and-political-science",
+   "institution": "London School of Economics and Political Science",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "International Relations and History BSc",
+   "name_localized": {
+    "zh-CN": "国际关系与历史学士"
+   },
+   "field": "international-relations",
+   "field_zh": "国际关系",
+   "subject": "international-relations",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "lse-ir-history-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours degree combining historical studies with contemporary and theoretical studies in international relations; 12 courses over three years plus LSE100. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "lse-international-history-degrees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "lse-international-history-degrees",
+     "url": "http://www.lse.ac.uk/International-History/Degrees/Undergraduate?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "lse-history-politics-bsc-2027",
+   "institution_id": "london-school-of-economics-and-political-science",
+   "institution": "London School of Economics and Political Science",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics BSc",
+   "name_localized": {
+    "zh-CN": "历史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "lse-history-politics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours programme taught jointly with the Department of Government, around half of the programme in each field. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "lse-international-history-degrees"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "lse-international-history-degrees",
+     "url": "http://www.lse.ac.uk/International-History/Degrees/Undergraduate?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "London",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "durham-combined-honours-social-sciences-ba-2027",
+   "institution_id": "durham-university",
+   "institution": "Durham University",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Combined Honours in Social Sciences",
+   "name_localized": {
+    "zh-CN": "社会科学综合荣誉学士"
+   },
+   "field": "other",
+   "field_zh": "其他",
+   "subject": "other",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "durham-combined-honours-social-sciences-ba-2027-academic",
+     "category": "academic",
+     "description": "Multidisciplinary combined honours degree: students choose two subjects (or spread across three or four) from social sciences subjects. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "durham-combined-honours-social-sciences"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "durham-combined-honours-social-sciences",
+     "url": "https://www.durham.ac.uk/study/courses/combined-honours-in-social-sciences-lmv0/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Durham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "LMV0"
+  },
+  {
+   "id": "durham-ppe-ba-2027",
+   "institution_id": "durham-university",
+   "institution": "Durham University",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics and Economics",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "durham-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours degree listed in Durham's undergraduate open day guide. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "durham-open-day-guide"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "durham-open-day-guide",
+     "url": "https://www.durham.ac.uk/visit-us/open-days/undergraduate/your-on-campus-visit/open-day-guide/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Durham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "durham-modern-european-languages-history-ba-2027",
+   "institution_id": "durham-university",
+   "institution": "Durham University",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Modern European Languages and History with Year Abroad",
+   "name_localized": {
+    "zh-CN": "现代欧洲语言与历史学士（含海外学年）"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "durham-modern-european-languages-history-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint Honours degree combining a modern European language (French, German, Italian, Russian or Spanish) with history, including a year abroad. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "durham-modern-european-languages-history"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "durham-modern-european-languages-history",
+     "url": "http://durham.ac.uk/study/courses/modern-european-languages-and-history-with-year-abroad-rv92/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Durham",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": "RV92"
+  },
+  {
+   "id": "tcd-ppes-ba-2027",
+   "institution_id": "trinity-college-dublin",
+   "institution": "Trinity College Dublin",
+   "country": "IE",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Political Science, Economics and Sociology",
+   "name_localized": {
+    "zh-CN": "哲学、政治学、经济学与社会学学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tcd-ppes-ba-2027-academic",
+     "category": "academic",
+     "description": "Four-subject joint honours course (TR015) at Trinity College Dublin. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "tcd-tjh-combinations"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tcd-tjh-combinations",
+     "url": "https://www.tcd.ie/tjh/prospective-students/tjh-combinations/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Dublin",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "tcd-history-political-science-ba-2027",
+   "institution_id": "trinity-college-dublin",
+   "institution": "Trinity College Dublin",
+   "country": "IE",
+   "degree_level": "joint_honours",
+   "official_name": "History and Political Science (Trinity Joint Honours)",
+   "name_localized": {
+    "zh-CN": "历史与政治学学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "EUR",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "tcd-history-political-science-ba-2027-academic",
+     "category": "academic",
+     "description": "Trinity Joint Honours combination (29 subjects, 173 possible combinations); History and Political Science is a listed combination. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "tcd-tjh-combinations"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "tcd-tjh-combinations",
+     "url": "https://www.tcd.ie/tjh/prospective-students/tjh-combinations/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Dublin",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "leeds-ancient-history-politics-ba-2027",
+   "institution_id": "university-of-leeds",
+   "institution": "University of Leeds",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Ancient History and Politics BA",
+   "name_localized": {
+    "zh-CN": "古代史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "leeds-ancient-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "A-level AAB excluding General Studies and Critical Thinking; joint honours degree combining Ancient History and Politics.",
+     "threshold": null,
+     "source_ids": [
+      "leeds-ancient-history-politics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "leeds-ancient-history-politics",
+     "url": "https://courses.leeds.ac.uk/site/scripts/course.php?courseID=25223&adminID=958&c=2dac4255475c75a5c710b6ba72d2c6bd&preview=1",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Leeds",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "glasgow-scottish-history-politics-ma-2027",
+   "institution_id": "university-of-glasgow",
+   "institution": "University of Glasgow",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Scottish History and Politics MA (Hons)",
+   "name_localized": {
+    "zh-CN": "苏格兰史与政治文学硕士（荣誉）"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "glasgow-scottish-history-politics-ma-2027-academic",
+     "category": "academic",
+     "description": "Scottish History can only be taken as a Joint Honours degree; Scottish History/Politics (UCAS LV22) is a listed combination, studied over 4 years. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "glasgow-scottish-history"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "glasgow-scottish-history",
+     "url": "https://www.gla.ac.uk/undergraduate/degrees/scottishhistory/",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Glasgow",
+   "duration": "4 years",
+   "duration_months": 48,
+   "start": null,
+   "ucas_code": "LV22"
+  },
+  {
+   "id": "sheffield-history-politics-ba-2027",
+   "institution_id": "university-of-sheffield",
+   "institution": "University of Sheffield",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics BA",
+   "name_localized": {
+    "zh-CN": "历史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "sheffield-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA listed in the University of Sheffield undergraduate programme specifications. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "sheffield-programme-specifications"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "sheffield-programme-specifications",
+     "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sheffield",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "sheffield-maths-philosophy-bsc-2027",
+   "institution_id": "university-of-sheffield",
+   "institution": "University of Sheffield",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematics and Philosophy BSc",
+   "name_localized": {
+    "zh-CN": "数学与哲学学士"
+   },
+   "field": "mathematics",
+   "field_zh": "数学",
+   "subject": "mathematics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "sheffield-maths-philosophy-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc listed in the University of Sheffield undergraduate programme specifications. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "sheffield-programme-specifications"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "sheffield-programme-specifications",
+     "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sheffield",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "sheffield-ppe-ba-2027",
+   "institution_id": "university-of-sheffield",
+   "institution": "University of Sheffield",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics and Economics BA",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "sheffield-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA listed in the University of Sheffield undergraduate programme specifications. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "sheffield-programme-specifications"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "sheffield-programme-specifications",
+     "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Sheffield",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
+  },
+  {
+   "id": "nottingham-history-politics-ba-2027",
+   "institution_id": "university-of-nottingham",
+   "institution": "University of Nottingham",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "History and Politics BA",
+   "name_localized": {
+    "zh-CN": "历史与政治学士"
+   },
+   "field": "history",
+   "field_zh": "历史",
+   "subject": "history",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "International tuition fee £24,700 for 2026/27 (BA Jt Hons, UCAS VL12).",
+    "amount": 24700,
+    "residency": "international",
+    "academic_year": "2026/27"
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nottingham-history-politics-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA; the programme includes a level-two module co-taught by History and Politics. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "nottingham-history-politics",
+      "nottingham-fees-2026-27"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nottingham-history-politics",
+     "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/History-and-Politics-BA-Jt-Hons.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "nottingham-fees-2026-27",
+     "url": "https://www.nottingham.ac.uk/fees/tuitionfees/202627/undergraduate.aspx?utm_source=meta&utm_medium=cpm&utm_campaign=UG_IN_Meta_Clusters_Traffic_Law&utm_term=52557645023468&utm_content=52557645023668&utm_id=52557607971268",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Nottingham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "VL12"
+  },
+  {
+   "id": "nottingham-mathematical-physics-bsc-2027",
+   "institution_id": "university-of-nottingham",
+   "institution": "University of Nottingham",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Mathematical Physics BSc",
+   "name_localized": {
+    "zh-CN": "数学物理学士"
+   },
+   "field": "physics",
+   "field_zh": "物理学",
+   "subject": "physics",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nottingham-mathematical-physics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BSc combining mathematics and physics (UCAS F326), listed in Nottingham's mathematical sciences course list. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "nottingham-ways-to-study-politics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nottingham-ways-to-study-politics",
+     "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Nottingham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": "F326"
+  },
+  {
+   "id": "nottingham-ppe-ba-2027",
+   "institution_id": "university-of-nottingham",
+   "institution": "University of Nottingham",
+   "country": "GB",
+   "degree_level": "joint_honours",
+   "official_name": "Philosophy, Politics and Economics BA",
+   "name_localized": {
+    "zh-CN": "哲学、政治与经济学士"
+   },
+   "field": "political-science",
+   "field_zh": "政治学",
+   "subject": "political-science",
+   "fees": {
+    "currency": "GBP",
+    "period": "per_year",
+    "notes": "Tuition fee not stated on the official programme page consulted in this pass — unknown.",
+    "amount": null,
+    "residency": "international",
+    "academic_year": null
+   },
+   "application_status": "unknown",
+   "application_deadline": null,
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "nottingham-ppe-ba-2027-academic",
+     "category": "academic",
+     "description": "Joint honours BA listed among Nottingham's joint honours degrees. No programme-specific grade threshold recorded in this pass; the official page consulted lists the programme but states no per-programme grade threshold.",
+     "threshold": null,
+     "source_ids": [
+      "nottingham-ways-to-study-politics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "nottingham-ways-to-study-politics",
+     "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+     "retrieved_at": "2026-11-25T00:00:00Z"
+    }
+   ],
+   "matchable": false,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Nottingham",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": null,
+   "ucas_code": null
   }
  ],
  "sources": [
@@ -54464,6 +57208,206 @@
   {
    "id": "zjui-handbook",
    "url": "https://zjui.intl.zju.edu.cn/sites/default/files/2023-02/2023%20ZJUI%20Admission%20Handbook_0.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "cambridge-foundation-year",
+   "url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-foundation-year",
+   "url": "http://foundationyear.ox.ac.uk/about",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-upc",
+   "url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-ifp",
+   "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-ifp-fees",
+   "url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme/applying-for-ifp/fees-and-finance",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-ifp",
+   "url": "http://kcl.ac.uk/international-foundation/programme",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-foundation-pathways",
+   "url": "https://www.birmingham.ac.uk/study/international/bia/foundation-pathways-bia",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-ifp-fees",
+   "url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-ifp-dates",
+   "url": "https://warwick.ac.uk/study/international-foundation-programme/dates/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-foundation-programme",
+   "url": "https://www.durham.ac.uk/departments/centres/academic-development/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ify-arts",
+   "url": "https://courses.leeds.ac.uk/202627/j054/bachelor-degree-with-integrated-international-foundation-year-arts-and-social-science-ba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ify-fees",
+   "url": "https://www.leeds.ac.uk/international-foundation-year/doc/ify-fees-scholarships",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ify-science",
+   "url": "https://courses.leeds.ac.uk/j061/bachelor-degree-with-integrated-international-foundation-year-science-bsc",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-admissions-summary",
+   "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/admissions-requirements/summary-table-of-admissions-requirements",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "oxford-course-listing",
+   "url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-maps-degrees",
+   "url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucl-undergraduate-degrees",
+   "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=history-art-materials-technology-ba",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-degree-finder-az",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate-a-z",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-history-politics",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate/161-history-and-politics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-maths-physics",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate/61-mathematics-and-physics",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-history-ir",
+   "url": "http://kcl.ac.uk/study/undergraduate/courses/history-and-international-relations",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-maths-undergraduate",
+   "url": "https://www.kcl.ac.uk/mathematics/study-with-us/undergraduate.aspx",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-sspp-undergraduate",
+   "url": "https://www.kcl.ac.uk/sspp/undergraduate.aspx",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-history-guide",
+   "url": "https://www.humanities.manchester.ac.uk/modern-languages/study/languages/subject-guides/history/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-politics-modern-history",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2025/00353/ba-politics-and-modern-history/all-content/HSTM20081",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-ppe",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00154/ba-politics-philosophy-and-economics/all-content/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "birmingham-course-search",
+   "url": "https://www.birmingham.ac.uk/study/undergraduate/course-search?term=history",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "bristol-modl-route",
+   "url": "https://upc.bristol.ac.uk/unit-programme-catalogue/RouteSpecification.jsa?ayrCode=36%2F37&selectedCatalogue=PROGRAMME&orgCode=MODL&programmeCode=1MODL036U",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-combined-honours-social-sciences",
+   "url": "https://www.durham.ac.uk/study/courses/combined-honours-in-social-sciences-lmv0/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-modern-european-languages-history",
+   "url": "http://durham.ac.uk/study/courses/modern-european-languages-and-history-with-year-abroad-rv92/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "durham-open-day-guide",
+   "url": "https://www.durham.ac.uk/visit-us/open-days/undergraduate/your-on-campus-visit/open-day-guide/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "lse-international-history-degrees",
+   "url": "http://www.lse.ac.uk/International-History/Degrees/Undergraduate?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tcd-tjh-combinations",
+   "url": "https://www.tcd.ie/tjh/prospective-students/tjh-combinations/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "warwick-undergraduate-courses",
+   "url": "https://warwick.ac.uk/study/undergraduate/courses-2026/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "glasgow-scottish-history",
+   "url": "https://www.gla.ac.uk/undergraduate/degrees/scottishhistory/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "leeds-ancient-history-politics",
+   "url": "https://courses.leeds.ac.uk/site/scripts/course.php?courseID=25223&adminID=958&c=2dac4255475c75a5c710b6ba72d2c6bd&preview=1",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-fees-2026-27",
+   "url": "https://www.nottingham.ac.uk/fees/tuitionfees/202627/undergraduate.aspx?utm_source=meta&utm_medium=cpm&utm_campaign=UG_IN_Meta_Clusters_Traffic_Law&utm_term=52557645023468&utm_content=52557645023668&utm_id=52557607971268",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-history-politics",
+   "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/History-and-Politics-BA-Jt-Hons.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "nottingham-ways-to-study-politics",
+   "url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sheffield-programme-specifications",
+   "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
    "retrieved_at": "2026-11-25T00:00:00Z"
   }
  ],
@@ -64888,6 +67832,465 @@
    "field": "fees",
    "value": "240000 HKD per_year",
    "source_url": "https://www.polyu.edu.hk/saso/docdrive/Public/AdmissionLeaflets/pamphlet_International%20Qualification.pdf",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-foundation-01-10-f0001",
+   "scope": "program",
+   "scope_id": "ucl-upc-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 29500",
+   "source_url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-foundation-01-10-f0002",
+   "scope": "program",
+   "scope_id": "ucl-upc-foundation-2027",
+   "field": "application_deadline",
+   "value": "18 June 2027",
+   "source_url": "https://www.ucl.ac.uk/study/clie/upc-foundation",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-foundation-01-10-f0003",
+   "scope": "program",
+   "scope_id": "oxford-astrophoria-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 0",
+   "source_url": "http://foundationyear.ox.ac.uk/about",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-foundation-01-10-f0004",
+   "scope": "program",
+   "scope_id": "cambridge-foundation-year-2027",
+   "field": "fees",
+   "value": "fee GBP 0",
+   "source_url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-01-10-foundation-01-10-f0005",
+   "scope": "program",
+   "scope_id": "cambridge-foundation-year-2027",
+   "field": "application_deadline",
+   "value": "13 January 2027",
+   "source_url": "https://www.foundationyear.cam.ac.uk/teachers-and-advisors",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-26-50-foundation-26-50-f0001",
+   "scope": "program",
+   "scope_id": "edinburgh-ifp-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 31100",
+   "source_url": "https://cahss.ed.ac.uk/international-and-study-abroad/foundation-programme",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-26-50-foundation-26-50-f0002",
+   "scope": "program",
+   "scope_id": "kcl-ifp-foundation-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://kcl.ac.uk/international-foundation/programme",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-51-75-foundation-51-75-f0001",
+   "scope": "program",
+   "scope_id": "bristol-ifp-arts-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 26900",
+   "source_url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-51-75-foundation-51-75-f0002",
+   "scope": "program",
+   "scope_id": "bristol-ifp-stem-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 28000",
+   "source_url": "https://www.bristol.ac.uk/academic-language/study/ifp/fees-funding/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-51-75-foundation-51-75-f0003",
+   "scope": "program",
+   "scope_id": "warwick-ifp-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 27150",
+   "source_url": "https://warwick.ac.uk/study/international-foundation-programme/dates/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-51-75-foundation-51-75-f0004",
+   "scope": "program",
+   "scope_id": "birmingham-foundation-pathways-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.birmingham.ac.uk/study/international/bia/foundation-pathways-bia",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-76-100-foundation-76-100-f0001",
+   "scope": "program",
+   "scope_id": "leeds-ify-arts-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 25500",
+   "source_url": "https://courses.leeds.ac.uk/202627/j054/bachelor-degree-with-integrated-international-foundation-year-arts-and-social-science-ba",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-76-100-foundation-76-100-f0002",
+   "scope": "program",
+   "scope_id": "leeds-ify-science-foundation-2027",
+   "field": "fees",
+   "value": "fee GBP 26000",
+   "source_url": "https://courses.leeds.ac.uk/j061/bachelor-degree-with-integrated-international-foundation-year-science-bsc",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "foundation-76-100-foundation-76-100-f0003",
+   "scope": "program",
+   "scope_id": "durham-foundation-programme-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.durham.ac.uk/departments/centres/academic-development/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-joint-honours-01-10-f0001",
+   "scope": "program",
+   "scope_id": "oxford-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-joint-honours-01-10-f0002",
+   "scope": "program",
+   "scope_id": "oxford-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-joint-honours-01-10-f0003",
+   "scope": "program",
+   "scope_id": "oxford-maths-philosophy-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-joint-honours-01-10-f0004",
+   "scope": "program",
+   "scope_id": "oxford-history-economics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ox.ac.uk/admissions/undergraduate/courses/undergraduate-course-listing-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-joint-honours-01-10-f0005",
+   "scope": "program",
+   "scope_id": "ucl-maths-physics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-joint-honours-01-10-f0006",
+   "scope": "program",
+   "scope_id": "ucl-maths-economics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ucl.ac.uk/mathematical-physical-sciences/study/undergraduate-degrees",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-01-10-joint-honours-01-10-f0007",
+   "scope": "program",
+   "scope_id": "ucl-history-politics-economics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses?search=history-art-materials-technology-ba",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0001",
+   "scope": "program",
+   "scope_id": "edinburgh-history-politics-ma-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://study.ed.ac.uk/programmes/undergraduate/161-history-and-politics",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0002",
+   "scope": "program",
+   "scope_id": "edinburgh-economics-politics-ma-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://study.ed.ac.uk/programmes/undergraduate-a-z",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0003",
+   "scope": "program",
+   "scope_id": "edinburgh-maths-physics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://study.ed.ac.uk/programmes/undergraduate/61-mathematics-and-physics",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0004",
+   "scope": "program",
+   "scope_id": "kcl-history-ir-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://kcl.ac.uk/study/undergraduate/courses/history-and-international-relations",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0005",
+   "scope": "program",
+   "scope_id": "kcl-maths-philosophy-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.kcl.ac.uk/mathematics/study-with-us/undergraduate.aspx",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0006",
+   "scope": "program",
+   "scope_id": "kcl-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.kcl.ac.uk/sspp/undergraduate.aspx",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0007",
+   "scope": "program",
+   "scope_id": "manchester-politics-modern-history-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.manchester.ac.uk/study/undergraduate/courses/2025/00353/ba-politics-and-modern-history/all-content/HSTM20081",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0008",
+   "scope": "program",
+   "scope_id": "manchester-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/00154/ba-politics-philosophy-and-economics/all-content/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-26-50-joint-honours-26-50-f0009",
+   "scope": "program",
+   "scope_id": "manchester-history-american-studies-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.humanities.manchester.ac.uk/modern-languages/study/languages/subject-guides/history/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0001",
+   "scope": "program",
+   "scope_id": "bristol-history-modern-languages-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://upc.bristol.ac.uk/unit-programme-catalogue/RouteSpecification.jsa?ayrCode=36%2F37&selectedCatalogue=PROGRAMME&orgCode=MODL&programmeCode=1MODL036U",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0002",
+   "scope": "program",
+   "scope_id": "warwick-maths-physics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://warwick.ac.uk/study/undergraduate/courses-2026/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0003",
+   "scope": "program",
+   "scope_id": "warwick-maths-philosophy-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://warwick.ac.uk/study/undergraduate/courses-2026/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0004",
+   "scope": "program",
+   "scope_id": "warwick-ppe-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://warwick.ac.uk/study/undergraduate/courses-2026/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0005",
+   "scope": "program",
+   "scope_id": "birmingham-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.birmingham.ac.uk/study/undergraduate/course-search?term=history",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0006",
+   "scope": "program",
+   "scope_id": "birmingham-maths-computer-science-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.birmingham.ac.uk/study/undergraduate/course-search?term=history",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0007",
+   "scope": "program",
+   "scope_id": "lse-ir-history-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://www.lse.ac.uk/International-History/Degrees/Undergraduate?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0008",
+   "scope": "program",
+   "scope_id": "lse-history-politics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://www.lse.ac.uk/International-History/Degrees/Undergraduate?entryId=2319c173-7bdc-45d3-9a69-d12fd54340d7&nodeId=e2e64854-5d30-44fa-a289-a5ef76104f3e",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0009",
+   "scope": "program",
+   "scope_id": "durham-combined-honours-social-sciences-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.durham.ac.uk/study/courses/combined-honours-in-social-sciences-lmv0/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0010",
+   "scope": "program",
+   "scope_id": "durham-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.durham.ac.uk/visit-us/open-days/undergraduate/your-on-campus-visit/open-day-guide/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0011",
+   "scope": "program",
+   "scope_id": "durham-modern-european-languages-history-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "http://durham.ac.uk/study/courses/modern-european-languages-and-history-with-year-abroad-rv92/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0012",
+   "scope": "program",
+   "scope_id": "tcd-ppes-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tcd.ie/tjh/prospective-students/tjh-combinations/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-51-75-joint-honours-51-75-f0013",
+   "scope": "program",
+   "scope_id": "tcd-history-political-science-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.tcd.ie/tjh/prospective-students/tjh-combinations/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-joint-honours-76-100-f0001",
+   "scope": "program",
+   "scope_id": "leeds-ancient-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://courses.leeds.ac.uk/site/scripts/course.php?courseID=25223&adminID=958&c=2dac4255475c75a5c710b6ba72d2c6bd&preview=1",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-joint-honours-76-100-f0002",
+   "scope": "program",
+   "scope_id": "glasgow-scottish-history-politics-ma-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.gla.ac.uk/undergraduate/degrees/scottishhistory/",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-joint-honours-76-100-f0003",
+   "scope": "program",
+   "scope_id": "sheffield-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-joint-honours-76-100-f0004",
+   "scope": "program",
+   "scope_id": "sheffield-maths-philosophy-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-joint-honours-76-100-f0005",
+   "scope": "program",
+   "scope_id": "sheffield-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-joint-honours-76-100-f0006",
+   "scope": "program",
+   "scope_id": "nottingham-history-politics-ba-2027",
+   "field": "fees",
+   "value": "fee GBP 24700",
+   "source_url": "https://www.nottingham.ac.uk/studywithus/ugstudy/courses/UG/History-and-Politics-BA-Jt-Hons.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-joint-honours-76-100-f0007",
+   "scope": "program",
+   "scope_id": "nottingham-mathematical-physics-bsc-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
+   "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "joint-honours-76-100-joint-honours-76-100-f0008",
+   "scope": "program",
+   "scope_id": "nottingham-ppe-ba-2027",
+   "field": "fees",
+   "value": "fee not stated on the page consulted — unknown",
+   "source_url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
    "retrieved_at": "2026-11-25"
   }
  ]

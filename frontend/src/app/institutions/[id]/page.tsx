@@ -61,6 +61,13 @@ function expansionDisplayName(p: ExpansionProgram, locale: string): string {
   return p.nameLocalized?.[locale] ?? p.officialName;
 }
 
+const DEGREE_LABEL_KEYS: Record<string, string> = {
+  undergraduate: 'cases.filterUg',
+  taught_masters: 'cases.filterTm',
+  foundation: 'institution.filterFoundation',
+  joint_honours: 'institution.filterJointHonours',
+};
+
 function ExpansionProgramCard({ p, locale }: { p: ExpansionProgram; locale: string }) {
   const { t } = useApp();
   const fee = formatFee(p, locale);
@@ -75,7 +82,7 @@ function ExpansionProgramCard({ p, locale }: { p: ExpansionProgram; locale: stri
     <li className="rounded-2xl border border-navy/10 bg-white p-4 shadow-sm">
       <p className="font-bold" dir="auto">{expansionDisplayName(p, locale)}</p>
       <p className="mt-1 text-sm text-navy/60">
-        {p.degreeLevel === 'undergraduate' ? t('cases.filterUg') : t('cases.filterTm')}
+        {t(DEGREE_LABEL_KEYS[p.degreeLevel] ?? 'cases.filterTm')}
         {p.duration ? ` · ${p.duration}` : ''}
         {p.start ? ` · ${p.start}` : ''}
       </p>

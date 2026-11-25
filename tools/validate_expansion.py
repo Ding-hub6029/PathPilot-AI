@@ -171,7 +171,7 @@ def validate(path: Path) -> list[str]:
             errors.append(f"{where}: name_localized.zh-CN is required")
         if not prog.get("official_name") or not prog.get("institution"):
             errors.append(f"{where}: missing official_name or institution")
-        if prog.get("degree_level") not in ("undergraduate", "taught_masters"):
+        if prog.get("degree_level") not in ("undergraduate", "taught_masters", "foundation", "joint_honours"):
             errors.append(f"{where}: bad degree_level")
         fees = prog.get("fees") or {}
         if not fees.get("currency") or not fees.get("period"):

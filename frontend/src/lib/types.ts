@@ -220,7 +220,10 @@ export interface ExpansionProgram {
   institutionId: string;
   institution: string;
   country: string;
-  degreeLevel: Track;
+  // v2 levels plus the expansion-only levels (foundation / joint_honours).
+  // Kept separate from Track so the wizard / matching flow (v2-only)
+  // still accepts only undergraduate | taught_masters.
+  degreeLevel: Track | 'foundation' | 'joint_honours';
   officialName: string;
   nameLocalized?: Record<string, string>;
   field: string;
