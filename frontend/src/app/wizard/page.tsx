@@ -8,16 +8,19 @@ import { evaluateLocal, matchProfile } from '../../lib/api';
 import { sampleUndergrad, sampleMasters, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
 import { formatFeeItems, formatIntake } from '../../lib/format';
 import { displayProgramTitle } from '../../lib/programs';
+import { PREF_COUNTRY_CODES, prefSummary } from '../../lib/preferences';
 import { StatusChip } from '../../components/StatusChip';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
 
-// Flow (fix 2026-11-25, user testing): field/direction FIRST, then
-// conditions, and only then recommendations. The old step 3 listed
-// specific programmes up front — "我都没了解这些，我怎么选课程" —
-// so programmes are never shown as a blind list: the system recommends
-// from the catalogue filtered by the chosen field, ordered by the
-// eligibility evaluation, and the user picks from the recommendations.
-const STEPS = ['curriculum', 'track', 'field', 'academic', 'language', 'budget', 'recommend'] as const;
+// Flow (fixes 2026-11-25, user testing): field/direction FIRST, then
+// conditions, then preferences, and only then recommendations. Programmes
+// are never shown as a blind list: the system recommends from the
+// catalogue filtered by the chosen field, ordered by the eligibility
+// evaluation. The recommend step is a confirmation page — no selection
+// wall: "查看我的结果" always works and the results page lists ALL
+// matched programmes (targetProgramIds is synced to the full evaluated
+// list, never a user-picked subset).
+const STEPS = ['curriculum', 'track', 'field', 'academic', 'language', 'budget', 'preferences', 'recommend'] as const;
 
 /** Only 'computing' has verified matchable programmes in the v2 catalogue
  * (all 8 carry subject 'Computer Science'); every other field honestly
@@ -38,6 +41,26 @@ function NumField({ label, value, onChange, step = '0.1', min, max }: { label: s
   );
 }
 
+/** One preference question: a sentence, quick-reply chips, and an optional
+ * free-text line. Nothing here is required — every question can be skipped. */
+function PrefQuestion({ q, children }: { q: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="font-semibold">{q}</p>
+      <div className="mt-2 space-y-2">{children}</div>
+    </div>
+  );
+}
+
+function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" onClick={onClick} aria-pressed={on}
+      className={`btn-press rounded-full border-2 px-3 py-1.5 text-sm font-semibold ${on ? 'border-teal bg-teal/5 text-teal-dark' : 'border-navy/15 bg-white'}`}>
+      {children}
+    </button>
+  );
+}
+
 export default function WizardPage() {
   const { t, locale, profile, setProfile, updateProfile } = useApp();
   const router = useRouter();
@@ -46,22 +69,35 @@ export default function WizardPage() {
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Recommendation state (step 7): evaluated matches for the chosen
-  // field, ordered by eligibility; the user picks from them.
+  // Recommendation state (last step): evaluated matches for the chosen
+  // field, ordered by eligibility. Read-only — the user never has to
+  // pick from them to proceed.
   const [recs, setRecs] = useState<MatchResult[] | null>(null);
   const [recLoading, setRecLoading] = useState(false);
-  const [selected, setSelected] = useState<string[]>([]);
 
   const stepLabel = (i: number) =>
-    i === 0 ? t('wizard.stepCurriculum') : i === 1 ? t('wizard.trackTitle') : i === 2 ? t('wizard.stepField') : i === 3 ? t('wizard.stepAcademic') : i === 4 ? t('wizard.stepLanguage') : i === 5 ? t('wizard.stepBudget') : t('wizard.stepRecommend');
+    i === 0 ? t('wizard.stepCurriculum') : i === 1 ? t('wizard.trackTitle') : i === 2 ? t('wizard.stepField') : i === 3 ? t('wizard.stepAcademic') : i === 4 ? t('wizard.stepLanguage') : i === 5 ? t('wizard.stepBudget') : i === 6 ? t('wizard.stepPreferences') : t('wizard.stepRecommend');
 
+  // Only the first three steps gate on a choice (curriculum, degree type,
+  // field). Academic / language / budget / preferences / recommend never
+  // block: empty values are evaluated as UNKNOWN, preferences are all
+  // optional, and the recommend step has no selection wall.
   const canNext = () => {
     if (step === 0) return !!profile.curriculum;
     if (step === 1) return profile.track !== '';
     if (step === 2) return !!profile.field;
-    if (step === 6) return selected.length > 0;
     return true;
   };
+
+  // A required-field error must vanish the moment the step becomes
+  // completable (fix 2026-11-25: the old error stayed until the next
+  // button press, so it looked like the filled field was still wrong —
+  // that is what made "计划入学年份 2027" sit above a red "必填" box
+  // that was really about the old programme-selection gate).
+  useEffect(() => {
+    if (error && canNext()) setError('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile, step, error]);
 
   const next = () => {
     if (!canNext()) { setError(t('wizard.required')); return; }
@@ -70,14 +106,20 @@ export default function WizardPage() {
   };
 
   const finish = () => {
-    if (!canNext()) { setError(t('wizard.required')); return; }
+    // No selection wall: the results page lists ALL evaluated matches.
+    // Sync targetProgramIds to the full evaluated list (or, if the
+    // evaluation has not finished yet, to the field-filtered candidates).
+    const ids = recs && recs.length > 0
+      ? recs.map((r) => r.programId)
+      : programs.filter((p) => p.degreeLevel === profile.track && fieldMatches(profile.field, p)).map((p) => p.id);
+    updateProfile({ targetProgramIds: ids });
     router.push('/results');
   };
 
   const loadSample = () => {
     const s = profile.track === 'taught_masters' ? sampleMasters : sampleUndergrad;
     setProfile({ ...s });
-    setStep(6);
+    setStep(7);
   };
 
   const exportProfile = () => {
@@ -121,38 +163,30 @@ export default function WizardPage() {
   // field-filtered catalogue against the conditions already entered and
   // order by eligibility (MET, then partly unknown, then not met). No
   // admission probabilities anywhere — only MET / NOT_MET / UNKNOWN.
+  // targetProgramIds is synced to the FULL evaluated list so the results
+  // page shows every match without the user having to tick anything.
   useEffect(() => {
-    if (step !== 6) return;
+    if (step !== 7) return;
     const candidates = programs.filter((p) => p.degreeLevel === profile.track && fieldMatches(profile.field, p));
-    if (candidates.length === 0) { setRecs([]); setSelected([]); return; }
+    if (candidates.length === 0) { setRecs([]); updateProfile({ targetProgramIds: [] }); return; }
     setRecLoading(true);
     const ids = candidates.map((p) => p.id);
     const rank = (s: string) => s === 'MET' ? 0 : s === 'PARTIAL_UNKNOWN' ? 1 : s === 'NOT_MET' ? 2 : 3;
     matchProfile({ ...profile, targetProgramIds: ids })
       .then((res) => {
-        setRecs([...res.results].sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary)));
-        setSelected(profile.targetProgramIds.filter((id) => ids.includes(id)));
+        const sorted = [...res.results].sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary));
+        setRecs(sorted);
+        updateProfile({ targetProgramIds: sorted.map((r) => r.programId) });
       })
       .catch(() => {
         const local = evaluateLocal(profile, ids);
-        setRecs([...local.results].sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary)));
-        setSelected([]);
+        const sorted = [...local.results].sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary));
+        setRecs(sorted);
+        updateProfile({ targetProgramIds: sorted.map((r) => r.programId) });
       })
       .finally(() => setRecLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
-
-  const toggleSelect = (id: string) => {
-    const nextSel = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
-    setSelected(nextSel);
-    updateProfile({ targetProgramIds: nextSel });
-  };
-
-  const selectAllRecs = () => {
-    const ids = (recs ?? []).map((r) => r.programId);
-    setSelected(ids);
-    updateProfile({ targetProgramIds: ids });
-  };
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
@@ -173,6 +207,24 @@ export default function WizardPage() {
     { id: 'medicine', title: t('wizard.fieldMedicine') },
     { id: 'humanities', title: t('wizard.fieldHumanities') },
     { id: 'arts', title: t('wizard.fieldArts') },
+  ];
+
+  /** The free-text box for a single-choice question shows the value only
+   * when it is NOT one of the chips (a chip value would show as a raw
+   * enum). Typing replaces the chip choice. */
+  const freeTextOf = (v: string | undefined, chipValues: string[]) =>
+    v && !chipValues.includes(v) ? v : '';
+  const toggleCountry = (code: string) => {
+    const cur = profile.prefCountries ?? [];
+    updateProfile({ prefCountries: cur.includes(code) ? cur.filter((c) => c !== code) : [...cur, code] });
+  };
+  const summaryRows: [string, string][] = [
+    [t('wizard.stepCurriculum'), curricula.find((c) => c.id === profile.curriculum)?.title ?? '—'],
+    [t('wizard.trackTitle'), profile.track === 'undergraduate' ? t('wizard.trackUndergrad') : profile.track === 'taught_masters' ? t('wizard.trackMasters') : '—'],
+    [t('wizard.stepField'), fields.find((f) => f.id === profile.field)?.title ?? '—'],
+    [t('wizard.stepBudget'), profile.budget !== '' && profile.budget !== undefined ? `${profile.budget} ${profile.budgetCurrency ?? ''}`.trim() : '—'],
+    [t('wizard.intakeYear'), profile.intakeYear !== '' && profile.intakeYear !== undefined ? String(profile.intakeYear) : '—'],
+    [t('wizard.stepPreferences'), prefSummary(profile, t) || '—'],
   ];
 
   return (
@@ -213,7 +265,7 @@ export default function WizardPage() {
 
         {step === 1 && (
           <div>
-            <h2 className="text-lg font-bold">{t('wizard.trackTitle')}</h2>
+            <h2 className="text-lg font-bold">{t('wizard.trackHeading')}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {([
                 { track: 'undergraduate' as const, title: t('wizard.trackUndergrad'), desc: t('wizard.trackUndergradDesc') },
@@ -394,9 +446,103 @@ export default function WizardPage() {
         )}
 
         {step === 6 && (
+          <div className="space-y-6">
+            <h2 className="text-lg font-bold">{t('wizard.prefTitle')}</h2>
+            <p className="text-sm text-navy/70">{t('wizard.prefNote')}</p>
+            <button type="button" onClick={next} className="btn-press text-sm font-semibold text-teal-dark underline underline-offset-2">{t('wizard.prefSkip')}</button>
+
+            <PrefQuestion q={t('wizard.prefClimateQ')}>
+              <div className="flex flex-wrap gap-2">
+                {([['warm', t('wizard.prefClimateWarm')], ['cool', t('wizard.prefClimateCool')], ['four_seasons', t('wizard.prefClimateFourSeasons')], ['mild', t('wizard.prefClimateMild')]] as [string, string][]).map(([v, label]) => (
+                  <Chip key={v} on={profile.prefClimate === v} onClick={() => updateProfile({ prefClimate: profile.prefClimate === v ? '' : v })}>{label}</Chip>
+                ))}
+              </div>
+              <input value={freeTextOf(profile.prefClimate, ['warm', 'cool', 'four_seasons', 'mild'])} onChange={(e) => updateProfile({ prefClimate: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
+            </PrefQuestion>
+
+            <PrefQuestion q={t('wizard.prefCountriesQ')}>
+              <div className="flex flex-wrap gap-2">
+                {PREF_COUNTRY_CODES.map((code) => (
+                  <Chip key={code} on={(profile.prefCountries ?? []).includes(code)} onClick={() => toggleCountry(code)}>{t(`country.${code}`)}</Chip>
+                ))}
+              </div>
+              <input value={profile.prefCountriesNote ?? ''} onChange={(e) => updateProfile({ prefCountriesNote: e.target.value })} placeholder={t('wizard.prefCountriesOther')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
+            </PrefQuestion>
+
+            <PrefQuestion q={t('wizard.prefEnvironmentQ')}>
+              <div className="flex flex-wrap gap-2">
+                {([['big_city', t('wizard.prefEnvironmentBigCity')], ['small_city', t('wizard.prefEnvironmentSmallCity')], ['campus', t('wizard.prefEnvironmentCampus')], ['quiet_town', t('wizard.prefEnvironmentQuietTown')]] as [string, string][]).map(([v, label]) => (
+                  <Chip key={v} on={profile.prefEnvironment === v} onClick={() => updateProfile({ prefEnvironment: profile.prefEnvironment === v ? '' : v })}>{label}</Chip>
+                ))}
+              </div>
+              <input value={freeTextOf(profile.prefEnvironment, ['big_city', 'small_city', 'campus', 'quiet_town'])} onChange={(e) => updateProfile({ prefEnvironment: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
+            </PrefQuestion>
+
+            <PrefQuestion q={t('wizard.prefCityQ')}>
+              <div className="flex flex-wrap gap-2">
+                {['London', 'Singapore', 'Boston', 'Toronto'].map((city) => (
+                  <Chip key={city} on={profile.prefCity === city} onClick={() => updateProfile({ prefCity: profile.prefCity === city ? '' : city })}>{city}</Chip>
+                ))}
+              </div>
+              <input value={profile.prefCity && !['London', 'Singapore', 'Boston', 'Toronto'].includes(profile.prefCity) ? profile.prefCity : ''} onChange={(e) => updateProfile({ prefCity: e.target.value })} placeholder={t('wizard.prefCityPlaceholder')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
+            </PrefQuestion>
+
+            <PrefQuestion q={t('wizard.prefAfterGradQ')}>
+              <div className="flex flex-wrap gap-2">
+                {([['stay', t('wizard.prefAfterGradStay')], ['return_home', t('wizard.prefAfterGradReturnHome')], ['hometown', t('wizard.prefAfterGradHometown')], ['undecided', t('wizard.prefAfterGradUndecided')]] as [string, string][]).map(([v, label]) => (
+                  <Chip key={v} on={profile.prefAfterGrad === v} onClick={() => updateProfile({ prefAfterGrad: profile.prefAfterGrad === v ? '' : v })}>{label}</Chip>
+                ))}
+              </div>
+              <input value={freeTextOf(profile.prefAfterGrad, ['stay', 'return_home', 'hometown', 'undecided'])} onChange={(e) => updateProfile({ prefAfterGrad: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
+            </PrefQuestion>
+
+            <PrefQuestion q={t('wizard.prefSalaryQ')}>
+              <div className="grid max-w-md grid-cols-2 gap-3">
+                <label className="block"><span className="text-sm font-semibold">{t('wizard.prefSalaryQ')}</span>
+                  <input type="number" step="1" min={0} value={profile.prefSalary ?? ''} inputMode="decimal"
+                    onChange={(e) => { const v = e.target.value; updateProfile({ prefSalary: v === '' ? '' : Number(v) }); }}
+                    placeholder={t('wizard.prefSalaryPlaceholder')} className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2" /></label>
+                <label className="block"><span className="text-sm font-semibold">{t('wizard.prefSalaryCurrency')}</span>
+                  <select value={profile.prefSalaryCurrency ?? 'GBP'} onChange={(e) => updateProfile({ prefSalaryCurrency: e.target.value })} className="mt-1 w-full rounded-lg border border-navy/25 bg-white px-3 py-2">
+                    <option value="GBP">GBP</option><option value="SGD">SGD</option><option value="USD">USD</option>
+                  </select></label>
+              </div>
+            </PrefQuestion>
+
+            <PrefQuestion q={t('wizard.prefPressureQ')}>
+              <div className="flex flex-wrap gap-2">
+                {([['low', t('wizard.prefPressureLow')], ['medium', t('wizard.prefPressureMedium')], ['high', t('wizard.prefPressureHigh')]] as [string, string][]).map(([v, label]) => (
+                  <Chip key={v} on={profile.prefPressure === v} onClick={() => updateProfile({ prefPressure: profile.prefPressure === v ? '' : v })}>{label}</Chip>
+                ))}
+              </div>
+              <input value={freeTextOf(profile.prefPressure, ['low', 'medium', 'high'])} onChange={(e) => updateProfile({ prefPressure: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
+            </PrefQuestion>
+
+            <PrefQuestion q={t('wizard.prefTeachingQ')}>
+              <div className="flex flex-wrap gap-2">
+                {([['lecture', t('wizard.prefTeachingLecture')], ['seminar', t('wizard.prefTeachingSeminar')], ['hands_on', t('wizard.prefTeachingHandsOn')]] as [string, string][]).map(([v, label]) => (
+                  <Chip key={v} on={profile.prefTeaching === v} onClick={() => updateProfile({ prefTeaching: profile.prefTeaching === v ? '' : v })}>{label}</Chip>
+                ))}
+              </div>
+              <input value={freeTextOf(profile.prefTeaching, ['lecture', 'seminar', 'hands_on'])} onChange={(e) => updateProfile({ prefTeaching: e.target.value })} placeholder={t('wizard.prefFreeText')} className="w-full rounded-lg border border-navy/25 px-3 py-2 text-sm" />
+            </PrefQuestion>
+          </div>
+        )}
+
+        {step === 7 && (
           <div>
             <h2 className="text-lg font-bold">{t('wizard.recommendTitle')}</h2>
             <p className="mt-2 text-sm text-navy/70">{t('wizard.recommendNote')}</p>
+
+            <dl className="mt-4 space-y-2 rounded-2xl border border-navy/10 bg-paper p-4 text-sm">
+              {summaryRows.map(([label, value]) => (
+                <div key={label} className="flex flex-wrap gap-x-3">
+                  <dt className="font-semibold text-navy/60">{label}</dt>
+                  <dd className="font-semibold">{value}</dd>
+                </div>
+              ))}
+            </dl>
+
             {recLoading && <p className="mt-4 text-sm text-navy/60">{t('wizard.recommendLoading')}</p>}
             {!recLoading && recs !== null && recs.length === 0 && (
               <div className="mt-4 rounded-2xl border border-navy/10 bg-paper p-5">
@@ -406,29 +552,22 @@ export default function WizardPage() {
               </div>
             )}
             {!recLoading && recs !== null && recs.length > 0 && (
-              <>
-                <div className="mt-4 flex justify-end">
-                  <button type="button" onClick={selectAllRecs} className="btn-press rounded-full border border-navy/25 px-4 py-2 text-sm font-semibold">{t('wizard.recommendSelectAll')}</button>
-                </div>
-                <div className="mt-3 space-y-3">
-                  {recs.map((r) => {
-                    const p = programs.find((x) => x.id === r.programId);
-                    if (!p) return null;
-                    const on = selected.includes(r.programId);
-                    const summaryLabel = r.eligibilitySummary === 'MET' ? t('wizard.recMet') : r.eligibilitySummary === 'PARTIAL_UNKNOWN' ? t('wizard.recPartial') : t('wizard.recNotMet');
-                    return (
-                      <button key={r.programId} type="button" aria-pressed={on} onClick={() => toggleSelect(r.programId)}
-                        className={`btn-press block w-full rounded-2xl border-2 p-4 text-start ${on ? 'border-teal bg-teal/5' : 'border-navy/15'}`}>
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span className="font-bold">{displayProgramTitle(p, locale)}</span>
-                          <StatusChip status={r.eligibilitySummary} label={summaryLabel} />
-                        </span>
-                        <span className="block text-sm text-navy/70">{formatIntake(p, t)} · {formatFeeItems(p, t, locale)}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
+              <div className="mt-4 space-y-3">
+                {recs.map((r) => {
+                  const p = programs.find((x) => x.id === r.programId);
+                  if (!p) return null;
+                  const summaryLabel = r.eligibilitySummary === 'MET' ? t('wizard.recMet') : r.eligibilitySummary === 'PARTIAL_UNKNOWN' ? t('wizard.recPartial') : t('wizard.recNotMet');
+                  return (
+                    <div key={r.programId} className="rounded-2xl border border-navy/15 bg-white p-4">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold">{displayProgramTitle(p, locale)}</span>
+                        <StatusChip status={r.eligibilitySummary} label={summaryLabel} />
+                      </span>
+                      <span className="block text-sm text-navy/70">{formatIntake(p, t)} · {formatFeeItems(p, t, locale)}</span>
+                    </div>
+                  );
+                })}
+              </div>
             )}
             <div className="mt-4 max-w-xs">
               <NumField label={t('wizard.intakeYear')} value={profile.intakeYear} onChange={(v) => updateProfile({ intakeYear: v })} step="1" min={2026} max={2030} />

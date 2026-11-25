@@ -31,6 +31,9 @@ export interface Program {
   /** Presentation-layer display names per locale (degree part only). Never overwrites officialName; missing locales fall back to it. */
   nameLocalized?: Record<string, string>;
   country: string;
+  /** City as published (e.g. 'London', 'Singapore'). Used only for the
+   * results-page city filter and preference hints — never invented. */
+  city?: string;
   degreeLevel: Track;
   subject: string;
   intakeYear: number;
@@ -100,6 +103,32 @@ export interface Profile {
   budget?: number | '';
   budgetCurrency?: string;
   sample?: boolean;
+  // AI preferences (wizard step 7, 2026-11-25): the user's own tastes,
+  // asked so the agent can get to know them. NEVER eligibility inputs —
+  // the matching engine never reads them; they only drive preference
+  // hints and filters on the results page. Every one is optional.
+  // Climate: 'warm' | 'cool' | 'four_seasons' | 'mild' | free text.
+  prefClimate?: string;
+  // Countries the user especially wants (ISO codes, chip multi-select).
+  prefCountries?: string[];
+  // Free-text other countries/regions not covered by the chips.
+  prefCountriesNote?: string;
+  // Environment: 'big_city' | 'small_city' | 'campus' | 'quiet_town' | free text.
+  prefEnvironment?: string;
+  // City the user has in mind (free text, e.g. 'London').
+  prefCity?: string;
+  // Where to build a life after graduation: 'stay' | 'return_home' |
+  // 'hometown' | 'undecided' | free text.
+  prefAfterGrad?: string;
+  // Expected salary after graduation (amount + currency). No official
+  // graduate-salary data exists to compare against — the results page
+  // says so honestly and never ranks or scores by it.
+  prefSalary?: number | '';
+  prefSalaryCurrency?: string;
+  // Academic pressure tolerance: 'low' | 'medium' | 'high' | free text.
+  prefPressure?: string;
+  // Preferred way to learn: 'lecture' | 'seminar' | 'hands_on' | free text.
+  prefTeaching?: string;
 }
 
 export interface RuleResult {
@@ -301,6 +330,16 @@ export const emptyProfile: Profile = {
   gmat: '',
   budget: '',
   budgetCurrency: 'GBP',
+  prefClimate: '',
+  prefCountries: [],
+  prefCountriesNote: '',
+  prefEnvironment: '',
+  prefCity: '',
+  prefAfterGrad: '',
+  prefSalary: '',
+  prefSalaryCurrency: 'GBP',
+  prefPressure: '',
+  prefTeaching: '',
 };
 
 export const sampleUndergrad: Profile = {

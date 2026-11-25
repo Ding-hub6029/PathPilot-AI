@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
 import { matchProfile, simulate } from '../../lib/api';
-import { MatchResponse, Profile } from '../../lib/types';
+import { MatchResponse, Profile, Program } from '../../lib/types';
+import { hasPreferences, prefHints, prefSummary } from '../../lib/preferences';
 import { displayProgramName } from '../../lib/programs';
 import { displayProgramInstitutionName } from '../../lib/rankings';
 import { StatusChip } from '../../components/StatusChip';
@@ -23,6 +24,8 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [cityFilter, setCityFilter] = useState<string | null>(null);
   const [simPatch, setSimPatch] = useState<Partial<Profile>>({});
   const [simData, setSimData] = useState<MatchResponse | null>(null);
   const [simLoading, setSimLoading] = useState(false);
@@ -52,15 +55,28 @@ export default function ResultsPage() {
     setSimLoading(false);
   };
 
+  // Programmes behind the current results, for the country / city
+  // filters. City comes from the programme's verified city field.
+  const resultPrograms = useMemo(() => {
+    if (!data) return [];
+    return data.results.map((r) => programs.find((x) => x.id === r.programId)).filter((p): p is Program => !!p);
+  }, [data, programs]);
+  const resultCountries = useMemo(() => [...new Set(resultPrograms.map((p) => p.country))].sort(), [resultPrograms]);
+  const resultCities = useMemo(() => [...new Set(resultPrograms.map((p) => p.city).filter((c): c is string => !!c))].sort(), [resultPrograms]);
+
   const shown = useMemo(() => {
     if (!data) return [];
     return data.results.filter((r) => {
-      if (filter === 'all') return true;
-      if (filter === 'met') return r.ruleResults.every((x) => x.status === 'MET');
-      if (filter === 'notmet') return r.ruleResults.some((x) => x.status === 'NOT_MET');
-      return r.ruleResults.some((x) => x.status === 'UNKNOWN');
+      if (filter === 'all') { /* fall through to the pref filters */ }
+      else if (filter === 'met' && !r.ruleResults.every((x) => x.status === 'MET')) return false;
+      else if (filter === 'notmet' && !r.ruleResults.some((x) => x.status === 'NOT_MET')) return false;
+      else if (filter === 'unknown' && !r.ruleResults.some((x) => x.status === 'UNKNOWN')) return false;
+      const p = programs.find((x) => x.id === r.programId);
+      if (countryFilter && p?.country !== countryFilter) return false;
+      if (cityFilter && p?.city !== cityFilter) return false;
+      return true;
     });
-  }, [data, filter]);
+  }, [data, filter, countryFilter, cityFilter, programs]);
 
   if (!profile.track || profile.targetProgramIds.length === 0) {
     return (
@@ -109,12 +125,61 @@ export default function ResultsPage() {
         );
       })()}
 
+      {/* Your preferences, in your own words. They only filter and hint —
+          they never change an eligibility result, and climate / salary /
+          pressure / teaching style are never matched against a programme
+          because no official data exists for them. */}
+      {hasPreferences(profile) && (
+        <section className="mt-4 rounded-2xl border border-amber/40 bg-amber/10 p-5" aria-labelledby="prefs-title">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="prefs-title" className="text-lg font-bold">{t('results.prefTitle')}</h2>
+            <Link href="/wizard" className="btn-press rounded-full border border-navy/30 bg-white px-4 py-1.5 text-sm font-semibold">{t('results.prefEdit')}</Link>
+          </div>
+          <p className="mt-1 text-sm text-navy/80">{prefSummary(profile, t)}</p>
+          {profile.prefSalary !== '' && profile.prefSalary !== undefined && (
+            <>
+              <p className="mt-2 text-sm font-semibold">{tf('results.prefSalaryLine', { salary: `${profile.prefSalary} ${profile.prefSalaryCurrency ?? ''}`.trim() })}</p>
+              <p className="mt-1 text-sm text-navy/70">{t('results.noSalaryData')}</p>
+            </>
+          )}
+        </section>
+      )}
+
       <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filters">
         {([['all', t('results.filterAll')], ['met', t('results.filterMet')], ['notmet', t('results.filterNotMet')], ['unknown', t('results.filterUnknown')]] as [Filter, string][]).map(([f, label]) => (
           <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)}
             className={`btn-press rounded-full px-4 py-2 text-sm font-semibold ${filter === f ? 'bg-navy text-white' : 'border border-navy/25 bg-white'}`}>{label}</button>
         ))}
       </div>
+
+      {/* Country / city filters: only values present in the verified
+          results are offered — never a filter that can match nothing. */}
+      {resultCountries.length > 1 && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-navy/60">{t('results.filterByCountry')}</p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            <button type="button" aria-pressed={countryFilter === null} onClick={() => setCountryFilter(null)}
+              className={`btn-press rounded-full px-3 py-1.5 text-sm font-semibold ${countryFilter === null ? 'bg-navy text-white' : 'border border-navy/25 bg-white'}`}>{t('results.filterAllCountries')}</button>
+            {resultCountries.map((c) => (
+              <button key={c} type="button" aria-pressed={countryFilter === c} onClick={() => setCountryFilter(countryFilter === c ? null : c)}
+                className={`btn-press rounded-full px-3 py-1.5 text-sm font-semibold ${countryFilter === c ? 'bg-navy text-white' : 'border border-navy/25 bg-white'}`}>{t(`country.${c}`)}</button>
+            ))}
+          </div>
+        </div>
+      )}
+      {resultCities.length > 1 && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-navy/60">{t('results.filterByCity')}</p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            <button type="button" aria-pressed={cityFilter === null} onClick={() => setCityFilter(null)}
+              className={`btn-press rounded-full px-3 py-1.5 text-sm font-semibold ${cityFilter === null ? 'bg-navy text-white' : 'border border-navy/25 bg-white'}`}>{t('results.filterAllCities')}</button>
+            {resultCities.map((c) => (
+              <button key={c} type="button" aria-pressed={cityFilter === c} onClick={() => setCityFilter(cityFilter === c ? null : c)}
+                className={`btn-press rounded-full px-3 py-1.5 text-sm font-semibold ${cityFilter === c ? 'bg-navy text-white' : 'border border-navy/25 bg-white'}`}>{c}</button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div aria-live="polite" className="mt-6">
         {loading && <p>{t('results.loading')}</p>}
@@ -130,6 +195,13 @@ export default function ResultsPage() {
               <article key={r.programId} className="card-lift rounded-2xl border border-navy/10 bg-white p-5 card-surface">
                 <p className="text-sm font-semibold text-teal">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
                 <h2 className="mt-1 text-lg font-bold" ref={vtRef(`program-title-${p.id}`)}>{displayProgramName(p, locale)}</h2>
+                {prefHints(profile, p, t).length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {prefHints(profile, p, t).map((h) => (
+                      <span key={h} className="rounded-full bg-amber/25 px-2.5 py-1 text-xs font-semibold text-navy">{tf('results.prefMatch', { value: h })}</span>
+                    ))}
+                  </div>
+                )}
                 {r.trackMismatch ? (
                   <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-800">{t('results.trackMismatch')}</p>
                 ) : (

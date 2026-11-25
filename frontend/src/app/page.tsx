@@ -1,5 +1,4 @@
 'use client';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../lib/store';
@@ -8,7 +7,7 @@ import { sampleUndergrad, sampleMasters } from '../lib/types';
 import { formatProgramLine } from '../lib/format';
 import { displayProgramName } from '../lib/programs';
 import { displayProgramInstitutionName } from '../lib/rankings';
-import { WelcomeModal } from '../components/WelcomeModal';
+import { WelcomeBanner } from '../components/WelcomeBanner';
 import { TimelinePanel } from '../components/TimelinePanel';
 import { CaseCard } from '../components/CaseCard';
 import { NewsSection } from '../components/NewsSection';
@@ -21,31 +20,10 @@ export default function HomePage() {
   const { programs, live: programsLive, loading: programsLoading } = usePrograms();
   const router = useRouter();
 
-  // Opening moment (ref 3 — curtain pull-away): on the first visit of a
-  // session a navy veil covers the hero, then slides away to reveal the
-  // panorama. Skipped on repeat visits and under prefers-reduced-motion;
-  // a safety timeout dismisses it even if the animation never fires.
-  const [veil, setVeil] = useState(false);
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    try {
-      if (sessionStorage.getItem('pp-hero-veil')) return;
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        sessionStorage.setItem('pp-hero-veil', '1');
-        return;
-      }
-      setVeil(true);
-      timer = setTimeout(() => {
-        try { sessionStorage.setItem('pp-hero-veil', '1'); } catch { /* ignore */ }
-        setVeil(false);
-      }, 2500);
-    } catch { /* ignore */ }
-    return () => { if (timer) clearTimeout(timer); };
-  }, []);
-  const dismissVeil = () => {
-    try { sessionStorage.setItem('pp-hero-veil', '1'); } catch { /* ignore */ }
-    setVeil(false);
-  };
+  // No opening veil: the hero used to be covered by a solid navy veil on
+  // the first visit of a session, which read as a black screen on open
+  // (user feedback 2026-11-25). The hero keeps its line-mask/fade-up
+  // entrances; nothing covers it anymore.
 
   const trySample = (which: 'ug' | 'pg') => {
     setProfile(which === 'ug' ? sampleUndergrad : sampleMasters);
@@ -58,22 +36,15 @@ export default function HomePage() {
 
   return (
     <>
-      {/* WelcomeModal lives OUTSIDE the .page-enter wrapper: the wrapper's
-          fade-slide-up animation ends at translateY(0), which still
-          creates a containing block for fixed descendants — inside it
-          the modal's z-[60] would be scoped to the page container and
-          the pet (z-50, root layout) would render above it. */}
-      <WelcomeModal />
       <div className="mx-auto max-w-6xl px-4 py-8">
+      {/* Welcome banner: in-flow at the top of the homepage, below the
+          sticky nav and above the hero. In-flow (not fixed), so it never
+          covers the nav or the hero. */}
+      <WelcomeBanner />
       {/* Hero with compass-rose / route-line draw-in.
           12-column grid (research move 5): copy spans 7, the compass
           visual spans 5 — deliberate asymmetry instead of a 6/6 split. */}
       <section className="relative grid items-center gap-8 overflow-hidden rounded-3xl bg-navy p-8 text-white md:grid-cols-12">
-        {veil && (
-          <div aria-hidden="true" className="anim-veil absolute inset-0 z-10 flex items-center justify-center bg-navy" onAnimationEnd={dismissVeil}>
-            <p className="microcopy text-amber">{t('brand')} — {t('tagline')}</p>
-          </div>
-        )}
         <div className="md:col-span-7">
           <p className="microcopy anim-fade-up text-amber">{t('tagline')}</p>
           <h1 className="hero-display line-mask mt-3"><span className="grad-amber-text" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>

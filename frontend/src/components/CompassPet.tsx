@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
 import { fetchJson } from '../lib/api';
+import { hasPreferences, prefSummary } from '../lib/preferences';
 import { PROGRAMS, displayProgramTitle } from '../lib/programs';
 import { RANKING_ENTRIES, RANKING_INSTITUTIONS } from '../lib/rankings';
 import enMessages from '../../messages/en.json';
@@ -271,7 +272,7 @@ function CompassFace({
 }
 
 export function CompassPet() {
-  const { t, tf, locale } = useApp();
+  const { t, tf, locale, profile } = useApp();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<{ degree?: Degree; country?: Country; budget?: Band }>({});
@@ -690,6 +691,15 @@ export function CompassPet() {
             <button type="button" onClick={greet} className="btn-press rounded-full px-2 py-1 text-xs font-semibold hover:bg-white/15" title={t('pet.restart')}>{t('pet.restart')}</button>
             <button type="button" onClick={() => toggle(false)} aria-label={t('pet.close')} className="btn-press rounded-full px-2 py-1 text-base font-bold leading-none hover:bg-white/15">×</button>
           </div>
+          {/* Saved preferences, in the user's own words: the pet remembers
+              what the wizard learned, but never invents a programme fact
+              from them — suggestions still use only verified data. */}
+          {hasPreferences(profile) && (
+            <div className="flex items-center justify-between gap-2 bg-amber/15 px-3 py-2 text-xs text-navy">
+              <p className="min-w-0 truncate">{tf('pet.prefSaved', { prefs: prefSummary(profile, t) })}</p>
+              <Link href="/wizard" onClick={() => toggle(false)} className="btn-press shrink-0 rounded-full bg-white px-2.5 py-1 font-semibold text-navy ring-1 ring-navy/10">{t('results.prefEdit')}</Link>
+            </div>
+          )}
           <div className="flex-1 space-y-2 overflow-y-auto bg-paper p-3 text-sm">
             {messages.map((m, i) => {
               const rendered = renderTurn(m);
