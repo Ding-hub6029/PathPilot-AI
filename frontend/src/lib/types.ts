@@ -1,5 +1,8 @@
 export type Track = 'undergraduate' | 'taught_masters';
 export type RuleStatus = 'MET' | 'NOT_MET' | 'UNKNOWN' | 'NOT_APPLICABLE';
+// Country / curriculum branch (fix 2026-11-25): the wizard asks this
+// first; only the branch's own qualification fields are shown.
+export type Curriculum = 'cn_gaokao' | 'uk_alevel' | 'ib' | 'usa' | 'sg_alevel' | 'other';
 
 export interface Source {
   id: string;
@@ -36,6 +39,16 @@ export interface Program {
 export interface Profile {
   track: Track | '';
   targetProgramIds: string[];
+  // Country / curriculum branch (fix 2026-11-25, wizard step 1).
+  curriculum?: Curriculum;
+  // Gaokao (China): score out of gaokaoTotal (usually 750).
+  gaokaoScore?: number | '';
+  gaokaoTotal?: number | '';
+  gaokaoMaths?: number | '';
+  // USA: SAT total (400-1600), ACT composite (1-36), AP grades "5,5,5,4,4".
+  satTotal?: number | '';
+  actComposite?: number | '';
+  apGrades?: string;
   alevels?: string;
   mathsGrade?: string;
   // Day 2 (FR01): IB route (alternative to A-levels for undergraduates).
@@ -87,6 +100,13 @@ export interface RuleResult {
   evidenceIds: string[];
   reasonCode: string;
   unknownReason?: string;
+  // Structured values (fix 2026-11-25): the numbers/dicts the English
+  // `observed` / `expected` strings were formatted from, so the UI can
+  // render them in the current locale. `reasonKey` names the UNKNOWN
+  // cause (e.g. 'gaokao-no-equivalence'); absent for other statuses.
+  observedRaw?: unknown;
+  thresholdRaw?: Record<string, unknown> | null;
+  reasonKey?: string;
 }
 
 export interface MatchResult {
@@ -110,6 +130,13 @@ export const RULES_VERSION = 'rules-v2-2026-11-25';
 export const emptyProfile: Profile = {
   track: '',
   targetProgramIds: [],
+  curriculum: undefined,
+  gaokaoScore: '',
+  gaokaoTotal: '',
+  gaokaoMaths: '',
+  satTotal: '',
+  actComposite: '',
+  apGrades: '',
   alevels: '',
   mathsGrade: '',
   ibTotal: '',
@@ -142,6 +169,7 @@ export const sampleUndergrad: Profile = {
   ...emptyProfile,
   track: 'undergraduate',
   targetProgramIds: ['ucl-cs-bsc-2026'],
+  curriculum: 'uk_alevel',
   alevels: 'A*A*A',
   mathsGrade: 'A*',
   gcseEnglish: 'A',

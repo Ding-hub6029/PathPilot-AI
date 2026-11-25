@@ -102,6 +102,23 @@ ROWS: list[tuple[str, str, str, list[str]]] = [
     ("NFR04", "backend/app/main.py:rate limiting + security headers middleware;tools/generate_openapi.py",
      "tests/test_day2.py::test_rate_limit_explain_429;tests/test_day2.py::test_security_headers_present;tests/test_day2.py::test_openapi_matches_generated_copy",
      ["docs/openapi.json"]),
+    # Fix 2026-11-25 (language / status chips / curriculum branching).
+    # Evidence is file paths, not v1 fact ids: the new equivalence facts
+    # (f-ucl-china-gaokao, f-imperial-usa-ap, f-imperial-china-none) live
+    # in the v2 manifest, which this tool does not validate fact ids
+    # against — the manifest file itself is the evidence.
+    ("FIX-01", "backend/domain/eligibility.py:effective_curriculum;backend/app/adapter.py:flat_to_student (curriculum branches cn_gaokao/uk_alevel/ib/usa/sg_alevel/other; Gaokao/USA UNKNOWN where no official equivalence exists)",
+     "tests/test_curriculum.py (13 tests: Gaokao UNKNOWN for UCL/Imperial, USA AP below-standard NOT_MET / standard-met UNKNOWN, SG A-level MET, adapter flat mapping, /profile/validate field errors)",
+     ["data/versions/v2/source-manifest.json"]),
+    ("FIX-02", "frontend/src/lib/ruleText.ts;frontend/src/lib/format.ts (localized rule rendering from observedRaw/thresholdRaw/reasonKey; fee sentence; programme duration/intake/fee period)",
+     "/tmp/pp-test-src/render-test.ts (standalone tsc + node, fake t() backed by the real locale files; zh-CN + en, all checks passed)",
+     ["frontend/messages/en.json", "frontend/messages/zh-CN.json"]),
+    ("FIX-03", "frontend/src/app/results/page.tsx (labelled chips, legend, next-steps panel);frontend/src/app/programs/[id]/page.tsx (minimums list + check button, back to home);frontend/src/components/WelcomeModal.tsx (first-visit modal)",
+     "npm run build (locale check 6 x 306 keys + all routes); live :3000 production build, all pages 200",
+     ["frontend/messages/en.json"]),
+    ("FIX-04", "frontend/src/lib/api.ts:evaluateLocal (curriculum branches; supplementary nus-toefl + ntu-msai-toefl rules)",
+     "tests/test_curriculum.py;/tmp/pp-test-src/render-test.ts",
+     ["data/versions/v2/source-manifest.json"]),
 ]
 
 # Forward-reference fact ids: used by the Day 2 engine, to be added by the
