@@ -2649,6 +2649,151 @@
    "id": "yale-coa",
    "url": "https://finaid.yale.edu/coa",
    "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "anu-fee-schedule-pdf",
+   "url": "https://d1zkbwgd2iyy9p.cloudfront.net/files/2026-09/Schedule%20of%20Tuition%20fees%202027.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "delft-cse",
+   "url": "https://www.tudelft.nl/en/onderwijs/opleidingen/bachelors/computer-science-and-engineering/bachelor-of-computer-science-and-engineering",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "delft-regulations-pdf",
+   "url": "https://filelist.tudelft.nl/TUDelft/Over_TU_Delft/Organisatie/regelingen/Studenten%20en%20onderwijs/Regeling%20Inschrijving%20en%20Collegegeld_ENGELS_versie%202026%20def.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "edinburgh-mech",
+   "url": "https://study.ed.ac.uk/programmes/undergraduate/82-mechanical-engineering",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "fudan-brochure",
+   "url": "https://iso.fudan.edu.cn/2c/99/c51269a797849/page.htm",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hkust-fees-page",
+   "url": "https://bmundergrad.hkust.edu.hk/admissions/scholarship/fees",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "hkust-fees-pdf",
+   "url": "https://join.hkust.edu.hk/oas/Tuition_Fee_Local_Non-local_Status.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ipparis-fees-pdf",
+   "url": "https://www.ip-paris.fr/sites/default/files/pages/documents/Masters/master-phd-track-registration-fees-EN-26-27%20(2).pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "kcl-eng-dept",
+   "url": "https://www.kcl.ac.uk/engineering/study-with-us/undergraduate",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "manchester-meng-mech",
+   "url": "https://www.manchester.ac.uk/study/undergraduate/courses/2027/03919/meng-mechanical-engineering-with-industrial-experience/course-details/MECH21021",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mccormick-cs",
+   "url": "https://www.mccormick.northwestern.edu/computer-science/academics/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "mcgill-fee-pdf",
+   "url": "https://www.mcgill.ca/student-accounts/files/student-accounts/new_intl_ugrad_spe-vst-not-scs_students_admitted_for_2026-27.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "monash-beng",
+   "url": "https://www.monash.edu/study/courses/find-a-course/engineering-e3001",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "northwestern-news",
+   "url": "https://news.northwestern.edu/stories/2026/05/northwestern-sets-tuition-and-fees-for-2026-2027-academic-year",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "polyu-info-sheet",
+   "url": "https://www.polyu.edu.hk/geo/docdrive/Info_sheet_2627.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "princeton-cost-aid",
+   "url": "https://admission.princeton.edu/cost-aid",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "princeton-eng-admission",
+   "url": "https://engineering.princeton.edu/undergraduate-studies/admission-and-tours",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sjtu-cluster",
+   "url": "https://global.sjtu.edu.cn/en/study-sjtu/prospective/degree-programs/278",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "snu-guide-pdf",
+   "url": "https://en.snu.ac.kr/webdata/uploads/eng/file/2026/06/Admissions_for_Undergraduate_Spring_2027.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "sydney-fees",
+   "url": "https://www.sydney.edu.au/study/fees-and-loans/international-student-tuition-fees.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "tokyo-econ-fees",
+   "url": "https://www.student.e.u-tokyo.ac.jp/nyushingaku-index-e.html",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "toronto-uab-pdf",
+   "url": "https://future.utoronto.ca/sites/default/files/assets/files/2025/2026-27-International-UAB_1.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ubc-cs",
+   "url": "http://you.ubc.ca/programs/computer-science-vancouver-bsc/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ubc-tuition",
+   "url": "https://students.ubc.ca/finances/tuition-fees/undergraduate-tuition-fees/",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "ucla-guide",
+   "url": "https://admission.ucla.edu/sites/default/files/documents/UCLA-International-Admission-Guide-2026.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "uq-beng",
+   "url": "https://study.uq.edu.au/study-options/programs/bachelor-engineering-honours-2455?year=2022",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "yonsei-cs-guide",
+   "url": "https://www2.yonsei.ac.kr/entrance/2026/intl/2026.3_Int_Application_Guide(Eng).pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "yonsei-fee-pdf",
+   "url": "https://www.yonsei.ac.kr/sites/en_sc/down/2026_fee1.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "zjui-handbook",
+   "url": "https://zjui.intl.zju.edu.cn/sites/default/files/2023-02/2023%20ZJUI%20Admission%20Handbook_0.pdf",
+   "retrieved_at": "2026-11-25T00:00:00Z"
   }
  ]
 }

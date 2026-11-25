@@ -150,7 +150,7 @@ timeline with an amber NOW line (UCAS 13 Jan 2027, TMUA 8 Jan 2027, UCL UPC
 interactive slider was removed as pointless); programme cards fan out with
 a verification ring (real official-source count) and amber CTAs in the
 browse section below. Institution pages show the 8 v2 programmes plus the
-expansion programmes (685 as of 2026-11-25, generated offline mirror —
+expansion programmes (832 as of 2026-11-25, generated offline mirror —
 re-run `python3 tools/generate_frontend_mirrors.py` after the source data
 changes) with their verified entry requirements verbatim and official-source
 links; the compiled IELTS reference appears only where no verified language

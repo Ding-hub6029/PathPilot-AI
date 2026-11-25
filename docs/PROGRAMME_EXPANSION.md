@@ -58,6 +58,17 @@ Computer-related UG + taught-masters first (competition track), in QS
 the *additional* computer programmes for those schools only (never
 re-record a v2 programme id).
 
+Scope widened 2026-11-25 (user: "我之前怎么说的你就怎么做"): the target
+is EVERY programme of EVERY QS top-100 school, all fields. Priority
+after computer: business, engineering, natural sciences,
+medicine/health, humanities, social sciences, law, arts/design, and any
+remaining fields — UG + taught masters first. The controlled field list
+is 51 slugs (see `tools/validate_expansion.py` FIELDS); "other" is a last
+resort only, every use reported. One schema limit: `degree_level` allows
+only undergraduate / taught_masters, so other levels (PhD, foundation,
+French diplôme d'ingénieur) cannot merge yet and are recorded as gaps,
+never forced in.
+
 ## Coverage so far
 
 Merged 2026-11-25 (all five bands A–E — QS 2027 top 100 complete):
@@ -72,6 +83,21 @@ Merged 2026-11-25 (all five bands A–E — QS 2027 top 100 complete):
 | Deadlines | 57 of 366 programmes have a deadline from an official page; the rest are null (aggregator-only dates were not used) |
 | Fees | 130 of 366 programmes have a stated fee amount; 236 (64%) are unknown — no official page stated a fee in this pass, and conflicting/stale aggregator figures were not used |
 | Stats coverage | Total-students sourced for 40 institutions; international % for 18, graduate % for 11, male/female for 2, student-faculty ratio for 4, founded year for 49; intro for 12, address for 7, official website for 64; membership tags for 5 institutions (first ones: Paris-Saclay LERU/EUGLOH, Glasgow Russell Group/Universitas 21, Sheffield Russell Group, Nanjing C9 League, Zurich LERU/Universitas 21); campus photos 0 (no freely licensed photo verified) |
+
+Non-computer collection (2026-11-25, same session): business **187**
+(business-administration 71, finance 55, management 23, accounting 18,
+economics 18, marketing 2) + engineering **279** (electrical 50,
+mechanical 48, general 46, civil 42, chemical 41, biomedical 32,
+aerospace 20; ranks 1–50 only). Merged total: **832 expansion
+programmes** (366 computer + 187 business + 279 engineering), 508
+sources, 1,158 traceability rows; 840 listed with the 8 v2 programmes.
+All 100 institutions now have programmes. Fees across the whole file:
+546 known, 286 unknown (35%); deadlines on 96; 7 open, 825 unknown;
+455 UG / 377 taught masters. Gaps in this round: PSL engineering
+(French diplôme d'ingénieur through member schools, no UG/TM mapping);
+Fudan 3 programmes fee-null (official range only); IP Paris 3
+programmes fee-null (track unconfirmed). No programme used the "other"
+field slug.
 
 Band E (QS 76–100, merged 2026-11-25): 25 institutions, 77 programmes, 0 held. The merge filter stripped 20 Wikipedia-sourced stats to null (totals/founded years at Leeds, UWA, UCSD, KTH, Sheffield, Buenos Aires, Durham, Penn State, Washington, Boston U, Nottingham) — the collector had disclosed them as Wikipedia/aggregator-sourced where no official facts page was retrievable. Band E is flagship programmes only (1–7 per school); joint honours, foundation years, conversion MScs and MSci variants are not collected, and non-English-taught bachelor's (Paris-Saclay licence, Heidelberg, Nanjing, Osaka, FU Berlin BSc) are not collected.
 
@@ -116,9 +142,11 @@ cd ~/workspace/pathpilot-ai
 
 ## Still missing (by priority)
 
-1. **Re-verification pass for the 30 held band-B programmes** (`data/expansions/hold-list.md`): check their fees against official pages; merge whatever verifies. (The 9 profiled institutions that had no programmes at all — Cornell, EPFL, TUM, Berkeley, Chicago, Melbourne, UNSW, UPenn, Yale — were filled by the business band on 2026-11-25; all 100 profiled institutions now have ≥1 programme.)
-2. **Non-computer fields** at the top-100 schools — business is done (92 programmes, merged 2026-11-25); engineering, medicine, … are still open — same schema, same rules, new collection rounds.
-3. **Programme promotion to matchable**: per-programme engine rules +
+1. **Re-verification pass for the 30 held band-B programmes** (`data/expansions/hold-list.md`): check their fees against official pages; merge whatever verifies. (The 9 profiled institutions that had no programmes at all — Cornell, EPFL, TUM, Berkeley, Chicago, Melbourne, UNSW, UPenn, Yale — were filled by the business/engineering collection on 2026-11-25; all 100 profiled institutions now have ≥1 programme.)
+2. **Engineering ranks 51–100** — not started.
+3. **Non-computer fields, in priority order** — natural sciences, medicine/health, humanities, social sciences, law, arts/design, and any remaining fields; same schema, same rules, new collection rounds. Business (187) and engineering ranks 1–50 (279) are done. The controlled field list (51 slugs) already covers all of these.
+4. **Other degree levels** (PhD, foundation years, French diplôme d'ingénieur, MSci/MEng variants, joint honours, conversion MScs) — cannot merge under the current schema (`degree_level` allows only undergraduate / taught_masters); needs a schema decision before collection. Known gap: PSL engineering (French diplôme d'ingénieur through member schools, no UG/TM mapping).
+5. **Programme promotion to matchable**: per-programme engine rules +
    tests (the eligibility engine's fee/academic rules are currently
    written per programme — UCL, NUS, Imperial — so this is real work per
    programme, not a flag flip).
@@ -131,8 +159,9 @@ cd ~/workspace/pathpilot-ai
    offline mirror (`tools/generate_frontend_mirrors.py` →
    `frontend/src/lib/expansion.ts`); re-run it after the source data
    changes — `tests/test_frontend_mirrors.py` fails if the mirror is stale.
-   The business band (92 programmes) was merged 2026-11-25, bringing the
-   total to 458; non-computer fields beyond business are still open.
+   Business (187) and engineering ranks 1–50 (279) have since merged,
+   bringing the total to 832; fields beyond business/engineering are
+   still open (see items 2–3 above).
 5. **Institution stats gaps**: any stat no official page states stays
    null; a second pass can try national statistics offices (e.g. HESA
    for the UK, MOE for Singapore/China) where the university itself
