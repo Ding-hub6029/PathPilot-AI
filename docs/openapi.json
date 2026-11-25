@@ -329,6 +329,75 @@
             ],
             "title": "A Level Maths Grade"
           },
+          "act_composite": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Act Composite"
+          },
+          "ap_grades": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ap Grades"
+          },
+          "curriculum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Curriculum"
+          },
+          "gaokao_maths": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gaokao Maths"
+          },
+          "gaokao_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gaokao Score"
+          },
+          "gaokao_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gaokao Total"
+          },
           "gcse_english_grade": {
             "anyOf": [
               {
@@ -427,6 +496,17 @@
               }
             ],
             "title": "Residency"
+          },
+          "sat_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sat Total"
           },
           "tara_taken": {
             "anyOf": [
