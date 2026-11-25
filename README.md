@@ -113,9 +113,20 @@ budget), `/results` (labelled chips, legend, next-steps panel),
 cards), `/rankings` (three providers, top 100 each, filters, compare up to 3 institutions
 within one provider's edition, institution detail pages), `/report` (print + JSON export),
 plus the 小罗盘 pet on every page (bottom-end floating compass button).
-Six locales (en, zh-CN, es, fr, pt-BR, ar; 386 keys each, checked by
+Six locales (en, zh-CN, es, fr, pt-BR, ar; 434 keys each, checked by
 `npm run build`), RTL for Arabic, compass-theme motion (navy/teal/amber),
-`prefers-reduced-motion` respected. The frontend proxies `/api/*` to the
+`prefers-reduced-motion` respected. Design language (2026-11-25, from three
+Xiaohongshu references — GPT-6 Astra editorial, tessel calendar film, AI+UI
+motion tutorial): restrained palette + giant type + 3D-perspective cards +
+staggered entrances; luxury from whitespace, tracking and one amber accent,
+not stacked effects. Homepage: navy hero with amber-gradient giant title,
+letterspaced microcopy, palette labels NAVY · TEAL · AMBER, a 3D compass
+sphere (orbit ring + gradient sphere + swaying needle) and a first-visit
+curtain pull-away; a 3D-tilted application timeline with an amber NOW line
+(UCAS 13 Jan 2027, TMUA 8 Jan 2027, UCL UPC 18 Jun 2027, 2027 intakes);
+a before/after split slider; programme cards fan out with a verification
+ring (real official-source count) and amber CTAs. Programme detail pages use
+an editorial magazine header. The frontend proxies `/api/*` to the
 backend; if the backend is down it falls back to a clearly-labelled
 offline evaluator — start the backend first for live results.
 

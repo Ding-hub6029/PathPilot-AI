@@ -190,7 +190,7 @@ export default function RankingsPage() {
         )}
 
         <ol className="mt-4 flex flex-col gap-3">
-          {sortedInstitutions.map((inst) => {
+          {sortedInstitutions.map((inst, idx) => {
             const instEntries = visibleEntries.filter((e) => e.institution_id === inst.id);
             if (rankType === 'world' && instEntries.length === 0) return null;
             // Rank shown in the row is the same rank the list is sorted by:
@@ -200,7 +200,7 @@ export default function RankingsPage() {
             const bestEntry = [...instEntries].sort((a, b) => rankValue(a) - rankValue(b))[0];
             const crest = crestFor(inst.id);
             return (
-              <li key={inst.id} className="flex items-center gap-3 rounded-2xl border border-navy/10 bg-white p-3 shadow-sm sm:gap-4 sm:p-4">
+              <li key={inst.id} className="anim-fade-up flex items-center gap-3 rounded-2xl border border-navy/10 bg-white p-3 shadow-sm sm:gap-4 sm:p-4" style={{ animationDelay: `${(idx % 6) * 60}ms` }}>
                 <span className="w-12 shrink-0 text-center text-lg font-bold text-navy" dir="ltr">
                   {bestEntry ? bestEntry.rank_display : '—'}
                 </span>
