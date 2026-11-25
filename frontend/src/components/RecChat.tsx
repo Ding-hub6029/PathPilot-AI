@@ -1,8 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useApp } from '../lib/store';
+import { useApp, type Locale } from '../lib/store';
 import { MatchResult, Program } from '../lib/types';
+import { fetchJson } from '../lib/api';
+import { isModelReply, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
+import { climateLabel } from '../lib/preferences';
 import { StatusChip } from './StatusChip';
 import { CompassFace, type PetMood } from './CompassPet';
 import { formatFeeItem, formatIntake } from '../lib/format';
@@ -47,6 +50,38 @@ export function RecChat({
   const [input, setInput] = useState('');
   const [reply, setReply] = useState<{ key: string; vars?: Record<string, string | number> } | null>(null);
   const [mood, setMood] = useState<PetMood>('celebrate');
+  /** Model answers to free-text questions (the country/city fast path
+   * below stays local — it really re-filters). A template-only reply
+   * is never shown as an answer: the turn is stored as offline. */
+  const [aiTurns, setAiTurns] = useState<{
+    question: string; reply: ChatReply | null; replyLocale: Locale | null; offline: boolean;
+  }[]>([]);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiOffline, setAiOffline] = useState(false);
+
+  /** Locale change: re-fetch model answers in the new locale. A
+   * failed or template-only re-fetch marks the turn offline instead
+   * of showing stale text. */
+  useEffect(() => {
+    aiTurns.forEach((turn, i) => {
+      if (!turn.reply || turn.replyLocale === locale) return;
+      fetchJson<ChatReply>('/api/assistant/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: turn.question, locale }),
+      }).then((fresh) => {
+        if (!isModelReply(fresh)) {
+          setAiOffline(true);
+          setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
+          return;
+        }
+        setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh, replyLocale: locale, offline: false } : x)));
+      }).catch(() => {
+        setAiOffline(true);
+        setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
 
   const filtered = (recs ?? []).filter((r) => {
     const p = programs.find((x) => x.id === r.programId);
@@ -78,12 +113,21 @@ export function RecChat({
       }
     }
     parts.push(tf('wizard.recChatIntake', { intake: formatIntake(p, t) }));
+    // Round 6: when the climate preference conflicts with this city's
+    // climate, say so honestly — the programme stays in the list, just
+    // ranked lower by the wizard sort.
+    if (r.preferenceFit === 'conflict' && p.city) {
+      parts.push(tf('wizard.recChatClimateConflict', { city: p.city, climate: climateLabel(profile.prefClimate, t) }));
+    }
     return parts.join(' ');
   };
 
-  const onSend = () => {
+  /** Free text: naming a country or a city really re-filters (fast
+   * path, unchanged). Anything else is a question for the real model,
+   * with the earlier model turns as history. */
+  const onSend = async () => {
     const text = input.trim();
-    if (!text) return;
+    if (!text || aiBusy) return;
     setInput('');
     const lower = text.toLowerCase();
     // Country? Match the localised name, the English name, or the code
@@ -114,8 +158,37 @@ export function RecChat({
         return;
       }
     }
-    setReply({ key: 'wizard.recChatUnknown' });
-    setMood('empathise');
+    // A real question: ask the model, grounded in the verified data.
+    setAiBusy(true);
+    setMood('think');
+    const requestLocale = locale;
+    const history: ChatHistoryTurn[] = [];
+    for (const turn of aiTurns) {
+      if (!turn.reply || !isModelReply(turn.reply)) continue;
+      history.push({ role: 'user', content: turn.question });
+      history.push({ role: 'assistant', content: turn.reply.lines.join(' ') });
+    }
+    try {
+      const r = await fetchJson<ChatReply>('/api/assistant/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6) }),
+      });
+      if (!isModelReply(r)) {
+        setAiOffline(true);
+        setAiTurns((prev) => [...prev, { question: text, reply: null, replyLocale: null, offline: true }]);
+        setMood('empathise');
+        return;
+      }
+      setAiOffline(false);
+      setAiTurns((prev) => [...prev, { question: text, reply: r, replyLocale: requestLocale, offline: false }]);
+      setMood('celebrate');
+    } catch {
+      setAiOffline(true);
+      setAiTurns((prev) => [...prev, { question: text, reply: null, replyLocale: null, offline: true }]);
+      setMood('empathise');
+    } finally {
+      setAiBusy(false);
+    }
   };
 
   const shownMood: PetMood = input.trim() ? 'think' : mood;
@@ -208,6 +281,46 @@ export function RecChat({
           </div>
         )}
 
+        {/* Model answers to free-text questions (the country/city
+            re-filter above stays local). A turn answered in another
+            locale shows the thinking line until its re-fetch lands;
+            an offline turn says so plainly instead of pretending. */}
+        {aiTurns.map((turn, i) => (
+          <div key={`ai-${i}`} className="space-y-3">
+            <div className="flex justify-end">
+              <div className="max-w-[90%] rounded-2xl bg-teal px-4 py-3 text-white">
+                <p>{turn.question}</p>
+              </div>
+            </div>
+            <div className="flex justify-start">
+              <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
+                {turn.reply && turn.replyLocale === locale ? (
+                  <>
+                    {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
+                    {turn.reply.evidence_url && (
+                      <a href={turn.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
+                        {t('pet.evidence')} ↗
+                      </a>
+                    )}
+                  </>
+                ) : turn.reply ? (
+                  <p>{t('pet.thinking')}</p>
+                ) : (
+                  <p>{t('wizard.recChatOffline')}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+        {aiBusy && (
+          <div className="flex justify-start">
+            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{t('pet.thinking')}</div>
+          </div>
+        )}
+        {aiOffline && (
+          <p className="text-xs text-navy/60">{t('wizard.recChatOffline')}</p>
+        )}
+
         {!recLoading && recs !== null && recs.length > 0 && (
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
@@ -227,12 +340,13 @@ export function RecChat({
             <div className="flex gap-2">
               <input value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') onSend(); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') void onSend(); }}
                 placeholder={t('wizard.recChatTypePlaceholder')}
                 aria-label={t('wizard.recChatTypePlaceholder')}
                 maxLength={200}
-                className="min-w-0 flex-1 rounded-full border border-navy/25 bg-white px-3 py-2 text-sm" />
-              <button type="button" onClick={onSend} disabled={!input.trim()}
+                disabled={aiBusy}
+                className="min-w-0 flex-1 rounded-full border border-navy/25 bg-white px-3 py-2 text-sm disabled:opacity-50" />
+              <button type="button" onClick={() => void onSend()} disabled={!input.trim() || aiBusy}
                 className="btn-press shrink-0 rounded-full bg-teal px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">
                 {t('wizard.chatSend')}
               </button>

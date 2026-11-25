@@ -1,9 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
-import { matchProfile } from '../../lib/api';
+import { matchProfile, mergePrograms } from '../../lib/api';
 import { MatchResponse } from '../../lib/types';
 import { RuleRow } from '../../components/RuleRow';
 import { formatProgramLine } from '../../lib/format';
@@ -12,7 +12,9 @@ import { displayProgramTitle } from '../../lib/programs';
 export default function ReportPage() {
   const { t, tf, locale, profile } = useApp();
   const f = { t, tf, locale };
-  const { programs } = usePrograms();
+  const { programs: livePrograms } = usePrograms();
+  // Round 6: lookups cover the merged list (live v2 + expansion mirror).
+  const programs = useMemo(() => mergePrograms(livePrograms), [livePrograms]);
   const [data, setData] = useState<MatchResponse | null>(null);
 
   useEffect(() => {

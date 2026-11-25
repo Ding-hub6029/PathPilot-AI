@@ -13,7 +13,12 @@ Model path (only when a provider is configured):
   stored;
 - retrieval finds verified facts only: programme fee/IELTS/deadline and
   rank lookup via the template assistant's helpers, plus the verified
-  Gaokao-route facts when the message mentions Gaokao/高考;
+  Gaokao-route facts when the message mentions Gaokao/高考, plus — since
+  round 6 (Job A) — climate evidence (top cities of the wanted class
+  from the curated climate table, with verified programme counts) when
+  the message states a climate wish, and the cheapest verified
+  programme in the stated track/country when the message asks for a
+  recommendation (the guided 3-question flow's constructed message);
 - the model sees ONLY those retrieved sources, as an evidence catalogue
   in a JSON envelope (``{task: "chat", prompt_version, locale, message,
   history, evidence_catalog}``); its structured JSON output is validated
@@ -33,16 +38,19 @@ from __future__ import annotations
 import json
 import re
 
-from ai.assistant import (LOCALES, _match_programmes, _norm, _t,
+from ai.assistant import (LOCALES, _DEADLINE_WORDS, _FEE_WORDS,
+                          _IELTS_WORDS, _RANK_WORDS, _TM_WORDS, _UG_WORDS,
+                          _match_programmes, _norm, _t,
                           ask as assistant_ask, check_no_forbidden,
-                          contains_personal_data)
+                          contains_personal_data, program_fee_range)
 from ai.grounding import (FORBIDDEN_PATTERNS, Source,
                           check_model_output, gaokao_sources,
                           programme_fact_texts, programme_sources,
                           ranking_sources, resolve_url)
 from ai.prompts import PROMPT_VERSION, chat_system
 from ai.provider import ProviderAdapter, ProviderError
-from app.data import DATA_DIR, PROGRAMS
+from app.data import (CLIMATE, DATA_DIR, EXPANSION_MATCHABLE,
+                      EXPANSION_PROGRAMS, PROGRAMS, RANKINGS)
 
 MAX_HISTORY_TURNS = 6
 
@@ -141,7 +149,8 @@ def _retrieve(message: str, locale: str):
         pids.append(template["program_id"])
     else:
         for pid in _match_programmes(_norm(message or "")):
-            if pid in PROGRAMS and pid not in pids:
+            if (pid in PROGRAMS or pid in EXPANSION_MATCHABLE) \
+                    and pid not in pids:
                 pids.append(pid)
     for pid in pids:
         _add(_enriched_programme_sources(pid))
@@ -150,7 +159,269 @@ def _retrieve(message: str, locale: str):
     lowered = (message or "").lower()
     if "gaokao" in lowered or "高考" in (message or ""):
         _add(gaokao_sources(pids[0] if pids else None))
+    # (Round 6, Job A) Climate-aware evidence: a climate preference had
+    # no evidence at all, so even the live model could only answer "I
+    # don't know". The top cities of the wanted class (by verified
+    # programme count) plus the cheapest programme in the top city are
+    # verified data, so they join the catalogue — after the programme
+    # sources, so existing catalogue order is unchanged.
+    climate_class = _detect_climate_class(message or "")
+    if climate_class:
+        climate_sources, top_programme = _climate_evidence(climate_class)
+        _add(climate_sources)
+        if top_programme and top_programme not in pids:
+            _add(_enriched_programme_sources(top_programme))
+            pids.append(top_programme)
+    # (Round 6, Job A) Suggestion intent: the guided 3-question flow
+    # sends one constructed message (degree + country + budget band).
+    # With no programme matched, the cheapest verified programme in
+    # that track/country is the evidence the model suggests from.
+    # Never fires on a fee/IELTS/deadline or rank question.
+    if not pids:
+        picked = _suggest_pick(message or "")
+        if picked is not None:
+            _add(_enriched_programme_sources(picked))
+            pids.append(picked)
     return template, sources, pids
+
+
+# ---------------------------------------------------------------------------
+# Climate-aware + suggestion retrieval (round 6, Job A)
+#
+# The template assistant can only answer questions that name a programme
+# or an institution. Two free-text shapes the pet must answer had no
+# evidence at all, so even the live model could only say "I don't know":
+# - a climate preference ("我喜欢很冷的那种，你有什么推荐吗") — the
+#   curated climate table (data/expansions/climate.json) plus the
+#   verified programme counts per city are the evidence;
+# - the guided 3-question suggestion (degree + country + budget band),
+#   which the frontend sends as one constructed message — the cheapest
+#   verified programme in that track/country is the evidence.
+# Both branches add ONLY verified data to the evidence catalogue; the
+# model still has to cite it, and the numeric cross-check still applies.
+# They never change the template answer itself (the no-key path still
+# returns the template lines, ai_status "unavailable").
+# ---------------------------------------------------------------------------
+
+_CLIMATE_CLASS_WORDS: dict[str, tuple[str, ...]] = {
+    "cool": ("cool", "cold", "chilly", "寒冷", "很冷", "冷", "凉爽", "凉快",
+             "froid", "frío", "frio", "بارد"),
+    "warm": ("warm", "hot", "暖", "热", "炎热", "chaud", "caliente",
+             "quente", "حار"),
+    "four_seasons": ("four seasons", "four-season", "四季", "四季分明",
+                     "quatre saisons", "cuatro estaciones"),
+    "mild": ("mild", "温和", "宜人", "doux", "templado", "ameno", "معتدل"),
+}
+
+_CLIMATE_CLASS_LABEL = {"cool": "cool", "warm": "warm",
+                        "four_seasons": "four-season", "mild": "mild"}
+
+# "冷门/热门" (unpopular/popular major) is not a climate word — strip
+# those compounds before scanning, or "有什么冷门专业" would read as a
+# wish for cold weather.
+_CLIMATE_STRIP_RES = (re.compile("冷门"), re.compile("热门"))
+
+_COUNTRY_CODE_RE = re.compile(r"country code\s+([a-z]{2})", re.IGNORECASE)
+_CEILING_RE = re.compile(
+    r"(GBP|SGD|USD|HKD|EUR|AUD|CAD|JPY|KRW|CHF|CNY)\s*([\d,]+(?:\.\d+)?)"
+    r"\s*(per year|total|per credit)?", re.IGNORECASE)
+
+# Lowercased country name -> ISO code. The rankings data supplies the
+# official English country_name per institution (see _country_names);
+# this table adds the short / Chinese forms the frontend's users type.
+_COUNTRY_ALIASES: dict[str, str] = {
+    "uk": "GB", "great britain": "GB", "england": "GB",
+    "usa": "US", "u.s.": "US", "america": "US",
+    "south korea": "KR", "korea": "KR",
+    "new zealand": "NZ", "hong kong": "HK", "saudi arabia": "SA",
+    "英国": "GB", "美国": "US", "新加坡": "SG", "澳大利亚": "AU",
+    "加拿大": "CA", "日本": "JP", "韩国": "KR", "德国": "DE",
+    "法国": "FR", "荷兰": "NL", "瑞士": "CH", "香港": "HK",
+    "中国": "CN", "爱尔兰": "IE", "意大利": "IT", "西班牙": "ES",
+    "瑞典": "SE", "丹麦": "DK", "新西兰": "NZ", "马来西亚": "MY",
+    "台湾": "TW", "挪威": "NO", "比利时": "BE", "奥地利": "AT",
+    "以色列": "IL", "沙特": "SA", "阿根廷": "AR",
+}
+
+_SUGGEST_WORDS = ("recommend", "suggest", "推荐", "建议", "recomienda",
+                  "recommande", "recomende")
+
+
+def _detect_climate_class(message: str) -> str | None:
+    """Wanted climate class from a free-text message, or None. The
+    earliest class word in the message wins, so "冬天不要太冷，夏天
+    不要太热" reads as the first wish stated, not both."""
+    msg = _norm(message or "")
+    for pat in _CLIMATE_STRIP_RES:
+        msg = pat.sub("", msg)
+    best: tuple[int, str] | None = None
+    for cls, words in _CLIMATE_CLASS_WORDS.items():
+        for word in words:
+            i = msg.find(word)
+            if i >= 0 and (best is None or i < best[0]):
+                best = (i, cls)
+    return best[1] if best else None
+
+
+def _table_city(city: str | None) -> str | None:
+    """Climate-table city for a programme city (campus suffixes map to
+    the table city: "London Bloomsbury" -> "London")."""
+    if not city:
+        return None
+    if city in CLIMATE:
+        return city
+    for known in CLIMATE:
+        if city.startswith(known + " "):
+            return known
+    return None
+
+
+def _climate_evidence(wanted: str) -> tuple[list[Source], str | None]:
+    """Top 3 cities of the wanted climate class by verified programme
+    count, each as one citable source (city + count + the table's own
+    source URL), plus the cheapest verified programme in the top city
+    (returned as a programme id; the caller adds its sources). A city
+    with no entry in the table never appears; counts cover the v2
+    programmes and every expansion programme, matchable or not."""
+    counts: dict[str, int] = {}
+    for program in list(PROGRAMS.values()) + list(EXPANSION_PROGRAMS.values()):
+        city = _table_city(program.get("city"))
+        if city and CLIMATE.get(city, {}).get("climate") == wanted:
+            counts[city] = counts.get(city, 0) + 1
+    top = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:3]
+    label = _CLIMATE_CLASS_LABEL[wanted]
+    sources: list[Source] = []
+    for city, n in top:
+        entry = CLIMATE[city]
+        slug = re.sub(r"[^a-z0-9]+", "-", city.lower()).strip("-")
+        sources.append(Source(
+            id=f"climate:{slug}",
+            url=entry.get("source_url"),
+            title=f"{city} climate",
+            excerpt=(f"{city}: {label} climate. "
+                     f"Verified programmes in {city}: {n}.")))
+    programme_id: str | None = None
+    if top:
+        city = top[0][0]
+        pool = [p for p in list(PROGRAMS.values())
+                + list(EXPANSION_MATCHABLE.values())
+                if _table_city(p.get("city")) == city]
+        if pool:
+            def sort_key(p):
+                fr = program_fee_range(p)
+                return (fr[0] if fr else float("inf"), p["id"])
+            programme_id = sorted(pool, key=sort_key)[0]["id"]
+    return sources, programme_id
+
+
+def _country_names() -> dict[str, str]:
+    """Lowercased country name -> code: official country_name values
+    from the verified rankings data, plus the alias table."""
+    names = dict(_COUNTRY_ALIASES)
+    for inst in RANKINGS.get("institutions", []):
+        name = (inst.get("country_name") or "").strip().lower()
+        code = inst.get("country")
+        if name and code and name not in names:
+            names[name] = code
+    return names
+
+
+def _detect_country(message: str) -> str | None:
+    """Country code from a message: the frontend's explicit "country
+    code XX" marker first, then a country name. Short names match on
+    word boundaries only, so "uk" never fires inside another word."""
+    msg = _norm(message or "")
+    m = _COUNTRY_CODE_RE.search(msg)
+    if m:
+        return m.group(1).upper()
+    names = _country_names()
+    for alias, code in sorted(names.items(), key=lambda kv: -len(kv[0])):
+        if len(alias) <= 3:
+            if re.search(r"(?<![a-z])" + re.escape(alias) + r"(?![a-z])", msg):
+                return code
+        elif alias in msg:
+            return code
+    return None
+
+
+def _detect_level(message: str) -> str | None:
+    """Degree level from the template assistant's own level words."""
+    msg = _norm(message or "")
+    if any(w in msg for w in _UG_WORDS):
+        return "undergraduate"
+    if any(w in msg for w in _TM_WORDS):
+        return "taught_masters"
+    return None
+
+
+def _parse_ceiling(message: str) -> tuple[str, float, str] | None:
+    """(currency, amount, period) budget ceiling from a message such as
+    "under GBP 30,000 per year". "per credit" (or no period) has no
+    comparable fee, so it yields no ceiling — never a guess."""
+    m = _CEILING_RE.search(message or "")
+    if not m:
+        return None
+    try:
+        amount = float(m.group(2).replace(",", ""))
+    except ValueError:
+        return None
+    period = {"per year": "per_year", "total": "total"}.get(
+        (m.group(3) or "").lower())
+    if period is None:
+        return None
+    return m.group(1).upper(), amount, period
+
+
+def _pick_suggest_programme(level: str, country: str,
+                            ceiling: tuple[str, float, str] | None) -> str | None:
+    """Cheapest verified programme in the track/country: within the
+    stated ceiling when one fits (same currency + period), else the
+    cheapest in the ceiling's currency/period, else the cheapest in
+    the largest same-currency/period group, else the first by id when
+    no fee is verified anywhere. Deterministic throughout."""
+    pool = [p for p in list(PROGRAMS.values())
+            + list(EXPANSION_MATCHABLE.values())
+            if p.get("degree_level") == level and p.get("country") == country]
+    if not pool:
+        return None
+    with_fee = [(program_fee_range(p), p) for p in pool]
+    with_fee = [(fr, p) for fr, p in with_fee if fr]
+    if ceiling:
+        currency, amount, period = ceiling
+        same = [(fr, p) for fr, p in with_fee
+                if fr[2] == currency and fr[3] == period]
+        within = [(fr, p) for fr, p in same if fr[1] <= amount]
+        if within:
+            return min(within, key=lambda x: (x[0][0], x[1]["id"]))[1]["id"]
+        if same:
+            return min(same, key=lambda x: (x[0][0], x[1]["id"]))[1]["id"]
+    if with_fee:
+        groups: dict[tuple[str, str], list] = {}
+        for fr, p in with_fee:
+            groups.setdefault((fr[2], fr[3]), []).append((fr, p))
+        key = sorted(groups.keys(),
+                     key=lambda k: (-len(groups[k]), k[0], k[1]))[0]
+        return min(groups[key], key=lambda x: (x[0][0], x[1]["id"]))[1]["id"]
+    return sorted(pool, key=lambda p: p["id"])[0]["id"]
+
+
+def _suggest_pick(message: str) -> str | None:
+    """Programme id for a suggestion request (degree + country +
+    optional budget ceiling), or None when the message is not one.
+    Only fires on an explicit recommendation ask — a fee/IELTS/
+    deadline or rank question never becomes a suggestion."""
+    msg = _norm(message or "")
+    if not any(w in msg for w in _SUGGEST_WORDS):
+        return None
+    if any(w in msg for w in _RANK_WORDS):
+        return None
+    if any(w in msg for w in _FEE_WORDS + _IELTS_WORDS + _DEADLINE_WORDS):
+        return None
+    level = _detect_level(message)
+    country = _detect_country(message)
+    if level is None or country is None:
+        return None
+    return _pick_suggest_programme(level, country, _parse_ceiling(message))
 
 
 def _evidence_texts(sources: list[Source], programme_ids: list[str]) -> dict[str, str]:

@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../../lib/store';
-import { usePrograms } from '../../../lib/usePrograms';
-import { matchProfile } from '../../../lib/api';
+import { findProgram, matchProfile } from '../../../lib/api';
 import { MatchResponse } from '../../../lib/types';
 import { RuleRow } from '../../../components/RuleRow';
 import { RankingCards } from '../../../components/RankingCards';
@@ -16,9 +15,10 @@ import { vtRef } from '../../../lib/viewTransition';
 export default function ProgramDetail({ params }: { params: { id: string } }) {
   const { t, tf, locale, profile } = useApp();
   const f = { t, tf, locale };
-  const { programs } = usePrograms();
+  // Round 6: resolve from the merged local list (v2 + expansion mirror),
+  // so expansion programme pages render instead of the error state.
   const [data, setData] = useState<MatchResponse | null>(null);
-  const program = programs.find((p) => p.id === params.id);
+  const program = findProgram(params.id);
 
   useEffect(() => {
     if (!program || !profile.track) return;

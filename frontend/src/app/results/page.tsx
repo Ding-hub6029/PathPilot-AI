@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
-import { matchProfile, simulate } from '../../lib/api';
+import { matchProfile, mergePrograms, simulate } from '../../lib/api';
 import { MatchResponse, Profile, Program } from '../../lib/types';
 import { hasPreferences, prefHints, prefSummary } from '../../lib/preferences';
 import { displayProgramName } from '../../lib/programs';
@@ -20,7 +20,10 @@ type Filter = 'all' | 'met' | 'notmet' | 'unknown';
 export default function ResultsPage() {
   const { t, tf, locale, profile } = useApp();
   const f = { t, tf, locale };
-  const { programs, live: programsLive, loading: programsLoading } = usePrograms();
+  const { programs: livePrograms, live: programsLive, loading: programsLoading } = usePrograms();
+  // Round 6: lookups cover the merged list (live v2 + expansion mirror),
+  // so expansion results resolve to a programme card.
+  const programs = useMemo(() => mergePrograms(livePrograms), [livePrograms]);
   const [data, setData] = useState<MatchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -66,8 +69,12 @@ export default function ResultsPage() {
   const resultCountries = useMemo(() => [...new Set(resultPrograms.map((p) => p.country))].sort(), [resultPrograms]);
   const resultCities = useMemo(() => [...new Set(resultPrograms.map((p) => p.city).filter((c): c is string => !!c))].sort(), [resultPrograms]);
 
+  // Sorted by eligibility (MET, then partly unknown, then not met),
+  // with climate conflicts last (round 6) — the preference never hides
+  // a programme, it only reorders, and the note below says so.
   const shown = useMemo(() => {
     if (!data) return [];
+    const rank = (s: string) => s === 'MET' ? 0 : s === 'PARTIAL_UNKNOWN' ? 1 : s === 'NOT_MET' ? 2 : 3;
     return data.results.filter((r) => {
       if (filter === 'all') { /* fall through to the pref filters */ }
       else if (filter === 'met' && !r.ruleResults.every((x) => x.status === 'MET')) return false;
@@ -77,7 +84,8 @@ export default function ResultsPage() {
       if (countryFilter && p?.country !== countryFilter) return false;
       if (cityFilter && p?.city !== cityFilter) return false;
       return true;
-    });
+    }).sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary)
+      || (a.preferenceFit === 'conflict' ? 1 : 0) - (b.preferenceFit === 'conflict' ? 1 : 0));
   }, [data, filter, countryFilter, cityFilter, programs]);
 
   if (!profile.track || profile.targetProgramIds.length === 0) {
@@ -128,9 +136,11 @@ export default function ResultsPage() {
       })()}
 
       {/* Your preferences, in your own words. They only filter and hint —
-          they never change an eligibility result, and climate / salary /
-          pressure / teaching style are never matched against a programme
-          because no official data exists for them. */}
+          they never change an eligibility result. Climate is matched
+          against the curated city climate table (round 6) only to order
+          results and show an honest note — never to exclude a programme;
+          salary / pressure / teaching style are never matched against a
+          programme because no official data exists for them. */}
       {hasPreferences(profile) && (
         <section className="mt-4 rounded-2xl border border-amber/40 bg-amber/10 p-5" aria-labelledby="prefs-title">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -226,6 +236,9 @@ export default function ResultsPage() {
                       <span key={h} className="rounded-full bg-amber/25 px-2.5 py-1 text-xs font-semibold text-navy">{tf('results.prefMatch', { value: h })}</span>
                     ))}
                   </div>
+                )}
+                {r.preferenceFit === 'conflict' && (
+                  <p className="mt-2 rounded-lg bg-amber/20 p-2 text-sm font-semibold" role="note">{t('results.prefClimateConflict')}</p>
                 )}
                 {r.trackMismatch ? (
                   <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-800">{t('results.trackMismatch')}</p>

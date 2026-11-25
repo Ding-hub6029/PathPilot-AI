@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
-import { fetchJson } from '../lib/api';
+import { fetchJson, allPrograms, findProgram } from '../lib/api';
+import { deriveChatLinks, isModelReply, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
 import { PROGRAMS, displayProgramTitle } from '../lib/programs';
 import { RANKING_ENTRIES, RANKING_INSTITUTIONS } from '../lib/rankings';
@@ -15,13 +16,20 @@ import enMessages from '../../messages/en.json';
  * chat panel. At most 3 opening questions, each with one-tap quick replies
  * (degree -> country -> budget); after the third answer the pet gives a
  * short route suggestion (max 3 lines, conclusion first, ONE evidence
- * link) and stops asking. Free text is answered only from verified data.
+ * link) and stops asking. Free text is answered by the real model.
  *
- * Rules/template mode only: no model is connected (the backend returns
- * ai_status="unavailable" and the panel says so). Unknown stays unknown,
- * no admission probabilities, no personal data is ever asked for or kept.
- * The panel's open state is remembered in sessionStorage only
- * ('pp-pet-open'); closing it forgets it for the session.
+ * Model wiring (round 6, Job A): free-text questions AND the guided
+ * suggestion both go to POST /api/v1/assistant/chat (with the
+ * conversation history for free text, and one constructed message for
+ * the suggestion — see lib/chat.ts suggestMessage). A reply counts as
+ * an AI answer ONLY when ai_status is "available"; anything else is
+ * the template fallback and is never shown as a chat answer — the
+ * panel falls back to the labelled offline catalogue instead (see
+ * renderTurn: offline turns always lead with pet.offline). Unknown
+ * stays unknown, no admission probabilities, no personal data is ever
+ * asked for or kept. The panel's open state is remembered in
+ * sessionStorage only ('pp-pet-open'); closing it forgets it for the
+ * session.
  *
  * Locale safety (fix 2026-11-25): message state stores ONLY structured
  * data — prompt keys, chosen values, the user's own verbatim text, and
@@ -74,20 +82,11 @@ const PET_COUNTRY_CODES: string[] = (() => {
   return [...programmeCountries.filter((code) => withKey.includes(code)), ...rest];
 })();
 
-/** True when the verified catalogue holds a programme in this country. */
+/** True when the verified catalogue holds a matchable programme in
+ * this country (v2 + the promoted expansion programmes; display-only
+ * programmes do not count — the pet cannot suggest from them). */
 function hasVerifiedProgrammes(country: string): boolean {
-  return PROGRAMS.some((p) => p.country === country);
-}
-
-interface AssistantReply {
-  lines: string[];
-  program_id?: string | null;
-  program_name?: string | null;
-  institution_id?: string | null;
-  evidence_url?: string | null;
-  fee_fit?: string;
-  ai_status?: string;
-  next_steps?: { wizard?: string; program?: string | null; institution?: string | null };
+  return allPrograms().some((p) => p.country === country && p.matchable !== false);
 }
 
 /** One conversation turn, stored as structured data only. */
@@ -99,7 +98,7 @@ type ChatTurn =
       kind: 'suggest';
       degree: Degree; country: Country; band: Band;
       /** Live backend payload + the locale it was answered in. */
-      reply: AssistantReply | null;
+      reply: ChatReply | null;
       replyLocale: Locale | null;
       /** True when the live call failed and the offline catalogue is used. */
       offline: boolean;
@@ -112,7 +111,7 @@ type ChatTurn =
       kind: 'ask';
       message: string;
       /** Live backend payload + the locale it was answered in. */
-      reply: AssistantReply | null;
+      reply: ChatReply | null;
       replyLocale: Locale | null;
       /** True when the live call failed and the offline catalogue is used. */
       offline: boolean;
@@ -140,45 +139,68 @@ function money(n: number): string {
 
 /** Offline suggestion from the built-in catalogue (same bands as the
  * backend). Only GB (overseas fee item) and SG taught masters (total
- * fee item) carry a usable offline fee; SG undergraduate has no
- * without-grant fee in the offline list, so it honestly returns null.
+ * fee item) carry a usable offline fee in the v2 list; SG
+ * undergraduate has no without-grant fee in the offline list, so it
+ * honestly returns null. Other countries (round 6, Job A): the
+ * cheapest verified programme in the track/country from the merged
+ * catalogue (v2 + promoted expansion programmes) — no band ceiling
+ * exists there, so fit is null and no fee-vs-band line is rendered.
  * Returns structured data only — the programme name is rendered at
  * render time via displayProgramTitle(), never stored as a string. */
 interface OfflineSuggestion {
   programId: string;
   evidenceUrl: string | null;
   fee: { currency: string; amount: number; period: string } | null;
-  fit: 'within' | 'above';
+  fit: 'within' | 'above' | null;
 }
 
 function suggestOffline(degree: Degree, country: Country, band: Band): OfflineSuggestion | null {
-  const candidates = PROGRAMS.filter((p) => p.degreeLevel === degree && p.country === country);
+  if (country === 'GB' || country === 'SG') {
+    const candidates = PROGRAMS.filter((p) => p.degreeLevel === degree && p.country === country);
+    if (!candidates.length) return null;
+    const withFee = candidates.map((p) => {
+      const overseas = p.feeItems.find((f) => /overseas/i.test(f.label) && f.period === 'per year');
+      const total = p.feeItems.find((f) => f.period === 'total');
+      const item = country === 'GB' ? overseas : degree === 'taught_masters' ? total : undefined;
+      return { p, item: item ?? null };
+    }).filter((x) => x.item !== null);
+    if (!withFee.length) return null;
+    withFee.sort((a, b) => (a.item as { amount: number }).amount - (b.item as { amount: number }).amount);
+    const ceiling = BAND_CEILING[`${degree}-${country}`][band];
+    const within = withFee.filter((x) => ceiling === null || (x.item as { amount: number }).amount <= ceiling);
+    const picked = within[0] ?? withFee[0];
+    const item = picked.item as { amount: number; currency: string; period: string };
+    const fit = ceiling === null || item.amount <= ceiling ? 'within' : 'above';
+    return {
+      programId: picked.p.id,
+      evidenceUrl: picked.p.sources[0]?.url ?? null,
+      fee: { currency: item.currency, amount: item.amount, period: item.period },
+      fit,
+    };
+  }
+  const candidates = allPrograms().filter(
+    (p) => p.degreeLevel === degree && p.country === country && p.feeItems.length > 0);
   if (!candidates.length) return null;
-  const withFee = candidates.map((p) => {
-    const overseas = p.feeItems.find((f) => /overseas/i.test(f.label) && f.period === 'per year');
-    const total = p.feeItems.find((f) => f.period === 'total');
-    const item = country === 'GB' ? overseas : degree === 'taught_masters' ? total : undefined;
-    return { p, item: item ?? null };
-  }).filter((x) => x.item !== null);
-  if (!withFee.length) return null;
-  withFee.sort((a, b) => (a.item as { amount: number }).amount - (b.item as { amount: number }).amount);
-  const ceiling = BAND_CEILING[`${degree}-${country}`][band];
-  const within = withFee.filter((x) => ceiling === null || (x.item as { amount: number }).amount <= ceiling);
-  const picked = within[0] ?? withFee[0];
-  const item = picked.item as { amount: number; currency: string; period: string };
-  const fit = ceiling === null || item.amount <= ceiling ? 'within' : 'above';
+  let best: { p: (typeof candidates)[number]; item: (typeof candidates)[number]['feeItems'][number] } | null = null;
+  for (const p of candidates) {
+    for (const item of p.feeItems) {
+      if (!best || item.amount < best.item.amount) best = { p, item };
+    }
+  }
+  if (!best) return null;
   return {
-    programId: picked.p.id,
-    evidenceUrl: picked.p.sources[0]?.url ?? null,
-    fee: { currency: item.currency, amount: item.amount, period: item.period },
-    fit,
+    programId: best.p.id,
+    evidenceUrl: best.p.sources[0]?.url ?? null,
+    fee: { currency: best.item.currency, amount: best.item.amount, period: best.item.period },
+    fit: null,
   };
 }
 
-/** Offline rank lookup from the built-in 300 entries. Matches the same
- * short aliases the backend knows; anything else stays unknown. The
- * lines it builds are locale-independent (official names, provider
- * codes and rank numbers only), so they are safe to render as-is. */
+/** Offline rank lookup, rendered only as labelled offline content
+ * (the caller leads with pet.offline). Matches the same short aliases
+ * the backend knows; anything else stays unknown. The lines it builds
+ * are locale-independent (official names, provider codes and rank
+ * numbers only), so they are safe to render as-is. */
 const OFFLINE_RANK_ALIASES: Record<string, string> = {
   ucl: 'ucl', '伦敦大学学院': 'ucl', imperial: 'imperial', '帝国理工': 'imperial',
   nus: 'nus', '新加坡国立': 'nus', ntu: 'ntu', '南洋理工': 'ntu',
@@ -192,7 +214,13 @@ const OFFLINE_RANK_ALIASES: Record<string, string> = {
   eth: 'eth-zurich',
 };
 
-function rankOffline(message: string): AssistantReply | null {
+interface OfflineRank {
+  lines: string[];
+  evidenceUrl: string | null;
+  institutionId: string;
+}
+
+function rankOffline(message: string): OfflineRank | null {
   const msg = message.toLowerCase();
   let instId: string | undefined;
   for (const [alias, id] of Object.entries(OFFLINE_RANK_ALIASES)) {
@@ -208,10 +236,8 @@ function rankOffline(message: string): AssistantReply | null {
   const profiles = inst.provider_profiles ?? {};
   return {
     lines: [`${inst.official_name}: ${parts.join(' · ')}.`],
-    institution_id: instId,
-    evidence_url: profiles.qs ?? profiles.the ?? profiles.arwu ?? null,
-    ai_status: 'unavailable',
-    next_steps: { wizard: '/wizard', institution: `/institutions/${instId}` },
+    evidenceUrl: profiles.qs ?? profiles.the ?? profiles.arwu ?? null,
+    institutionId: instId,
   };
 }
 
@@ -283,6 +309,12 @@ export function CompassPet() {
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [offline, setOffline] = useState(false);
+  /** Whether the live model answered recently: true after a model
+   * reply (ai_status "available"), false after a failure or a
+   * template-only reply, null before the first check. The footer
+   * reports this honestly — it never claims AI answers it has not
+   * seen. */
+  const [aiLive, setAiLive] = useState<boolean | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   /** Bumped on every restart so late re-fetch responses are ignored. */
@@ -393,19 +425,67 @@ export function CompassPet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  /** One cheap status read when the panel opens, so the footer states
+   * the truth about the model before any chat is claimed as AI. */
+  useEffect(() => {
+    if (!open || aiLive !== null) return;
+    fetchJson<{ ai_status?: string }>('/api/ai/status')
+      .then((s) => { setAiLive(s.ai_status === 'available'); if (s.ai_status !== 'available') setOffline(true); })
+      .catch(() => { setAiLive(false); setOffline(true); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [messages, busy]);
+
+  /** The constructed suggestion message for one guided answer (see
+   * lib/chat.ts suggestMessage). The message itself is always English;
+   * the backend answers in the requested locale. GB/SG bands carry
+   * their ceiling (per year, except SG taught masters which is a
+   * total); other countries have no band table, so no ceiling is
+   * stated and the backend picks the cheapest verified programme. */
+  const suggestMessageFor = (degree: Degree, country: Country, band: Band): string => {
+    const ceilingEntry = BAND_CEILING[`${degree}-${country}`]?.[band];
+    const currency = country === 'GB' ? 'GBP' : country === 'SG' ? 'SGD' : null;
+    const ceiling = ceilingEntry != null && currency
+      ? {
+          currency,
+          amount: ceilingEntry,
+          period: (country === 'SG' && degree === 'taught_masters' ? 'total' : 'per year') as 'per year' | 'total',
+        }
+      : null;
+    const countryNameEn = (enMessages as Record<string, string>)[`country.${country}`] ?? country;
+    return suggestMessage(degree, country, countryNameEn, band, ceiling);
+  };
+
+  /** Conversation history for /assistant/chat: the live model turns so
+   * far (user question + the model's own lines), oldest first, last 6
+   * entries. Offline turns are never included — their lines are not
+   * model answers. `before` limits to turns before an index (used by
+   * the locale re-fetch, so a turn never quotes itself). */
+  const buildHistory = (turns: ChatTurn[], before?: number): ChatHistoryTurn[] => {
+    const out: ChatHistoryTurn[] = [];
+    turns.forEach((m, i) => {
+      if (before !== undefined && i >= before) return;
+      if (m.kind !== 'ask' || !m.reply || !isModelReply(m.reply)) return;
+      out.push({ role: 'user', content: m.message });
+      out.push({ role: 'assistant', content: m.reply.lines.join(' ') });
+    });
+    return out.slice(-6);
+  };
 
   /**
    * Locale change: re-fetch every live backend-backed turn whose reply
    * was answered in the old locale, in the new locale. While a turn
    * awaits its fresh reply it renders the thinking line (see
-   * renderTurn), never the old-locale lines. A failed re-fetch falls
-   * back to the offline catalogue rendered in the new locale. The
-   * in-flight set stops duplicate fetches; replyLocale records the
-   * locale each reply was actually answered in, so a reply that lands
-   * after a further switch is re-fetched again instead of shown stale.
+   * renderTurn), never the old-locale lines. A failed re-fetch — or a
+   * re-fetch that comes back template-only (ai_status not
+   * "available") — falls back to the offline catalogue rendered in
+   * the new locale. The in-flight set stops duplicate fetches;
+   * replyLocale records the locale each reply was actually answered
+   * in, so a reply that lands after a further switch is re-fetched
+   * again instead of shown stale.
    */
   useEffect(() => {
     messages.forEach((m, i) => {
@@ -414,24 +494,18 @@ export function CompassPet() {
       inFlightRef.current.add(i);
       const conv = convRef.current;
       const req = m.kind === 'suggest'
-        ? fetchJson<AssistantReply>('/api/assistant/suggest', {
+        ? fetchJson<ChatReply>('/api/assistant/chat', {
             method: 'POST',
-            body: JSON.stringify({ degree_level: m.degree, country: m.country, budget_band: m.band, locale }),
+            body: JSON.stringify({ message: suggestMessageFor(m.degree, m.country, m.band), locale }),
           })
-        : fetchJson<AssistantReply>('/api/assistant/ask', {
+        : fetchJson<ChatReply>('/api/assistant/chat', {
             method: 'POST',
-            body: JSON.stringify({ message: m.message, locale }),
+            body: JSON.stringify({ message: m.message, locale, history: buildHistory(messages, i) }),
           });
-      req.then((fresh) => {
-        if (convRef.current !== conv) return;
-        setOffline(false);
-        setMessages((prev) => prev.map((x, j) => {
-          if (j !== i || (x.kind !== 'suggest' && x.kind !== 'ask')) return x;
-          return { ...x, reply: fresh, replyLocale: locale };
-        }));
-      }).catch(() => {
+      const toOffline = () => {
         if (convRef.current !== conv) return;
         setOffline(true);
+        setAiLive(false);
         setMessages((prev) => prev.map((x, j) => {
           if (j !== i) return x;
           if (x.kind === 'suggest') {
@@ -445,11 +519,22 @@ export function CompassPet() {
           }
           if (x.kind === 'ask') {
             const rank = rankOffline(x.message);
-            return { ...x, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institution_id ?? null };
+            return { ...x, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null };
           }
           return x;
         }));
-      }).finally(() => { inFlightRef.current.delete(i); });
+      };
+      req.then((fresh) => {
+        if (convRef.current !== conv) return;
+        if (!isModelReply(fresh)) { toOffline(); return; }
+        setOffline(false);
+        setAiLive(true);
+        setMessages((prev) => prev.map((x, j) => {
+          if (j !== i || (x.kind !== 'suggest' && x.kind !== 'ask')) return x;
+          return { ...x, reply: fresh, replyLocale: locale };
+        }));
+      }).catch(toOffline)
+        .finally(() => { inFlightRef.current.delete(i); });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, messages]);
@@ -472,10 +557,14 @@ export function CompassPet() {
     if (turn.country === 'GB') {
       return t(turn.value === 'low' ? 'pet.q3gbLow' : turn.value === 'mid' ? 'pet.q3gbMid' : 'pet.q3gbHigh');
     }
-    if (turn.degree === 'undergraduate') {
-      return t(turn.value === 'low' ? 'pet.q3sgUgLow' : turn.value === 'mid' ? 'pet.q3sgUgMid' : 'pet.q3sgUgHigh');
+    if (turn.country === 'SG') {
+      if (turn.degree === 'undergraduate') {
+        return t(turn.value === 'low' ? 'pet.q3sgUgLow' : turn.value === 'mid' ? 'pet.q3sgUgMid' : 'pet.q3sgUgHigh');
+      }
+      return t(turn.value === 'low' ? 'pet.q3sgTmLow' : turn.value === 'mid' ? 'pet.q3sgTmMid' : 'pet.q3sgTmHigh');
     }
-    return t(turn.value === 'low' ? 'pet.q3sgTmLow' : turn.value === 'mid' ? 'pet.q3sgTmMid' : 'pet.q3sgTmHigh');
+    // Other countries have no currency band table — generic bands.
+    return t(turn.value === 'low' ? 'pet.q3Low' : turn.value === 'mid' ? 'pet.q3Mid' : 'pet.q3High');
   };
 
   /**
@@ -516,20 +605,34 @@ export function CompassPet() {
       }
       case 'suggest': {
         if (turn.reply && turn.replyLocale === locale) {
-          return { lines: turn.reply.lines, evidenceUrl: turn.reply.evidence_url, nextSteps: turn.reply.next_steps };
+          // A live reply counts as an AI answer only when the backend
+          // actually used a model (ai_status "available") — a
+          // template-only reply is never stored as one (see
+          // askSuggest), so reaching here means model lines. Links
+          // come from the reply's source ids, never from model text.
+          const links = deriveChatLinks(turn.reply.sources);
+          return {
+            lines: turn.reply.lines,
+            evidenceUrl: turn.reply.evidence_url,
+            nextSteps: { wizard: '/wizard', program: links.program, institution: links.institution },
+          };
         }
         if (turn.reply) return { lines: [t('pet.thinking')] };
         if (turn.offline) {
           if (!turn.offlineProgramId) return { lines: [t('pet.offline')] };
-          const program = PROGRAMS.find((p) => p.id === turn.offlineProgramId);
+          const program = findProgram(turn.offlineProgramId);
           const lines = [
             t('pet.offline'),
             program ? displayProgramTitle(program, locale) : turn.offlineProgramId,
           ];
-          if (turn.offlineFee) {
+          if (turn.offlineFee && (turn.offlineFee.period === 'per year' || turn.offlineFee.period === 'total')) {
             const fee = tf(turn.offlineFee.period === 'total' ? 'pet.feeTotal' : 'pet.feePerYear',
               { currency: turn.offlineFee.currency, amount: money(turn.offlineFee.amount) });
-            lines.push(tf(turn.offlineFit === 'within' ? 'pet.feeWithin' : 'pet.feeAbove', { fee }));
+            if (turn.offlineFit) {
+              lines.push(tf(turn.offlineFit === 'within' ? 'pet.feeWithin' : 'pet.feeAbove', { fee }));
+            } else {
+              lines.push(fee);
+            }
           }
           return {
             lines,
@@ -541,12 +644,25 @@ export function CompassPet() {
       }
       case 'ask': {
         if (turn.reply && turn.replyLocale === locale) {
-          return { lines: turn.reply.lines, evidenceUrl: turn.reply.evidence_url, nextSteps: turn.reply.next_steps };
+          const links = deriveChatLinks(turn.reply.sources);
+          return {
+            lines: turn.reply.lines,
+            evidenceUrl: turn.reply.evidence_url,
+            nextSteps: { wizard: '/wizard', program: links.program, institution: links.institution },
+          };
         }
         if (turn.reply) return { lines: [t('pet.thinking')] };
         if (turn.offline) {
+          // Labelled offline content only: the rank lookup below is
+          // from the built-in catalogue, never a model answer.
           const rank = rankOffline(turn.message);
-          if (rank) return { lines: rank.lines, evidenceUrl: rank.evidence_url, nextSteps: rank.next_steps };
+          if (rank) {
+            return {
+              lines: [t('pet.offline'), ...rank.lines],
+              evidenceUrl: rank.evidenceUrl,
+              nextSteps: { wizard: '/wizard', institution: `/institutions/${rank.institutionId}` },
+            };
+          }
           return { lines: [t('pet.offline')] };
         }
         return { lines: [t('pet.thinking')] };
@@ -554,6 +670,12 @@ export function CompassPet() {
     }
   };
 
+  /** The guided suggestion, from the real model when it is reachable.
+   * The three answers become one constructed message; the backend
+   * retrieves the cheapest verified programme in that track/country
+   * as the model's evidence. A template-only reply (ai_status not
+   * "available") is NOT stored as an answer — the turn falls back to
+   * the labelled offline catalogue instead. */
   const askSuggest = async (degree: Degree, country: Country, band: Band) => {
     if (!hasVerifiedProgrammes(country)) {
       // Defensive: the Q2 branch already answers this without calling
@@ -563,20 +685,9 @@ export function CompassPet() {
     }
     setBusy(true);
     const requestLocale = locale;
-    try {
-      const r = await fetchJson<AssistantReply>('/api/assistant/suggest', {
-        method: 'POST',
-        body: JSON.stringify({ degree_level: degree, country, budget_band: band, locale: requestLocale }),
-      });
-      setOffline(false);
-      if (r.program_id || r.institution_id) doCelebrate();
-      push({
-        kind: 'suggest', degree, country, band,
-        reply: r, replyLocale: requestLocale, offline: false,
-        offlineProgramId: null, offlineEvidenceUrl: null, offlineFee: null, offlineFit: null,
-      });
-    } catch {
+    const goOffline = () => {
       setOffline(true);
+      setAiLive(false);
       const off = suggestOffline(degree, country, band);
       if (off) doCelebrate();
       push({
@@ -586,6 +697,23 @@ export function CompassPet() {
         offlineEvidenceUrl: off?.evidenceUrl ?? null,
         offlineFee: off?.fee ?? null, offlineFit: off?.fit ?? null,
       });
+    };
+    try {
+      const r = await fetchJson<ChatReply>('/api/assistant/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: suggestMessageFor(degree, country, band), locale: requestLocale }),
+      });
+      if (!isModelReply(r)) { goOffline(); return; }
+      setOffline(false);
+      setAiLive(true);
+      if (deriveChatLinks(r.sources).program) doCelebrate();
+      push({
+        kind: 'suggest', degree, country, band,
+        reply: r, replyLocale: requestLocale, offline: false,
+        offlineProgramId: null, offlineEvidenceUrl: null, offlineFee: null, offlineFit: null,
+      });
+    } catch {
+      goOffline();
     } finally {
       setBusy(false);
     }
@@ -624,6 +752,10 @@ export function CompassPet() {
     }
   };
 
+  /** Free text goes to the real model, with the conversation history
+   * for context. As with the suggestion, a template-only reply is
+   * never shown as a chat answer — the turn falls back to the
+   * labelled offline rank lookup (or the plain offline line). */
   const onSend = async () => {
     const text = input.trim();
     if (!text || busy) return;
@@ -631,19 +763,25 @@ export function CompassPet() {
     push({ kind: 'freeText', text });
     setBusy(true);
     const requestLocale = locale;
-    try {
-      const r = await fetchJson<AssistantReply>('/api/assistant/ask', {
-        method: 'POST',
-        body: JSON.stringify({ message: text, locale: requestLocale }),
-      });
-      setOffline(false);
-      if (r.program_id || r.institution_id) doCelebrate();
-      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null });
-    } catch {
+    const goOffline = () => {
       setOffline(true);
+      setAiLive(false);
       const rank = rankOffline(text);
       if (rank) doCelebrate();
-      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institution_id ?? null });
+      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null });
+    };
+    try {
+      const r = await fetchJson<ChatReply>('/api/assistant/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: text, locale: requestLocale, history: buildHistory(messages) }),
+      });
+      if (!isModelReply(r)) { goOffline(); return; }
+      setOffline(false);
+      setAiLive(true);
+      if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
+      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null });
+    } catch {
+      goOffline();
     } finally {
       setBusy(false);
     }
@@ -657,9 +795,11 @@ export function CompassPet() {
         : step === 2
           ? answers.country === 'GB'
             ? [{ value: 'low', label: t('pet.q3gbLow') }, { value: 'mid', label: t('pet.q3gbMid') }, { value: 'high', label: t('pet.q3gbHigh') }]
-            : answers.degree === 'undergraduate'
-              ? [{ value: 'low', label: t('pet.q3sgUgLow') }, { value: 'mid', label: t('pet.q3sgUgMid') }, { value: 'high', label: t('pet.q3sgUgHigh') }]
-              : [{ value: 'low', label: t('pet.q3sgTmLow') }, { value: 'mid', label: t('pet.q3sgTmMid') }, { value: 'high', label: t('pet.q3sgTmHigh') }]
+            : answers.country === 'SG'
+              ? answers.degree === 'undergraduate'
+                ? [{ value: 'low', label: t('pet.q3sgUgLow') }, { value: 'mid', label: t('pet.q3sgUgMid') }, { value: 'high', label: t('pet.q3sgUgHigh') }]
+                : [{ value: 'low', label: t('pet.q3sgTmLow') }, { value: 'mid', label: t('pet.q3sgTmMid') }, { value: 'high', label: t('pet.q3sgTmHigh') }]
+              : [{ value: 'low', label: t('pet.q3Low') }, { value: 'mid', label: t('pet.q3Mid') }, { value: 'high', label: t('pet.q3High') }]
           : [];
 
   return (
@@ -774,7 +914,11 @@ export function CompassPet() {
               </button>
             </div>
             <p className="mt-1.5 px-1 text-center text-[11px] leading-tight text-navy/50">
-              {offline ? t('pet.offline') : t('pet.rulesMode')}
+              {offline || aiLive === false
+                ? t('pet.offline')
+                : aiLive === true
+                  ? t('pet.aiLive')
+                  : t('pet.aiChecking')}
             </p>
           </div>
         </div>

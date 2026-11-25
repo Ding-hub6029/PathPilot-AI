@@ -29,7 +29,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from app.data import DATA_DIR, DATA_VERSION
+from app.data import DATA_DIR, DATA_VERSION, EXPANSION_PROGRAMS
 from app.schemas import (Budget, Language, MastersProfile, RuleResult,
                          StudentProfile, UndergradProfile)
 
@@ -82,6 +82,14 @@ EXPECTED: dict[str, str] = {
     "ntu-msai-toefl": "TOEFL iBT >= 100 (before 21 Jan 2026) or >= 5.0 on the new scale",
     "ntu-msai-gre": "GRE optional; no rejection rule for a missing or low score",
     "ntu-msai-fee": "SGD 65,748.80 total incl. 9% GST",
+    # Generic expansion rules (Day 3, round 6): thresholds come from the
+    # programme's own verified requirements in expansion.json, so the
+    # expected text is the rule detail itself (see rule_to_frontend
+    # fallback); these entries keep the short display form consistent.
+    "exp-fee": "Tuition fee as stated on the official programme page",
+    "exp-language": "IELTS / TOEFL minimum as stated on the official programme page",
+    "exp-language-components": "IELTS component minimums as stated on the official programme page",
+    "exp-academic": "A-level threshold as stated on the official programme page",
 }
 
 # Manifest fact id -> frontend source id (frontend/src/lib/programs.ts).
@@ -171,6 +179,15 @@ FACT_TO_SOURCE: dict[str, str] = {
 def source_manifest_hash() -> str:
     path = Path(DATA_DIR) / "source-manifest.json"
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+# Expansion source ids (round 6): requirement source ids on expansion
+# programmes pass through rule_to_frontend unchanged (see above).
+_EXPANSION_SOURCE_IDS: frozenset[str] = frozenset(
+    s.get("id")
+    for p in EXPANSION_PROGRAMS.values()
+    for s in (p.get("sources") or [])
+    if s.get("id"))
 
 
 def _num(value: Any) -> float | int | None:
@@ -443,6 +460,21 @@ def _derive_reason_key(rule_id: str, status: str, detail: str) -> str | None:
     if status != "UNKNOWN":
         return None
     d = detail or ""
+    # Generic expansion rules (round 6): same cause vocabulary as v2.
+    if rule_id.startswith("exp-"):
+        if "no valid test date" in d or "without a date" in d:
+            return "missing-test-date"
+        if "per credit" in d:
+            return "missing-info"
+        if "does not match" in d:
+            return "budget-mismatch"
+        if "not A-level" in d or "never converted" in d:
+            return "no-equivalence"
+        if "no IELTS/TOEFL score is stated" in d:
+            return "no-threshold"
+        if "No A-level threshold is stated" in d:
+            return "no-threshold"
+        return "missing-info"
     # Rule-specific causes first.
     if rule_id in ("ucl-tara", "imp-beng-tmua"):
         return "no-threshold"
@@ -490,7 +522,15 @@ def rule_to_frontend(r: RuleResult) -> dict:
         "status": r.status,
         "observed": _fmt_observed(r),
         "expected": EXPECTED.get(r.rule_id, r.detail),
-        "evidenceIds": [FACT_TO_SOURCE[f] for f in r.evidence_ids if f in FACT_TO_SOURCE],
+        # Manifest fact ids map to frontend source ids; expansion
+        # requirement source ids (round 6) pass through unchanged —
+        # the frontend resolves them against the programme's own
+        # sources (mirrored from expansion.json). v2 fact ids that
+        # are not mapped stay dropped, as before.
+        "evidenceIds": [FACT_TO_SOURCE[f] for f in r.evidence_ids if f in FACT_TO_SOURCE]
+                       + [f for f in r.evidence_ids
+                          if f not in FACT_TO_SOURCE
+                          and f in _EXPANSION_SOURCE_IDS],
         "reasonCode": _reason_code(r.rule_id, r.status),
         "unknownReason": r.detail if r.status == "UNKNOWN" else None,
         # Structured values for the frontend's localized renderer

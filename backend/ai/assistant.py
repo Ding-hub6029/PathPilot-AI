@@ -31,7 +31,8 @@ from __future__ import annotations
 
 import re
 
-from app.data import DATA_VERSION, PROGRAMS, RANKINGS
+from app.data import (DATA_VERSION, EXPANSION_INSTITUTIONS,
+                      EXPANSION_MATCHABLE, PROGRAMS, RANKINGS)
 
 AI_STATUS = "unavailable"
 MAX_ANSWER_LINES = 3
@@ -351,7 +352,22 @@ def program_fee_range(program: dict):
     fee (NTU is a range — lab vs non-lab is unverified, so both verified
     figures are kept). SG TM: total incl. GST. Returns None when no
     verified fee figure exists.
+
+    Expansion (round 6): the programme's own fees.amount for its stated
+    period; qualifier None (no GB-overseas / SG-international wording
+    applies — fee_text renders no parenthetical then).
     """
+    if program.get("id") in EXPANSION_MATCHABLE:
+        fees = program.get("fees") or {}
+        amount = fees.get("amount")
+        # per_credit has no credit count in any profile, so there is no
+        # comparable fee figure — unknown, never rendered as per-year.
+        if fees.get("period") == "per_credit":
+            return None
+        if isinstance(amount, (int, float)) and not isinstance(amount, bool):
+            return (amount, amount, fees.get("currency") or "",
+                    fees.get("period") or "per_year", None)
+        return None
     fees = program.get("fees") or {}
     currency = fees.get("currency") or ""
     period = fees.get("period")
@@ -378,12 +394,13 @@ def fee_text(fee_range, locale: str) -> str:
     low, high, currency, period, qual = fee_range
     if period == "total":
         base = _fmt("fee_total", locale, currency=currency, amount=_money(low))
-        return f"{base} ({_t(locale, qual)})"
-    if low == high:
+    elif low == high:
         base = _fmt("fee_per_year", locale, currency=currency, amount=_money(low))
     else:
         base = _fmt("fee_per_year", locale, currency=currency,
                     amount=f"{_money(low)}–{_money(high)}")
+    if qual is None:
+        return base
     return f"{base} ({_t(locale, qual)})"
 
 
@@ -405,6 +422,11 @@ def fee_fit(fee_range, degree_level: str, country: str, budget_band: str) -> str
     if _low > ceiling:
         return "above"
     return "unknown"
+
+
+def _lookup_program(program_id: str) -> dict | None:
+    """v2 programme or promoted expansion programme (round 6)."""
+    return PROGRAMS.get(program_id) or EXPANSION_MATCHABLE.get(program_id)
 
 
 def program_display_name(program: dict) -> str:
@@ -647,6 +669,20 @@ def _match_programmes(message: str) -> list[str]:
             matched = [pid for pid in pids
                        if PROGRAMS[pid].get("degree_level") == level]
             return matched or list(pids)
+    # Expansion (round 6): an institution alias the v2 branches did not
+    # cover — that institution's promoted programmes, filtered by level
+    # words the same way (at most the institution's promoted set).
+    inst_id = _institution_by_alias(message)
+    if inst_id:
+        level = None
+        if any(w in message for w in _UG_WORDS):
+            level = "undergraduate"
+        elif any(w in message for w in _TM_WORDS):
+            level = "taught_masters"
+        pids = [p["id"] for p in EXPANSION_MATCHABLE.values()
+                if p.get("institution_id") == inst_id
+                and (level is None or p.get("degree_level") == level)]
+        return pids
     return []
 
 
@@ -661,20 +697,29 @@ def _ielts_fact(program: dict, locale: str) -> str | None:
         if desc.startswith("UNKNOWN"):
             return None
         th = req.get("threshold") or {}
-        overall = th.get("overall", th.get("ielts_overall"))
+        overall = (th.get("overall") or th.get("ielts_overall")
+                   or th.get("ielts"))
         if overall is None:
             continue
         parts = [_fmt("ielts_overall", locale, v=_score(overall))]
-        each = th.get("each_component")
+        each = (th.get("each_component") or th.get("ielts_min_each")
+                or th.get("min_section"))
         if each is not None:
             parts.append(_fmt("ielts_each", locale, v=_score(each)))
         for key, tkey in (("ielts_reading", "comp_reading"),
                           ("ielts_writing", "comp_writing"),
                           ("ielts_listening", "comp_listening"),
-                          ("ielts_speaking", "comp_speaking")):
-            if th.get(key) is not None:
+                          ("ielts_speaking", "comp_speaking"),
+                          ("reading", "comp_reading"),
+                          ("writing", "comp_writing"),
+                          ("listening", "comp_listening"),
+                          ("speaking", "comp_speaking")):
+            v = th.get(key)
+            # Bare component keys are IELTS scores only when <= 9;
+            # larger values are TOEFL section scores, not IELTS.
+            if v is not None and (key.startswith("ielts_") or v <= 9):
                 parts.append(_fmt("ielts_component", locale,
-                                  name=_t(locale, tkey), v=_score(th[key])))
+                                  name=_t(locale, tkey), v=_score(v)))
         return ", ".join(parts)
     return None
 
@@ -682,7 +727,7 @@ def _ielts_fact(program: dict, locale: str) -> str | None:
 def _ask_result(lines: list[str], locale: str, program_id: str | None = None,
                 institution_id: str | None = None,
                 evidence_url: str | None = None) -> dict:
-    program = PROGRAMS.get(program_id) if program_id else None
+    program = _lookup_program(program_id) if program_id else None
     return {"lines": lines[:MAX_ANSWER_LINES],
             "program_id": program_id,
             "program_name": program_display_name(program) if program else None,
@@ -735,7 +780,7 @@ def ask(message: str, locale: str = "en") -> dict:
     if fact:
         pids = _match_programmes(msg)
         if len(pids) == 1:
-            program = PROGRAMS[pids[0]]
+            program = _lookup_program(pids[0])
             name = program_display_name(program)
             if fact == "fee":
                 fr = program_fee_range(program)
@@ -769,7 +814,8 @@ def ask(message: str, locale: str = "en") -> dict:
                                loc, program_id=pids[0],
                                evidence_url=program_evidence_url(program))
         if len(pids) > 1:
-            names = "、".join(program_display_name(PROGRAMS[pid]) for pid in pids)
+            names = "、".join(program_display_name(_lookup_program(pid))
+                              for pid in pids)
             return _ask_result([_fmt("ambiguous_programme", loc, names=names)], loc)
 
     return _ask_result([_t(loc, "unknown"), _t(loc, "unknown_2")], loc)

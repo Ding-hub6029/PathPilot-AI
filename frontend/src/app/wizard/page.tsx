@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
-import { evaluateLocal, matchProfile } from '../../lib/api';
+import { evaluateLocal, matchProfile, mergePrograms } from '../../lib/api';
+import { programMatchesField } from '../../lib/fields';
 import { sampleUndergrad, sampleMasters, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
 import { PrefChat } from '../../components/PrefChat';
@@ -19,14 +20,6 @@ import { RecChat } from '../../components/RecChat';
 // list, never a user-picked subset).
 const STEPS = ['curriculum', 'track', 'field', 'academic', 'language', 'budget', 'preferences', 'recommend'] as const;
 
-/** Only 'computing' has verified matchable programmes in the v2 catalogue
- * (all 8 carry subject 'Computer Science'); every other field honestly
- * reports none yet instead of inventing recommendations. */
-function fieldMatches(field: FieldId | undefined, p: Program): boolean {
-  if (field === 'computing') return p.subject === 'Computer Science';
-  return false;
-}
-
 function NumField({ label, value, onChange, step = '0.1', min, max }: { label: string; value: number | '' | undefined; onChange: (v: number | '') => void; step?: string; min?: number; max?: number }) {
   return (
     <label className="block">
@@ -41,7 +34,11 @@ function NumField({ label, value, onChange, step = '0.1', min, max }: { label: s
 export default function WizardPage() {
   const { t, locale, profile, setProfile, updateProfile } = useApp();
   const router = useRouter();
-  const { programs } = usePrograms();
+  // Round 6: candidates come from the merged list (live v2 + the full
+  // expansion mirror), so recommendations cover the 588 matchable
+  // expansion programmes, not just the original 8.
+  const { programs: livePrograms } = usePrograms();
+  const programs = useMemo(() => mergePrograms(livePrograms), [livePrograms]);
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -88,7 +85,7 @@ export default function WizardPage() {
     // evaluation has not finished yet, to the field-filtered candidates).
     const ids = recs && recs.length > 0
       ? recs.map((r) => r.programId)
-      : programs.filter((p) => p.degreeLevel === profile.track && fieldMatches(profile.field, p)).map((p) => p.id);
+      : programs.filter((p) => p.degreeLevel === profile.track && p.matchable !== false && profile.field && programMatchesField(p, profile.field)).map((p) => p.id);
     updateProfile({ targetProgramIds: ids });
     router.push('/results');
   };
@@ -138,26 +135,31 @@ export default function WizardPage() {
 
   // Recommendations: when the user reaches the last step, evaluate the
   // field-filtered catalogue against the conditions already entered and
-  // order by eligibility (MET, then partly unknown, then not met). No
-  // admission probabilities anywhere — only MET / NOT_MET / UNKNOWN.
+  // order by eligibility (MET, then partly unknown, then not met), with
+  // climate conflicts last (round 6: a cool preference must not surface
+  // Singapore first). No admission probabilities anywhere — only
+  // MET / NOT_MET / UNKNOWN.
   // targetProgramIds is synced to the FULL evaluated list so the results
   // page shows every match without the user having to tick anything.
   useEffect(() => {
     if (step !== 7) return;
-    const candidates = programs.filter((p) => p.degreeLevel === profile.track && fieldMatches(profile.field, p));
+    const candidates = programs.filter((p) => p.degreeLevel === profile.track && p.matchable !== false && profile.field && programMatchesField(p, profile.field));
     if (candidates.length === 0) { setRecs([]); updateProfile({ targetProgramIds: [] }); return; }
     setRecLoading(true);
     const ids = candidates.map((p) => p.id);
     const rank = (s: string) => s === 'MET' ? 0 : s === 'PARTIAL_UNKNOWN' ? 1 : s === 'NOT_MET' ? 2 : 3;
+    const sortRecs = (rs: MatchResult[]) => [...rs].sort((a, b) =>
+      rank(a.eligibilitySummary) - rank(b.eligibilitySummary)
+      || (a.preferenceFit === 'conflict' ? 1 : 0) - (b.preferenceFit === 'conflict' ? 1 : 0));
     matchProfile({ ...profile, targetProgramIds: ids })
       .then((res) => {
-        const sorted = [...res.results].sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary));
+        const sorted = sortRecs(res.results);
         setRecs(sorted);
         updateProfile({ targetProgramIds: sorted.map((r) => r.programId) });
       })
       .catch(() => {
         const local = evaluateLocal(profile, ids);
-        const sorted = [...local.results].sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary));
+        const sorted = sortRecs(local.results);
         setRecs(sorted);
         updateProfile({ targetProgramIds: sorted.map((r) => r.programId) });
       })

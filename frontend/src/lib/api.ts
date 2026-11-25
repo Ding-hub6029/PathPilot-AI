@@ -1,6 +1,8 @@
 import { PROGRAMS } from './programs';
 import { RANKING_ENTRIES, RANKING_INSTITUTIONS, RANKING_PROVIDERS } from './rankings';
-import { MatchResponse, MatchResult, Profile, Program, RankingEntry, RankingInstitution, RankingProvider, RuleResult, RULES_VERSION, DATA_VERSION } from './types';
+import { EXPANSION_PROGRAMS } from './expansion';
+import { MatchResponse, MatchResult, Profile, Program, RankingEntry, RankingInstitution, RankingProvider, RuleResult, RULES_VERSION, DATA_VERSION, ExpansionProgram } from './types';
+import { cityClimate, climateFit, normaliseClimatePref } from './preferences';
 
 // Local (offline) evaluation mirroring the backend contract. Used ONLY when
 // the live backend is unreachable; results are labelled offline in the UI.
@@ -118,14 +120,497 @@ function degreeField(degree: string): string {
   return 'other';
 }
 
+// --- Expansion programmes (round 6) ----------------------------------------
+// Offline mirror of backend/domain/expansion_eval.py. Only structured
+// verified data is evaluated; everything else is UNKNOWN, never MET on
+// missing data. Rule ids: exp-fee / exp-language / exp-language-components
+// / exp-academic. Language requirements on one programme are ALTERNATIVE
+// routes (MET when any evidenced route is met). TOEFL follows the v2 Jan
+// 2026 scale split. A-level thresholds are assessed for uk_alevel /
+// sg_alevel curricula only; other scores are never converted.
+
+const EXP_GRADE_RANK: Record<string, number> = { 'A*': 5, A: 4, B: 3, C: 2, D: 1, E: 0 };
+const EXP_TOEFL_CUTOFF = '2026-01-21';
+
+function expNum(v: unknown): number | null {
+  return typeof v === 'number' && !Number.isNaN(v) ? v : null;
+}
+
+function expRule(ruleId: string, status: RuleResult['status'], observed: string, expected: string, evidenceIds: string[], unknownReason?: string,
+  extra?: { observedRaw?: unknown; thresholdRaw?: Record<string, unknown> | null; reasonKey?: string }): RuleResult {
+  return {
+    ruleId, status, observed, expected, evidenceIds,
+    reasonCode: status === 'UNKNOWN' ? 'MISSING_OR_UNVERIFIED' : status === 'MET' ? 'SCORE_MEETS' : status === 'NOT_MET' ? 'SCORE_BELOW' : 'NOT_APPLICABLE',
+    unknownReason: status === 'UNKNOWN' ? (unknownReason || 'Not enough information to decide') : undefined,
+    observedRaw: extra?.observedRaw ?? null,
+    thresholdRaw: extra?.thresholdRaw ?? null,
+    reasonKey: extra?.reasonKey ?? (status === 'UNKNOWN' ? 'missing-info' : undefined),
+  };
+}
+
+type ExpLangKind = 'ielts' | 'toefl' | 'duolingo' | 'pte' | 'hsk' | 'cefr' | 'other';
+
+function expClassifyLanguage(req: { id: string; description: string; threshold?: Record<string, unknown> | null }): ExpLangKind | null {
+  const th = req.threshold;
+  if (!th || typeof th !== 'object') return null;
+  if ('ielts_overall' in th || 'ielts' in th) return 'ielts';
+  if ('toefl_ibt' in th || 'toefl_ibt_overall' in th) return 'toefl';
+  const rid = req.id.toLowerCase();
+  const desc = req.description.slice(0, 40).toLowerCase();
+  for (const key of ['ielts', 'toefl', 'duolingo', 'pte', 'hsk', 'cefr'] as const) {
+    if (rid.includes(key) || desc.includes(key)) return key;
+  }
+  return 'other';
+}
+
+function expIeltsOverallOf(th: Record<string, unknown>, kind: ExpLangKind): number | null {
+  if (kind !== 'ielts') return null;
+  for (const key of ['ielts_overall', 'ielts', 'overall']) {
+    const v = expNum(th[key]);
+    if (v !== null) return v;
+  }
+  return null;
+}
+
+function expToeflOverallOf(th: Record<string, unknown>, kind: ExpLangKind): number | null {
+  if (kind !== 'toefl') return null;
+  for (const key of ['toefl_ibt_overall', 'toefl_ibt', 'overall']) {
+    const v = expNum(th[key]);
+    if (v !== null) return v;
+  }
+  return null;
+}
+
+function expIeltsComponentSets(th: Record<string, unknown>, kind: ExpLangKind): Record<string, number>[] {
+  if (kind !== 'ielts') return [];
+  const sets: Record<string, number>[] = [];
+  const each = expNum(th.each_component) ?? expNum(th.ielts_min_each) ?? expNum(th.min_section);
+  if (each !== null) {
+    sets.push({ listening: each, reading: each, writing: each, speaking: each });
+  }
+  const three = expNum(th.ielts_min_three_components);
+  const remaining = expNum(th.ielts_min_remaining);
+  if (three !== null && remaining !== null) {
+    sets.push({ __three__: three, __remaining__: remaining });
+  }
+  const per: Record<string, number> = {};
+  for (const key of ['ielts_listening', 'ielts_reading', 'ielts_writing', 'ielts_speaking']) {
+    const v = expNum(th[key]);
+    if (v !== null && v <= 9) per[key.slice('ielts_'.length)] = v;
+  }
+  for (const key of ['listening', 'reading', 'writing', 'speaking']) {
+    const v = expNum(th[key]);
+    if (v !== null && v <= 9 && !(key in per)) per[key] = v;
+  }
+  if (Object.keys(per).length) sets.push(per);
+  return sets;
+}
+
+function expHasToeflSections(th: Record<string, unknown>, kind: ExpLangKind): boolean {
+  if (kind !== 'toefl') return false;
+  if ('toefl_ibt_min_each' in th || 'toefl_ibt_min_other' in th || 'toefl_ibt_writing' in th) return true;
+  return ['listening', 'reading', 'writing', 'speaking'].some((k) => {
+    const v = expNum(th[k]);
+    return v !== null && v > 9;
+  });
+}
+
+interface ExpLangThresholds {
+  ieltsOveralls: number[];
+  toeflOveralls: number[];
+  componentSets: Record<string, number>[];
+  hasToeflSections: boolean;
+  hasAnyLanguageReq: boolean;
+}
+
+function expLanguageThresholds(ep: ExpansionProgram): ExpLangThresholds {
+  const out: ExpLangThresholds = { ieltsOveralls: [], toeflOveralls: [], componentSets: [], hasToeflSections: false, hasAnyLanguageReq: false };
+  for (const req of ep.requirements) {
+    if (req.category !== 'language') continue;
+    out.hasAnyLanguageReq = true;
+    const th = req.threshold;
+    if (!th || typeof th !== 'object') continue;
+    const kind = expClassifyLanguage(req);
+    if (!kind || kind === 'duolingo' || kind === 'pte' || kind === 'hsk' || kind === 'cefr' || kind === 'other') continue;
+    const io = expIeltsOverallOf(th, kind);
+    if (io !== null) out.ieltsOveralls.push(io);
+    const to = expToeflOverallOf(th, kind);
+    if (to !== null) out.toeflOveralls.push(to);
+    out.componentSets.push(...expIeltsComponentSets(th, kind));
+    if (expHasToeflSections(th, kind)) out.hasToeflSections = true;
+  }
+  return out;
+}
+
+function expToeflRoute(score: number, threshold: number, testDate: string | undefined): 'met' | 'below' | 'unknown' {
+  if (threshold <= 6) {
+    if (!testDate || testDate < EXP_TOEFL_CUTOFF) return 'unknown';
+    return score >= threshold ? 'met' : 'below';
+  }
+  if (score <= 6) return 'unknown';
+  return score >= threshold ? 'met' : 'below';
+}
+
+function expParseAlevelTriples(text: string): number[][] {
+  const found = text.toUpperCase().match(/A\*|[A-E]/g) || [];
+  const triples: number[][] = [];
+  for (let i = 0; i + 2 < found.length; i += 3) {
+    triples.push([found[i], found[i + 1], found[i + 2]].map((g) => EXP_GRADE_RANK[g]).sort((a, b) => b - a));
+  }
+  return triples;
+}
+
+/** Lexicographic compare of two grade triples (both sorted desc). */
+function expCmpTriples(a: number[], b: number[]): number {
+  for (let i = 0; i < 3; i++) {
+    if (a[i] !== b[i]) return a[i] - b[i];
+  }
+  return 0;
+}
+
+/** Does the applicant's top-3 meet the stated minimum triple? */
+function expTripleMeets(top: number[], minimum: number[]): boolean {
+  return expCmpTriples(top, minimum) >= 0;
+}
+
+interface ExpAlevelReq {
+  kind: 'string' | 'grades';
+  minimum: number[];
+  mathsRank: number | null;
+  sourceIds: string[];
+}
+
+function expAlevelRequirements(ep: ExpansionProgram): ExpAlevelReq[] {
+  const out: ExpAlevelReq[] = [];
+  for (const req of ep.requirements) {
+    if (req.category !== 'academic') continue;
+    const th = req.threshold;
+    if (!th || typeof th !== 'object') continue;
+    if (typeof th.a_level === 'string' && th.a_level.trim()) {
+      const triples = expParseAlevelTriples(th.a_level);
+      if (triples.length) {
+        const minimum = triples.reduce((a, b) => (expCmpTriples(a, b) <= 0 ? a : b));
+        out.push({ kind: 'string', minimum, mathsRank: null, sourceIds: [...req.sourceIds] });
+      }
+    }
+    const grades = th.grades;
+    if (Array.isArray(grades) && grades.length >= 3 && grades.every((g) => typeof g === 'string' && g.toUpperCase() in EXP_GRADE_RANK)) {
+      const ranks = (grades as string[]).map((g) => EXP_GRADE_RANK[g.toUpperCase()]).sort((a, b) => b - a).slice(0, 3);
+      const maths = typeof th.maths_grade === 'string' ? EXP_GRADE_RANK[th.maths_grade.toUpperCase()] ?? null : null;
+      out.push({ kind: 'grades', minimum: ranks, mathsRank: maths, sourceIds: [...req.sourceIds] });
+    }
+  }
+  return out;
+}
+
+function expAlevelTop3(alevels: string | undefined): number[] | null {
+  if (!alevels) return null;
+  const grades = (alevels.match(/A\*|[A-E]/gi) || []).map((g) => g.toUpperCase());
+  const ranks = grades.map((g) => EXP_GRADE_RANK[g] ?? -1);
+  if (ranks.length < 3 || ranks.some((r) => r < 0)) return null;
+  return ranks.sort((a, b) => b - a).slice(0, 3);
+}
+
+function expFeeRule(profile: Profile, ep: ExpansionProgram): RuleResult {
+  const fees = ep.fees;
+  const amount = expNum(fees.amount);
+  const currency = fees.currency || '';
+  const period = fees.period || '';
+  const evidence = ep.requirements.filter((r) => r.category === 'fee').flatMap((r) => r.sourceIds);
+  const thresholdRaw = amount !== null ? { amount, currency, period } : null;
+  const expected = 'Tuition fee as stated on the official programme page';
+  const budget = num(profile.budget);
+  const budgetCurrency = profile.budgetCurrency || (profile.track === 'undergraduate' ? 'GBP' : 'SGD');
+  const budgetPeriod = profile.track === 'undergraduate' ? 'per_year' : 'total';
+  if (amount === null) {
+    return expRule('exp-fee', 'UNKNOWN', 'Not provided', expected, evidence,
+      'No tuition fee amount is stated on the official programme page, so the fee cannot be compared with the budget.', { thresholdRaw });
+  }
+  if (period === 'per_credit') {
+    return expRule('exp-fee', 'UNKNOWN', `Tuition is ${currency} ${amount} per credit`, expected, evidence,
+      'Tuition is charged per credit; the profile has no credit count, so a per-credit fee cannot be compared with the budget.', { thresholdRaw });
+  }
+  if (budget === null) {
+    return expRule('exp-fee', 'UNKNOWN', 'Not provided', expected, evidence, 'No budget supplied.', { thresholdRaw });
+  }
+  if (budgetCurrency !== currency || budgetPeriod !== period) {
+    return expRule('exp-fee', 'UNKNOWN', `Budget ${budgetCurrency} ${budgetPeriod}`, expected, evidence,
+      `Budget currency/period (${budgetCurrency} ${budgetPeriod}) does not match ${currency} ${period}, so it cannot be compared with the fee.`,
+      { observedRaw: { amount: budget, currency: budgetCurrency, period: budgetPeriod }, thresholdRaw, reasonKey: 'budget-mismatch' });
+  }
+  if (budget >= amount) {
+    return expRule('exp-fee', 'MET', `Budget ${currency} ${budget} ${period}`, expected, evidence,
+      undefined, { observedRaw: budget, thresholdRaw });
+  }
+  return expRule('exp-fee', 'NOT_MET', `Budget ${currency} ${budget} ${period}`, expected, evidence,
+    undefined, { observedRaw: budget, thresholdRaw });
+}
+
+function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: ExpLangThresholds): RuleResult[] {
+  const results: RuleResult[] = [];
+  const evidence = ep.requirements.filter((r) => r.category === 'language').flatMap((r) => r.sourceIds);
+  const ieltsScore = num(profile.ieltsOverall);
+  const toeflScore = num(profile.toefl);
+  const testDate = profile.testDate || undefined;
+  const expected = 'IELTS / TOEFL minimum as stated on the official programme page';
+  let met = false;
+  let assessableFailed = false;
+  let relevantSupplied = false;
+  if (ieltsScore !== null) {
+    if (thresholds.ieltsOveralls.length) {
+      relevantSupplied = true;
+      if (thresholds.ieltsOveralls.some((t) => ieltsScore >= t)) met = true;
+      else assessableFailed = true;
+    }
+  }
+  if (toeflScore !== null && !met) {
+    if (thresholds.toeflOveralls.length) {
+      relevantSupplied = true;
+      const verdicts = thresholds.toeflOveralls.map((t) => expToeflRoute(toeflScore, t, testDate));
+      if (verdicts.includes('met')) met = true;
+      else if (verdicts.includes('below')) assessableFailed = true;
+    }
+  }
+  const observed = `ielts_overall: ${ieltsScore ?? 'None'}, toefl_overall: ${toeflScore ?? 'None'}`;
+  const thresholdRaw = { ielts_overall: thresholds.ieltsOveralls.length ? thresholds.ieltsOveralls : null, toefl_overall: thresholds.toeflOveralls.length ? thresholds.toeflOveralls : null };
+  const observedRaw = { ielts_overall: ieltsScore, toefl_overall: toeflScore };
+  if (met) {
+    results.push(expRule('exp-language', 'MET', observed, expected, evidence, undefined, { observedRaw, thresholdRaw }));
+  } else if (assessableFailed) {
+    results.push(expRule('exp-language', 'NOT_MET', observed, expected, evidence, undefined, { observedRaw, thresholdRaw }));
+  } else if (!relevantSupplied) {
+    let reason: string;
+    let reasonKey = 'missing-info';
+    if (!thresholds.ieltsOveralls.length && !thresholds.toeflOveralls.length && !thresholds.componentSets.length) {
+      reason = 'This programme states a language requirement, but no IELTS/TOEFL score is stated on the official page, so it cannot be assessed from a test score.';
+      reasonKey = 'no-threshold';
+    } else if (toeflScore !== null && thresholds.toeflOveralls.length) {
+      reason = 'TOEFL supplied but no valid test date. The Jan 2026 scale split cannot be applied, so TOEFL is UNKNOWN, never converted.';
+      reasonKey = 'missing-test-date';
+    } else if (ieltsScore === null && toeflScore === null) {
+      reason = 'No language test supplied.';
+    } else if (ieltsScore !== null) {
+      reason = 'IELTS supplied, but this programme states no IELTS minimum (only TOEFL / Duolingo / other routes), so the supplied score is not evidence for any stated route.';
+    } else if (toeflScore !== null) {
+      reason = 'TOEFL supplied, but this programme states no TOEFL minimum, so the supplied score is not evidence for any stated route.';
+    } else {
+      reason = 'No IELTS/TOEFL score supplied that matches a stated route (Duolingo / PTE / HSK / CEFR routes cannot be assessed from this profile).';
+    }
+    results.push(expRule('exp-language', 'UNKNOWN', observed, expected, evidence, reason, { observedRaw, thresholdRaw, reasonKey }));
+  } else {
+    let reason = 'TOEFL supplied but no valid test date. The Jan 2026 scale split cannot be applied, so TOEFL is UNKNOWN, never converted.';
+    let reasonKey = 'missing-test-date';
+    if (toeflScore !== null && toeflScore <= 6) {
+      reason = 'The supplied TOEFL score is 6 or below, so it cannot be placed on the pre/post-Jan-2026 scale against the stated iBT minimum; TOEFL is UNKNOWN, never converted.';
+    }
+    results.push(expRule('exp-language', 'UNKNOWN', observed, expected, evidence, reason, { observedRaw, thresholdRaw, reasonKey }));
+  }
+  // --- Components: IELTS components only. ---
+  const sets = thresholds.componentSets;
+  const expectedComp = 'IELTS component minimums as stated on the official programme page';
+  const comps = [num(profile.ieltsListening), num(profile.ieltsReading), num(profile.ieltsWriting), num(profile.ieltsSpeaking)];
+  const compNames = ['listening', 'reading', 'writing', 'speaking'];
+  if (!sets.length) {
+    if (ieltsScore === null && toeflScore === null) {
+      results.push(expRule('exp-language-components', 'UNKNOWN', 'Not provided', expectedComp, evidence, 'No language test supplied.'));
+    } else if (thresholds.hasToeflSections) {
+      results.push(expRule('exp-language-components', 'UNKNOWN', 'Not provided', expectedComp, evidence,
+        'This programme states TOEFL section minimums only; the profile has no TOEFL component scores, so they cannot be assessed.'));
+    } else {
+      results.push(expRule('exp-language-components', 'NOT_APPLICABLE', 'No component minimum stated', expectedComp, evidence, undefined));
+    }
+    return results;
+  }
+  if (ieltsScore === null) {
+    results.push(expRule('exp-language-components', 'UNKNOWN', 'Not provided', expectedComp, evidence,
+      'TOEFL supplied; IELTS components do not apply. TOEFL is assessed under its own rule.'));
+    return results;
+  }
+  const missing = compNames.filter((_, i) => comps[i] === null);
+  const observedComp = `L ${profile.ieltsListening ?? '–'} / R ${profile.ieltsReading ?? '–'} / W ${profile.ieltsWriting ?? '–'} / S ${profile.ieltsSpeaking ?? '–'}`;
+  const observedCompRaw = { listening: comps[0], reading: comps[1], writing: comps[2], speaking: comps[3] };
+  if (missing.length) {
+    results.push(expRule('exp-language-components', 'UNKNOWN', observedComp, expectedComp, evidence,
+      `Missing component score(s): ${missing.join(', ')}.`, { observedRaw: observedCompRaw }));
+    return results;
+  }
+  const setMet = (s: Record<string, number>): boolean => {
+    if ('__three__' in s) {
+      const above = compNames.filter((k) => (comps[compNames.indexOf(k)] as number) >= s.__three__).length;
+      return above >= 3 && compNames.every((k) => (comps[compNames.indexOf(k)] as number) >= s.__remaining__);
+    }
+    return Object.entries(s).every(([k, v]) => (comps[compNames.indexOf(k)] as number) >= v);
+  };
+  if (sets.some(setMet)) {
+    results.push(expRule('exp-language-components', 'MET', observedComp, expectedComp, evidence, undefined,
+      { observedRaw: observedCompRaw, thresholdRaw: sets.length === 1 ? sets[0] : null }));
+  } else {
+    const low: Record<string, number | null> = {};
+    compNames.forEach((k, i) => {
+      if (sets.some((s) => !('__three__' in s) && k in s && (comps[i] as number) < s[k])) low[k] = comps[i];
+    });
+    results.push(expRule('exp-language-components', 'NOT_MET', observedComp, expectedComp, evidence,
+      `Component(s) below the minimum: ${JSON.stringify(low)}.`, { observedRaw: observedCompRaw, thresholdRaw: sets.length === 1 ? sets[0] : null }));
+  }
+  return results;
+}
+
+function expAcademicRule(profile: Profile, ep: ExpansionProgram, alevels: ExpAlevelReq[]): RuleResult {
+  const evidence = ep.requirements.filter((r) => r.category === 'academic').flatMap((r) => r.sourceIds);
+  const expected = 'A-level threshold as stated on the official programme page';
+  if (profile.track === 'taught_masters') {
+    return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
+      'A-level thresholds apply to undergraduate entry; this is a taught-masters programme, so no A-level rule can be assessed here.');
+  }
+  if (!alevels.length) {
+    return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
+      'No A-level threshold is stated for this programme (the academic requirement uses GPA / IB / degree-class or free-text criteria), so academic eligibility cannot be decided from grades alone.',
+      { reasonKey: 'no-threshold' });
+  }
+  const cur = curriculumOf(profile);
+  if (cur !== 'uk_alevel' && cur !== 'sg_alevel') {
+    return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
+      "An A-level threshold is stated, but this applicant's curriculum is not A-level; A-level thresholds are only assessed for UK / Singapore A-level applicants, and other scores are never converted to A-levels.",
+      { reasonKey: 'no-equivalence' });
+  }
+  const top = expAlevelTop3(profile.alevels);
+  if (top === null) {
+    return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
+      'A-level grades not supplied (three grades are needed).');
+  }
+  const mathsRank = profile.mathsGrade ? (EXP_GRADE_RANK[profile.mathsGrade.trim().toUpperCase()] ?? null) : null;
+  const observedRaw = { grades: profile.alevels ? (profile.alevels.match(/A\*|[A-E]/gi) || []).map((g) => g.toUpperCase()) : null, maths: profile.mathsGrade || null };
+  for (const req of alevels) {
+    if (!expTripleMeets(top, req.minimum)) continue;
+    if (req.kind === 'grades' && req.mathsRank !== null) {
+      if (mathsRank === null) {
+        return expRule('exp-academic', 'UNKNOWN', profile.alevels || 'Not provided', expected, evidence,
+          'A-level grades meet the stated grades, but the required Mathematics grade cannot be checked (no A-level Maths grade supplied).', { observedRaw });
+      }
+      if (mathsRank < req.mathsRank) continue;
+    }
+    return expRule('exp-academic', 'MET', profile.alevels || 'Not provided', expected, evidence,
+      undefined, { observedRaw, thresholdRaw: { a_level: req.minimum } });
+  }
+  return expRule('exp-academic', 'NOT_MET', profile.alevels || 'Not provided', expected, evidence,
+    undefined, { observedRaw });
+}
+
+/** Evaluate one promoted expansion programme offline (mirror of the
+ * backend generic evaluator). Only called for matchable programmes. */
+export function evaluateExpansionLocal(profile: Profile, ep: ExpansionProgram): RuleResult[] {
+  const results: RuleResult[] = [];
+  results.push(expFeeRule(profile, ep));
+  const thresholds = expLanguageThresholds(ep);
+  if (thresholds.hasAnyLanguageReq) {
+    results.push(...expLanguageRules(profile, ep, thresholds));
+  }
+  const alevels = expAlevelRequirements(ep);
+  const hasAcademicReq = ep.requirements.some((r) => r.category === 'academic');
+  if (hasAcademicReq) {
+    results.push(expAcademicRule(profile, ep, alevels));
+  }
+  return results;
+}
+
+/** Convert one expansion mirror programme to the frontend Program shape. */
+export function expansionToProgram(ep: ExpansionProgram): Program {
+  const feeItems: Program['feeItems'] = [];
+  if (typeof ep.fees.amount === 'number') {
+    const period = ep.fees.period === 'per_year' ? 'per year' : ep.fees.period === 'total' ? 'total' : ep.fees.period === 'per_credit' ? 'per credit' : ep.fees.period || '';
+    feeItems.push({ label: 'Tuition fee', amount: ep.fees.amount, currency: ep.fees.currency || '', period });
+  }
+  return {
+    id: ep.id,
+    institution: ep.institution,
+    institutionId: ep.institutionId,
+    officialName: ep.officialName,
+    nameLocalized: ep.nameLocalized,
+    country: ep.country,
+    city: ep.city || undefined,
+    degreeLevel: ep.degreeLevel,
+    field: ep.field,
+    subject: ep.field,
+    intakeYear: ep.intakeYear || 0,
+    intakeLabel: ep.start || (ep.intakeYear ? String(ep.intakeYear) : ''),
+    duration: ep.duration || '',
+    feeItems,
+    status: 'active',
+    datasetVersion: DATA_VERSION,
+    sources: ep.sources.map((s) => ({ id: s.id, url: s.url, label: s.title || s.id, excerpt: '', verifiedDate: (s.retrievedAt || '').slice(0, 10) })),
+    matchable: ep.matchable,
+  };
+}
+
+const EXPANSION_INDEX = new Map<string, ExpansionProgram>(
+  EXPANSION_PROGRAMS.map((p) => [p.id, p]),
+);
+
+let _allPrograms: Program[] | null = null;
+/** All programmes: the 8 v2 programmes plus every expansion programme
+ * (matchable and display-only), converted to the Program shape. */
+export function allPrograms(): Program[] {
+  if (!_allPrograms) {
+    _allPrograms = [...PROGRAMS, ...EXPANSION_PROGRAMS.map(expansionToProgram)];
+  }
+  return _allPrograms;
+}
+
+const _programIndex = new Map<string, Program>();
+/** Find one programme by id (v2 or expansion). */
+export function findProgram(id: string): Program | undefined {
+  if (!_programIndex.size) {
+    for (const p of allPrograms()) _programIndex.set(p.id, p);
+  }
+  return _programIndex.get(id);
+}
+
+/** Merge a live programme list with the local mirror: live entries win
+ * on id, and every programme the local mirror knows (all 881 expansion
+ * programmes) is present even when the live list is only the v2 page.
+ * The local mirror is generated from the same source as the backend
+ * data, so the merged list is complete offline too. */
+export function mergePrograms(live: Program[]): Program[] {
+  const seen = new Set(live.map((p) => p.id));
+  return [...live, ...allPrograms().filter((p) => !seen.has(p.id))];
+}
+
+/** Climate signal for one offline result (round 6): the user's stated
+ * climate preference against the programme's city. Null = no signal. */
+export function offlinePreferenceFit(profile: Profile, p: Program): 'fit' | 'neutral' | 'conflict' | null {
+  const pref = normaliseClimatePref(profile.prefClimate);
+  if (!pref) return null;
+  return climateFit(pref, cityClimate(p.city));
+}
+
 export function evaluateLocal(profile: Profile, programIds: string[]): MatchResponse {
   const results: MatchResult[] = programIds.map((id) => {
-    const p = PROGRAMS.find((x) => x.id === id);
+    const p = findProgram(id);
     if (!p) {
       return { programId: id, eligibilitySummary: 'UNKNOWN', ruleResults: [], trackMismatch: false };
     }
     if (profile.track && profile.track !== p.degreeLevel) {
-      return { programId: id, eligibilitySummary: 'TRACK_MISMATCH', ruleResults: [], trackMismatch: true };
+      // The backend attaches the climate signal to track-mismatch
+      // results too, so the offline mirror does the same.
+      const mismatch: MatchResult = { programId: id, eligibilitySummary: 'TRACK_MISMATCH', ruleResults: [], trackMismatch: true };
+      const fit = offlinePreferenceFit(profile, p);
+      if (fit) mismatch.preferenceFit = fit;
+      return mismatch;
+    }
+    // Round 6: expansion programmes evaluate through the generic
+    // offline evaluator; display-only ones are not evaluable (the
+    // backend 404s them), so they stay UNKNOWN with no rules.
+    const ep = EXPANSION_INDEX.get(id);
+    if (ep) {
+      if (!ep.matchable) {
+        return { programId: id, eligibilitySummary: 'UNKNOWN', ruleResults: [], trackMismatch: false };
+      }
+      const rules = evaluateExpansionLocal(profile, ep);
+      const summary = rules.some((r) => r.status === 'NOT_MET') ? 'NOT_MET' : rules.some((r) => r.status === 'UNKNOWN') ? 'PARTIAL_UNKNOWN' : 'MET';
+      const result: MatchResult = { programId: id, eligibilitySummary: summary, ruleResults: rules };
+      const fit = offlinePreferenceFit(profile, p);
+      if (fit) result.preferenceFit = fit;
+      return result;
     }
     const rules: RuleResult[] = [];
     if (p.id === 'ucl-cs-bsc-2026') {
@@ -480,7 +965,10 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
         { observedRaw: num(profile.budget), thresholdRaw: { amount: 65748.8 }, reasonKey: profile.budget == null ? 'missing-info' : undefined });
     }
     const summary = rules.some((r) => r.status === 'NOT_MET') ? 'NOT_MET' : rules.some((r) => r.status === 'UNKNOWN') ? 'PARTIAL_UNKNOWN' : 'MET';
-    return { programId: id, eligibilitySummary: summary, ruleResults: rules };
+    const result: MatchResult = { programId: id, eligibilitySummary: summary, ruleResults: rules };
+    const fit = offlinePreferenceFit(profile, p);
+    if (fit) result.preferenceFit = fit;
+    return result;
   });
   return {
     evaluationId: `local-${Date.now()}`,
@@ -503,7 +991,8 @@ export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T>
 }
 
 export async function matchProfile(profile: Profile): Promise<MatchResponse> {
-  const programIds = profile.targetProgramIds.length ? profile.targetProgramIds : PROGRAMS.filter((p) => p.degreeLevel === profile.track).map((p) => p.id);
+  const programIds = profile.targetProgramIds.length ? profile.targetProgramIds
+    : allPrograms().filter((p) => p.degreeLevel === profile.track && p.matchable !== false).map((p) => p.id);
   try {
     const live = await fetchJson<MatchResponse>('/api/match', {
       method: 'POST',
@@ -539,7 +1028,7 @@ export async function fetchProgramById(id: string): Promise<{ program: Program |
     const program = normalizeApiProgram(raw);
     if (program) return { program, live: true };
   } catch { /* fall through to the local list */ }
-  return { program: PROGRAMS.find((p) => p.id === id), live: false };
+  return { program: findProgram(id), live: false };
 }
 
 /**
@@ -560,7 +1049,7 @@ export function normalizeApiProgram(raw: unknown, dataVersion?: string): Program
   const r = raw as Record<string, unknown>;
   const id = typeof r.id === 'string' ? r.id : '';
   if (!id) return null;
-  const local = PROGRAMS.find((p) => p.id === id);
+  const local = findProgram(id);
   const str = (v: unknown): string => (typeof v === 'string' ? v : '');
   const num = (v: unknown): number | undefined => (typeof v === 'number' && !Number.isNaN(v) ? v : undefined);
 
@@ -578,7 +1067,8 @@ export function normalizeApiProgram(raw: unknown, dataVersion?: string): Program
       nameLocalized: (r.nameLocalized as Record<string, string> | undefined) ?? local?.nameLocalized,
       country: str(r.country) || local?.country || '',
       city: str(r.city) || local?.city,
-      degreeLevel: (r.degreeLevel === 'undergraduate' || r.degreeLevel === 'taught_masters' ? r.degreeLevel : local?.degreeLevel) ?? 'undergraduate',
+      degreeLevel: (r.degreeLevel === 'undergraduate' || r.degreeLevel === 'taught_masters' || r.degreeLevel === 'foundation' || r.degreeLevel === 'joint_honours' ? r.degreeLevel : local?.degreeLevel) ?? 'undergraduate',
+      field: str(r.field) || local?.field,
       subject: str(r.subject) || local?.subject || '',
       intakeYear: num(r.intakeYear) ?? local?.intakeYear ?? 0,
       intakeLabel: str(r.intakeLabel) || local?.intakeLabel || '',
@@ -588,6 +1078,7 @@ export function normalizeApiProgram(raw: unknown, dataVersion?: string): Program
       status: str(r.status) || 'active',
       datasetVersion: str(r.datasetVersion) || dataVersion || local?.datasetVersion || DATA_VERSION,
       sources,
+      matchable: typeof r.matchable === 'boolean' ? r.matchable : local?.matchable,
     };
   }
 
@@ -601,7 +1092,7 @@ export function normalizeApiProgram(raw: unknown, dataVersion?: string): Program
   const period = str(fees.period);
   if (overseas !== undefined) feeItems.push({ label: 'Overseas tuition fee', amount: overseas, currency, period: 'per year' });
   if (uk !== undefined) feeItems.push({ label: 'UK tuition fee', amount: uk, currency, period: 'per year' });
-  if (total !== undefined && overseas === undefined) feeItems.push({ label: 'Total tuition incl. GST', amount: total, currency, period: period || 'total' });
+  if (total !== undefined && overseas === undefined) feeItems.push({ label: period === 'total' ? 'Total tuition incl. GST' : 'Tuition fee', amount: total, currency, period: period || 'total' });
   if (period === 'per_year' && overseas === undefined && total !== undefined) {
     // A per-year fee reported only as a single total: keep the amount with
     // its stated period rather than inventing an overseas/UK split.
@@ -612,13 +1103,14 @@ export function normalizeApiProgram(raw: unknown, dataVersion?: string): Program
   return {
     id,
     institution: str(r.institution) || local?.institution || '',
-    institutionId: local?.institutionId || id.split('-')[0],
+    institutionId: str(r.institution_id) || local?.institutionId || id.split('-')[0],
     officialName: str(r.official_name) || local?.officialName || id,
     nameLocalized: (r.name_localized as Record<string, string> | undefined) ?? local?.nameLocalized,
     country: str(r.country) || local?.country || '',
     city: str(r.city) || local?.city,
-    degreeLevel: (r.degree_level === 'undergraduate' || r.degree_level === 'taught_masters' ? r.degree_level : local?.degreeLevel) ?? 'undergraduate',
-    subject: typeof r.subject === 'string' ? r.subject : local?.subject || '',
+    degreeLevel: (r.degree_level === 'undergraduate' || r.degree_level === 'taught_masters' || r.degree_level === 'foundation' || r.degree_level === 'joint_honours' ? r.degree_level : local?.degreeLevel) ?? 'undergraduate',
+    field: str(r.field) || local?.field,
+    subject: typeof r.subject === 'string' ? r.subject : str(r.field) || local?.subject || '',
     intakeYear,
     intakeLabel,
     duration: str(r.duration) || local?.duration || '',
@@ -627,6 +1119,7 @@ export function normalizeApiProgram(raw: unknown, dataVersion?: string): Program
     status: 'active',
     datasetVersion: dataVersion || local?.datasetVersion || DATA_VERSION,
     sources: normalizeSources(r.sources, local),
+    matchable: typeof r.matchable === 'boolean' ? r.matchable : local?.matchable,
   };
 }
 
@@ -652,7 +1145,8 @@ function normalizeSources(rawSources: unknown, local: Program | undefined): Prog
 
 export async function simulate(profile: Profile, patch: Partial<Profile>): Promise<MatchResponse> {
   const scenario = { ...profile, ...patch };
-  const programIds = profile.targetProgramIds.length ? profile.targetProgramIds : PROGRAMS.filter((p) => p.degreeLevel === profile.track).map((p) => p.id);
+  const programIds = profile.targetProgramIds.length ? profile.targetProgramIds
+    : allPrograms().filter((p) => p.degreeLevel === profile.track && p.matchable !== false).map((p) => p.id);
   try {
     const live = await fetchJson<{ baseline: MatchResponse; scenario: MatchResponse; delta: unknown }>('/api/simulate', {
       method: 'POST',

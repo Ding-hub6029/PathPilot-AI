@@ -1,4 +1,5 @@
-import { Profile, Program } from './types';
+import { ClimateClass, Profile, Program } from './types';
+import { CLIMATE_CITIES } from './climate';
 
 /** Countries offered as quick-reply chips for the preferences step. */
 export const PREF_COUNTRY_CODES = ['GB', 'US', 'SG', 'AU', 'CA', 'JP', 'KR', 'DE', 'FR', 'NL', 'CH', 'HK'] as const;
@@ -69,4 +70,70 @@ export function prefHints(profile: Profile, p: Program, t: (k: string) => string
   const want = (profile.prefCity ?? '').trim().toLowerCase();
   if (want && p.city && p.city.toLowerCase().includes(want)) hints.push(p.city);
   return hints;
+}
+
+// --- Climate (round 6) -------------------------------------------------------
+// Mirrors backend/domain/climate.py exactly: same classes, same fit rule.
+// A city with no entry gets no signal — its programmes are never demoted.
+
+/** Normalise a stored preference value; free text returns null. */
+export function normaliseClimatePref(v: string | undefined): ClimateClass | null {
+  return v === 'warm' || v === 'cool' || v === 'four_seasons' || v === 'mild' ? v : null;
+}
+
+/** The climate class for a city name, or null when the city is not in
+ * the curated table. Prefix match handles campus/area suffixes
+ * ("London Bloomsbury" -> "London"). */
+export function cityClimate(city: string | undefined): ClimateClass | null {
+  if (!city) return null;
+  const name = city.trim();
+  if (CLIMATE_CITIES[name]) return CLIMATE_CITIES[name].climate;
+  for (const known of Object.keys(CLIMATE_CITIES)) {
+    if (name.startsWith(known + ' ')) return CLIMATE_CITIES[known].climate;
+  }
+  return null;
+}
+
+/** The climate class for a programme (v2 or converted expansion). */
+export function programmeClimate(p: Program): ClimateClass | null {
+  return cityClimate(p.city);
+}
+
+/** 'fit' | 'neutral' | 'conflict', or null when there is no signal.
+ * Conflict = opposite pair {cool, warm}, or four_seasons wanted but the
+ * city is warm (no cold winter at all). Never an eligibility verdict. */
+export function climateFit(
+  pref: ClimateClass | null,
+  cityClass: ClimateClass | null,
+): 'fit' | 'neutral' | 'conflict' | null {
+  if (!pref || !cityClass) return null;
+  if (pref === cityClass) return 'fit';
+  if ((pref === 'cool' && cityClass === 'warm')
+      || (pref === 'warm' && cityClass === 'cool')) return 'conflict';
+  if (pref === 'four_seasons' && cityClass === 'warm') return 'conflict';
+  return 'neutral';
+}
+
+/** The city with the most programmes of a wanted climate class (v2 +
+ * expansion), for the pet's climate opinion. Ties break alphabetically
+ * so the answer is deterministic. Returns null when no programme's city
+ * has that class. */
+export function bestCityForClimate(
+  pref: ClimateClass,
+  programs: Program[],
+): { city: string; count: number } | null {
+  const counts = new Map<string, number>();
+  for (const p of programs) {
+    if (cityClimate(p.city) !== pref || !p.city) continue;
+    // Normalise campus-suffixed cities to the table city ("London
+    // Bloomsbury" counts as London).
+    const tableCity = Object.keys(CLIMATE_CITIES)
+      .find((k) => p.city === k || (p.city ?? '').startsWith(k + ' ')) ?? p.city;
+    counts.set(tableCity, (counts.get(tableCity) ?? 0) + 1);
+  }
+  let best: { city: string; count: number } | null = null;
+  for (const [city, count] of [...counts.entries()].sort()) {
+    if (!best || count > best.count) best = { city, count };
+  }
+  return best;
 }

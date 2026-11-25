@@ -126,14 +126,16 @@ PROGRAMS: dict[str, dict] = load_programs()
 
 
 # --- Expansion catalogue (Day 3, v3; see data/expansions/README.md) ---------
-# Listed, not matchable: expansion programmes carry verified facts and
-# sources but no engine rules yet, so /match, /explain and /simulate keep
-# using the 8 v2 programmes only. The merged file is data/expansions/
-# expansion.json; band files in collectors/ are merged into it only after
-# tools/validate_expansion.py prints OK. A missing file means "no
-# expansion data yet" (empty catalogue); invalid content refuses to start,
-# same as v2.
+# Round 6 (2026-11-26): expansion programmes with at least one evaluable
+# rule (see domain/expansion_eval.evaluable_rules) and a wizard track
+# (undergraduate / taught_masters) are matchable=true and are evaluated
+# by the generic evaluator; the rest stay matchable=false, display-only.
+# The merged file is data/expansions/expansion.json; band files in
+# collectors/ are merged into it only after tools/validate_expansion.py
+# prints OK. A missing file means "no expansion data yet" (empty
+# catalogue); invalid content refuses to start, same as v2.
 EXPANSION_PATH = PROJECT_ROOT / "data" / "expansions" / "expansion.json"
+CLIMATE_PATH = PROJECT_ROOT / "data" / "expansions" / "climate.json"
 
 # v2 programmes have no institution_id field; this explicit mapping is the
 # only place that derives one (never guessed from the programme id).
@@ -194,8 +196,24 @@ def validate_expansion_data(data: dict, ranking_ids: set[str],
             errors.append(f"expansion program {pid!r} collides with a v2 program id")
         if prog.get("synthetic") is True:
             errors.append(f"expansion program {pid!r}: synthetic=true is forbidden")
-        if prog.get("matchable") is not False:
-            errors.append(f"expansion program {pid!r}: matchable must be false")
+        if not isinstance(prog.get("matchable"), bool):
+            errors.append(f"expansion program {pid!r}: matchable must be a boolean")
+        elif prog.get("matchable") is True:
+            # Round 6 promotion rule: matchable=true requires at least
+            # one evaluable rule (fee amount known, structured
+            # IELTS/TOEFL language threshold, or A-level threshold) and
+            # a wizard track (undergraduate / taught_masters) — the
+            # wizard has no track for foundation / joint_honours, so
+            # those stay display-only even with an evaluable rule.
+            from domain.expansion_eval import evaluable_rules
+            if prog.get("degree_level") not in ("undergraduate", "taught_masters"):
+                errors.append(
+                    f"expansion program {pid!r}: matchable=true requires degree_level "
+                    f"undergraduate/taught_masters, got {prog.get('degree_level')!r}")
+            elif not any(evaluable_rules(prog).values()):
+                errors.append(
+                    f"expansion program {pid!r}: matchable=true requires at least "
+                    f"one evaluable rule (fee / language / academic)")
         if prog.get("catalogue") != "expansion":
             errors.append(f"expansion program {pid!r}: catalogue must be 'expansion'")
         if prog.get("institution_id") not in ranking_ids:
@@ -232,3 +250,40 @@ EXPANSION_INSTITUTIONS: dict[str, dict] = {
     i["institution_id"]: i for i in EXPANSION.get("institutions", [])}
 EXPANSION_PROGRAMS: dict[str, dict] = {
     p["id"]: p for p in EXPANSION.get("programs", [])}
+EXPANSION_MATCHABLE: dict[str, dict] = {
+    p["id"]: p for p in EXPANSION.get("programs", [])
+    if p.get("matchable") is True}
+EXPANSION_INSTITUTION_CITIES: dict[str, str] = {
+    i["institution_id"]: i["city"]
+    for i in EXPANSION.get("institutions", []) if i.get("city")}
+
+
+# --- Climate table (Day 3, round 6; see docs/CLIMATE.md) --------------------
+# Curated city -> climate class (warm / cool / four_seasons / mild) with
+# a source URL per city. A city with no entry gets NO climate signal.
+# A missing file means "no climate data yet" (empty table); invalid
+# content refuses to start, same as v2.
+def load_climate() -> dict[str, dict]:
+    if not CLIMATE_PATH.exists():
+        return {}
+    data = _load_json(CLIMATE_PATH)
+    table: dict[str, dict] = {}
+    for entry in data.get("cities", []):
+        city = entry.get("city")
+        if not city:
+            raise ValueError("climate.json entry without city")
+        if city in table:
+            raise ValueError(f"climate.json has duplicate city {city!r}")
+        if entry.get("climate") not in ("warm", "cool", "four_seasons", "mild"):
+            raise ValueError(
+                f"climate.json city {city!r} has invalid climate "
+                f"{entry.get('climate')!r}")
+        url = entry.get("source_url") or ""
+        if not url.startswith("https://"):
+            raise ValueError(
+                f"climate.json city {city!r} has no https source_url")
+        table[city] = entry
+    return table
+
+
+CLIMATE: dict[str, dict] = load_climate()

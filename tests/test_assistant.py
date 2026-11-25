@@ -174,11 +174,14 @@ def test_ask_ambiguous_programme_asks_which():
 
 
 def test_ask_no_programme_no_invented_fact():
-    # Oxford has a rank but no verified programme: a fee question must
-    # stay unknown, never borrow another programme's fee.
+    # Round 6: Oxford now has one verified promoted programme
+    # (oxford-msc-adv-cs-2027, GBP 46,350/yr), so a fee question is
+    # answered from it — never by borrowing another programme's fee.
     r = ask("牛津大学计算机硕士学费", "zh-CN")
-    assert "不知道" in r["lines"][0]
+    assert "46,350" in r["lines"][0]
     assert "46,700" not in r["lines"][0] and "48,300" not in r["lines"][0]
+    assert r["program_id"] == "oxford-msc-adv-cs-2027"
+    assert r["evidence_url"].startswith("https://www.ox.ac.uk")
 
 
 def test_ask_unknown_question_stays_unknown():

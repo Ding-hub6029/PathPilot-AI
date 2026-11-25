@@ -10,8 +10,13 @@ The fix pins here, by parsing frontend/src/components/CompassPet.tsx:
   the user's verbatim text, whole backend payloads + replyLocale) —
   no t()/tf() result and no `lines:` literal ever flows into a
   push()/setMessages() call;
-- every assistant call (/ask and /suggest, including the locale-change
-  re-fetch) sends the current locale;
+- every assistant call (/assistant/chat, including the locale-change
+  re-fetch) sends the current locale, and a reply counts as an AI
+  answer only when ai_status is "available" — anything else falls
+  back to the labelled offline catalogue, never a template line shown
+  as chat;
+- a live backend turn is rendered only when its replyLocale matches the
+  current locale, and a [locale, messages] effect re-fetches stale turns;
 - a live backend turn is rendered only when its replyLocale matches the
   current locale, and a [locale, messages] effect re-fetches stale turns;
 - the offline suggestion's programme name is rendered through
@@ -100,13 +105,22 @@ def test_render_happens_at_render_time_in_current_locale(pet_src):
 # 2. Every assistant call sends the current locale
 # ---------------------------------------------------------------------------
 def test_assistant_calls_include_locale(pet_src):
-    calls = [c for c in _call_texts(pet_src, "fetchJson<AssistantReply>")]
+    calls = [c for c in _call_texts(pet_src, "fetchJson<ChatReply>")]
     assert len(calls) >= 4, calls  # ask + suggest + both locale re-fetches
     for call in calls:
         assert "/api/assistant/" in call, call
         assert "locale" in call, call
     endpoints = sorted({re.search(r"/api/assistant/\w+", c).group(0) for c in calls})
-    assert endpoints == ["/api/assistant/ask", "/api/assistant/suggest"]
+    assert endpoints == ["/api/assistant/chat"]
+
+
+def test_template_endpoints_are_not_called(pet_src):
+    # Round 6, Job A: the pet talks to the real model only. The old
+    # template endpoints (/assistant/ask, /assistant/suggest) must not
+    # appear anywhere in the component — a template reply must never
+    # be shown as a chat answer.
+    assert "/api/assistant/ask" not in pet_src
+    assert "/api/assistant/suggest" not in pet_src
 
 
 # ---------------------------------------------------------------------------
@@ -116,17 +130,24 @@ def test_stale_backend_turns_refetched_on_locale_change(pet_src):
     # Turns remember the locale their reply was answered in.
     assert "replyLocale" in pet_src
     # A backend turn's lines render only when answered in this locale.
+    # Only renderTurn counts here: buildHistory also reads .reply.lines,
+    # but to send them back as API context — never as visible text.
     assert "replyLocale === locale" in pet_src
-    for m in re.finditer(r"\.reply\.lines", pet_src):
-        # The guard is the `if (... replyLocale === locale)` line directly
-        # above the line that renders the stored backend lines.
-        before = pet_src[:m.start()].split("\n")[-2:]
+    render_fn = pet_src.split("const renderTurn")[1].split("const askSuggest")[0]
+    for m in re.finditer(r"\.reply\.lines", render_fn):
+        # The guard is the `if (... replyLocale === locale)` that opens
+        # the block rendering the stored backend lines (a comment and
+        # the link derivation may sit between the guard and the line).
+        before = render_fn[:m.start()].split("\n")[-10:]
         assert any("replyLocale === locale" in line for line in before), before
     # A [locale, messages] effect re-fetches stale turns in the new locale.
     assert re.search(r"\}, \[locale, messages\]\);", pet_src), \
         "no [locale, messages] refresh effect found"
     effect = pet_src.split("}, [locale, messages]);")[0]
-    assert "/api/assistant/ask" in effect and "/api/assistant/suggest" in effect
+    assert effect.count("/api/assistant/chat") >= 2, effect
+    # A template-only re-fetch never becomes a live turn: only a reply
+    # with ai_status "available" is stored (see isModelReply).
+    assert "isModelReply(fresh)" in effect
 
 
 # ---------------------------------------------------------------------------

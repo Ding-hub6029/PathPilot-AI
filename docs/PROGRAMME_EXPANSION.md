@@ -36,7 +36,7 @@ separate agent's work.
 | File | Contents |
 |---|---|
 | `institution-profile.json` | One institution's stats profile. Every stat is a sourced number (`value` + `source_url` + `retrieved_at`) or null (unknown). Membership tags carry one official source each. Campus photo only when freely licensed (Wikimedia Commons CC / CC0 / public domain) with licence + attribution. Intro quoted/paraphrased from the official About page with source. |
-| `expanded-program.json` | One programme. Extends the v2 program shape with `institution_id` (rankings id), `field` (controlled slug list), `field_zh`, `application_status` (open/closed only from an official page stating it for the current cycle, else unknown, with source + as-of date), `name_localized.zh-CN` (required, standard degree-name convention), `matchable: false` (always), `catalogue: "expansion"`. Fees: currency + period (`per_year` / `total` / `per_credit`) + amount (null = unknown, explained in notes). Requirements use the v2 requirement shape (academic / language / test, threshold null when not stated). |
+| `expanded-program.json` | One programme. Extends the v2 program shape with `institution_id` (rankings id), `field` (controlled slug list), `field_zh`, `application_status` (open/closed only from an official page stating it for the current cycle, else unknown, with source + as-of date), `name_localized.zh-CN` (required, standard degree-name convention), `matchable` (`true` only for UG/TM programmes with ≥1 evaluable rule — round 6, 2026-11-26; `false` otherwise), `catalogue: "expansion"`. Fees: currency + period (`per_year` / `total` / `per_credit`) + amount (null = unknown, explained in notes). Requirements use the v2 requirement shape (academic / language / test, threshold null when not stated). |
 | `expansion-file.json` | The merged file: `data_version: "v3"`, `institutions`, `programs`, `sources`, `traceability` (one row per sourced fact). |
 
 `data/versions/v2/` is NEVER modified by expansion work.
@@ -46,8 +46,9 @@ sources only; never invent a fact — unknown stays unknown; no U.S. News
 data anywhere; no provider beyond QS/THE/ARWU; no combined/average rank
 (BR15); no agency success cases; US undergraduate programmes share
 central admissions facts (cite the central page per programme, never
-invent a per-major threshold); `matchable` is always false until engine
-rules + per-programme tests exist.
+invent a per-major threshold); `matchable` is `true` only for UG/TM
+programmes with ≥1 evaluable rule (round 6, 2026-11-26 — see the
+promotion section above).
 
 ## Collection order
 
@@ -123,9 +124,15 @@ needing the same official-source verification per programme.
   params. `catalogue=v2` (default) is byte-identical to the Day-2
   response; `catalogue=expansion` lists v3 only; `catalogue=all` lists
   both with `catalogue` + `matchable` flags on every item.
-- `/match`, `/explain`, `/simulate` are unchanged (v2 only). An
-  expansion programme becomes matchable only by a separate, per-programme
-  promotion: engine rules + tests for that programme.
+- `/match`, `/explain`, `/simulate` evaluate the 8 v2 programmes plus
+  promoted expansion programmes (round 6, 2026-11-26): an expansion
+  programme is `matchable=true` exactly when it has at least one
+  evaluable rule (fee amount known, structured IELTS/TOEFL language
+  threshold, or A-level threshold) and a wizard track (undergraduate /
+  taught_masters) — 588 of 881 promoted; the rest stay display-only.
+  The generic evaluator lives in `backend/domain/expansion_eval.py`
+  and the promotion rule in `backend/app/data.py`
+  (`validate_expansion_data`).
 - OpenAPI regenerated: 17 paths (`docs/openapi.json`).
 
 ## Validation
@@ -143,10 +150,13 @@ cd ~/workspace/pathpilot-ai
 2. **Engineering ranks 51–100** — not started.
 3. **Non-computer fields, in priority order** — natural sciences, medicine/health, humanities, social sciences, law, arts/design, and any remaining fields; same schema, same rules, new collection rounds. Business (187) and engineering ranks 1–50 (279) are done. The controlled field list (51 slugs) already covers all of these.
 4. **Other degree levels** (PhD, French diplôme d'ingénieur, MSci/MEng variants, conversion MScs) — still cannot merge under the current schema (`degree_level` allows only undergraduate / taught_masters / foundation / joint_honours, extended 2026-11-25 by user decision; foundation years and joint honours can now merge). Known gap: PSL engineering (French diplôme d'ingénieur through member schools, no UG/TM mapping).
-5. **Programme promotion to matchable**: per-programme engine rules +
-   tests (the eligibility engine's fee/academic rules are currently
-   written per programme — UCL, NUS, Imperial — so this is real work per
-   programme, not a flag flip).
+5. **Programme promotion to matchable**: DONE 2026-11-26 (round 6) —
+   generic evaluator (`backend/domain/expansion_eval.py`) evaluates fee /
+   language / academic rules from verified structured data only; 588 of
+   881 expansion programmes are now `matchable=true` (360 UG + 228 TM),
+   293 stay display-only (244 UG/TM with no evaluable rule, 39
+   foundation/joint_honours without one, 10 with a rule but no wizard
+   track). See `docs/CLIMATE.md` for the climate-preference table.
 4. **Homepage news/cases** （留学资讯 / 成功案例）: BUILT 2026-11-25 — homepage
    top is success cases (6 featured, all 55 on `/cases`) + latest news &
    policy (curated link-outs; sources scoped in

@@ -36,7 +36,8 @@ from ai.prompts import PROMPT_VERSION
 from ai.provider import ProviderAdapter
 from app.adapter import (RULES_VERSION, flat_to_student, match_response,
                          rule_to_frontend, source_manifest_hash, summary_for)
-from app.data import (DATA_VERSION, EXPANSION_INSTITUTIONS,
+from app.data import (CLIMATE, DATA_VERSION, EXPANSION_INSTITUTION_CITIES,
+                      EXPANSION_INSTITUTIONS, EXPANSION_MATCHABLE,
                       EXPANSION_PROGRAMS, PROGRAMS, RANKINGS,
                       V2_PROGRAM_INSTITUTION)
 from app.router_chat import router as router_chat
@@ -45,8 +46,11 @@ from app.router_plans import router as router_plans
 from app.schemas import (AssistantAskRequest, AssistantSuggestRequest,
                          ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
                          MatchRequest, SimulateRequest, StudentProfile)
+from domain.climate import (climate_fit, normalise_preference,
+                            resolve_city_climate)
 from domain.eligibility import (_parse_test_date, effective_curriculum,
                                 evaluate, overall_status, track_mismatch)
+from domain.expansion_eval import evaluate_expansion
 
 app = FastAPI(title="PathPilot AI — Day 2 backend", version="0.2.0")
 
@@ -166,7 +170,12 @@ def _validate_profile(profile: StudentProfile) -> str | None:
 
 
 def _evaluate(profile: StudentProfile, program: dict, locale: str = "en"):
-    results = evaluate(profile, program)
+    # Day 3 round 6: v2 rules for the 8 v2 programmes, the generic
+    # expansion evaluator for promoted expansion programmes.
+    if program["id"] in PROGRAMS:
+        results = evaluate(profile, program)
+    else:
+        results = evaluate_expansion(profile, program)
     provider = ProviderAdapter()
     ev = Evaluation(program_id=program["id"], data_version=DATA_VERSION,
                     overall_status=overall_status(results), results=results,
@@ -176,6 +185,55 @@ def _evaluate(profile: StudentProfile, program: dict, locale: str = "en"):
     ev.ai_status = status
     ev.explanation_structured = structured
     return ev
+
+
+def _get_programme_or_404(program_id: str):
+    """Resolve a programme id to its data dict for evaluation: one of
+    the 8 v2 programmes, or a promoted (matchable) expansion programme.
+    Display-only expansion programmes and unknown ids are None (the
+    caller returns PROGRAM_NOT_FOUND, as before)."""
+    if program_id in PROGRAMS:
+        return PROGRAMS[program_id]
+    if program_id in EXPANSION_MATCHABLE:
+        return EXPANSION_MATCHABLE[program_id]
+    return None
+
+
+def _get_programme_for_display(program_id: str):
+    """Resolve a programme id for read endpoints (catalogue detail):
+    v2 or ANY expansion programme (matchable or display-only)."""
+    if program_id in PROGRAMS:
+        return PROGRAMS[program_id]
+    return EXPANSION_PROGRAMS.get(program_id)
+
+
+def _preference_fit(raw_profile: dict, program: dict) -> str | None:
+    """Climate signal for one result (round 6): the user's stated
+    climate preference against the programme's city, from the curated
+    CLIMATE table. Returns None (no signal) when the profile has no
+    climate preference, the city is not in the table, or the preference
+    is a free-text value. Never a rule status."""
+    pref = normalise_preference(raw_profile.get("prefClimate"))
+    if pref is None:
+        return None
+    return climate_fit(
+        pref,
+        resolve_city_climate(program, CLIMATE, EXPANSION_INSTITUTION_CITIES,
+                             V2_PROGRAM_INSTITUTION))
+
+
+def _attach_preference_fit(results: list[dict], raw_profile: dict) -> None:
+    """Add the optional per-result ``preferenceFit`` key (only when a
+    climate preference is set and the programme's city resolves).
+    Results without a signal carry no key, so v2 output with no
+    preference is byte-identical."""
+    for r in results:
+        program = _get_programme_for_display(r.get("programId", ""))
+        if program is None:
+            continue
+        fit = _preference_fit(raw_profile, program)
+        if fit is not None:
+            r["preferenceFit"] = fit
 
 
 def _profile_from_raw(raw_profile: dict) -> StudentProfile:
@@ -274,11 +332,13 @@ def list_programs(request: Request,
     if catalogue == "v2":
         items = list(PROGRAMS.values())
     elif catalogue == "expansion":
-        items = [dict(p, catalogue="expansion", matchable=False)
+        items = [dict(p, catalogue="expansion",
+                      matchable=p.get("matchable") is True)
                  for p in EXPANSION_PROGRAMS.values()]
     else:
         items = ([dict(p, catalogue="v2", matchable=True) for p in PROGRAMS.values()]
-                 + [dict(p, catalogue="expansion", matchable=False)
+                 + [dict(p, catalogue="expansion",
+                         matchable=p.get("matchable") is True)
                     for p in EXPANSION_PROGRAMS.values()])
     if country:
         items = [p for p in items if str(p.get("country", "")).upper() == country.strip().upper()]
@@ -318,7 +378,9 @@ def list_programs(request: Request,
 
 @app.get("/api/v1/programs/{program_id}")
 def get_program(program_id: str, request: Request):
-    program = PROGRAMS.get(program_id)
+    # Round 6: expansion programmes are readable here too (v2 + any
+    # expansion programme, matchable or display-only); unknown ids 404.
+    program = _get_programme_for_display(program_id)
     if program is None:
         return _err(request.state.request_id, "PROGRAM_NOT_FOUND",
                     f"No program with id '{program_id}'.", 404)
@@ -392,7 +454,8 @@ def get_institution(institution_id: str, request: Request):
     programs = ([dict(p, catalogue="v2", matchable=True)
                  for p in PROGRAMS.values()
                  if V2_PROGRAM_INSTITUTION.get(p["id"]) == institution_id]
-                + [dict(p, catalogue="expansion", matchable=False)
+                + [dict(p, catalogue="expansion",
+                        matchable=p.get("matchable") is True)
                    for p in EXPANSION_PROGRAMS.values()
                    if p.get("institution_id") == institution_id])
     return {"data_version": DATA_VERSION, "expansion_version": "v3",
@@ -719,7 +782,7 @@ async def match(request: Request):
         ids = body.get("program_ids") or []
         results = []
         for pid in ids:
-            program = PROGRAMS.get(pid)
+            program = _get_programme_or_404(pid)
             if program is None:
                 return _err(rid, "PROGRAM_NOT_FOUND", f"No program with id '{pid}'.", 404)
             mismatch = track_mismatch(profile, program)
@@ -734,6 +797,7 @@ async def match(request: Request):
                             "trackMismatch": False,
                             "ai_status": ev.ai_status,
                             "explanation": ev.explanation})
+        _attach_preference_fit(results, raw_profile)
         return match_response(f"eval-{rid[:8]}", results)
     try:
         req = MatchRequest(**body)
@@ -743,7 +807,7 @@ async def match(request: Request):
     if problem:
         return _err(rid, "TRACK_MISMATCH", problem, 422,
                     field_errors=[{"field": "application_track", "message": problem}])
-    program = PROGRAMS.get(req.program_id)
+    program = _get_programme_or_404(req.program_id)
     if program is None:
         return _err(rid, "PROGRAM_NOT_FOUND",
                     f"No program with id '{req.program_id}'.", 404)
@@ -792,7 +856,7 @@ async def explain(request: Request):
         return _err(rid, "VALIDATION_ERROR", "program_ids must list at least one program.", 422)
     results = []
     for pid in ids:
-        program = PROGRAMS.get(pid)
+        program = _get_programme_or_404(pid)
         if program is None:
             return _err(rid, "PROGRAM_NOT_FOUND", f"No program with id '{pid}'.", 404)
         mismatch = track_mismatch(profile, program)
@@ -809,6 +873,7 @@ async def explain(request: Request):
                         "ai_status": ev.ai_status,
                         "explanation": ev.explanation,
                         "explanation_structured": ev.explanation_structured})
+    _attach_preference_fit(results, req.profile)
     return {"evaluation_id": f"explain-{rid[:8]}", "results": results,
             "rules_version": RULES_VERSION,
             "source_manifest_hash": source_manifest_hash(),
@@ -853,7 +918,7 @@ async def simulate(request: Request):
             patched = flat_to_student(merged_flat)
         base_results, scen_results, delta = [], [], []
         for pid in ids:
-            program = PROGRAMS.get(pid)
+            program = _get_programme_or_404(pid)
             if program is None:
                 return _err(rid, "PROGRAM_NOT_FOUND", f"No program with id '{pid}'.", 404)
             mismatch = track_mismatch(base, program)
@@ -872,6 +937,10 @@ async def simulate(request: Request):
                 if br.status != sr.status:
                     delta.append({"program_id": pid, "rule_id": br.rule_id,
                                   "baseline_status": br.status, "scenario_status": sr.status})
+        _attach_preference_fit(base_results, raw_base)
+        merged = copy.deepcopy(raw_base)
+        _deep_merge(merged, raw_patch)
+        _attach_preference_fit(scen_results, merged)
         return {"baseline": match_response(f"eval-base-{rid[:8]}", base_results),
                 "scenario": match_response(f"eval-scen-{rid[:8]}", scen_results),
                 "delta": delta}
@@ -883,7 +952,7 @@ async def simulate(request: Request):
     if problem:
         return _err(rid, "TRACK_MISMATCH", problem, 422,
                     field_errors=[{"field": "application_track", "message": problem}])
-    program = PROGRAMS.get(req.program_id)
+    program = _get_programme_or_404(req.program_id)
     if program is None:
         return _err(rid, "PROGRAM_NOT_FOUND",
                     f"No program with id '{req.program_id}'.", 404)

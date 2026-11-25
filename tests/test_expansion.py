@@ -1,10 +1,10 @@
 """Tests for the Day-3 programme expansion (v3 catalogue).
 
 Covers: the expansion loader/validator (empty file loads; banned strings,
-v2 id collisions, matchable=true, unknown institutions/sources are
-refused), the new institution endpoints, and the extended /programs
-filters. The default /programs response must stay byte-identical to the
-Day-2 contract (v2 only) — see tests/test_day2.py.
+v2 id collisions, matchable=true without an evaluable rule, unknown
+institutions/sources are refused), the new institution endpoints, and the
+extended /programs filters. The default /programs response must stay
+byte-identical to the Day-2 contract (v2 only) — see tests/test_day2.py.
 
 Run from the project root:
     .venv/bin/python -m pytest tests/test_expansion.py -q
@@ -20,6 +20,7 @@ from app.data import (EXPANSION, EXPANSION_INSTITUTIONS, EXPANSION_PROGRAMS,
                       PROGRAMS, RANKINGS, load_expansion,
                       validate_expansion_data)
 from app.main import app, reset_rate_limits
+from domain.expansion_eval import evaluable_rules
 
 client = TestClient(app, raise_server_exceptions=False)
 
@@ -89,7 +90,16 @@ def test_merged_expansion_loads():
     assert validate_expansion_data(EXPANSION, RANKING_IDS, V2_IDS) == []
     assert len(EXPANSION_PROGRAMS) == len(EXPANSION.get("programs", []))
     assert len(EXPANSION_INSTITUTIONS) == len(EXPANSION.get("institutions", []))
-    assert all(p["matchable"] is False for p in EXPANSION_PROGRAMS.values())
+    # Round 6 promotion rule: matchable=true exactly for UG/TM programmes
+    # with at least one evaluable rule (fee / language / academic).
+    promoted = [p for p in EXPANSION_PROGRAMS.values()
+                if p["matchable"] is True]
+    assert len(promoted) == 588
+    assert len(EXPANSION_PROGRAMS) - len(promoted) == 293
+    for p in EXPANSION_PROGRAMS.values():
+        expect = (p["degree_level"] in ("undergraduate", "taught_masters")
+                  and any(evaluable_rules(p).values()))
+        assert p["matchable"] is expect, p["id"]
 
 
 def test_validator_accepts_good_program():
@@ -102,11 +112,38 @@ def test_validator_rejects_v2_collision():
     assert any("collides with a v2 program" in e for e in errors)
 
 
-def test_validator_rejects_matchable_true():
+def test_validator_rejects_matchable_true_without_evaluable_rule():
+    # The fixture has no fee amount and no structured threshold, so
+    # matchable=true has no evaluable rule and is refused.
     prog = _good_program()
     prog["matchable"] = True
     errors = validate_expansion_data(_good_data([prog]), RANKING_IDS, V2_IDS)
-    assert any("matchable must be false" in e for e in errors)
+    assert any("at least one evaluable rule" in e for e in errors)
+
+
+def test_validator_accepts_matchable_true_with_fee_amount():
+    prog = _good_program()
+    prog["fees"]["amount"] = 66720
+    prog["matchable"] = True
+    assert validate_expansion_data(_good_data([prog]), RANKING_IDS, V2_IDS) == []
+
+
+def test_validator_rejects_matchable_true_for_foundation():
+    # A foundation programme with an evaluable fee rule still stays
+    # display-only: the wizard has no foundation track.
+    prog = _good_program()
+    prog["degree_level"] = "foundation"
+    prog["fees"]["amount"] = 29500
+    prog["matchable"] = True
+    errors = validate_expansion_data(_good_data([prog]), RANKING_IDS, V2_IDS)
+    assert any("undergraduate/taught_masters" in e for e in errors)
+
+
+def test_validator_rejects_matchable_non_bool():
+    prog = _good_program()
+    prog["matchable"] = "yes"
+    errors = validate_expansion_data(_good_data([prog]), RANKING_IDS, V2_IDS)
+    assert any("matchable must be a boolean" in e for e in errors)
 
 
 def test_validator_rejects_synthetic():
@@ -188,7 +225,9 @@ def test_institution_detail_ucl_v2_first_then_expansion():
     assert [p["id"] for p in v2_progs] == [
         "ucl-cs-bsc-2026", "ucl-cs-msc-2027"]
     assert all(p["matchable"] is True for p in v2_progs)
-    assert all(p["matchable"] is False for p in exp_progs)
+    # Expansion flags are the stored flags (round 6: promoted ones true).
+    assert [p["matchable"] for p in exp_progs] == [
+        EXPANSION_PROGRAMS[p["id"]]["matchable"] for p in exp_progs]
     assert [p["id"] for p in exp_progs] == [
         p["id"] for p in EXPANSION_PROGRAMS.values()
         if p.get("institution_id") == "ucl"]
@@ -230,7 +269,11 @@ def test_programs_catalogue_expansion_lists_merged():
     items = _page_all("/api/v1/programs", {"catalogue": "expansion"})
     assert [p["id"] for p in items] == [
         p["id"] for p in EXPANSION.get("programs", [])]
-    assert all(p["catalogue"] == "expansion" and p["matchable"] is False
+    assert all(p["catalogue"] == "expansion" for p in items)
+    # Flags are the stored flags: 588 promoted, 293 display-only.
+    assert sum(1 for p in items if p["matchable"] is True) == 588
+    assert sum(1 for p in items if p["matchable"] is False) == 293
+    assert all(p["matchable"] is EXPANSION_PROGRAMS[p["id"]]["matchable"]
                for p in items)
 
 
@@ -242,7 +285,9 @@ def test_programs_catalogue_all_flags_items():
     assert len(v2_items) == 8
     assert len(exp_items) == len(EXPANSION_PROGRAMS)
     assert all(p["matchable"] is True for p in v2_items)
-    assert all(p["matchable"] is False for p in exp_items)
+    assert all(p["matchable"] is EXPANSION_PROGRAMS[p["id"]]["matchable"]
+               for p in exp_items)
+    assert sum(1 for p in exp_items if p["matchable"] is True) == 588
 
 
 def test_programs_catalogue_bad_value_400():

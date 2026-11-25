@@ -23,7 +23,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from app.data import DATA_DIR, EXPANSION, PROGRAMS, RANKINGS
+from app.data import (DATA_DIR, EXPANSION, EXPANSION_PROGRAMS, PROGRAMS,
+                      RANKINGS)
 
 # ---------------------------------------------------------------------------
 # Sources
@@ -53,8 +54,51 @@ def _manifest() -> dict:
     return _MANIFEST
 
 
+def _expansion_fee_sentence(program: dict) -> str:
+    """One verified fee sentence for an expansion programme, or '' when
+    no amount is known. The amount is the stated rate for the stated
+    period (per year / total / per credit) — never a computed total."""
+    fees = program.get("fees") or {}
+    amount = fees.get("amount")
+    if not isinstance(amount, (int, float)) or isinstance(amount, bool):
+        return ""
+    if isinstance(amount, float) and amount == amount.to_integral_value():
+        amount = int(amount)
+    period = fees.get("period") or "per_year"
+    suffix = {"per_year": "per year", "total": "in total",
+              "per_credit": "per credit"}.get(period, period)
+    return (f"Tuition fee: {fees.get('currency', '')} "
+            f"{amount:,} {suffix}.")
+
+
 def programme_sources(program_id: str) -> list[Source]:
-    """Official sources for one v2 programme, from the source manifest."""
+    """Official sources for one programme.
+
+    v2: from the source manifest (as before). Expansion (round 6):
+    from the programme's own verified sources list — the excerpt is
+    the first requirement description citing that source, else the
+    source title; the fee sentence is appended to the first source's
+    excerpt (collectors list the programme's own page first)."""
+    if program_id in EXPANSION_PROGRAMS:
+        program = EXPANSION_PROGRAMS[program_id]
+        out: list[Source] = []
+        for i, s in enumerate(program.get("sources") or []):
+            sid = s.get("id")
+            if not sid:
+                continue
+            excerpt = next(
+                (r.get("description") or ""
+                 for r in (program.get("requirements") or [])
+                 if sid in (r.get("source_ids") or [])),
+                s.get("title") or sid)
+            if i == 0:
+                fee = _expansion_fee_sentence(program)
+                if fee:
+                    excerpt = f"{excerpt} {fee}" if excerpt else fee
+            out.append(Source(id=f"src:{program_id}:{sid}", url=s.get("url"),
+                              title=s.get("title") or sid,
+                              excerpt=excerpt or ""))
+        return out
     manifest = _manifest()
     sources = {s["id"]: s for s in manifest.get("sources", [])}
     program = PROGRAMS.get(program_id) or {}
@@ -85,7 +129,24 @@ def programme_sources(program_id: str) -> list[Source]:
 
 def programme_fact_texts(program_id: str) -> dict[str, str]:
     """Evidence id -> text used by the numeric cross-check: rule details
-    plus manifest excerpts for the programme."""
+    plus manifest excerpts for the programme.
+
+    Expansion (round 6): requirement id -> description, raw source id
+    -> first requirement description citing it, ``src:<pid>:<sid>`` ->
+    the same text, and ``fee:<pid>`` -> the fee sentence."""
+    if program_id in EXPANSION_PROGRAMS:
+        program = EXPANSION_PROGRAMS[program_id]
+        texts: dict[str, str] = {}
+        for req in program.get("requirements", []):
+            desc = req.get("description") or ""
+            texts[req.get("id", "")] = desc
+            for sid in (req.get("source_ids") or []):
+                texts.setdefault(sid, desc)
+                texts.setdefault(f"src:{program_id}:{sid}", desc)
+        fee = _expansion_fee_sentence(program)
+        if fee:
+            texts[f"fee:{program_id}"] = fee
+        return texts
     manifest = _manifest()
     program = PROGRAMS.get(program_id) or {}
     texts: dict[str, str] = {}
