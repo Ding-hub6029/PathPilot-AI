@@ -597,6 +597,44 @@
         "summary": "Health"
       }
     },
+    "/api/v1/institutions/{institution_id}/rankings": {
+      "get": {
+        "description": "One institution's provider records \u2014 or each one's explicit\nmissing reason. World ranks only; no cross-provider combination.",
+        "operationId": "get_institution_rankings_api_v1_institutions__institution_id__rankings_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "institution_id",
+            "required": true,
+            "schema": {
+              "title": "Institution Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Institution Rankings"
+      }
+    },
     "/api/v1/match": {
       "post": {
         "description": "Two shapes, one engine.\n\nFrontend contract: {\"profile\": <flat wizard profile>, \"program_ids\": [...]}\n-> {\"evaluation_id\", \"results\": [{programId, eligibilitySummary,\nruleResults}], \"rules_version\", \"source_manifest_hash\"}.\nSpec/test contract: {\"profile\": <nested StudentProfile>, \"program_id\": str}\n-> single Evaluation (unchanged).",
@@ -822,6 +860,192 @@
           }
         },
         "summary": "Get Program"
+      }
+    },
+    "/api/v1/rankings": {
+      "get": {
+        "description": "Filter + cursor pagination (spec Ch9).\n\n``provider`` / ``edition`` / ``ranking_type`` are exact matches\n(case-insensitive). ``subject`` matches a subject name \u2014 this build\nships world ranks only, so any subject filter returns an empty list\nrather than inventing a subject rank. ``country`` matches the\ninstitution's country code (any code in the data, e.g. GB, SG, US, CN).\n``query`` is a case-insensitive\nsubstring on the institution's official name. ``cursor`` is an opaque\noffset token; ``limit`` defaults to 20 and is capped at 20. No entry\nhere is ever a combined or averaged rank (BR15).",
+        "operationId": "list_rankings_api_v1_rankings_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Provider"
+            }
+          },
+          {
+            "in": "query",
+            "name": "edition",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Edition"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ranking_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ranking Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subject",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject"
+            }
+          },
+          {
+            "in": "query",
+            "name": "country",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Country"
+            }
+          },
+          {
+            "in": "query",
+            "name": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Query"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Rankings"
+      }
+    },
+    "/api/v1/rankings/editions": {
+      "get": {
+        "description": "One record per provider edition actually shipped.",
+        "operationId": "list_ranking_editions_api_v1_rankings_editions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Ranking Editions"
+      }
+    },
+    "/api/v1/rankings/providers": {
+      "get": {
+        "description": "The three providers with edition, official links and rights status.",
+        "operationId": "list_ranking_providers_api_v1_rankings_providers_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Ranking Providers"
       }
     },
     "/api/v1/ready": {

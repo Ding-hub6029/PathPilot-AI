@@ -71,5 +71,54 @@ def load_fixture() -> dict:
     return program
 
 
+# --- Rankings (Day 3, spec Ch9 FR15/FR16) -----------------------------------
+# Top 100 institutions per provider (QS 2027, THE 2027, ARWU 2026):
+# at most 300 entries. rank_display is
+# reproduced exactly as published; no combined/average rank across
+# providers is stored or computed anywhere (BR15). Rankings never affect
+# eligibility (BR16). An entry whose verification_status is "unavailable"
+# carries rank_display null plus an unavailable_reason — never a value
+# taken from a third-party reproduction.
+def load_rankings() -> dict:
+    rankings_path = DATA_DIR / "rankings.json"
+    data = _load_json(rankings_path)
+    if data.get("data_version") != DATA_VERSION:
+        raise ValueError(f"rankings.json data_version {data.get('data_version')} != {DATA_VERSION}")
+    providers = {p["id"] for p in data.get("providers", [])}
+    institutions = {i["id"] for i in data.get("institutions", [])}
+    entries = data.get("entries", [])
+    if len(entries) > 300:
+        raise ValueError(f"rankings.json has {len(entries)} entries; at most 300 allowed (top 100 x 3 providers)")
+    seen: set[tuple[str, str]] = set()
+    for e in entries:
+        if e.get("provider") not in providers:
+            raise ValueError(f"Ranking entry references unknown provider {e.get('provider')}")
+        if e.get("institution_id") not in institutions:
+            raise ValueError(f"Ranking entry references unknown institution {e.get('institution_id')}")
+        key = (e["provider"], e["institution_id"], e.get("edition_label"))
+        if key in seen:
+            raise ValueError(f"Duplicate ranking entry for {key}")
+        seen.add(key)
+        if e.get("rank_kind") not in ("single", "tie", "band", None):
+            raise ValueError(f"Ranking entry {key} has invalid rank_kind {e.get('rank_kind')!r}")
+        if e.get("verification_status") == "verified":
+            if not e.get("rank_display"):
+                raise ValueError(f"Verified ranking entry {key} has no rank_display")
+            if e.get("unavailable_reason"):
+                raise ValueError(f"Verified ranking entry {key} must not carry unavailable_reason")
+        elif e.get("verification_status") == "unavailable":
+            if e.get("rank_display") is not None or e.get("score") is not None:
+                raise ValueError(f"Unavailable ranking entry {key} must not carry a rank or score")
+            if not e.get("unavailable_reason"):
+                raise ValueError(f"Unavailable ranking entry {key} needs unavailable_reason")
+        else:
+            raise ValueError(f"Ranking entry {key} has invalid verification_status {e.get('verification_status')!r}")
+    return data
+
+
+# Loaded once at import / startup.
+RANKINGS: dict = load_rankings()
+
+
 # Loaded once at import / startup.
 PROGRAMS: dict[str, dict] = load_programs()

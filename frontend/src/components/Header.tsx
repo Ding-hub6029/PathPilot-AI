@@ -13,6 +13,7 @@ export default function Header() {
       <Link href="/" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.home')}</Link>
       <Link href="/wizard" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.wizard')}</Link>
       <Link href="/results" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.results')}</Link>
+      <Link href="/rankings" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.rankings')}</Link>
       <Link href="/report" className="rounded px-2 py-1 hover:bg-white/10">{t('nav.report')}</Link>
     </>
   );

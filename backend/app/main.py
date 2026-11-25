@@ -33,7 +33,7 @@ from ai.explain import explain_with_status
 from ai.provider import ProviderAdapter
 from app.adapter import (RULES_VERSION, flat_to_student, match_response,
                          rule_to_frontend, source_manifest_hash, summary_for)
-from app.data import DATA_VERSION, PROGRAMS
+from app.data import DATA_VERSION, PROGRAMS, RANKINGS
 from app.schemas import (ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
                          MatchRequest, SimulateRequest, StudentProfile)
 from domain.eligibility import (_parse_test_date, effective_curriculum,
@@ -245,6 +245,112 @@ def get_program(program_id: str, request: Request):
         return _err(request.state.request_id, "PROGRAM_NOT_FOUND",
                     f"No program with id '{program_id}'.", 404)
     return program
+
+
+# --- Rankings (Day 3, spec Ch9 FR15/FR16, BR15/BR16) -----------------------
+# Three providers (QS 2027, THE 2027, ARWU 2026), top 100 institutions
+# each, 300 entries. No combined or
+# averaged rank across providers exists anywhere (BR15); rankings never
+# affect eligibility (BR16) — these endpoints only read the verified
+# rankings.json file. World, national and subject ranks are kept
+# separate: this build ships world ranks only; a subject filter returns
+# an empty list because no subject entries were verified.
+def _ranking_institution(entry: dict) -> dict | None:
+    for inst in RANKINGS.get("institutions", []):
+        if inst["id"] == entry.get("institution_id"):
+            return inst
+    return None
+
+
+@app.get("/api/v1/rankings/providers")
+def list_ranking_providers():
+    """The three providers with edition, official links and rights status."""
+    return {"data_version": DATA_VERSION,
+            "providers": RANKINGS.get("providers", [])}
+
+
+@app.get("/api/v1/rankings/editions")
+def list_ranking_editions():
+    """One record per provider edition actually shipped."""
+    editions = []
+    for p in RANKINGS.get("providers", []):
+        editions.append({"provider": p["id"], "provider_name": p["name"],
+                        "edition_label": p["edition_label"],
+                        "published_at": p.get("published_at"),
+                        "entry_url": p["entry_url"],
+                        "rights_status": p["rights_status"]})
+    return {"data_version": DATA_VERSION, "editions": editions}
+
+
+@app.get("/api/v1/rankings")
+def list_rankings(request: Request,
+                  provider: str | None = Query(default=None),
+                  edition: str | None = Query(default=None),
+                  ranking_type: str | None = Query(default=None),
+                  subject: str | None = Query(default=None),
+                  country: str | None = Query(default=None),
+                  query: str | None = Query(default=None),
+                  cursor: str | None = Query(default=None),
+                  limit: int = Query(default=20, ge=1)):
+    """Filter + cursor pagination (spec Ch9).
+
+    ``provider`` / ``edition`` / ``ranking_type`` are exact matches
+    (case-insensitive). ``subject`` matches a subject name — this build
+    ships world ranks only, so any subject filter returns an empty list
+    rather than inventing a subject rank. ``country`` matches the
+    institution's country code (any code in the data, e.g. GB, SG, US, CN).
+    ``query`` is a case-insensitive
+    substring on the institution's official name. ``cursor`` is an opaque
+    offset token; ``limit`` defaults to 20 and is capped at 20. No entry
+    here is ever a combined or averaged rank (BR15).
+    """
+    rid = request.state.request_id
+    try:
+        offset = _decode_cursor(cursor)
+    except ValueError as exc:
+        return _err(rid, "VALIDATION_ERROR", str(exc), 400)
+    limit = min(limit, 20)
+    items = list(RANKINGS.get("entries", []))
+    if provider:
+        items = [e for e in items if str(e.get("provider", "")).lower() == provider.strip().lower()]
+    if edition:
+        items = [e for e in items if str(e.get("edition_label", "")) == edition.strip()]
+    if ranking_type:
+        items = [e for e in items if str(e.get("ranking_type", "")).lower() == ranking_type.strip().lower()]
+    if subject:
+        # No subject entries were verified for this build (see
+        # RANKINGS_SOURCES.md §6); a subject rank must not be invented.
+        items = []
+    if country:
+        items = [e for e in items
+                 if (_ranking_institution(e) or {}).get("country", "").upper() == country.strip().upper()]
+    if query:
+        needle = query.strip().lower()
+        items = [e for e in items
+                 if needle in str((_ranking_institution(e) or {}).get("official_name", "")).lower()]
+    page = items[offset:offset + limit]
+    next_offset = offset + len(page)
+    next_cursor = _encode_cursor(next_offset) if next_offset < len(items) else None
+    return {"data_version": DATA_VERSION, "items": page,
+            "next_cursor": next_cursor}
+
+
+@app.get("/api/v1/institutions/{institution_id}/rankings")
+def get_institution_rankings(institution_id: str, request: Request):
+    """One institution's provider records — or each one's explicit
+    missing reason. World ranks only; no cross-provider combination."""
+    inst = None
+    for cand in RANKINGS.get("institutions", []):
+        if cand["id"] == institution_id:
+            inst = cand
+            break
+    if inst is None:
+        return _err(request.state.request_id, "INSTITUTION_NOT_FOUND",
+                    f"No institution with id '{institution_id}'.", 404)
+    entries = [e for e in RANKINGS.get("entries", [])
+               if e.get("institution_id") == institution_id]
+    return {"data_version": DATA_VERSION, "institution": inst,
+            "rankings": entries}
 
 
 def _profile_field_errors(profile: StudentProfile) -> list[dict]:

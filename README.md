@@ -19,7 +19,8 @@ traceability.csv, 138 i18n keys × 6 locales, evidence drawer, 79 tests
 passing, live verification green. Deployment is ready but not live — see
 `DEPLOY.md` (needs the user's Vercel OAuth + a backend host).
 
-Fix 2026-11-25 (complete, not yet pushed): full localisation of rule text
+Fix 2026-11-25 (complete, pushed 2026-11-25 ~11:00, HEAD 259cf92; Vercel
+redeployed and verified live): full localisation of rule text
 (status chips carry rule names, "要求 / 你的情况" on every rule row,
 fee sentence "你的预算 GBP 22/年，低于学费 GBP 46,700/年", legend,
 detail-page minimums + "开始资格检查" button, first-visit modal,
@@ -27,6 +28,25 @@ detail-page minimums + "开始资格检查" button, first-visit modal,
 USA SAT-ACT-AP / Singapore A-level / Other branches), 306 i18n keys × 6
 locales, 92 tests passing, `npm run build` pass, live verification green.
 See TASKS.md (Fix section) and DECISIONS.md #66–#80.
+
+Day 3 rankings (complete 2026-11-25, not yet pushed): `/rankings` page +
+ranking cards on programme detail pages + institution detail pages
+(`/institutions/[id]`). Three providers (QS 2027, THE 2027, ARWU 2026),
+top 100 institutions each = 300 entries across 148 institutions, world
+ranks only, verified one by one from each provider's official source on
+2026-11-25 (`data/versions/v2/rankings.json`,
+`docs/RANKINGS_SOURCES.md`). QS values shown with the exact QS attribution
+notice; THE values labelled "reproduction consent not obtained"; ARWU
+"reuse permission not verified". No combined/average rank across providers
+(BR15); rankings never affect eligibility (BR16). 103 tests passing, 351
+i18n keys × 6 locales, `npm run build` pass. The 12 original entries are
+unchanged; institution names were normalised across providers (35 merged
+variant groups, e.g. EPFL, PSL, KAIST, LMU; the two NTUs kept distinct).
+Institution pages carry a compiled IELTS reference transcribed from the
+user-supplied THE 2027 table images, labelled as a reference in all 6
+locales and never used by the eligibility engine; verified programmes
+link to their full detail, other institutions show "programme admission
+data not yet verified".
 
 ## Quick start (one command per service; run backend first)
 
@@ -57,9 +77,10 @@ cd frontend && npm install && npm run dev   # or: npm run build && npm start
 Next.js 14 + TypeScript + Tailwind. Pages: `/` (home, first-visit modal),
 `/wizard` (curriculum first, then track / target / academic / language /
 budget), `/results` (labelled chips, legend, next-steps panel),
-`/programs/[id]` (minimums list + check button, evidence drawer),
-`/report` (print + JSON export).
-Six locales (en, zh-CN, es, fr, pt-BR, ar; 306 keys each, checked by
+`/programs/[id]` (minimums list + check button, evidence drawer, ranking
+cards), `/rankings` (three providers, top 100 each, filters, compare up to 3 institutions
+within one provider's edition, institution detail pages), `/report` (print + JSON export).
+Six locales (en, zh-CN, es, fr, pt-BR, ar; 351 keys each, checked by
 `npm run build`), RTL for Arabic, compass-theme motion (navy/teal/amber),
 `prefers-reduced-motion` respected. The frontend proxies `/api/*` to the
 backend; if the backend is down it falls back to a clearly-labelled

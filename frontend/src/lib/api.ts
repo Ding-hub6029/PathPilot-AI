@@ -1,5 +1,6 @@
 import { PROGRAMS } from './programs';
-import { MatchResponse, MatchResult, Profile, Program, RuleResult, RULES_VERSION, DATA_VERSION } from './types';
+import { RANKING_ENTRIES, RANKING_INSTITUTIONS, RANKING_PROVIDERS } from './rankings';
+import { MatchResponse, MatchResult, Profile, Program, RankingEntry, RankingInstitution, RankingProvider, RuleResult, RULES_VERSION, DATA_VERSION } from './types';
 
 // Local (offline) evaluation mirroring the backend contract. Used ONLY when
 // the live backend is unreachable; results are labelled offline in the UI.
@@ -656,5 +657,53 @@ export async function simulate(profile: Profile, patch: Partial<Profile>): Promi
     return { ...live.scenario, live: true };
   } catch {
     return evaluateLocal(scenario, programIds);
+  }
+}
+
+// --- Rankings (Day 3, spec Ch9 FR15/FR16) -----------------------------------
+// Live backend first, offline fallback (RANKING_ENTRIES, identical values)
+// when the backend is unreachable. No combined or averaged rank is ever
+// computed here (BR15); world and subject ranks are never mixed — this
+// build ships world ranks only, so a subject filter returns no entries.
+export interface RankingsResult {
+  providers: RankingProvider[];
+  institutions: RankingInstitution[];
+  entries: RankingEntry[];
+  live: boolean;
+}
+
+export async function fetchRankings(): Promise<RankingsResult> {
+  try {
+    const prov = await fetchJson<{ providers: RankingProvider[] }>('/api/rankings/providers');
+    const providers = Array.isArray(prov.providers) && prov.providers.length ? prov.providers : RANKING_PROVIDERS;
+    // The backend caps limit at 20, so page through the cursor until the
+    // list ends (300 entries = 15 pages). The loop is bounded so a
+    // misbehaving API cannot spin forever.
+    const entries: RankingEntry[] = [];
+    let cursor: string | undefined;
+    for (let page = 0; page < 50; page++) {
+      const qs = new URLSearchParams({ limit: '20', ...(cursor ? { cursor } : {}) }).toString();
+      const chunk = await fetchJson<{ items: RankingEntry[]; next_cursor?: string | null }>(`/api/rankings?${qs}`);
+      entries.push(...(chunk.items ?? []));
+      cursor = chunk.next_cursor ?? undefined;
+      if (!cursor) break;
+    }
+    const list = entries.length ? entries : RANKING_ENTRIES;
+    return { providers, institutions: RANKING_INSTITUTIONS, entries: list, live: true };
+  } catch {
+    return { providers: RANKING_PROVIDERS, institutions: RANKING_INSTITUTIONS, entries: RANKING_ENTRIES, live: false };
+  }
+}
+
+export async function fetchInstitutionRankings(institutionId: string): Promise<{ institution: RankingInstitution | undefined; entries: RankingEntry[]; live: boolean }> {
+  try {
+    const data = await fetchJson<{ institution: RankingInstitution; rankings: RankingEntry[] }>(`/api/institutions/${encodeURIComponent(institutionId)}/rankings`);
+    return { institution: data.institution, entries: data.rankings, live: true };
+  } catch {
+    return {
+      institution: RANKING_INSTITUTIONS.find((i) => i.id === institutionId),
+      entries: RANKING_ENTRIES.filter((e) => e.institution_id === institutionId),
+      live: false,
+    };
   }
 }

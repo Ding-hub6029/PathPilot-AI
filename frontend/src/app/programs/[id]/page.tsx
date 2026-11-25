@@ -6,8 +6,10 @@ import { usePrograms } from '../../../lib/usePrograms';
 import { matchProfile } from '../../../lib/api';
 import { MatchResponse } from '../../../lib/types';
 import { RuleRow } from '../../../components/RuleRow';
+import { RankingCards } from '../../../components/RankingCards';
 import { PROGRAM_RULES, ruleExpected } from '../../../lib/ruleText';
 import { formatDuration, formatFeeItems, formatIntake } from '../../../lib/format';
+import { institutionIdForProgram } from '../../../lib/rankings';
 
 export default function ProgramDetail({ params }: { params: { id: string } }) {
   const { t, tf, locale, profile } = useApp();
@@ -27,6 +29,7 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
   }
   const result = data?.results.find((r) => r.programId === program.id);
   const minimumRuleIds = PROGRAM_RULES[program.id] ?? [];
+  const rankingInstitutionId = institutionIdForProgram(program.institution);
 
   return (
     <div className="page-enter mx-auto max-w-4xl px-4 py-8">
@@ -65,6 +68,16 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
           </div>
         )}
       </section>
+
+      {rankingInstitutionId && (
+        <section className="mt-8" aria-labelledby="rank-title">
+          <h2 id="rank-title" className="text-xl font-bold">{t('rankings.viewRankings')}</h2>
+          <p className="mt-1 text-sm text-navy/70">{t('rankings.rankingsNote')}</p>
+          <div className="mt-3">
+            <RankingCards institutionId={rankingInstitutionId} />
+          </div>
+        </section>
+      )}
 
       <section className="mt-8" aria-labelledby="src-title">
         <h2 id="src-title" className="text-xl font-bold">{t('program.sources')}</h2>

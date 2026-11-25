@@ -124,6 +124,57 @@ export interface MatchResponse {
   live: boolean;
 }
 
+// --- Rankings (Day 3, spec Ch9 FR15/FR16) ----------------------------------
+// World university ranks, top 100 institutions per provider (QS 2027,
+// THE 2027, ARWU 2026). rank_display is reproduced exactly as published
+// ('=8' = tied at 8th); a band such as '101-150' is kept verbatim, never
+// converted to a number. No combined or averaged rank across providers
+// exists anywhere (BR15). ielts_reference is a compiled reference from
+// user-supplied ranking-table images only — never an official programme
+// requirement and never used by the eligibility engine.
+export interface RankingProvider {
+  id: string;
+  name: string;
+  short_name: string;
+  edition_label: string;
+  published_at: string;
+  entry_url: string;
+  methodology_url: string | null;
+  rights_status: string;
+  rights_note: string;
+  attribution: string | null;
+  source_data_url: string | null;
+}
+
+export interface RankingInstitution {
+  id: string;
+  official_name: string;
+  country: string;
+  country_name: string;
+  /** Compiled IELTS reference (user-supplied table images); null outside the THE top 100. */
+  ielts_reference?: string | null;
+  ielts_reference_source?: string | null;
+  /** Verified official website; only for the institutions whose programmes PathPilot covers. */
+  official_website?: string | null;
+  /** Provider profile-page links, only for providers that rank this institution. */
+  provider_profiles?: { qs?: string; the?: string; arwu?: string };
+}
+
+export interface RankingEntry {
+  provider: string;
+  institution_id: string;
+  edition_label: string;
+  ranking_type: string;
+  rank_display: string | null;
+  rank_kind: 'single' | 'tie' | 'band' | null;
+  score: number | null;
+  source_url: string;
+  retrieved_at: string;
+  verification_status: 'verified' | 'unavailable';
+  rights_status: string;
+  unavailable_reason: string | null;
+}
+
 export const DATA_VERSION = 'v2';
 export const RULES_VERSION = 'rules-v2-2026-11-25';
 
