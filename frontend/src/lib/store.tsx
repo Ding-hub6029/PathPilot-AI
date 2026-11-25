@@ -31,6 +31,8 @@ interface AppState {
   locale: Locale;
   setLocale: (l: Locale) => void;
   t: (key: string) => string;
+  /** Localised string with {placeholder} interpolation. */
+  tf: (key: string, vars?: Record<string, string | number>) => string;
   profile: Profile;
   setProfile: (p: Profile) => void;
   updateProfile: (patch: Partial<Profile>) => void;
@@ -74,8 +76,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try { localStorage.removeItem('pp-profile'); } catch { /* ignore */ }
   };
   const t = (key: string) => MESSAGES[locale][key] ?? MESSAGES.en[key] ?? key;
+  const tf = (key: string, vars?: Record<string, string | number>) => {
+    let s = t(key);
+    if (vars) {
+      for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(String(v));
+    }
+    return s;
+  };
 
-  const value = useMemo(() => ({ locale, setLocale, t, profile, setProfile, updateProfile, clearData }),
+  const value = useMemo(() => ({ locale, setLocale, t, tf, profile, setProfile, updateProfile, clearData }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [locale, profile]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
