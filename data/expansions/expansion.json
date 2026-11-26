@@ -54413,6 +54413,421 @@
    "duration_months": 36,
    "start": null,
    "ucas_code": null
+  },
+  {
+   "id": "eth-cs-bsc-2027",
+   "institution_id": "eth-zurich",
+   "institution": "ETH Zurich",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester (Group 2, all other foreign students, from Autumn Semester 2025); CHF 730 per semester for Group 1; plus CHF 74 compulsory semester fees per semester. Application fee CHF 150 for applicants without a Swiss matriculation.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null,
+    "application_fee": {
+     "amount": 150,
+     "currency": "CHF"
+    }
+   },
+   "application_status": "unknown",
+   "application_deadline": "31 March 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "eth-cs-bsc-2027-academic",
+     "category": "academic",
+     "description": "Admission depends on the school-leaving certificate under ETH's country-specific admission rules; the official programme page states no per-programme grade threshold and no Gaokao threshold.",
+     "threshold": null,
+     "source_ids": [
+      "eth-bsc-cs"
+     ]
+    },
+    {
+     "id": "eth-cs-bsc-2027-language",
+     "category": "language",
+     "description": "The main teaching language of the Bachelor's programme is German. Applicants without an exemption must submit a German language certificate at minimum level C1 (CEFR) by 31 March.",
+     "threshold": {
+      "cefr_level": "C1",
+      "language": "German"
+     },
+     "source_ids": [
+      "eth-language"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "eth-bsc-cs",
+     "url": "https://ethz.ch/en/studies/bachelor/bachelors-degree-programmes/engineering-sciences/computer-science.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "eth-tuition",
+     "url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "eth-language",
+     "url": "https://ethz.ch/en/studies/bachelor/application/bachelor-human-medicine/application-admission/language-requirements.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "eth-eapply",
+     "url": "https://www.lehrbetrieb.ethz.ch/eApply/ealogin.view?lang=en",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    }
+   ],
+   "matchable": true,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Zurich",
+   "duration": "3 years (180 credits)",
+   "duration_months": 36,
+   "start": "Autumn 2027"
+  },
+  {
+   "id": "eth-cse-bsc-2027",
+   "institution_id": "eth-zurich",
+   "institution": "ETH Zurich",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Computational Science and Engineering",
+   "name_localized": {
+    "zh-CN": "计算科学与工程理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester (Group 2, all other foreign students, from Autumn Semester 2025); CHF 730 per semester for Group 1; plus CHF 74 compulsory semester fees per semester. Application fee CHF 150 for applicants without a Swiss matriculation.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null,
+    "application_fee": {
+     "amount": 150,
+     "currency": "CHF"
+    }
+   },
+   "application_status": "unknown",
+   "application_deadline": "31 March 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "eth-cse-bsc-2027-academic",
+     "category": "academic",
+     "description": "Admission depends on the school-leaving certificate under ETH's country-specific admission rules; the official programme page states no per-programme grade threshold and no Gaokao threshold.",
+     "threshold": null,
+     "source_ids": [
+      "eth-bsc-cse"
+     ]
+    },
+    {
+     "id": "eth-cse-bsc-2027-language",
+     "category": "language",
+     "description": "The main teaching language of the Bachelor's programme is German. Applicants without an exemption must submit a German language certificate at minimum level C1 (CEFR) by 31 March.",
+     "threshold": {
+      "cefr_level": "C1",
+      "language": "German"
+     },
+     "source_ids": [
+      "eth-language"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "eth-bsc-cse",
+     "url": "https://ethz.ch/en/studies/bachelor/bachelors-degree-programmes/natural-sciences-and-mathematics/computational-science-and-engineering.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "eth-tuition",
+     "url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "eth-language",
+     "url": "https://ethz.ch/en/studies/bachelor/application/bachelor-human-medicine/application-admission/language-requirements.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "eth-eapply",
+     "url": "https://www.lehrbetrieb.ethz.ch/eApply/ealogin.view?lang=en",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    }
+   ],
+   "matchable": true,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Zurich",
+   "duration": "3 years (180 credits)",
+   "duration_months": 36,
+   "start": "Autumn 2027"
+  },
+  {
+   "id": "epfl-cs-bsc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Computer Science",
+   "name_localized": {
+    "zh-CN": "计算机科学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top. Application fee CHF 150 for holders of a foreign certificate or diploma.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null,
+    "application_fee": {
+     "amount": 150,
+     "currency": "CHF"
+    }
+   },
+   "application_status": "unknown",
+   "application_deadline": "30 April 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-cs-bsc-2027-academic",
+     "category": "academic",
+     "description": "Holders of an upper secondary school certificate from a country outside the EU, EFTA and UK are admitted to the Cours de mathematiques speciales (foundation year) where the certificate meets EPFL's subject and grade conditions (final grades in mathematics and physics and general average at least 80% of the maximum grade), or may register for the entrance exam. No Gaokao-specific threshold is stated on the pages checked.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-admission"
+     ]
+    },
+    {
+     "id": "epfl-cs-bsc-2027-language",
+     "category": "language",
+     "description": "EPFL considers level B2 in French (CEFR) required to follow its Bachelor's programmes; level C1 is highly recommended. Foreign applicants who have not studied French as part of their upper secondary education must attest their level upon application.",
+     "threshold": {
+      "cefr_level": "B2",
+      "language": "French"
+     },
+     "source_ids": [
+      "epfl-admission"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-bsc-cs",
+     "url": "https://www.epfl.ch/education/bachelor/programs/computer-science/",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "epfl-admission",
+     "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "epfl-apply",
+     "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/how-to-apply/",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    }
+   ],
+   "matchable": true,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "3 years",
+   "duration_months": 36,
+   "start": "September 2027"
+  },
+  {
+   "id": "epfl-ai-bsc-2027",
+   "institution_id": "ecole-polytechnique-federale-de-lausanne",
+   "institution": "École Polytechnique Fédérale de Lausanne",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science in Artificial Intelligence",
+   "name_localized": {
+    "zh-CN": "人工智能理学学士"
+   },
+   "field": "artificial-intelligence",
+   "field_zh": "人工智能",
+   "subject": "artificial-intelligence",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 2,190 per semester, i.e. CHF 4,380 per year, for foreign students who move to Switzerland to study (from Autumn Semester 2025); students schooled in Switzerland pay CHF 730 per semester; semester charges of about CHF 50 apply on top. Application fee CHF 150 for holders of a foreign certificate or diploma.",
+    "amount": 4380,
+    "residency": "international",
+    "academic_year": null,
+    "application_fee": {
+     "amount": 150,
+     "currency": "CHF"
+    }
+   },
+   "application_status": "unknown",
+   "application_deadline": "30 April 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "epfl-ai-bsc-2027-academic",
+     "category": "academic",
+     "description": "Holders of an upper secondary school certificate from a country outside the EU, EFTA and UK are admitted to the Cours de mathematiques speciales (foundation year) where the certificate meets EPFL's subject and grade conditions (final grades in mathematics and physics and general average at least 80% of the maximum grade), or may register for the entrance exam. No Gaokao-specific threshold is stated on the pages checked.",
+     "threshold": null,
+     "source_ids": [
+      "epfl-admission"
+     ]
+    },
+    {
+     "id": "epfl-ai-bsc-2027-language",
+     "category": "language",
+     "description": "EPFL considers level B2 in French (CEFR) required to follow its Bachelor's programmes; level C1 is highly recommended. Foreign applicants who have not studied French as part of their upper secondary education must attest their level upon application.",
+     "threshold": {
+      "cefr_level": "B2",
+      "language": "French"
+     },
+     "source_ids": [
+      "epfl-admission"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "epfl-bsc-ai",
+     "url": "https://www.epfl.ch/schools/ic/education/bachelor/artificial-intelligence/",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "epfl-tuition",
+     "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "epfl-admission",
+     "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "epfl-apply",
+     "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/how-to-apply/",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    }
+   ],
+   "matchable": true,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Lausanne",
+   "duration": "3 years (180 ECTS)",
+   "duration_months": 36,
+   "start": "September 2027"
+  },
+  {
+   "id": "zurich-informatics-bsc-2027",
+   "institution_id": "university-of-zurich",
+   "institution": "University of Zurich",
+   "country": "CH",
+   "degree_level": "undergraduate",
+   "official_name": "Bachelor of Science UZH in Informatics",
+   "name_localized": {
+    "zh-CN": "信息学理学学士"
+   },
+   "field": "computer-science",
+   "field_zh": "计算机科学",
+   "subject": "computer-science",
+   "fees": {
+    "currency": "CHF",
+    "period": "per_year",
+    "notes": "Tuition CHF 720 per semester plus CHF 500 per semester surcharge for foreign students at Bachelor level, i.e. CHF 2,440 per year; plus CHF 59 per semester mandatory contributions. Application fee CHF 150 for applicants with foreign qualifications.",
+    "amount": 2440,
+    "residency": "international",
+    "academic_year": null,
+    "application_fee": {
+     "amount": 150,
+     "currency": "CHF"
+    }
+   },
+   "application_status": "unknown",
+   "application_deadline": "30 April 2027",
+   "application_status_as_of": null,
+   "application_status_source": null,
+   "requirements": [
+    {
+     "id": "zurich-informatics-bsc-2027-academic",
+     "category": "academic",
+     "description": "Admission to the Bachelor's degree programme is granted via UZH Student Services under the Ordinance on Admission to Studies at the University of Zurich. No specific grade threshold for foreign qualifications is stated on the official pages checked.",
+     "threshold": null,
+     "source_ids": [
+      "uzh-bsc-informatics"
+     ]
+    },
+    {
+     "id": "zurich-informatics-bsc-2027-language",
+     "category": "language",
+     "description": "A German certificate (C1 level) is required for the Bachelor's program in Informatics.",
+     "threshold": {
+      "cefr_level": "C1",
+      "language": "German"
+     },
+     "source_ids": [
+      "uzh-bsc-informatics"
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "id": "uzh-bsc-informatics",
+     "url": "http://www.ifi.uzh.ch/en/studies/bsc.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "uzh-fees",
+     "url": "https://www.uzh.ch/en/studies/application/fees.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "uzh-deadlines",
+     "url": "https://www.uzh.ch/en/studies/application/deadlines.html",
+     "retrieved_at": "2026-11-26T10:23:00Z"
+    }
+   ],
+   "matchable": true,
+   "catalogue": "expansion",
+   "synthetic": false,
+   "intake_year": 2027,
+   "study_mode": "full-time",
+   "city": "Zurich",
+   "duration": "3 years (180 ECTS)",
+   "duration_months": 36,
+   "start": "September 2027"
   }
  ],
  "sources": [
@@ -57409,6 +57824,72 @@
    "id": "sheffield-programme-specifications",
    "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
    "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "eth-bsc-cs",
+   "url": "https://ethz.ch/en/studies/bachelor/bachelors-degree-programmes/engineering-sciences/computer-science.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor Computer Science (ETH Zurich)"
+  },
+  {
+   "id": "eth-bsc-cse",
+   "url": "https://ethz.ch/en/studies/bachelor/bachelors-degree-programmes/natural-sciences-and-mathematics/computational-science-and-engineering.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor Computational Science and Engineering (ETH Zurich)"
+  },
+  {
+   "id": "eth-language",
+   "url": "https://ethz.ch/en/studies/bachelor/application/bachelor-human-medicine/application-admission/language-requirements.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Language requirements | ETH Zurich"
+  },
+  {
+   "id": "eth-eapply",
+   "url": "https://www.lehrbetrieb.ethz.ch/eApply/ealogin.view?lang=en",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "ETH Zurich - eApply (application periods)"
+  },
+  {
+   "id": "epfl-bsc-cs",
+   "url": "https://www.epfl.ch/education/bachelor/programs/computer-science/",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Computer Science - Bachelor (EPFL)"
+  },
+  {
+   "id": "epfl-bsc-ai",
+   "url": "https://www.epfl.ch/schools/ic/education/bachelor/artificial-intelligence/",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor in Artificial Intelligence (EPFL)"
+  },
+  {
+   "id": "epfl-admission",
+   "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor/CMS admission criteria & application (EPFL)"
+  },
+  {
+   "id": "epfl-apply",
+   "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/how-to-apply/",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "How to apply? (EPFL Bachelor admission)"
+  },
+  {
+   "id": "uzh-bsc-informatics",
+   "url": "http://www.ifi.uzh.ch/en/studies/bsc.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor's studies in Informatics (UZH)"
+  },
+  {
+   "id": "uzh-fees",
+   "url": "https://www.uzh.ch/en/studies/application/fees.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Fees and Contributions (UZH)"
+  },
+  {
+   "id": "uzh-deadlines",
+   "url": "https://www.uzh.ch/en/studies/application/deadlines.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Application Deadlines (UZH)"
   }
  ],
  "traceability": [
@@ -68292,6 +68773,96 @@
    "value": "fee not stated on the page consulted — unknown",
    "source_url": "https://www.nottingham.ac.uk/studywithus/ugstudy/articles/explore-more-articles/art/Ways_to_study_arts_humanities/Ways_to_study_politics.html",
    "retrieved_at": "2026-11-25"
+  },
+  {
+   "fact_id": "round8-swiss-f1210",
+   "scope": "program",
+   "scope_id": "eth-cs-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1211",
+   "scope": "program",
+   "scope_id": "eth-cs-bsc-2027",
+   "field": "application_deadline",
+   "value": "31 March 2027",
+   "source_url": "https://www.lehrbetrieb.ethz.ch/eApply/ealogin.view?lang=en",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1212",
+   "scope": "program",
+   "scope_id": "eth-cse-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://ethz.ch/students/en/studies/financial/studiengebuehren.html",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1213",
+   "scope": "program",
+   "scope_id": "eth-cse-bsc-2027",
+   "field": "application_deadline",
+   "value": "31 March 2027",
+   "source_url": "https://www.lehrbetrieb.ethz.ch/eApply/ealogin.view?lang=en",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1214",
+   "scope": "program",
+   "scope_id": "epfl-cs-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1215",
+   "scope": "program",
+   "scope_id": "epfl-cs-bsc-2027",
+   "field": "application_deadline",
+   "value": "30 April 2027",
+   "source_url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/how-to-apply/",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1216",
+   "scope": "program",
+   "scope_id": "epfl-ai-bsc-2027",
+   "field": "fees",
+   "value": "4380 CHF per_year",
+   "source_url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1217",
+   "scope": "program",
+   "scope_id": "epfl-ai-bsc-2027",
+   "field": "application_deadline",
+   "value": "30 April 2027",
+   "source_url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/how-to-apply/",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1218",
+   "scope": "program",
+   "scope_id": "zurich-informatics-bsc-2027",
+   "field": "fees",
+   "value": "2440 CHF per_year",
+   "source_url": "https://www.uzh.ch/en/studies/application/fees.html",
+   "retrieved_at": "2026-11-26"
+  },
+  {
+   "fact_id": "round8-swiss-f1219",
+   "scope": "program",
+   "scope_id": "zurich-informatics-bsc-2027",
+   "field": "application_deadline",
+   "value": "30 April 2027",
+   "source_url": "https://www.uzh.ch/en/studies/application/deadlines.html",
+   "retrieved_at": "2026-11-26"
   }
  ]
 }

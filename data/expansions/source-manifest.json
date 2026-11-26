@@ -2994,6 +2994,72 @@
    "id": "sheffield-programme-specifications",
    "url": "https://sheffield.ac.uk/calendar/progspec/ugcourses",
    "retrieved_at": "2026-11-25T00:00:00Z"
+  },
+  {
+   "id": "eth-bsc-cs",
+   "url": "https://ethz.ch/en/studies/bachelor/bachelors-degree-programmes/engineering-sciences/computer-science.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor Computer Science (ETH Zurich)"
+  },
+  {
+   "id": "eth-bsc-cse",
+   "url": "https://ethz.ch/en/studies/bachelor/bachelors-degree-programmes/natural-sciences-and-mathematics/computational-science-and-engineering.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor Computational Science and Engineering (ETH Zurich)"
+  },
+  {
+   "id": "eth-language",
+   "url": "https://ethz.ch/en/studies/bachelor/application/bachelor-human-medicine/application-admission/language-requirements.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Language requirements | ETH Zurich"
+  },
+  {
+   "id": "eth-eapply",
+   "url": "https://www.lehrbetrieb.ethz.ch/eApply/ealogin.view?lang=en",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "ETH Zurich - eApply (application periods)"
+  },
+  {
+   "id": "epfl-bsc-cs",
+   "url": "https://www.epfl.ch/education/bachelor/programs/computer-science/",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Computer Science - Bachelor (EPFL)"
+  },
+  {
+   "id": "epfl-bsc-ai",
+   "url": "https://www.epfl.ch/schools/ic/education/bachelor/artificial-intelligence/",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor in Artificial Intelligence (EPFL)"
+  },
+  {
+   "id": "epfl-admission",
+   "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor/CMS admission criteria & application (EPFL)"
+  },
+  {
+   "id": "epfl-apply",
+   "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/how-to-apply/",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "How to apply? (EPFL Bachelor admission)"
+  },
+  {
+   "id": "uzh-bsc-informatics",
+   "url": "http://www.ifi.uzh.ch/en/studies/bsc.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Bachelor's studies in Informatics (UZH)"
+  },
+  {
+   "id": "uzh-fees",
+   "url": "https://www.uzh.ch/en/studies/application/fees.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Fees and Contributions (UZH)"
+  },
+  {
+   "id": "uzh-deadlines",
+   "url": "https://www.uzh.ch/en/studies/application/deadlines.html",
+   "retrieved_at": "2026-11-26T10:23:00Z",
+   "title": "Application Deadlines (UZH)"
   }
  ]
 }

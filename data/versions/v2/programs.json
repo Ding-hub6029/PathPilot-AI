@@ -2,21 +2,21 @@
  "data_version": "v2",
  "programs": [
   {
-   "application_deadline": "14 Jan 2026",
+   "application_deadline": "13 January 2027",
    "city": "London Bloomsbury",
    "country": "GB",
    "degree_level": "undergraduate",
    "duration": "3 academic years",
    "fees": {
     "currency": "GBP",
-    "notes": "Fees for 2026/27. Overseas GBP 46,700 per year; UK GBP 9,790 per year.",
-    "overseas_per_year_gbp": 46700,
+    "notes": "Fees for 2027/28. Overseas GBP 48,600 per year; UK GBP 10,050 per year.",
+    "overseas_per_year_gbp": 48600,
     "period": "per_year",
-    "uk_per_year_gbp": 9790
+    "uk_per_year_gbp": 10050
    },
    "id": "ucl-cs-bsc-2026",
    "institution": "University College London",
-   "intake_year": 2026,
+   "intake_year": 2027,
    "official_name": "Computer Science BSc",
    "name_localized": {
     "zh-CN": "计算机科学理学学士",
@@ -68,7 +68,7 @@
     },
     {
      "category": "test",
-     "description": "TARA required for the 2026 cycle. No score threshold stated on the page.",
+     "description": "TARA required for the 2027/28 admission. No score threshold stated on the page.",
      "id": "ucl-test-tara",
      "source_ids": [
       "ucl-bsc"
@@ -79,13 +79,13 @@
    "sources": [
     {
      "bytes": null,
-     "fetch_note": "Direct curl of this page failed (exit 18) on 2026-11-23; facts were retrieved via browser crawl at 18:39-18:40 UTC and are recorded in QUALITY_REPORT.md. No hash available for this page.",
-     "fetch_status": "failed",
+     "fetch_note": "Fetched via browser crawl 2026-11-26 10:22 UTC. No hash available for this page.",
+     "fetch_status": "ok",
      "id": "ucl-bsc",
-     "retrieved_at": "2026-11-23T18:39:00Z",
+     "retrieved_at": "2026-11-26T10:23:00Z",
      "sha256": null,
      "title": "Computer Science BSc",
-     "url": "https://www.ucl.ac.uk/prospective-students/undergraduate/degrees/computer-science-bsc-2026"
+     "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-bsc"
     },
     {
      "bytes": 5725,
@@ -97,7 +97,7 @@
      "url": "https://www.ucl.ac.uk/prospective-students/study-abroad-at-ucl/how-apply/english-language-requirements/"
     }
    ],
-   "start": "September 2026",
+   "start": "September 2027",
    "study_mode": "full-time",
    "subject": "computer science",
    "synthetic": false,

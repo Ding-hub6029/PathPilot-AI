@@ -50,10 +50,15 @@ job — do not touch `frontend/`.
    central tuition, deadlines, SAT/ACT policy and English requirements on
    each programme with the central admissions page cited. Never invent a
    per-major threshold.
-8. **`matchable` is always `false` in the expansion file.** A programme
-   becomes matchable only after engine rules + per-programme tests exist
-   for it. The backend serves expansion programmes as *listed* data only;
-   `/match` still uses the 8 v2 programmes.
+8. **`matchable` in the expansion file follows the round-6 promotion rule.**
+   `tools/promote_expansion.py` sets `matchable=true` for every programme
+   with at least one evaluable rule (see
+   `domain/expansion_eval.evaluable_rules`) whose `degree_level` is
+   `undergraduate` / `taught_masters`, and `matchable=false` for all
+   others (foundation / joint_honours stay display-only — the wizard has
+   no track for them). The backend serves matchable expansion programmes
+   through `/match` with the generic evaluator; the rest are listed data
+   only.
 9. **Application status** (`open`/`closed`) only from an official
    admissions/deadline page that states it for the current cycle, with
    `application_status_source` + `application_status_as_of`. Otherwise
@@ -88,10 +93,10 @@ cd ~/workspace/pathpilot-ai
 .venv/bin/python tools/validate_expansion.py data/expansions/expansion.json
 ```
 
-The validator is stdlib-only. It checks: file shape, institution ids
+The validator checks: file shape, institution ids
 exist in v2 rankings, programme ids are unique and do not collide with
 v2, every referenced source exists, no U.S. News strings, no
-`synthetic: true`, `matchable` is false everywhere, required fields,
+`synthetic: true`, `matchable` flags follow the promotion rule, required fields,
 `name_localized.zh-CN` present, application-status sourcing, sane stat
 ranges, and traceability rows for every sourced fact. A band file that
 fails validation is not merged.
