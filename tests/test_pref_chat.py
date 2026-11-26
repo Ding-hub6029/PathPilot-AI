@@ -272,7 +272,7 @@ def test_climate_evidence_ch_cool_is_zurich_lausanne_not_edinburgh():
     ids = [s.id for s in sources]
     assert ids == ["climate:zurich", "climate:lausanne"], ids
     assert all("four-season" in s.excerpt for s in sources)
-    assert "11" in sources[0].excerpt and "9" in sources[1].excerpt
+    assert "14" in sources[0].excerpt and "11" in sources[1].excerpt
     assert not any("edinburgh" in i for i in ids)
     assert top_programme is None, "no cool-class city in CH, so no pick"
 
@@ -372,7 +372,7 @@ def test_pref_chat_fallback_with_sources_states_cities(monkeypatch):
     assert r["extracted"] == {}
     joined = "\n".join(r["lines"])
     assert "Zurich" in joined and "Lausanne" in joined
-    assert "四季" in joined and "11" in joined and "9" in joined
+    assert "四季" in joined and "14" in joined and "11" in joined
     assert "查不到" not in joined
     assert r["next_question"] == "environment"
     assert r["lines"][-1] == _question_line("environment", "zh-CN")

@@ -90,7 +90,7 @@ _MANIFEST_FACTS: dict | None = None
 
 def _manifest_facts() -> dict[tuple[str, str], list[str]]:
     """(program_id, source_id) -> manifest fact texts, e.g. the fee line
-    "Overseas fees 2026/27: GBP 46,700 per year".
+    "Overseas fees 2027/28: GBP 48,600 per year".
 
     Programme sources on their own carry only a page-title excerpt, so
     without these the model could never state a fee or deadline — and

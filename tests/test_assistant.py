@@ -50,12 +50,12 @@ def test_suggest_all_combos_have_programme_and_evidence():
 
 
 def test_suggest_fee_fit_is_honest():
-    # GB UG: overseas fees 46,700 / 47,800 -> mid band (30-50k) fits,
-    # low band (<30k) does not; cheapest within mid is UCL.
-    assert suggest("undergraduate", "GB", "mid")["program_id"] == "ucl-cs-bsc-2026"
+    # GB UG: overseas fees 48,600 / 47,800 -> mid band (30-50k) fits,
+    # low band (<30k) does not; cheapest within mid is Imperial (47,800).
+    assert suggest("undergraduate", "GB", "mid")["program_id"] == "imperial-comp-beng-2027"
     assert suggest("undergraduate", "GB", "mid")["fee_fit"] == "within"
     assert suggest("undergraduate", "GB", "low")["fee_fit"] == "above"
-    assert suggest("undergraduate", "GB", "low")["program_id"] == "ucl-cs-bsc-2026"
+    assert suggest("undergraduate", "GB", "low")["program_id"] == "imperial-comp-beng-2027"
     # GB TM: cheapest is UCL MSc 44,400.
     assert suggest("taught_masters", "GB", "mid")["program_id"] == "ucl-cs-msc-2027"
     assert suggest("taught_masters", "GB", "low")["fee_fit"] == "above"
@@ -107,7 +107,7 @@ def test_suggest_endpoint_validates_enums():
 def test_ask_fee_from_verified_data():
     r = ask("UCL本科的学费是多少", "zh-CN")
     assert r["program_id"] == "ucl-cs-bsc-2026"
-    assert "46,700" in r["lines"][0]
+    assert "48,600" in r["lines"][0]
     assert r["evidence_url"].startswith("https://www.ucl.ac.uk/")
     r = ask("What is the Imperial MSc Computing tuition fee?", "en")
     assert r["program_id"] == "imperial-msc-computing-2027"
@@ -134,7 +134,7 @@ def test_ask_ielts_unknown_stays_unknown():
 
 def test_ask_deadline_verified_and_unknown():
     r = ask("UCL本科申请截止", "zh-CN")
-    assert "14 Jan 2026" in r["lines"][0]
+    assert "13 January 2027" in r["lines"][0]
     r = ask("NUS硕士申请截止", "zh-CN")
     assert r["program_id"] == "nus-mcomp-cs"
     assert "查不到" in r["lines"][0]
@@ -179,7 +179,7 @@ def test_ask_no_programme_no_invented_fact():
     # answered from it — never by borrowing another programme's fee.
     r = ask("牛津大学计算机硕士学费", "zh-CN")
     assert "46,350" in r["lines"][0]
-    assert "46,700" not in r["lines"][0] and "48,300" not in r["lines"][0]
+    assert "48,600" not in r["lines"][0] and "48,300" not in r["lines"][0]
     assert r["program_id"] == "oxford-msc-adv-cs-2027"
     assert r["evidence_url"].startswith("https://www.ox.ac.uk")
 
@@ -205,7 +205,7 @@ def test_personal_data_guard():
     assert contains_personal_data("call me at 138 1234 5678")
     # Ordinary facts must NOT trip the guard: years, fees, dates.
     assert not contains_personal_data("2027年入学")
-    assert not contains_personal_data("UCL学费46,700是多少")
+    assert not contains_personal_data("UCL学费48,600是多少")
     assert not contains_personal_data("2026-11-25 截止吗")
 
 
@@ -324,7 +324,7 @@ def test_suggest_degrades_gracefully_for_country_without_programmes():
         assert len(r["lines"]) <= 3
         assert needle in r["lines"][0], r["lines"]
         # No programme, fee or rank is invented for the country.
-        assert "46,700" not in "\n".join(r["lines"])
+        assert "48,600" not in "\n".join(r["lines"])
     # Same through the endpoint (was 422 before the global fix).
     r = client.post("/api/v1/assistant/suggest",
                     json={"degree_level": "undergraduate", "country": "US",

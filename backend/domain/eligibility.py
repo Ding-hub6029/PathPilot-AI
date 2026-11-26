@@ -414,7 +414,7 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
 
     # --- TARA: required, no threshold stated -> always UNKNOWN ---
     results.append(_r("ucl-tara", "UNKNOWN",
-                      "TARA is required for the 2026 cycle, but no score threshold is stated on the page.",
+                      "TARA is required for the 2027/28 admission, but no score threshold is stated on the page.",
                       ["f-ucl-tara"], observed=ug.tara_taken))
 
     # --- Fee: GBP per year vs the residency fee (Decimal comparison) ---
@@ -423,12 +423,12 @@ def evaluate_ucl(profile: StudentProfile, program: dict) -> list[RuleResult]:
 
 
 def _fee_ucl(budget: Budget | None, residency: str | None = None) -> RuleResult:
-    # UK fee GBP 9,790/yr; overseas GBP 46,700/yr (programs.json fees).
+    # UK fee GBP 10,050/yr; overseas GBP 48,600/yr (programs.json fees).
     # Missing residency assumes overseas — a documented assumption, and the
     # detail says so; the wizard must say so too (DECISIONS #37/#46).
     is_uk = (residency or "").strip().lower() == "uk"
-    fee = Decimal(9790) if is_uk else Decimal(46700)
-    fee_label = "UK GBP 9,790" if is_uk else "overseas GBP 46,700 (residency not supplied, overseas assumed)" if not residency else "overseas GBP 46,700"
+    fee = Decimal(10050) if is_uk else Decimal(48600)
+    fee_label = "UK GBP 10,050" if is_uk else "overseas GBP 48,600 (residency not supplied, overseas assumed)" if not residency else "overseas GBP 48,600"
     if budget is None or budget.amount is None:
         return _r("ucl-fee", "UNKNOWN", f"No budget supplied. Fee is {fee_label} per year.",
                   ["f-ucl-fee-overseas"] if not is_uk else ["f-ucl-fee-uk"])

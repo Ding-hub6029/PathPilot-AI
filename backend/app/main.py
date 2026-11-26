@@ -169,13 +169,27 @@ def _validate_profile(profile: StudentProfile) -> str | None:
     return None
 
 
-def _evaluate(profile: StudentProfile, program: dict, locale: str = "en"):
+def _evaluate(profile: StudentProfile, program: dict, locale: str = "en",
+              explain: bool = True):
     # Day 3 round 6: v2 rules for the 8 v2 programmes, the generic
     # expansion evaluator for promoted expansion programmes.
     if program["id"] in PROGRAMS:
         results = evaluate(profile, program)
     else:
         results = evaluate_expansion(profile, program)
+    if not explain:
+        # Round 8: multi-programme /match needs rule results only. The
+        # frontend never reads a per-programme explanation or ai_status
+        # from /match (MatchResult carries neither), and a model call
+        # per programme costs ~10 s each sequentially — 360 programmes
+        # is ~an hour — while the synchronous provider calls block the
+        # single uvicorn event loop for the whole request, so /health
+        # and every other endpoint stop answering. Explanations are
+        # generated on demand by /explain and single-programme /match.
+        # ai_status stays "unavailable": no validated model output was
+        # used for this evaluation.
+        return Evaluation(program_id=program["id"], data_version=DATA_VERSION,
+                          overall_status=overall_status(results), results=results)
     provider = ProviderAdapter()
     ev = Evaluation(program_id=program["id"], data_version=DATA_VERSION,
                     overall_status=overall_status(results), results=results,
@@ -713,7 +727,7 @@ def _profile_warnings(profile: StudentProfile) -> list[str]:
         if curriculum == "usa" and not ug.ap_grades:
             warnings.append("No AP grades supplied; the academic rule will be UNKNOWN.")
         if ug.residency is None:
-            warnings.append("Residency not supplied; the UCL fee rule assumes the overseas fee (£46,700/yr).")
+            warnings.append("Residency not supplied; the UCL fee rule assumes the overseas fee (£48,600/yr).")
         if ug.intake_year is None and profile.target_intake is None:
             warnings.append("Intake year not supplied.")
         if not ug.graduation_status:
@@ -790,13 +804,11 @@ async def match(request: Request):
                 results.append({"programId": pid, "eligibilitySummary": "TRACK_MISMATCH",
                                 "ruleResults": [], "trackMismatch": True})
                 continue
-            ev = _evaluate(profile, program)
+            ev = _evaluate(profile, program, explain=False)
             results.append({"programId": pid,
                             "eligibilitySummary": summary_for(ev.overall_status),
                             "ruleResults": [rule_to_frontend(r) for r in ev.results],
-                            "trackMismatch": False,
-                            "ai_status": ev.ai_status,
-                            "explanation": ev.explanation})
+                            "trackMismatch": False})
         _attach_preference_fit(results, raw_profile)
         return match_response(f"eval-{rid[:8]}", results)
     try:

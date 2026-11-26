@@ -63,7 +63,7 @@ UG_UCL = {
         "residency": "overseas"},
     "language": {"exam": "ielts", "overall": 6.5, "listening": 6.5,
                  "reading": 6.5, "writing": 5.5, "speaking": 6.0},
-    "budget": {"amount": 46700, "currency": "GBP", "period": "per_year"},
+    "budget": {"amount": 48600, "currency": "GBP", "period": "per_year"},
     "target_intake": 2026,
 }
 
@@ -174,7 +174,7 @@ def test_gap_classification_hard_to_confirm_competitiveness():
 
 def test_ug_plan_ucl_no_key():
     plan = _create(_app(), UG_UCL, ["ucl-cs-bsc-2026"],
-                   budget={"amount": 46700, "currency": "GBP"})
+                   budget={"amount": 48600, "currency": "GBP"})
     assert plan["track"] == "undergraduate"
     assert plan["ai_status"] == "unavailable"
     assert plan["versions"] == [1]
@@ -235,7 +235,7 @@ def test_flat_wizard_profile_accepted():
             "gcseEnglish": "C", "gcseMaths": "4", "residency": "overseas",
             "ieltsOverall": 6.5, "ieltsListening": 6.5, "ieltsReading": 6.5,
             "ieltsWriting": 5.5, "ieltsSpeaking": 6.0,
-            "budget": 46700, "budgetCurrency": "GBP"}
+            "budget": 48600, "budgetCurrency": "GBP"}
     plan = _create(client, flat, ["ucl-cs-bsc-2026"])
     assert plan["track"] == "undergraduate"
     assert any(g["gap_id"] == "gap-ucl-cs-bsc-2026-ucl-ielts-components"

@@ -48,17 +48,33 @@ def test_expansion_mirror_matches_source():
 
 def test_cases_mirror_matches_source():
     src = json.loads(CASES_SRC.read_text(encoding="utf-8"))
-    assert len(src["cases"]) == 55
+    # Round 8 dedupe: one card per applicant — 41 cards covering 53 offers
+    # (was 55 one-offer records; 4 applicants were split across cards and
+    # 2 non-stories were removed).
+    assert len(src["cases"]) == 41
+    assert src["meta"]["total_cases"] == 41
+    assert src["meta"]["total_offers"] == 53
+    assert sum(len(c["offers"]) for c in src["cases"]) == 53
     src_ids = {c["id"] for c in src["cases"]}
     assert _ts_ids(CASES_TS) == src_ids
     # Every case keeps its label and a source URL; no case gains a field
-    # the source does not have.
+    # the source does not have. Every card lists at least one offer, every
+    # offer names an institution and a level, and no '同上' filler survives
+    # the merge — each offer carries its own content.
+    raw = CASES_SRC.read_text(encoding="utf-8")
+    assert "同上" not in raw
+    assert "sc-054" not in src_ids and "sc-055" not in src_ids
     for c in src["cases"]:
         assert c["label"] == "网友分享，未经官方核实", c["id"]
         assert c["source_url"], c["id"]
+        assert c["offers"], c["id"]
+        if c["platform"] == "The GradCafe":
+            assert c.get("source_ref"), c["id"]  # listing locator, no per-record URL
+        for o in c["offers"]:
+            assert o["institution"] and o["level"], (c["id"], o)
     text = CASES_TS.read_text(encoding="utf-8")
     assert "FEATURED_CASE_IDS" in text
-    for fid in ["sc-001", "sc-026", "sc-051", "sc-033", "sc-012", "sc-054"]:
+    for fid in ["sc-001", "sc-026", "sc-051", "sc-033", "sc-012", "sc-039"]:
         assert fid in src_ids
 
 

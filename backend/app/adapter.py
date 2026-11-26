@@ -42,8 +42,8 @@ EXPECTED: dict[str, str] = {
     "ucl-toefl": "TOEFL iBT Level 1: 92 (tests before 21 Jan 2026) or 4.5 on the new scale (tests from 21 Jan 2026)",
     "ucl-gcse": "GCSE English and Maths at grade C/4 or above",
     "ucl-academic": "A*A*A with A* in Maths/Further Maths, or IB 40 with 20 HL points incl. HL Maths grade 7",
-    "ucl-tara": "TARA required for the 2026 cycle (no score threshold stated)",
-    "ucl-fee": "GBP 46,700 per year (overseas, 2026/27)",
+    "ucl-tara": "TARA required for the 2027/28 admission (no score threshold stated)",
+    "ucl-fee": "GBP 48,600 per year (overseas, 2027/28)",
     "nus-language": "IELTS min 6.0 overall (no component minimum stated) or TOEFL iBT min 90",
     "nus-toefl": "TOEFL iBT minimum 90 (supplementary; IELTS also supplied)",
     "nus-language-components": "No IELTS component minimum stated",
@@ -516,12 +516,76 @@ def _derive_reason_key(rule_id: str, status: str, detail: str) -> str | None:
     return "missing-info"
 
 
+def _grade_letter(rank: int) -> str:
+    return {5: "A*", 4: "A", 3: "B", 2: "C", 1: "D", 0: "E"}.get(rank, "?")
+
+
+def _exp_expected(rule_id: str, threshold: dict | None) -> str:
+    """English `expected` for a generic expansion rule, showing the
+    actual numeric threshold it was judged against.
+
+    Round 8: the generic "... as stated on the official programme
+    page" label made a genuine NOT_MET read as a placeholder verdict —
+    e.g. IELTS 7.0 against Oxford's real 7.5 minimum showed the
+    placeholder-like label with no number on the card. The generic
+    label is now kept ONLY when the programme genuinely states no
+    numeric threshold (and then the rule is UNKNOWN, never NOT_MET,
+    per the placeholder rule in domain/expansion_eval.py).
+    """
+    if isinstance(threshold, dict):
+        if rule_id == "exp-fee":
+            amount = threshold.get("amount")
+            if isinstance(amount, (int, float)) and not isinstance(amount, bool):
+                currency = str(threshold.get("currency") or "").strip()
+                period = str(threshold.get("period") or "").strip()
+                return " ".join(p for p in
+                                ("Tuition fee", currency, f"{amount:g}", period)
+                                if p)
+        if rule_id == "exp-language":
+            parts: list[str] = []
+            for key, label in (("ielts_overall", "IELTS overall"),
+                               ("toefl_overall", "TOEFL iBT")):
+                value = threshold.get(key)
+                nums = ([value] if isinstance(value, (int, float))
+                        else value if isinstance(value, list) else [])
+                nums = [v for v in nums if isinstance(v, (int, float))]
+                if nums:
+                    parts.append(f"{label} {min(nums):g}")
+            if parts:
+                return " or ".join(parts)
+        if rule_id == "exp-language-components":
+            if "__three__" in threshold and "__remaining__" in threshold:
+                three = threshold.get("__three__")
+                remaining = threshold.get("__remaining__")
+                if isinstance(three, (int, float)) and isinstance(remaining, (int, float)):
+                    return (f"IELTS {three:g} in at least three components, "
+                            f"{remaining:g} in the remaining component")
+            vals = [v for v in threshold.values()
+                    if isinstance(v, (int, float)) and not isinstance(v, bool)]
+            if vals and len(set(vals)) == 1:
+                return f"IELTS minimum {vals[0]:g} in each component"
+            if vals:
+                comps = ", ".join(
+                    f"{k} {v:g}" for k, v in threshold.items()
+                    if isinstance(v, (int, float)) and not isinstance(v, bool))
+                return f"IELTS component minimums: {comps}"
+        if rule_id == "exp-academic":
+            ranks = threshold.get("a_level")
+            if (isinstance(ranks, list) and ranks
+                    and all(isinstance(x, int) and not isinstance(x, bool)
+                            for x in ranks)):
+                return "A-level " + "".join(_grade_letter(x) for x in ranks)
+    return EXPECTED[rule_id]
+
+
 def rule_to_frontend(r: RuleResult) -> dict:
     return {
         "ruleId": r.rule_id,
         "status": r.status,
         "observed": _fmt_observed(r),
-        "expected": EXPECTED.get(r.rule_id, r.detail),
+        "expected": (_exp_expected(r.rule_id, r.threshold)
+                     if r.rule_id.startswith("exp-")
+                     else EXPECTED.get(r.rule_id, r.detail)),
         # Manifest fact ids map to frontend source ids; expansion
         # requirement source ids (round 6) pass through unchanged —
         # the frontend resolves them against the programme's own

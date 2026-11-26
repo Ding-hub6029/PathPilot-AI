@@ -65,7 +65,7 @@ def _grounded_handler(captured: dict):
             captured["envelope"] = envelope
         catalog = envelope.get("evidence_catalog", [])
         locale = envelope.get("locale", "en")
-        fee = next((c for c in catalog if "46,700" in c.get("excerpt", "")), None)
+        fee = next((c for c in catalog if "48,600" in c.get("excerpt", "")), None)
         if not catalog:
             if locale == "zh-CN":
                 payload = {
@@ -85,10 +85,10 @@ def _grounded_handler(captured: dict):
                     "actions": [], "limitations": ["No verified Oxford programme data."]}
         elif fee:
             if locale == "zh-CN":
-                text = "UCL 计算机科学本科的海外学费为每年 GBP 46,700。"
+                text = "UCL 计算机科学本科的海外学费为每年 GBP 48,600。"
                 action = "开始资格检查，确认成绩和语言是否达标。"
             else:
-                text = "UCL Computer Science BSc overseas tuition is GBP 46,700 per year."
+                text = "UCL Computer Science BSc overseas tuition is GBP 48,600 per year."
                 action = "Start the eligibility check to confirm grades and language."
             payload = {
                 "summary": text,
@@ -142,7 +142,7 @@ def test_chat_no_key_fallback_is_template(monkeypatch):
                provider=provider)
     assert r["ai_status"] == "unavailable"
     assert r["model"] is None
-    assert "46,700" in r["lines"][0]
+    assert "48,600" in r["lines"][0]
     assert r["evidence_url"].startswith("https://www.ucl.ac.uk/")
     assert r["sources"], "retrieved sources are still reported"
     assert len(r["lines"]) <= 3
@@ -152,7 +152,7 @@ def test_chat_no_key_fallback_zh(monkeypatch):
     r = answer("UCL本科的学费是多少", "zh-CN",
                provider=_no_key_provider(monkeypatch))
     assert r["ai_status"] == "unavailable" and r["model"] is None
-    assert "46,700" in r["lines"][0]
+    assert "48,600" in r["lines"][0]
 
 
 # ---------------------------------------------------------------------------
@@ -166,18 +166,18 @@ def test_chat_mock_grounded_en(monkeypatch):
                provider=provider)
     assert r["ai_status"] == "available"
     assert r["model"] == "openai/test-model"
-    assert "46,700" in "\n".join(r["lines"])
+    assert "48,600" in "\n".join(r["lines"])
     # Evidence URL resolved server-side to a real official UCL page.
     assert r["evidence_url"] == (
-        "https://www.ucl.ac.uk/prospective-students/undergraduate/degrees/"
-        "computer-science-bsc-2026")
+        "https://www.ucl.ac.uk/study/prospective-students/undergraduate/"
+        "courses/computer-science-bsc")
     assert any(s["id"] == "src:ucl-cs-bsc-2026:ucl-bsc" for s in r["sources"])
     assert len(r["lines"]) <= 3
     assert "http" not in "\n".join(r["lines"]), "no raw URL in answer text"
     # The envelope carried the retrieved evidence only.
     assert captured["envelope"]["task"] == "chat"
     assert captured["envelope"]["prompt_version"] == "ai-prompts-v1"
-    assert all("46,700" in c["excerpt"] or True
+    assert all("48,600" in c["excerpt"] or True
                for c in captured["envelope"]["evidence_catalog"])
 
 
@@ -186,7 +186,7 @@ def test_chat_mock_grounded_zh(monkeypatch):
     provider = _mock_provider(monkeypatch, _grounded_handler(captured))
     r = answer("UCL本科的学费是多少", "zh-CN", provider=provider)
     assert r["ai_status"] == "available"
-    assert "46,700" in "\n".join(r["lines"])
+    assert "48,600" in "\n".join(r["lines"])
     assert "学费" in "\n".join(r["lines"])
     assert r["evidence_url"].startswith("https://www.ucl.ac.uk/")
     assert len(r["lines"]) <= 3
@@ -247,7 +247,7 @@ def test_chat_garbage_model_output_falls_back(monkeypatch):
                provider=provider)
     assert r["ai_status"] == "unavailable"
     assert r["model"] is None
-    assert "46,700" in r["lines"][0], "template still answers from verified data"
+    assert "48,600" in r["lines"][0], "template still answers from verified data"
 
 
 # ---------------------------------------------------------------------------
@@ -258,13 +258,13 @@ def test_chat_oxford_fees_answered_from_verified_programme(monkeypatch):
     # Round 6: Oxford now has a verified promoted programme
     # (oxford-msc-adv-cs-2027, GBP 46,350/yr), so the grounded chat
     # answers from its evidence — never "don't know", never borrowing
-    # another programme's fee (46,700 UCL / 48,300 NUS).
+    # another programme's fee (48,600 UCL / 48,300 NUS).
     captured: dict = {}
     provider = _mock_provider(monkeypatch, _grounded_handler(captured))
     r = answer("What are Oxford's tuition fees?", "en", provider=provider)
     joined = "\n".join(r["lines"])
     assert "don't know" not in joined.lower()
-    assert "46,700" not in joined and "48,300" not in joined
+    assert "48,600" not in joined and "48,300" not in joined
     assert r["evidence_url"] is not None
     assert r["evidence_url"].startswith("https://www.ox.ac.uk")
     assert r["ai_status"] == "available"
@@ -284,7 +284,7 @@ def test_chat_endpoint_no_key(monkeypatch):
     body = r.json()
     assert body["ai_status"] == "unavailable"
     assert body["model"] is None
-    assert "46,700" in body["lines"][0]
+    assert "48,600" in body["lines"][0]
 
 
 def test_chat_endpoint_mock_model(monkeypatch):
@@ -298,7 +298,7 @@ def test_chat_endpoint_mock_model(monkeypatch):
     body = r.json()
     assert body["ai_status"] == "available"
     assert body["model"] == "openai/test-model"
-    assert "46,700" in "\n".join(body["lines"])
+    assert "48,600" in "\n".join(body["lines"])
     assert body["evidence_url"].startswith("https://www.ucl.ac.uk/")
 
 
@@ -423,7 +423,7 @@ def test_evidence_cities_line_states_classes_and_counts():
     line = evidence_cities_line(sources, "zh-CN")
     assert line is not None
     assert "Zurich" in line and "Lausanne" in line
-    assert "四季" in line and "11" in line and "9" in line
+    assert "四季" in line and "14" in line and "11" in line
     line_en = evidence_cities_line(sources, "en")
     assert "four-season" in line_en
     assert evidence_cities_line([], "zh-CN") is None

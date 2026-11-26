@@ -163,11 +163,12 @@ GAOKAO_FACTS: list[dict] = [
         "applies_to": ["imperial-comp-beng-2027"],
     },
     {
-        "id": "gaokao-tmua-ucl-not-required",
+        "id": "gaokao-tara-ucl-required",
         "topic": "extra_exam",
-        "text": "No admissions test is required for UCL Computer Science BSc; none "
-                "is stated on the course page.",
-        "url": "https://www.ucl.ac.uk/prospective-students/undergraduate/degrees/computer-science-bsc-2026",
+        "text": "TARA (Test of Academic Reasoning for Admissions) is required for "
+                "UCL Computer Science BSc for 2027/28 admission, alongside the "
+                "UCAS application. TARA is run by University Admissions Tests UK.",
+        "url": "https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/computer-science-bsc",
         "url_verified": True,
         "applies_to": ["ucl-cs-bsc-2026"],
     },

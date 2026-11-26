@@ -94,7 +94,7 @@ def test_merged_expansion_loads():
     # with at least one evaluable rule (fee / language / academic).
     promoted = [p for p in EXPANSION_PROGRAMS.values()
                 if p["matchable"] is True]
-    assert len(promoted) == 588
+    assert len(promoted) == 593
     assert len(EXPANSION_PROGRAMS) - len(promoted) == 293
     for p in EXPANSION_PROGRAMS.values():
         expect = (p["degree_level"] in ("undergraduate", "taught_masters")
@@ -270,8 +270,8 @@ def test_programs_catalogue_expansion_lists_merged():
     assert [p["id"] for p in items] == [
         p["id"] for p in EXPANSION.get("programs", [])]
     assert all(p["catalogue"] == "expansion" for p in items)
-    # Flags are the stored flags: 588 promoted, 293 display-only.
-    assert sum(1 for p in items if p["matchable"] is True) == 588
+    # Flags are the stored flags: 593 promoted, 293 display-only.
+    assert sum(1 for p in items if p["matchable"] is True) == 593
     assert sum(1 for p in items if p["matchable"] is False) == 293
     assert all(p["matchable"] is EXPANSION_PROGRAMS[p["id"]]["matchable"]
                for p in items)
@@ -287,7 +287,7 @@ def test_programs_catalogue_all_flags_items():
     assert all(p["matchable"] is True for p in v2_items)
     assert all(p["matchable"] is EXPANSION_PROGRAMS[p["id"]]["matchable"]
                for p in exp_items)
-    assert sum(1 for p in exp_items if p["matchable"] is True) == 588
+    assert sum(1 for p in exp_items if p["matchable"] is True) == 593
 
 
 def test_programs_catalogue_bad_value_400():

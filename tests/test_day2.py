@@ -264,15 +264,15 @@ def test_t05_gcse_boundaries():
 
 
 def test_t05_fee_boundaries():
-    # UK fee: exactly 9,790 MET, 9,789 NOT_MET.
-    for amount, expected in ((9790, "MET"), (9789, "NOT_MET")):
+    # UK fee: exactly 10,050 MET, 10,049 NOT_MET.
+    for amount, expected in ((10050, "MET"), (10049, "NOT_MET")):
         profile = StudentProfile(**ucl_profile(
             undergrad_profile={"residency": "uk"},
             budget={"amount": amount, "currency": "GBP", "period": "per_year"}))
         assert status_of(evaluate(profile, BY_ID["ucl-cs-bsc-2026"]),
                          "ucl-fee") == expected, amount
-    # Overseas fee: exactly 46,700 MET, 46,699 NOT_MET.
-    for amount, expected in ((46700, "MET"), (46699, "NOT_MET")):
+    # Overseas fee: exactly 48,600 MET, 48,599 NOT_MET.
+    for amount, expected in ((48600, "MET"), (48599, "NOT_MET")):
         profile = StudentProfile(**ucl_profile(
             budget={"amount": amount, "currency": "GBP", "period": "per_year"}))
         assert status_of(evaluate(profile, BY_ID["ucl-cs-bsc-2026"]),
@@ -315,11 +315,11 @@ def test_gcse_met_not_met_unknown():
 def test_residency_uk_fee():
     profile = StudentProfile(**ucl_profile(
         undergrad_profile={"residency": "uk"},
-        budget={"amount": 10000, "currency": "GBP", "period": "per_year"}))
+        budget={"amount": 10050, "currency": "GBP", "period": "per_year"}))
     result = next(r for r in evaluate(profile, BY_ID["ucl-cs-bsc-2026"])
                   if r.rule_id == "ucl-fee")
     assert result.status == "MET"
-    assert "9,790" in result.detail
+    assert "10,050" in result.detail
 
 
 def test_residency_missing_assumes_overseas():
@@ -377,7 +377,7 @@ def test_adapter_maps_new_wizard_fields_and_keeps_both_exams():
         "ibTotal": None, "ibHlMaths": None, "ibHlTotal": None,
         "gcseEnglish": "B", "gcseMaths": "5", "residency": "uk",
         "intakeYear": 2026, "graduationStatus": "final",
-        "budget": 10000, "budgetCurrency": "GBP",
+        "budget": 11000, "budgetCurrency": "GBP",
     }
     profile = flat_to_student(flat)
     assert profile.language.exam == "ielts"
@@ -397,7 +397,7 @@ def test_adapter_maps_new_wizard_fields_and_keeps_both_exams():
     rules = flat_rules(resp.json(), "ucl-cs-bsc-2026")
     assert rules["ucl-toefl"]["status"] == "MET"
     assert rules["ucl-gcse"]["status"] == "MET"
-    assert rules["ucl-fee"]["status"] == "MET"  # UK fee 9,790, budget 10,000
+    assert rules["ucl-fee"]["status"] == "MET"  # UK fee 10,050, budget 11,000
     assert rules["ucl-toefl"]["expected"].startswith("TOEFL iBT Level 1")
     assert rules["ucl-gcse"]["expected"] == "GCSE English and Maths at grade C/4 or above"
     assert RULES_VERSION == "rules-v2-2026-11-25"
@@ -583,11 +583,11 @@ def test_programs_filter_subject_intake_degree():
         "imperial-msc-computing-2027", "ucl-cs-msc-2027", "nus-bcomp-cs-2027",
         "ntu-bcomp-cs-2027", "ntu-msai-2027"]
     assert client.get("/api/v1/programs", params={"subject": "physics"}).json()["items"] == []
-    assert [p["id"] for p in client.get("/api/v1/programs", params={"intake": "2026"}).json()["items"]] == [
-        "ucl-cs-bsc-2026"]
+    assert [p["id"] for p in client.get("/api/v1/programs", params={"intake": "2026"}).json()["items"]] == []
     assert [p["id"] for p in client.get("/api/v1/programs", params={"intake": "2027"}).json()["items"]] == [
-        "nus-mcomp-cs", "imperial-comp-beng-2027", "imperial-msc-computing-2027",
-        "ucl-cs-msc-2027", "nus-bcomp-cs-2027", "ntu-bcomp-cs-2027", "ntu-msai-2027"]
+        "ucl-cs-bsc-2026", "nus-mcomp-cs", "imperial-comp-beng-2027",
+        "imperial-msc-computing-2027", "ucl-cs-msc-2027", "nus-bcomp-cs-2027",
+        "ntu-bcomp-cs-2027", "ntu-msai-2027"]
     assert [p["id"] for p in client.get("/api/v1/programs", params={"degree_level": "taught_masters"}).json()["items"]] == [
         "nus-mcomp-cs", "imperial-msc-computing-2027", "ucl-cs-msc-2027", "ntu-msai-2027"]
     assert [p["id"] for p in client.get("/api/v1/programs", params={"country": "GB", "degree_level": "taught_masters"}).json()["items"]] == [
@@ -732,23 +732,23 @@ def test_openapi_matches_generated_copy():
 def test_decimal_budget_comparison():
     # Budget.amount is Decimal in-process; JSON output stays a plain number.
     assert isinstance(Budget(amount=50000).amount, Decimal)
-    assert Budget(amount=46699.99).amount == Decimal("46699.99")
-    assert Budget(amount="46700.10").amount == Decimal("46700.10")
-    # Exact-boundary behaviour: 46,699.99 is below 46,700 (no float error).
-    for amount, expected in ((46700, "MET"), (46699.99, "NOT_MET"),
-                             (46700.10, "MET")):
+    assert Budget(amount=48599.99).amount == Decimal("48599.99")
+    assert Budget(amount="48600.10").amount == Decimal("48600.10")
+    # Exact-boundary behaviour: 48,599.99 is below 48,600 (no float error).
+    for amount, expected in ((48600, "MET"), (48599.99, "NOT_MET"),
+                             (48600.10, "MET")):
         profile = StudentProfile(**ucl_profile(
             budget={"amount": amount, "currency": "GBP", "period": "per_year"}))
         assert status_of(evaluate(profile, BY_ID["ucl-cs-bsc-2026"]),
                          "ucl-fee") == expected, amount
     # Through the API the observed fee amount is a JSON number, not a string.
     resp = client.post("/api/v1/match", json={
-        "profile": ucl_profile(budget={"amount": 46700, "currency": "GBP",
+        "profile": ucl_profile(budget={"amount": 48600, "currency": "GBP",
                                        "period": "per_year"}),
         "program_id": "ucl-cs-bsc-2026"})
     assert resp.status_code == 200, resp.text
     fee = next(r for r in resp.json()["results"] if r["rule_id"] == "ucl-fee")
-    assert fee["observed"] == 46700
+    assert fee["observed"] == 48600
     assert isinstance(fee["observed"], (int, float))
 
 

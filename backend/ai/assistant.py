@@ -503,7 +503,7 @@ _PHONE_CANDIDATE_RE = re.compile(r"\+?[\d][\d\s().-]{7,}\d")
 def contains_personal_data(text: str) -> bool:
     """Email address, or a phone-like run of 10+ digits.
 
-    Years (2027), fees (46,700) and dates (2026-11-25) stay below the
+    Years (2027), fees (48,600) and dates (2026-11-25) stay below the
     digit threshold, so ordinary questions are never flagged.
     """
     if _EMAIL_RE.search(text):

@@ -82,7 +82,7 @@ EVALUATION_CASES: list[dict] = [
             "the China page states the minimum equivalent is ABB at A level or "
             "36 IB points (or one year of a Chinese bachelor's degree at 90%).",
             "UCL IELTS Level 1: overall 6.5, no component below 6.0.",
-            "UCL overseas tuition: GBP 46,700 per year.",
+            "UCL overseas tuition: GBP 48,600 per year.",
             "GCSE is a UK-school qualification; a Gaokao-branch applicant has no GCSE requirement.",
         ],
         "allowed_scope": "State only the engine's rule statuses for UCL CS BSc "
@@ -186,14 +186,14 @@ EVALUATION_CASES: list[dict] = [
             },
             "language": {"exam": "ielts", "overall": 7.0, "listening": 7.0,
                          "reading": 7.0, "writing": 7.0, "speaking": 7.0},
-            "budget": {"amount": 46700, "currency": "GBP", "period": "per_year"},
+            "budget": {"amount": 48600, "currency": "GBP", "period": "per_year"},
         },
         "program_ids": ["ucl-cs-bsc-2026"],
         "reference_facts": [
-            "UCL overseas tuition: GBP 46,700 per year — a budget exactly equal "
+            "UCL overseas tuition: GBP 48,600 per year — a budget exactly equal "
             "to the fee meets it.",
         ],
-        "allowed_scope": "State the fee rule as MET at exactly GBP 46,700 per year.",
+        "allowed_scope": "State the fee rule as MET at exactly GBP 48,600 per year.",
         "forbidden_assertions": [
             "That a budget equal to the fee is insufficient.",
             "Any converted or rounded fee figure.",

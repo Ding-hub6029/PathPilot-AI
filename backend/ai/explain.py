@@ -91,9 +91,15 @@ def _model_explain(evaluation: Evaluation, locale: str,
             for s in sources],
     }
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
+    # Timeouts (round 8, same fix round 7 made for pref-chat/chat): live
+    # gateway calls take ~9-12 s each, so the old 12 s / 8 s budgets
+    # were marginal — the 8 s repair budget was shorter than one call,
+    # so any first-attempt validation failure fell back to the template
+    # even though the provider was fine. 30 s first call, 20 s repair;
+    # the provider default cap (60 s) is unchanged.
     try:
         result = provider.chat(messages, system=explain_system(locale),
-                               timeout_s=12.0)
+                               timeout_s=30.0)
     except ProviderError:
         return None
     parsed = _parse_model_json(result.text)
@@ -111,7 +117,7 @@ def _model_explain(evaluation: Evaluation, locale: str,
               f"Previous output:\n{result.text[:4000]}")
     try:
         retry = provider.chat(messages + [{"role": "user", "content": repair}],
-                              system=explain_system(locale), timeout_s=8.0)
+                              system=explain_system(locale), timeout_s=20.0)
     except ProviderError:
         return None
     parsed2 = _parse_model_json(retry.text)

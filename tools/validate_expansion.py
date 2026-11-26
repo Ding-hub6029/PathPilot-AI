@@ -1,6 +1,7 @@
 """Validate an expansion file (band file or merged expansion.json).
 
-Stdlib-only. Run from the project root:
+Run from the project root with the project venv (the promotion check
+imports the evaluator, so plain system python is not enough):
 
     .venv/bin/python tools/validate_expansion.py data/expansions/expansion.json
     .venv/bin/python tools/validate_expansion.py data/expansions/collectors/rank-01-10.json
@@ -11,7 +12,10 @@ Checks (see data/expansions/README.md for the rules):
 - programme ids unique, not colliding with v2 programme ids
 - every referenced source id exists in the file's sources list
 - no U.S. News strings anywhere (case-insensitive)
-- no synthetic=true; matchable is false on every expansion programme
+- no synthetic=true; matchable=true requires a wizard track
+  (undergraduate / taught_masters) and at least one evaluable rule
+  (see domain/expansion_eval.evaluable_rules) — the round-6 promotion
+  rule, mirrored from backend/app/data.py
 - required fields present; name_localized.zh-CN present
 - application_status open/closed carries a source + as-of date
 - stat percentages in 0-100, ratios > 0, founded year sane
@@ -28,6 +32,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 V2_DIR = ROOT / "data" / "versions" / "v2"
+
+sys.path.insert(0, str(ROOT / "backend"))
+
+from domain.expansion_eval import evaluable_rules  # noqa: E402
 
 BANNED = re.compile(r"u\.?\s?s\.?\s?news", re.IGNORECASE)
 ID_RE = re.compile(r"^[a-z0-9-]+$")
@@ -157,8 +165,24 @@ def validate(path: Path) -> list[str]:
             errors.append(f"{where}: collides with a v2 program id — record additional programmes only")
         if prog.get("synthetic") is True:
             errors.append(f"{where}: synthetic=true is forbidden in real data")
-        if prog.get("matchable") is not False:
-            errors.append(f"{where}: matchable must be false in the expansion file")
+        if not isinstance(prog.get("matchable"), bool):
+            errors.append(f"{where}: matchable must be a boolean")
+        elif prog.get("matchable") is True:
+            # Round 6 promotion rule (mirrors backend/app/data.py):
+            # matchable=true requires a wizard track (undergraduate /
+            # taught_masters) and at least one evaluable rule (fee amount
+            # known, structured IELTS/TOEFL threshold, or A-level
+            # threshold). Foundation / joint_honours stay display-only
+            # even with an evaluable rule — the wizard has no track for
+            # them. Use tools/promote_expansion.py to (re)compute flags.
+            if prog.get("degree_level") not in ("undergraduate", "taught_masters"):
+                errors.append(
+                    f"{where}: matchable=true requires degree_level "
+                    f"undergraduate/taught_masters, got {prog.get('degree_level')!r}")
+            elif not any(evaluable_rules(prog).values()):
+                errors.append(
+                    f"{where}: matchable=true requires at least one "
+                    f"evaluable rule (fee / language / academic)")
         if prog.get("catalogue") != "expansion":
             errors.append(f"{where}: catalogue must be 'expansion'")
         if prog.get("institution_id") not in ranking_ids:

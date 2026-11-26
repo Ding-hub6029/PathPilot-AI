@@ -189,11 +189,11 @@ def test_flat_match_gaokao_reason_key_and_observed_raw():
                                    "gaokao_maths": None}
     assert rules["ucl-gcse"]["status"] == "NOT_APPLICABLE"
     # The fee rule still carries plain numbers for the frontend's
-    # localized budget sentence (budget 22 vs fee 46,700).
+    # localized budget sentence (budget 22 vs fee 48,600).
     fee = rules["ucl-fee"]
     assert fee["status"] == "NOT_MET"
     assert fee["observedRaw"] == 22
-    assert fee["thresholdRaw"] == {"gbp_per_year": 46700}
+    assert fee["thresholdRaw"] == {"gbp_per_year": 48600}
     assert fee["reasonKey"] is None  # NOT_MET needs no reason key
 
 

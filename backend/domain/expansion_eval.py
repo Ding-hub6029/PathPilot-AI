@@ -32,6 +32,18 @@ exp-fee / exp-language / exp-language-components / exp-academic.
 Overall status reuses the existing semantics (any NOT_MET -> NOT_MET;
 any UNKNOWN -> PARTIAL_UNKNOWN; else MET) via overall_status().
 
+Placeholder rule (round 8): a requirement with no parseable numeric
+threshold — threshold missing, a string, or a dict of non-numeric
+values, e.g. "IELTS / TOEFL minimum as stated on the official
+programme page" — can NEVER yield NOT_MET. It yields UNKNOWN. The
+sub-evaluators below already only fail a rule against a numeric
+threshold they actually compared, and evaluate_expansion() enforces
+the invariant structurally with _has_numeric_threshold(): any NOT_MET
+without a numeric threshold behind it is downgraded to UNKNOWN, so a
+future sub-evaluator change cannot reintroduce a placeholder failure.
+The frontend offline mirror (frontend/src/lib/api.ts,
+evaluateExpansionLocal) implements the same rule.
+
 Promotion (see app/data.py): a programme is matchable only when it
 has at least one evaluable rule (fee amount known, or a structured
 IELTS/TOEFL language threshold, or an A-level threshold) AND its
@@ -517,7 +529,51 @@ def _academic_rule(profile: StudentProfile, program: dict,
     return _r("exp-academic", "NOT_MET",
               "A-level grades do not meet the stated A-level threshold.",
               evidence, observed={"grades": ug.a_level_grades,
-                                  "maths": ug.a_level_maths_grade})
+                                  "maths": ug.a_level_maths_grade},
+              threshold={"a_level": min(req["minimum"] for req in alevels)})
+
+
+def _has_numeric_threshold(program: dict, rule_id: str) -> bool:
+    """True when the programme states a parseable numeric threshold for
+    this rule. A requirement whose threshold is missing, a string, or a
+    dict of non-numeric values is a placeholder ("... as stated on the
+    official programme page") — it carries no number to fail against,
+    so it must never decide a NOT_MET. Unknown rule ids return True:
+    the guard only ever downgrades the four generic rules.
+    """
+    if rule_id == "exp-fee":
+        amount = (program.get("fees") or {}).get("amount")
+        return isinstance(amount, (int, float)) and not isinstance(amount, bool)
+    if rule_id in ("exp-language", "exp-language-components"):
+        th = _language_thresholds(program)
+        if rule_id == "exp-language":
+            return bool(th["ielts_overalls"] or th["toefl_overalls"])
+        return bool(th["component_sets"])
+    if rule_id == "exp-academic":
+        return bool(_alevel_requirements(program))
+    return True
+
+
+def _placeholder_guard(results: list[RuleResult],
+                       program: dict) -> list[RuleResult]:
+    """Downgrade any NOT_MET with no numeric threshold behind it to
+    UNKNOWN. The sub-evaluators only fail against compared numbers, so
+    this is defence in depth: a placeholder requirement can never be
+    counted as an obstacle, whatever a future evaluator change does.
+    """
+    out: list[RuleResult] = []
+    for r in results:
+        if r.status == "NOT_MET" and not _has_numeric_threshold(program,
+                                                                r.rule_id):
+            out.append(_r(r.rule_id, "UNKNOWN",
+                          "No parseable numeric threshold is stated for "
+                          "this requirement, so it cannot be judged "
+                          f"failed. ({r.detail})",
+                          list(r.evidence_ids), observed=r.observed,
+                          threshold=r.threshold))
+        else:
+            out.append(r)
+    return out
 
 
 def evaluate_expansion(profile: StudentProfile, program: dict) -> list[RuleResult]:
@@ -538,4 +594,4 @@ def evaluate_expansion(profile: StudentProfile, program: dict) -> list[RuleResul
                            for r in program.get("requirements", []))
     if has_academic_req:
         results.append(_academic_rule(profile, program, alevels))
-    return results
+    return _placeholder_guard(results, program)

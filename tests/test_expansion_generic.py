@@ -240,16 +240,16 @@ def test_promotion_counts():
                 if p["matchable"] is True]
     display = [p for p in EXPANSION_PROGRAMS.values()
                if p["matchable"] is not True]
-    assert len(promoted) == 588
+    assert len(promoted) == 593
     assert len(display) == 293
     # By degree level.
     assert sum(1 for p in promoted
-               if p["degree_level"] == "undergraduate") == 360
+               if p["degree_level"] == "undergraduate") == 365
     assert sum(1 for p in promoted
                if p["degree_level"] == "taught_masters") == 228
     # By evaluable rule.
     assert sum(1 for p in EXPANSION_PROGRAMS.values()
-               if evaluable_rules(p)["fee"]) == 553
+               if evaluable_rules(p)["fee"]) == 558
     assert sum(1 for p in EXPANSION_PROGRAMS.values()
                if evaluable_rules(p)["language"]) == 119
     assert sum(1 for p in EXPANSION_PROGRAMS.values()
@@ -416,8 +416,8 @@ def test_programs_catalogue_all_reports_real_flags():
         if cursor is None:
             break
     exp = [p for p in items if p["catalogue"] == "expansion"]
-    assert len(exp) == 881
-    assert sum(1 for p in exp if p["matchable"] is True) == 588
+    assert len(exp) == 886
+    assert sum(1 for p in exp if p["matchable"] is True) == 593
     assert sum(1 for p in exp if p["matchable"] is False) == 293
 
 
@@ -429,3 +429,209 @@ def test_programs_detail_serves_expansion():
     assert resp.status_code == 200
     assert resp.json()["matchable"] is False
     assert client.get("/api/v1/programs/no-such-program").status_code == 404
+
+
+# --- Round 8: placeholder requirements are UNKNOWN, never NOT_MET -----------
+
+def _placeholder_program(**overrides):
+    """Oxford/Cambridge-shaped programme whose requirements carry no
+    parseable numeric threshold: threshold missing, a string, or a
+    dict of non-numeric values — the '... as stated on the official
+    programme page' shape the audit caught being judged NOT_MET."""
+    prog = {
+        "id": "oxbridge-placeholder-2027",
+        "fees": {"amount": None, "currency": "GBP", "period": "per_year"},
+        "requirements": [
+            {"id": "placeholder-language", "category": "language",
+             "description": "IELTS / TOEFL minimum as stated on the "
+                            "official programme page",
+             "threshold": None, "source_ids": ["ox-english"]},
+            {"id": "placeholder-academic", "category": "academic",
+             "description": "A-level threshold as stated on the official "
+                            "programme page",
+             "threshold": {"note": "A*AA or equivalent, as stated on the "
+                                   "official programme page"},
+             "source_ids": ["ox-entry"]},
+        ],
+    }
+    prog.update(overrides)
+    return prog
+
+
+def test_placeholder_language_is_unknown_not_not_met():
+    # IELTS 7.0 supplied — below Oxford's real 7.5, but this programme
+    # states NO numeric threshold, so the language rule must be UNKNOWN.
+    prof = _ug(ielts=(7.0, 6.5), budget=100000)
+    rules = {r.rule_id: r for r in
+             evaluate_expansion(prof, _placeholder_program())}
+    assert rules["exp-language"].status == "UNKNOWN"
+    assert rules["exp-academic"].status == "UNKNOWN"
+    assert rules["exp-fee"].status == "UNKNOWN"
+    assert not any(r.status == "NOT_MET" for r in rules.values())
+
+
+def test_placeholder_string_threshold_is_unknown():
+    # Threshold dict whose values are strings ("7.5") parses to nothing.
+    prog = _placeholder_program(requirements=[
+        {"id": "placeholder-language", "category": "language",
+         "description": "IELTS / TOEFL minimum as stated on the official "
+                        "programme page",
+         "threshold": {"ielts_overall": "7.5", "ielts_min_each": "7.0"},
+         "source_ids": ["ox-english"]},
+    ])
+    prof = _ug(ielts=(7.0, 6.5), budget=100000)
+    rules = {r.rule_id: r for r in evaluate_expansion(prof, prog)}
+    assert rules["exp-language"].status == "UNKNOWN"
+    # No component minimum is stated either: NOT_APPLICABLE, never a fail.
+    assert rules["exp-language-components"].status == "NOT_APPLICABLE"
+    assert not any(r.status == "NOT_MET" for r in rules.values())
+
+
+def test_placeholder_string_fee_is_unknown():
+    prog = _placeholder_program(
+        fees={"amount": "as stated on the official programme page",
+              "currency": "GBP", "period": "per_year"},
+        requirements=[])
+    prof = _ug(ielts=(8.0, 8.0), budget=1)
+    rules = {r.rule_id: r for r in evaluate_expansion(prof, prog)}
+    assert rules["exp-fee"].status == "UNKNOWN"
+
+
+def test_real_oxford_threshold_still_fails():
+    # Control: the guard must not swallow a genuine failure. Oxford CS
+    # BA states IELTS 7.5 overall / 7.0 each and GBP 66,580/yr; IELTS
+    # 7.0 with a GBP 50,000 budget is a real NOT_MET on both rules.
+    prof = _ug(ielts=(7.0, 6.5), budget=50000)
+    rules = {r.rule_id: r for r in
+             evaluate_expansion(prof, EXPANSION_PROGRAMS["oxford-cs-ba-2027"])}
+    assert rules["exp-language"].status == "NOT_MET"
+    assert rules["exp-fee"].status == "NOT_MET"
+    assert rules["exp-language-components"].status == "NOT_MET"
+
+
+def test_no_not_met_without_numeric_threshold_anywhere():
+    # Property: across every matchable programme and a battery of
+    # profiles, no NOT_MET may rest on a placeholder requirement.
+    from domain.expansion_eval import (_alevel_requirements,
+                                       _language_thresholds)
+
+    def has_threshold(p, rule_id):
+        if rule_id == "exp-fee":
+            amount = (p.get("fees") or {}).get("amount")
+            return isinstance(amount, (int, float)) and not isinstance(amount, bool)
+        th = _language_thresholds(p)
+        if rule_id == "exp-language":
+            return bool(th["ielts_overalls"] or th["toefl_overalls"])
+        if rule_id == "exp-language-components":
+            return bool(th["component_sets"])
+        if rule_id == "exp-academic":
+            return bool(_alevel_requirements(p))
+        return True
+
+    profiles = [
+        _ug(ielts=(7.0, 6.5), budget=50000),
+        _ug(ielts=(5.0, 5.0), budget=100000),
+        _ug(toefl=92, test_date="2025-06-01", budget=20000,
+            budget_currency="USD"),
+        _ug(toefl=4.5, test_date="2026-03-01", budget=20000,
+            budget_currency="USD"),
+        _ug(grades=["A*", "A", "A"], maths="A*", ielts=(8.0, 8.0),
+            budget=100000),
+        _tm(ielts=(6.0, 6.0), budget=60000, budget_currency="SGD",
+            budget_period="total"),
+        _ug(budget=50000),  # no language test supplied
+    ]
+    violations = []
+    for prof in profiles:
+        for pid, prog in EXPANSION_MATCHABLE.items():
+            for r in evaluate_expansion(prof, prog):
+                if r.status == "NOT_MET" and not has_threshold(prog, r.rule_id):
+                    violations.append((pid, r.rule_id))
+    assert violations == []
+
+
+def test_exp_expected_shows_the_real_threshold():
+    # A NOT_MET card must show the number it was judged against, not
+    # the generic placeholder-like label.
+    from app.adapter import rule_to_frontend
+    # A-level grades below the threshold, so every rule carries the
+    # threshold it was judged against.
+    prof = _ug(grades=["A", "A", "B"], maths="A", ielts=(7.0, 6.5),
+            budget=50000)
+    rules = evaluate_expansion(prof, EXPANSION_PROGRAMS["oxford-cs-ba-2027"])
+    shown = {r.rule_id: rule_to_frontend(r)["expected"] for r in rules}
+    assert shown["exp-language"] == "IELTS overall 7.5"
+    assert shown["exp-language-components"] == "IELTS minimum 7 in each component"
+    assert shown["exp-fee"] == "Tuition fee GBP 66580 per_year"
+    assert shown["exp-academic"] == "A-level A*AA"
+    # ... while a programme with genuinely no numeric threshold keeps
+    # the generic label — and its rule is UNKNOWN, never NOT_MET.
+    rules = evaluate_expansion(prof, _placeholder_program())
+    shown = {r.rule_id: rule_to_frontend(r)["expected"] for r in rules}
+    assert shown["exp-language"] == ("IELTS / TOEFL minimum as stated on "
+                                     "the official programme page")
+    assert shown["exp-fee"] == ("Tuition fee as stated on the official "
+                                "programme page")
+
+
+# --- Round 8: multi-programme /match makes no model calls -------------------
+
+class _CountingProvider:
+    """Stand-in provider that counts chat calls and always returns a
+    payload that fails validation (so the explain path would spend a
+    first call + a repair call if it ran at all)."""
+    calls = 0
+
+    def __init__(self, **kwargs):
+        pass
+
+    @property
+    def available(self):
+        return True
+
+    @property
+    def ai_status(self):
+        return "available"
+
+    def chat(self, messages, *, system=None, timeout_s=None,
+             max_tokens=None, temperature=0.2):
+        type(self).calls += 1
+
+        class _R:
+            text = '{"lines": ["not a valid explanation"]}'
+        return _R()
+
+
+def test_match_multi_programme_makes_no_model_calls(monkeypatch):
+    import app.main as main
+    monkeypatch.setattr(main, "ProviderAdapter", _CountingProvider)
+    _CountingProvider.calls = 0
+    resp = client.post("/api/v1/match", json={
+        "profile": _flat_ug(),
+        "program_ids": ["glasgow-cs-bsc-2027", "oxford-cs-ba-2027",
+                        "edinburgh-cs-bsc-2027", "ucl-cs-bsc-2026"]})
+    assert resp.status_code == 200, resp.text
+    assert _CountingProvider.calls == 0
+    results = {r["programId"]: r for r in resp.json()["results"]}
+    assert results["oxford-cs-ba-2027"]["eligibilitySummary"] == "NOT_MET"
+    assert results["glasgow-cs-bsc-2027"]["eligibilitySummary"] == "MET"
+    # No per-programme explanation/ai_status keys in the multi shape:
+    # the frontend never reads them (MatchResult carries neither).
+    assert all("explanation" not in r and "ai_status" not in r
+               for r in resp.json()["results"])
+
+
+def test_match_single_programme_still_uses_model_explain(monkeypatch):
+    import app.main as main
+    monkeypatch.setattr(main, "ProviderAdapter", _CountingProvider)
+    _CountingProvider.calls = 0
+    # Single-programme /match takes the nested spec shape (MatchRequest),
+    # not the flat wizard profile.
+    nested = _ug(ielts=(7.0, 6.5), budget=40000).model_dump(mode="json")
+    resp = client.post("/api/v1/match", json={
+        "profile": nested, "program_id": "oxford-cs-ba-2027"})
+    assert resp.status_code == 200, resp.text
+    # First attempt + one repair attempt, then the template fallback.
+    assert _CountingProvider.calls == 2
+    assert resp.json()["ai_status"] == "unavailable"
+    assert "oxford-cs-ba-2027" in resp.json()["explanation"]
