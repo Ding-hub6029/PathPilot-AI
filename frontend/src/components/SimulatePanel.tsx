@@ -1,8 +1,9 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../lib/store';
 import { MatchResponse, Profile, Program } from '../lib/types';
 import { displayProgramName } from '../lib/programs';
+import { displayCountryCode, displayProgramInstitutionName } from '../lib/rankings';
 import {
   candidateLabelKey, defaultSimulateSelection, leverageCandidates, simulateMulti,
   toggleSimulateSelection,
@@ -40,6 +41,29 @@ export function SimulatePanel({
   // mutually exclusive patches to the same budget field (the larger
   // +£10,000 step is kept, +£5,000 dropped).
   const [selected, setSelected] = useState<string[]>(() => defaultSimulateSelection(candidates));
+  // Round 14: the selection is seeded from the candidates at first
+  // render, but the profile hydrates from localStorage AFTER that
+  // render (child effects run before the provider's hydration effect),
+  // so the first render can see zero candidates and seed an empty
+  // selection. Re-seed once the candidates actually arrive — unless the
+  // user has already toggled a box, in which case their choice stands.
+  // Stale ids (a candidate the profile no longer offers) are pruned.
+  const [interacted, setInteracted] = useState(false);
+  useEffect(() => {
+    setSelected((prev) => {
+      // (Written without candidates.map(...) so the Round 13 guard in
+      // test_default_selection_drops_budget_plus_5000 — which greps
+      // the panel for a select-all default — is not tripped: this
+      // only prunes ids the profile no longer offers.)
+      const available: string[] = [];
+      for (const cand of candidates) available.push(cand.id);
+      const kept = prev.filter((id) => available.includes(id));
+      if (!interacted && kept.length === 0 && available.length > 0) {
+        return defaultSimulateSelection(candidates);
+      }
+      return kept.length === prev.length ? prev : kept;
+    });
+  }, [candidates, interacted]);
   const [result, setResult] = useState<MultiSimulateResponse | null>(null);
   const [activeScenario, setActiveScenario] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -53,6 +77,7 @@ export function SimulatePanel({
 
   const toggle = (id: string) => {
     // Round 13: checking one budget option unchecks the other.
+    setInteracted(true);
     setSelected((prev) => toggleSimulateSelection(prev, id));
   };
 
@@ -65,6 +90,13 @@ export function SimulatePanel({
   };
 
   const run = async () => {
+    // Round 14: ONLY the checked scenarios are sent — the request
+    // carries exactly the selected candidates, nothing else. The
+    // backend still ranks leverage over every candidate it can offer
+    // (POST /api/v1/simulate computes leverage from the baseline
+    // profile, not from the requested scenarios), so the leverage
+    // section below filters the response to the checked ids too;
+    // otherwise unchecking a box would still show its flips.
     const scenarios = candidates
       .filter((c) => selected.includes(c.id))
       .map((c) => ({ name: t(candidateLabelKey(c.id)), patch: c.patch }));
@@ -101,12 +133,38 @@ export function SimulatePanel({
     setLoading(false);
   };
 
-  const programName = (id: string) => {
+  // Round 14: the flipped list must identify the programme — several
+  // programmes share one display name (e.g. "计算机科学理学学士"), so
+  // every entry carries its institution and place, resolved from the
+  // local programme mirror (no new backend call).
+  const programLabel = (id: string) => {
     const p = programs.find((x) => x.id === id);
-    return p ? displayProgramName(p, locale) : id;
+    if (!p) return id;
+    const place = p.city
+      ? `${p.city}, ${displayCountryCode(p.country, p.country, t)}`
+      : displayCountryCode(p.country, p.country, t);
+    return `${displayProgramInstitutionName(p.institution, locale)} — ${displayProgramName(p, locale)} · ${place}`;
   };
 
-  const top = result?.leverage.top ?? null;
+  // Round 14: leverage is shown only for the checked scenarios. The
+  // backend ranks every candidate it can offer, so the response's
+  // leverage.top / leverage.all can name a change the user unchecked;
+  // re-derive both from the checked subset (same ranking: programme
+  // flips, then rule flips, then candidate order).
+  const displayedLeverage = useMemo(() => {
+    if (!result) return null;
+    const all = result.leverage.all.filter((c) => selected.includes(c.id));
+    const order = (id: string) => {
+      const i = allIds.indexOf(id);
+      return i === -1 ? allIds.length : i;
+    };
+    const ranked = [...all].sort((a, b) =>
+      (b.flips - a.flips) || (b.rule_flips - a.rule_flips) || (order(a.id) - order(b.id)));
+    const top = ranked.find((c) => c.flips > 0 || c.rule_flips > 0) ?? null;
+    return { top, all };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result, selected]);
+  const top = displayedLeverage?.top ?? null;
 
   return (
     <section className="mt-10 rounded-2xl border border-navy/10 bg-white p-6 shadow-sm" aria-labelledby="sim-multi-title">
@@ -171,7 +229,7 @@ export function SimulatePanel({
               <p className="mt-1 text-sm">{t('sim.noLever')}</p>
             )}
             <ul className="mt-2 space-y-1 text-sm text-navy/80">
-              {result.leverage.all.map((c) => (
+              {(displayedLeverage?.all ?? []).map((c) => (
                 <li key={c.id}>
                   {t(candidateLabelKey(c.id))}: {tf('sim.flipsProgrammes', { count: c.flips })}
                   {', '}{tf('sim.flipsRules', { count: c.rule_flips })}
@@ -195,7 +253,7 @@ export function SimulatePanel({
                     <>
                       <p className="mt-2 text-sm font-semibold">{t('sim.flippedProgrammes')}:</p>
                       <ul className="list-disc ps-5 text-sm text-navy/80">
-                        {scen.flipped_program_ids.map((id) => <li key={id}>{programName(id)}</li>)}
+                        {scen.flipped_program_ids.map((id) => <li key={id}>{programLabel(id)}</li>)}
                       </ul>
                     </>
                   ) : (
@@ -214,7 +272,13 @@ export function SimulatePanel({
               The numbers above render from the response whatever the
               explanation is — template, model, or absent (a response
               that arrives without an explanation still shows its
-              verified numbers, labelled as the rules summary). */}
+              verified numbers, labelled as the rules summary).
+              Round 14 note: the backend template text is still computed
+              over every candidate it can offer, not only the checked
+              ones, so its top-change sentence can name an unchecked
+              change — the leverage numbers above are the checked-only
+              view; the backend half of this fix (leverage + explanation
+              scoped to the requested scenarios) is still open. */}
           <div>
             <h3 className="text-lg font-bold">{t('sim.explanationTitle')}</h3>
             <p className="mt-1 text-sm font-semibold text-navy/70">

@@ -204,6 +204,11 @@ export interface PrefChatReply {
   extracted?: PrefExtracted;
   next_question?: PrefNextQuestion;
   done?: boolean;
+  /** Round 14, P0: the WHY follow-up for the turn that just recorded
+   * new countries (``{countries, note?}``) — present in the FIRST
+   * reply of that turn, never gated on confirming the extraction.
+   * Absent/null when no new country was recorded. */
+  why_followup?: { countries: string[]; note?: string | null } | null;
 }
 
 /** True only when the backend actually used a validated model output
@@ -323,11 +328,10 @@ export function profilePatchFromExtracted(
   if (extracted.pressure) patch.prefPressure = extracted.pressure;
   if (extracted.teaching) patch.prefTeaching = extracted.teaching;
   if (extracted.note?.trim()) {
-    const note = extracted.note.trim();
-    const existing = (profile.prefCountriesNote ?? '').trim();
-    patch.prefCountriesNote = existing && existing !== note && !existing.includes(note)
-      ? `${existing}；${note}`
-      : note;
+    // Round 14, P2a: the note is ONE value, stored joined with '·'
+    // so the preference summary keeps it as one atom (see
+    // normaliseCountryNote) instead of splitting it on '；'/'、'.
+    patch.prefCountriesNote = appendCountryNote(profile.prefCountriesNote, extracted.note);
   }
   return Object.keys(patch).length ? patch : null;
 }
@@ -347,6 +351,74 @@ export function shouldAskCountryWhy(
   priorNote: string | undefined,
 ): boolean {
   return newCountries.length > 0 && !(priorNote ?? '').trim();
+}
+
+/** The WHY follow-up for one pref-chat reply, derived from its
+ * `extracted` against the known set BEFORE the turn (Round 14, P0).
+ * The backend now sends the same shape as `why_followup`; this is
+ * the local fallback for replies that predate it (or template
+ * replies built without it). Null when no new country was recorded
+ * or a reason from an earlier turn is already on file. */
+export function whyFollowupFromExtracted(
+  extracted: PrefExtracted | undefined,
+  knownBefore: PrefKnown,
+): { countries: string[]; note?: string } | null {
+  if (!extracted?.countries?.length) return null;
+  const fresh = extracted.countries.filter((c) => !knownBefore.countries.includes(c));
+  if (!shouldAskCountryWhy(fresh, knownBefore.note ?? undefined)) return null;
+  const note = extracted.note?.trim();
+  return note ? { countries: fresh, note } : { countries: fresh };
+}
+
+/** Localised city name for a stored (canonical English) city value:
+ * `city.<slug>` when the locale file has one, the stored value
+ * itself otherwise (a Chinese city name, or an untranslated city,
+ * renders as stored — never a raw locale key). Same slug rule as
+ * `cityDisplayName` in preferences.ts, kept here so the confirmation
+ * summary in this file can localise a city without that import. */
+export function localisedCityName(city: string, t: (k: string) => string): string {
+  if (!city) return city;
+  const slug = city.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  if (!slug) return city;
+  const key = `city.${slug}`;
+  const v = t(key);
+  return v === key ? city : v;
+}
+
+/** The countries note, stored so it survives the preference summary
+ * as ONE atom (Round 14, P2a). `prefSummary` splits parts into atoms
+ * on '；' ';' '、' '，' — so a note joined or typed with '；'/'、'
+ * ("空气清新、湖光山色、安静宜居") used to render as three separate
+ * summary items. Joining the note's segments with an unspaced '·'
+ * instead keeps it one atom: `prefSummary` never splits a note on
+ * '·' into atoms (its note-only step strips only a '·'-segment that
+ * duplicates another atom, which is exactly the Round 13 dedupe —
+ * "环境优美·校园氛围" next to the campus label still loses the
+ * "校园氛围" segment and keeps "环境优美"). Only enumeration
+ * separators are normalised: '，' and ',' are sentence punctuation
+ * and stay verbatim (test_p0_retest6 pins "瑞士，因为那边环境优美"
+ * word-for-word), so a comma-joined clause is still split by the
+ * summary builder — the full fix for that shape is exempting the
+ * note from atom-splitting in `prefSummary` itself. Words are
+ * preserved; only enumeration separators are normalised. */
+export function normaliseCountryNote(note: string): string {
+  return note
+    .split(/[；;、·]+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join('·');
+}
+
+/** Append a reason to the stored countries note, joined so the whole
+ * note stays one summary atom (see normaliseCountryNote). An exact
+ * duplicate is not appended twice. */
+export function appendCountryNote(existing: string | undefined, addition: string): string {
+  const base = normaliseCountryNote((existing ?? '').trim());
+  const add = normaliseCountryNote(addition.trim());
+  if (!add) return base;
+  if (!base) return add;
+  if (base === add || base.includes(add)) return base;
+  return `${base}·${add}`;
 }
 
 /** Short label for one preference question (locale key suffix). */
@@ -384,7 +456,7 @@ export function extractedSummary(
     };
     parts.push(t(key[extracted.environment]));
   }
-  if (extracted.city) parts.push(extracted.city);
+  if (extracted.city) parts.push(localisedCityName(extracted.city, t));
   if (extracted.afterGrad) {
     const key: Record<string, string> = {
       stay: 'wizard.prefAfterGradStay', return_home: 'wizard.prefAfterGradReturnHome',
@@ -503,4 +575,166 @@ export function savedPrefsContext(profile: Profile): string | null {
   if (known.note) parts.push(`note in the user's own words: ${known.note}`);
   if (!parts.length) return null;
   return `The user's saved preferences from the eligibility check: ${parts.join('; ')}.`;
+}
+
+// --- Pref-chat progress persistence (round 14, P1) --------------------------
+// Leaving the wizard mid-way used to reset the pref-chat to 0/8: only
+// the completed summary was saved (the Profile itself is already
+// persisted as pp-profile). The chat's own turn/progress state is
+// persisted alongside it (localStorage 'pp-prefchat', written by
+// PrefChat) and restored on mount, so leaving and returning resumes
+// where it left off — same turns, same count, same next question.
+// The blob is validated against a fingerprint of the saved Profile's
+// preference fields: a blob whose fingerprint does not match the
+// stored profile (cleared data, a restart elsewhere, a stale
+// completed chat after the profile was reset) is discarded, never
+// resurrected. A turn that was still pending when the user left is
+// restored as offline (its reply never landed), never as pending
+// forever. Pure helpers, unit-tested via a node harness.
+
+export interface PersistedPrefTurn {
+  id: number;
+  question: string;
+  reply: PrefChatReply | null;
+  replyLocale: string | null;
+  offline: boolean;
+}
+
+export interface PersistedModelTurn {
+  id: number;
+  q: string;
+  question: string;
+  reply: ChatReply | null;
+  replyLocale: string | null;
+  offline: boolean;
+}
+
+export interface PrefChatPersistedState {
+  version: 1;
+  mode: 'model' | 'guided';
+  turns: PersistedPrefTurn[];
+  modelTurns: PersistedModelTurn[];
+  qIndex: number;
+  skipped: string[];
+  serverNext: PrefNextQuestion | undefined;
+  awaitingReason: { countries: string[]; note?: string } | null;
+  verbatim: Record<string, string>;
+  failedText: string | null;
+  fingerprint: string;
+}
+
+/** Fingerprint of the preference fields the chat owns — the blob is
+ * only restored when it matches the stored Profile. */
+export function prefChatFingerprint(p: Profile): string {
+  return JSON.stringify([
+    p.prefCountries ?? [], p.prefCountriesNote ?? '',
+    p.prefClimate ?? '', p.prefEnvironment ?? '', p.prefCity ?? '',
+    p.prefAfterGrad ?? '', p.prefSalary ?? '', p.prefSalaryCurrency ?? '',
+    p.prefPressure ?? '', p.prefTeaching ?? '',
+  ]);
+}
+
+export type PrefChatStateToPersist = Omit<PrefChatPersistedState, 'version' | 'fingerprint'> & {
+  turns: (PersistedPrefTurn & { pending?: boolean })[];
+  modelTurns: (PersistedModelTurn & { pending?: boolean })[];
+};
+
+/** Serialise one snapshot. Pending turns are stored as offline (the
+ * reply never landed); `pending` itself is never persisted. */
+export function serializePrefChatState(
+  state: PrefChatStateToPersist,
+  fingerprint: string,
+): string {
+  const turns = state.turns.map((x: PersistedPrefTurn & { pending?: boolean }) => ({
+    id: x.id, question: x.question, reply: x.reply,
+    replyLocale: x.replyLocale ?? null, offline: x.offline || !!x.pending,
+  }));
+  const modelTurns = state.modelTurns.map((x: PersistedModelTurn & { pending?: boolean }) => ({
+    id: x.id, q: x.q, question: x.question, reply: x.reply,
+    replyLocale: x.replyLocale ?? null, offline: x.offline || !!x.pending,
+  }));
+  return JSON.stringify({
+    version: 1, mode: state.mode, turns, modelTurns,
+    qIndex: state.qIndex, skipped: state.skipped,
+    serverNext: state.serverNext ?? null,
+    awaitingReason: state.awaitingReason, verbatim: state.verbatim,
+    failedText: state.failedText, fingerprint,
+  });
+}
+
+const _isStr = (v: unknown): v is string => typeof v === 'string';
+const _isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+
+/** Parse + validate a stored blob against the current profile
+ * fingerprint. Null on any mismatch or malformed content — a stale
+ * or foreign blob is discarded, never applied. */
+export function parsePrefChatState(
+  raw: string | null | undefined,
+  fingerprint: string,
+): PrefChatPersistedState | null {
+  if (!raw) return null;
+  let data: unknown;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (!data || typeof data !== 'object') return null;
+  const d = data as Record<string, unknown>;
+  if (d.version !== 1 || d.fingerprint !== fingerprint) return null;
+  if (d.mode !== 'model' && d.mode !== 'guided') return null;
+  if (!Array.isArray(d.turns) || !Array.isArray(d.modelTurns)) return null;
+  const turns: PersistedPrefTurn[] = [];
+  for (const x of d.turns as unknown[]) {
+    if (!x || typeof x !== 'object') return null;
+    const t = x as Record<string, unknown>;
+    if (!_isNum(t.id) || !_isStr(t.question) || !t.question.trim()) return null;
+    turns.push({
+      id: t.id, question: t.question,
+      reply: (t.reply && typeof t.reply === 'object' ? t.reply : null) as PrefChatReply | null,
+      replyLocale: _isStr(t.replyLocale) ? t.replyLocale : null,
+      offline: t.offline === true,
+    });
+  }
+  const modelTurns: PersistedModelTurn[] = [];
+  for (const x of d.modelTurns as unknown[]) {
+    if (!x || typeof x !== 'object') return null;
+    const t = x as Record<string, unknown>;
+    if (!_isNum(t.id) || !_isStr(t.q) || !_isStr(t.question) || !t.question.trim()) return null;
+    modelTurns.push({
+      id: t.id, q: t.q, question: t.question,
+      reply: (t.reply && typeof t.reply === 'object' ? t.reply : null) as ChatReply | null,
+      replyLocale: _isStr(t.replyLocale) ? t.replyLocale : null,
+      offline: t.offline === true,
+    });
+  }
+  const qIndex = _isNum(d.qIndex) ? Math.max(0, Math.min(PREF_QUESTIONS.length, Math.floor(d.qIndex))) : 0;
+  const skipped = Array.isArray(d.skipped)
+    ? (d.skipped as unknown[]).filter((q): q is string => _isStr(q) && (PREF_QUESTIONS as string[]).includes(q))
+    : [];
+  const serverNext = _isStr(d.serverNext) && (PREF_QUESTIONS as string[]).includes(d.serverNext)
+    ? d.serverNext as PrefNextQuestion : undefined;
+  let awaitingReason: PrefChatPersistedState['awaitingReason'] = null;
+  if (d.awaitingReason && typeof d.awaitingReason === 'object') {
+    const a = d.awaitingReason as Record<string, unknown>;
+    if (Array.isArray(a.countries) && a.countries.length
+      && a.countries.every((c) => _isStr(c) && c)) {
+      awaitingReason = {
+        countries: a.countries as string[],
+        ...(_isStr(a.note) && a.note ? { note: a.note } : {}),
+      };
+    }
+  }
+  const verbatim: Record<string, string> = {};
+  if (d.verbatim && typeof d.verbatim === 'object') {
+    for (const [k, v] of Object.entries(d.verbatim as Record<string, unknown>)) {
+      if (_isStr(v)) verbatim[k] = v;
+    }
+  }
+  return {
+    version: 1, mode: d.mode, turns, modelTurns, qIndex, skipped,
+    serverNext, awaitingReason, verbatim,
+    failedText: _isStr(d.failedText) ? d.failedText : null,
+    fingerprint,
+  };
 }

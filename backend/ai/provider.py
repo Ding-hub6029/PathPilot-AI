@@ -26,12 +26,83 @@ key-free); callers fall back to templates, never to invented text.
 from __future__ import annotations
 
 import os
+import threading
 import time
 from dataclasses import dataclass, field
 
 import httpx
 
 SUPPORTED_PROVIDERS = ("openai", "deepseek", "gemini")
+
+# --- Gateway circuit breaker (Round 14) ------------------------------------
+# The shenjyai gateway is intermittently down for minutes at a time
+# (2026-11-27 00:42-00:50 CST: every model path template-only for the
+# whole 8-minute browser run, while /ai/status still reported
+# "available" — it only checked config). Every model call then burns
+# its full 15 s budget before the template renders, and every endpoint
+# pays it again on the next call because nothing remembers the failure.
+#
+# A slow failure (timeout / transport error — the gateway hanging or
+# unreachable, the exact failure mode in the audit) trips the breaker
+# for GATEWAY_BREAKER_COOLDOWN_S: while it is open, chat()/achat()
+# raise immediately without touching the network, so the callers fall
+# back to their templates in engine time. A fast failure (HTTP 500,
+# 401, bad JSON) does NOT trip it — it already fails fast, and a
+# single 500 is not evidence the gateway is down. Any successful
+# model call clears the breaker, and probe_live() bypasses it (the
+# probe is what re-tests liveness) and clears it on success. The
+# state is module-level, not per-adapter: adapters are constructed
+# fresh per request, but the gateway is one shared service.
+GATEWAY_BREAKER_COOLDOWN_S = 60.0
+_GATEWAY_BREAKER_LOCK = threading.Lock()
+_gateway_down_until = 0.0
+
+
+def gateway_breaker_open() -> bool:
+    """True while the breaker is tripped (gateway recently hung)."""
+    with _GATEWAY_BREAKER_LOCK:
+        return time.monotonic() < _gateway_down_until
+
+
+def reset_gateway_breaker() -> None:
+    """Clear the breaker (test isolation; also called on recovery)."""
+    global _gateway_down_until
+    with _GATEWAY_BREAKER_LOCK:
+        _gateway_down_until = 0.0
+
+
+def _trip_gateway_breaker() -> None:
+    global _gateway_down_until
+    with _GATEWAY_BREAKER_LOCK:
+        _gateway_down_until = time.monotonic() + GATEWAY_BREAKER_COOLDOWN_S
+
+
+def _clear_gateway_breaker() -> None:
+    global _gateway_down_until
+    with _GATEWAY_BREAKER_LOCK:
+        _gateway_down_until = 0.0
+
+
+# A slow gateway failure trips the breaker; a fast one does not (see
+# above). Only these kinds are "the gateway hung".
+_BREAKER_TRIP_KINDS = ("timeout", "transport_error")
+
+# Latency gate (Round 14 fix): the breaker exists to avoid REPEATING
+# a slow wait, so only a failure that actually consumed real time
+# trips it. An instant raise (e.g. the evaluation set's
+# failure-timeout mock, which raises ReadTimeout immediately, or a
+# connection-refused that fails in milliseconds) costs nothing to
+# repeat and must NOT poison later calls: tripping on it turned one
+# mock timeout in the 12-case evaluation run into 60 s of
+# template-only for every later case and every later test in the
+# process. Real hangs consume the full budget first (the audit's
+# 15 s model attempts; the probe's 3 s GET), well above these bars.
+_BREAKER_MIN_LATENCY_S = 5.0
+_PROBE_BREAKER_MIN_LATENCY_S = 1.0
+
+
+def _slow_enough(started: float, minimum_s: float) -> bool:
+    return (time.monotonic() - started) >= minimum_s
 
 DEFAULT_BASE_URLS = {
     "openai": "https://api.openai.com/v1",
@@ -127,17 +198,99 @@ class ProviderAdapter:
             kwargs["transport"] = self._transport
         return httpx.AsyncClient(**kwargs)
 
+    def _auth_headers(self) -> dict:
+        """Auth header for this provider (never logged, never returned)."""
+        if self.provider == "gemini":
+            return {"x-goog-api-key": self.api_key or ""}
+        return {"Authorization": f"Bearer {self.api_key or ''}",
+                "Content-Type": "application/json"}
+
+    def probe_live(self, timeout_s: float = 10.0) -> bool:
+        """Live gateway probe (Round 14): True only when the gateway
+        actually answers right now. /ai/status used to report the
+        config-only ``ai_status`` ("available" whenever a key was
+        configured), so it said "available" through a whole 8-minute
+        outage. This exercises the real path instead:
+
+        1. GET {base_url}/models (no generation, no tokens, fast when
+           the gateway is up). 200 means live. 401/403 means the key
+           is rejected — the model cannot work, so False without
+           tripping the breaker (a bad key fails fast anyway). Any
+           other status (404/405/501: this gateway does not implement
+           the list endpoint) falls through to step 2.
+        2. One tiny chat call (max_tokens=1), bypassing the breaker —
+           the probe is what re-tests liveness, so it must not be
+           blocked by the breaker it is meant to clear. Success
+           clears the breaker; any failure returns False.
+
+        A transport error / timeout on step 1 trips the breaker and
+        returns False at once — but only when the attempt actually
+        waited (latency-gated, see _PROBE_BREAKER_MIN_LATENCY_S):
+        an instant raise costs nothing to repeat. The whole
+        probe costs at most ~timeout_s and is cached for 60 s by the
+        /ai/status endpoint, so it is ~1 tiny call per minute per
+        backend process, not one per user request."""
+        if not self.available:
+            return False
+        probe_started = time.monotonic()
+        try:
+            with self._client(min(timeout_s, 3.0)) as client:
+                resp = client.get(f"{self.base_url}/models",
+                                  headers=self._auth_headers())
+            if resp.status_code == 200:
+                _clear_gateway_breaker()
+                return True
+            if resp.status_code in (401, 403):
+                return False
+            # Any other status: this gateway may not implement the
+            # list endpoint — fall through to the chat probe.
+        except httpx.TimeoutException:
+            # Latency-gated (see _BREAKER_MIN_LATENCY_S): only a GET
+            # that actually waited trips the breaker; an instant
+            # raise costs nothing to repeat.
+            if _slow_enough(probe_started, _PROBE_BREAKER_MIN_LATENCY_S):
+                _trip_gateway_breaker()
+            return False
+        except httpx.HTTPError:
+            if _slow_enough(probe_started, _PROBE_BREAKER_MIN_LATENCY_S):
+                _trip_gateway_breaker()
+            return False
+        except ValueError:
+            # Malformed base URL: the chat probe would fail the same
+            # way, fast — report it without spending the chat budget.
+            return False
+        try:
+            self.chat([{"role": "user", "content": "ok"}],
+                      timeout_s=max(1.0, timeout_s - 3.0),
+                      max_tokens=1, temperature=0.0,
+                      _bypass_breaker=True)
+        except ProviderError:
+            return False
+        return True
+
     # -- public API ---------------------------------------------------------
     def chat(self, messages: list[dict], *, system: str | None = None,
              timeout_s: float | None = None, max_tokens: int | None = None,
-             temperature: float = 0.2) -> ChatResult:
+             temperature: float = 0.2, _bypass_breaker: bool = False) -> ChatResult:
         """One chat-completions call. ``messages`` is a list of
         {"role": "user"|"assistant", "content": str}. Raises ProviderError
-        on any failure; never returns invented text."""
+        on any failure; never returns invented text.
+
+        Round 14: while the gateway circuit breaker is open (a recent
+        timeout / transport failure — the gateway hung), this raises
+        immediately without a network call, so callers fall back to
+        their templates in engine time instead of spending another
+        15 s proving the gateway is still down. ``_bypass_breaker``
+        is for probe_live() only — the probe is what re-tests
+        liveness."""
         if not self.available:
             raise ProviderError(
                 "No AI provider configured (AI_PROVIDER/AI_MODEL/AI_API_KEY "
                 "absent or incomplete).", retryable=False, kind="not_configured")
+        if not _bypass_breaker and gateway_breaker_open():
+            raise ProviderError(
+                "AI gateway recently failed; skipping model call.",
+                retryable=True, kind="gateway_breaker_open")
         budget_s = (self.timeout_ms / 1000.0)
         if timeout_s is None:
             timeout_s = budget_s
@@ -158,12 +311,27 @@ class ProviderAdapter:
             else:  # pragma: no cover - guarded by `available`
                 raise ProviderError(f"Unsupported provider {self.provider!r}.",
                                     retryable=False, kind="unsupported_provider")
-        except ProviderError:
+        except ProviderError as exc:
+            # Round 14: a slow failure trips the breaker (see the
+            # module header); a fast one (HTTP 500, bad reply, auth)
+            # already fails fast and does not. The breaker-open raise
+            # above has kind "gateway_breaker_open" and must not
+            # re-trip (it would extend the cooldown on every call).
+            # Latency-gated: only a failure that actually waited
+            # trips it (an instant mock timeout must not poison
+            # later calls — see _BREAKER_MIN_LATENCY_S).
+            if (exc.retryable and exc.kind in _BREAKER_TRIP_KINDS
+                    and _slow_enough(started, _BREAKER_MIN_LATENCY_S)):
+                _trip_gateway_breaker()
             raise
         except httpx.TimeoutException:
+            if _slow_enough(started, _BREAKER_MIN_LATENCY_S):
+                _trip_gateway_breaker()
             raise ProviderError("AI provider call timed out.",
                                 retryable=True, kind="timeout")
         except httpx.HTTPError:
+            if _slow_enough(started, _BREAKER_MIN_LATENCY_S):
+                _trip_gateway_breaker()
             raise ProviderError("Could not reach the AI provider.",
                                 retryable=True, kind="transport_error")
         except ValueError:
@@ -177,6 +345,7 @@ class ProviderAdapter:
         if not text or not text.strip():
             raise ProviderError("AI provider returned an empty reply.",
                                 retryable=True, kind="empty_reply")
+        _clear_gateway_breaker()
         return ChatResult(text=text.strip(), model=self.model or "",
                           provider=self.provider or "", latency_ms=latency_ms,
                           usage=usage)
@@ -190,17 +359,22 @@ class ProviderAdapter:
     async def achat(self, messages: list[dict], *, system: str | None = None,
                     timeout_s: float | None = None,
                     max_tokens: int | None = None,
-                    temperature: float = 0.2) -> ChatResult:
+                    temperature: float = 0.2,
+                    _bypass_breaker: bool = False) -> ChatResult:
         """Async twin of :meth:`chat`: the same request, validation and
         error mapping, but over ``httpx.AsyncClient`` — awaiting it
         never blocks the server's event loop, so a slow model call
         cannot wedge /health or any other endpoint. Same
         ``ProviderError`` contract as :meth:`chat`; never returns
-        invented text."""
+        invented text. Same circuit breaker as :meth:`chat` (Round 14)."""
         if not self.available:
             raise ProviderError(
                 "No AI provider configured (AI_PROVIDER/AI_MODEL/AI_API_KEY "
                 "absent or incomplete).", retryable=False, kind="not_configured")
+        if not _bypass_breaker and gateway_breaker_open():
+            raise ProviderError(
+                "AI gateway recently failed; skipping model call.",
+                retryable=True, kind="gateway_breaker_open")
         budget_s = (self.timeout_ms / 1000.0)
         if timeout_s is None:
             timeout_s = budget_s
@@ -221,12 +395,19 @@ class ProviderAdapter:
             else:  # pragma: no cover - guarded by `available`
                 raise ProviderError(f"Unsupported provider {self.provider!r}.",
                                     retryable=False, kind="unsupported_provider")
-        except ProviderError:
+        except ProviderError as exc:
+            if (exc.retryable and exc.kind in _BREAKER_TRIP_KINDS
+                    and _slow_enough(started, _BREAKER_MIN_LATENCY_S)):
+                _trip_gateway_breaker()
             raise
         except httpx.TimeoutException:
+            if _slow_enough(started, _BREAKER_MIN_LATENCY_S):
+                _trip_gateway_breaker()
             raise ProviderError("AI provider call timed out.",
                                 retryable=True, kind="timeout")
         except httpx.HTTPError:
+            if _slow_enough(started, _BREAKER_MIN_LATENCY_S):
+                _trip_gateway_breaker()
             raise ProviderError("Could not reach the AI provider.",
                                 retryable=True, kind="transport_error")
         except ValueError:
@@ -238,6 +419,7 @@ class ProviderAdapter:
         if not text or not text.strip():
             raise ProviderError("AI provider returned an empty reply.",
                                 retryable=True, kind="empty_reply")
+        _clear_gateway_breaker()
         return ChatResult(text=text.strip(), model=self.model or "",
                           provider=self.provider or "", latency_ms=latency_ms,
                           usage=usage)

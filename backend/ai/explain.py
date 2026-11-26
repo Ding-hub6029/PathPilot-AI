@@ -23,27 +23,113 @@ from ai.prompts import PROMPT_VERSION, explain_system
 from ai.provider import ProviderAdapter, ProviderError
 from app.schemas import Evaluation, StudentProfile
 
-_STATUS_WORDS = {
-    "MET": "meets the stated minimum",
-    "NOT_MET": "does not meet the stated minimum",
-    "UNKNOWN": "cannot be decided from the supplied evidence",
-    "NOT_APPLICABLE": "does not apply",
+# ---------------------------------------------------------------------------
+# Localised template explanation (Round 14)
+#
+# The deterministic template renders in the requested locale (all 6).
+# Engine numbers and identifiers — programme id, data version, rule ids,
+# evidence ids and the engine's own rule detail text — are inserted
+# unchanged; only the surrounding prose is translated. An unknown locale
+# falls back to English. The model path already answers in the requested
+# locale via explain_system(locale); only this template path was English
+# on every UI.
+# ---------------------------------------------------------------------------
+
+_EXPLAIN_TEMPLATE_STRINGS = {
+    "en": {
+        "header": ("Evaluation for {program_id} (data version "
+                   "{data_version}): overall status {overall_status}."),
+        "status_MET": "meets the stated minimum",
+        "status_NOT_MET": "does not meet the stated minimum",
+        "status_UNKNOWN": "cannot be decided from the supplied evidence",
+        "status_NOT_APPLICABLE": "does not apply",
+        "note": ("Note: no AI provider is configured, so this explanation "
+                 "is a rules/template summary, not model-generated text."),
+    },
+    "zh-CN": {
+        "header": ("对 {program_id} 的评估（数据版本 {data_version}）："
+                   "总体状态 {overall_status}。"),
+        "status_MET": "达到规定的最低要求",
+        "status_NOT_MET": "未达到规定的最低要求",
+        "status_UNKNOWN": "根据现有证据无法判定",
+        "status_NOT_APPLICABLE": "不适用",
+        "note": ("说明：未配置 AI 服务，因此本说明为规则/模板摘要，"
+                 "并非模型生成的文本。"),
+    },
+    "es": {
+        "header": ("Evaluación de {program_id} (versión de datos "
+                   "{data_version}): estado general {overall_status}."),
+        "status_MET": "cumple el mínimo establecido",
+        "status_NOT_MET": "no cumple el mínimo establecido",
+        "status_UNKNOWN": "no se puede decidir con la evidencia proporcionada",
+        "status_NOT_APPLICABLE": "no aplica",
+        "note": ("Nota: no hay ningún proveedor de IA configurado, por lo "
+                 "que esta explicación es un resumen de reglas/plantilla, "
+                 "no un texto generado por un modelo."),
+    },
+    "fr": {
+        "header": ("Évaluation de {program_id} (version des données "
+                   "{data_version}) : statut global {overall_status}."),
+        "status_MET": "satisfait le minimum requis",
+        "status_NOT_MET": "ne satisfait pas le minimum requis",
+        "status_UNKNOWN": "ne peut pas être décidé à partir des preuves fournies",
+        "status_NOT_APPLICABLE": "sans objet",
+        "note": ("Remarque : aucun fournisseur d'IA n'est configuré, cette "
+                 "explication est donc un résumé règles/modèle, et non un "
+                 "texte généré par un modèle."),
+    },
+    "pt-BR": {
+        "header": ("Avaliação de {program_id} (versão dos dados "
+                   "{data_version}): status geral {overall_status}."),
+        "status_MET": "atende ao mínimo exigido",
+        "status_NOT_MET": "não atende ao mínimo exigido",
+        "status_UNKNOWN": "não pode ser decidido com as evidências fornecidas",
+        "status_NOT_APPLICABLE": "não se aplica",
+        "note": ("Nota: nenhum provedor de IA está configurado, portanto "
+                 "esta explicação é um resumo de regras/modelo, não um "
+                 "texto gerado por modelo."),
+    },
+    "ar": {
+        "header": ("تقييم {program_id} (إصدار البيانات {data_version}): "
+                   "الحالة العامة {overall_status}."),
+        "status_MET": "يستوفي الحد الأدنى المطلوب",
+        "status_NOT_MET": "لا يستوفي الحد الأدنى المطلوب",
+        "status_UNKNOWN": "لا يمكن تحديده من الأدلة المقدمة",
+        "status_NOT_APPLICABLE": "لا ينطبق",
+        "note": ("ملاحظة: لم يتم تكوين أي مزود ذكاء اصطناعي، لذا فإن هذا "
+                 "الشرح ملخص قواعد/قالب وليس نصًا مولّدًا بواسطة نموذج."),
+    },
 }
 
 
-def template_explanation(evaluation: Evaluation) -> str:
-    lines = [f"Evaluation for {evaluation.program_id} (data version {evaluation.data_version}): "
-             f"overall status {evaluation.overall_status}."]
+def _explain_strings(locale: str) -> dict:
+    return _EXPLAIN_TEMPLATE_STRINGS.get(locale) or _EXPLAIN_TEMPLATE_STRINGS["en"]
+
+
+def _fill(template: str, **values) -> str:
+    """Substitute {name} placeholders without str.format: a value (e.g. an
+    engine detail) may itself contain braces, which .format would choke on."""
+    out = template
+    for key, value in values.items():
+        out = out.replace("{" + key + "}", str(value))
+    return out
+
+
+def template_explanation(evaluation: Evaluation, locale: str = "en") -> str:
+    s = _explain_strings(locale)
+    lines = [_fill(s["header"], program_id=evaluation.program_id,
+                   data_version=evaluation.data_version,
+                   overall_status=evaluation.overall_status)]
     for r in evaluation.results:
         # Citation check: only include claims whose evidence_ids are real
         # (non-empty, or the rule is explicitly NOT_APPLICABLE).
         if not r.evidence_ids and r.status != "NOT_APPLICABLE":
             continue
-        word = _STATUS_WORDS.get(r.status, r.status)
+        word = s.get(f"status_{r.status}", r.status)
         cite = f" [evidence: {', '.join(r.evidence_ids)}]" if r.evidence_ids else ""
         lines.append(f"- {r.rule_id}: {word}. {r.detail}{cite}")
     if evaluation.ai_status == "unavailable":
-        lines.append("Note: no AI provider is configured, so this explanation is a rules/template summary, not model-generated text.")
+        lines.append(s["note"])
     return "\n".join(lines)
 
 
@@ -144,31 +230,35 @@ def explain_structured_with_status(
     """
     provider = provider or ProviderAdapter()
     if not provider.available:
-        return None, template_explanation(evaluation), "unavailable"
+        return None, template_explanation(evaluation, locale), "unavailable"
     structured = _model_explain(evaluation, locale, provider)
     if structured is None:
-        return None, template_explanation(evaluation), "unavailable"
+        return None, template_explanation(evaluation, locale), "unavailable"
     sources = programme_sources(evaluation.program_id)
     return structured, render_structured_explanation(structured, sources), "available"
 
 
-def explain(evaluation: Evaluation, provider: ProviderAdapter | None = None) -> str:
-    text, _status = explain_with_status(evaluation, provider)
+def explain(evaluation: Evaluation, provider: ProviderAdapter | None = None,
+              locale: str = "en") -> str:
+    text, _status = explain_with_status(evaluation, provider, locale)
     return text
 
 
 def explain_with_status(evaluation: Evaluation,
-                         provider: ProviderAdapter | None = None) -> tuple[str, str]:
+                         provider: ProviderAdapter | None = None,
+                         locale: str = "en") -> tuple[str, str]:
     """Template explanation plus the honest ai_status.
 
     If no provider is configured, or a configured provider fails/times out,
     or its output fails citation validation, the result is the template
     text with ai_status="unavailable" — the rule results are always kept
     (spec FR06/NFR02: model failure never loses the rules). Callers must
-    use this, not explain(), when they report ai_status.
+    use this, not explain(), when they report ai_status. The template
+    renders in ``locale`` (Round 14); the default "en" keeps old callers
+    unchanged.
     """
     _structured, text, status = explain_structured_with_status(
-        evaluation, "en", provider)
+        evaluation, locale, provider)
     return text, status
 
 
@@ -388,13 +478,270 @@ def _gaps_for_rule(rule, budget_currency: str | None = None,
     return gaps
 
 
-def _candidates_for_rule(rule, gaps: list[dict]) -> list[dict]:
+# ---------------------------------------------------------------------------
+# Localised why-not template (Round 14)
+#
+# Same rule as the explanation template above: engine numbers (scores,
+# fees, counts, rule ids) are inserted unchanged; only the surrounding
+# prose — gap lines, candidate labels, summary lines — is translated.
+# ``compute_whynot(..., locale="en")`` keeps the old English default, so
+# existing callers and tests are unchanged until they pass a locale.
+# ---------------------------------------------------------------------------
+
+_WHynOT_STRINGS = {
+    "en": {
+        "comp_label": "Raise IELTS {comp} from {a} to {b}",
+        "retake_label": "Retake IELTS and raise {parts}",
+        "retake_part": "{comp} to {v}",
+        "toefl_label": "Raise TOEFL from {a} to {b}",
+        "overall_label": "Raise IELTS overall from {a} to {b}",
+        "budget_label": "Raise your budget to {v} {ccy}",
+        "budget_label_no_ccy": "Raise your budget to {v}",
+        "gap_component": "IELTS {comp}: required {req}, you have {obs} (short by {gap}).",
+        "gap_three": ("IELTS: at least three components at {req}, you have "
+                      "{obs} component(s) at that level."),
+        "gap_overall": "{exam}: required {req}, you have {obs} (short by {gap}).",
+        "gap_toefl": "TOEFL: required {req}, you have {obs} (short by {gap}).",
+        "gap_fee_label": "Tuition fee",
+        "gap_fee_base": "Tuition fee: {ccy} {fee}",
+        "gap_fee_converted": " (about {ccy} {fee}{rates})",
+        "gap_fee_rates": ", rates {as_of}",
+        "gap_fee_short": "; your budget {obs} — short by about {ccy} {short}.",
+        "gap_fee_no_short": ("; your budget {obs} is in a different currency "
+                             "and no converted figure is available, so no "
+                             "shortfall is claimed."),
+        "why_header": ("Why {pid} is not met: {n} rule(s) below the stated "
+                       "minimum."),
+        "why_none": "No rule is failed for {pid}.",
+        "why_academic_gaokao": ("Academic: cannot be decided from the published "
+                                "evidence. No university publishes a Gaokao "
+                                "equivalence, so a higher Gaokao score would not "
+                                "change this — see the official Gaokao routes, "
+                                "not a score fix."),
+        "why_academic": "Academic: cannot be decided from the published evidence.",
+        "why_cheapest": ("Cheapest fix (suggestion, not a fact): {label} — "
+                         "clears {n} rule(s) ({rules})."),
+        "why_no_single": ("No single change on its own clears a failed rule — "
+                          "each gap above would need its own change."),
+        "exam_ielts_overall": "IELTS overall",
+        "exam_toefl": "TOEFL",
+        "comp_listening": "listening",
+        "comp_reading": "reading",
+        "comp_writing": "writing",
+        "comp_speaking": "speaking",
+    },
+    "zh-CN": {
+        "comp_label": "将雅思{comp}从 {a} 提高到 {b}",
+        "retake_label": "重考雅思（{parts}）",
+        "retake_part": "{comp}提高到 {v}",
+        "toefl_label": "将托福从 {a} 提高到 {b}",
+        "overall_label": "将雅思总分从 {a} 提高到 {b}",
+        "budget_label": "将预算提高到 {v} {ccy}",
+        "budget_label_no_ccy": "将预算提高到 {v}",
+        "gap_component": "雅思{comp}：要求 {req}，你目前为 {obs}（还差 {gap}）。",
+        "gap_three": "雅思：至少三项达到 {req}，你目前有 {obs} 项达到该水平。",
+        "gap_overall": "{exam}：要求 {req}，你目前为 {obs}（还差 {gap}）。",
+        "gap_toefl": "托福：要求 {req}，你目前为 {obs}（还差 {gap}）。",
+        "gap_fee_label": "学费",
+        "gap_fee_base": "学费：{ccy} {fee}",
+        "gap_fee_converted": "（约 {ccy} {fee}{rates}）",
+        "gap_fee_rates": "，汇率截至 {as_of}",
+        "gap_fee_short": "；你的预算为 {obs}——还差约 {ccy} {short}。",
+        "gap_fee_no_short": "；你的预算为 {obs}，币种不同且没有换算金额，因此不计算差额。",
+        "why_header": "{pid} 未达标：有 {n} 项规则低于规定的最低要求。",
+        "why_none": "{pid} 没有未通过的规则。",
+        "why_academic_gaokao": ("学术：根据已公布的证据无法判定。没有大学公布高考分数换算标准，"
+                                "因此提高高考分数也不会改变这一点——请查看官方公布的高考入学路径，"
+                                "而不是纠结分数。"),
+        "why_academic": "学术：根据已公布的证据无法判定。",
+        "why_cheapest": "代价最小的改进方法（建议，并非事实）：{label}——可通过 {n} 项规则（{rules}）。",
+        "why_no_single": "没有任何一项单独的改变能通过未达标的规则——上面每一项差距都需要各自改进。",
+        "exam_ielts_overall": "雅思总分",
+        "exam_toefl": "托福",
+        "comp_listening": "听力",
+        "comp_reading": "阅读",
+        "comp_writing": "写作",
+        "comp_speaking": "口语",
+    },
+    "es": {
+        "comp_label": "Sube el {comp} de IELTS de {a} a {b}",
+        "retake_label": "Repite el IELTS y sube {parts}",
+        "retake_part": "{comp} a {v}",
+        "toefl_label": "Sube el TOEFL de {a} a {b}",
+        "overall_label": "Sube la puntuación general de IELTS de {a} a {b}",
+        "budget_label": "Aumenta tu presupuesto a {v} {ccy}",
+        "budget_label_no_ccy": "Aumenta tu presupuesto a {v}",
+        "gap_component": "IELTS {comp}: requerido {req}, tienes {obs} (faltan {gap}).",
+        "gap_three": ("IELTS: al menos tres componentes en {req}, tienes {obs} "
+                      "componente(s) en ese nivel."),
+        "gap_overall": "{exam}: requerido {req}, tienes {obs} (faltan {gap}).",
+        "gap_toefl": "TOEFL: requerido {req}, tienes {obs} (faltan {gap}).",
+        "gap_fee_label": "Matrícula",
+        "gap_fee_base": "Matrícula: {ccy} {fee}",
+        "gap_fee_converted": " (aprox. {ccy} {fee}{rates})",
+        "gap_fee_rates": ", tipos de {as_of}",
+        "gap_fee_short": "; tu presupuesto es {obs} — faltan aprox. {ccy} {short}.",
+        "gap_fee_no_short": ("; tu presupuesto es {obs}, está en otra moneda y no "
+                             "hay cifra convertida disponible, así que no se "
+                             "indica ningún déficit."),
+        "why_header": "Por qué {pid} no se cumple: {n} regla(s) por debajo del mínimo establecido.",
+        "why_none": "Ninguna regla está incumplida para {pid}.",
+        "why_academic_gaokao": ("Académico: no se puede decidir con la evidencia "
+                                "publicada. Ninguna universidad publica una "
+                                "equivalencia de Gaokao, así que una puntuación "
+                                "de Gaokao más alta no cambiaría esto — consulta "
+                                "las vías oficiales de Gaokao, no una corrección "
+                                "de puntuación."),
+        "why_academic": "Académico: no se puede decidir con la evidencia publicada.",
+        "why_cheapest": ("Solución más barata (sugerencia, no un hecho): {label} — "
+                         "resuelve {n} regla(s) ({rules})."),
+        "why_no_single": ("Ningún cambio por sí solo resuelve una regla incumplida — "
+                          "cada brecha anterior necesitaría su propio cambio."),
+        "exam_ielts_overall": "IELTS general",
+        "exam_toefl": "TOEFL",
+        "comp_listening": "comprensión auditiva",
+        "comp_reading": "lectura",
+        "comp_writing": "escritura",
+        "comp_speaking": "expresión oral",
+    },
+    "fr": {
+        "comp_label": "Augmentez le {comp} de l'IELTS de {a} à {b}",
+        "retake_label": "Repassez l'IELTS et augmentez {parts}",
+        "retake_part": "{comp} à {v}",
+        "toefl_label": "Augmentez le TOEFL de {a} à {b}",
+        "overall_label": "Augmentez le score global de l'IELTS de {a} à {b}",
+        "budget_label": "Augmentez votre budget à {v} {ccy}",
+        "budget_label_no_ccy": "Augmentez votre budget à {v}",
+        "gap_component": "IELTS {comp} : requis {req}, vous avez {obs} (il manque {gap}).",
+        "gap_three": ("IELTS : au moins trois composantes à {req}, vous en avez "
+                      "{obs} à ce niveau."),
+        "gap_overall": "{exam} : requis {req}, vous avez {obs} (il manque {gap}).",
+        "gap_toefl": "TOEFL : requis {req}, vous avez {obs} (il manque {gap}).",
+        "gap_fee_label": "Frais de scolarité",
+        "gap_fee_base": "Frais de scolarité : {ccy} {fee}",
+        "gap_fee_converted": " (environ {ccy} {fee}{rates})",
+        "gap_fee_rates": ", taux de {as_of}",
+        "gap_fee_short": " ; votre budget est de {obs} — il manque environ {ccy} {short}.",
+        "gap_fee_no_short": (" ; votre budget est de {obs}, dans une autre devise "
+                             "et sans montant converti disponible, donc aucun "
+                             "déficit n'est indiqué."),
+        "why_header": "Pourquoi {pid} n'est pas satisfait : {n} règle(s) sous le minimum requis.",
+        "why_none": "Aucune règle n'est en échec pour {pid}.",
+        "why_academic_gaokao": ("Académique : impossible à décider à partir des preuves "
+                                "publiées. Aucune université ne publie "
+                                "d'équivalence du Gaokao, donc un score Gaokao "
+                                "plus élevé ne changerait rien — consultez les "
+                                "voies Gaokao officielles, pas une correction "
+                                "de score."),
+        "why_academic": "Académique : impossible à décider à partir des preuves publiées.",
+        "why_cheapest": ("Solution la moins coûteuse (suggestion, pas un fait) : "
+                         "{label} — résout {n} règle(s) ({rules})."),
+        "why_no_single": ("Aucun changement à lui seul ne résout une règle en échec — "
+                          "chaque écart ci-dessus nécessiterait son propre "
+                          "changement."),
+        "exam_ielts_overall": "IELTS global",
+        "exam_toefl": "TOEFL",
+        "comp_listening": "compréhension orale",
+        "comp_reading": "lecture",
+        "comp_writing": "écriture",
+        "comp_speaking": "expression orale",
+    },
+    "pt-BR": {
+        "comp_label": "Aumente o {comp} do IELTS de {a} para {b}",
+        "retake_label": "Refaça o IELTS e aumente {parts}",
+        "retake_part": "{comp} para {v}",
+        "toefl_label": "Aumente o TOEFL de {a} para {b}",
+        "overall_label": "Aumente a nota geral do IELTS de {a} para {b}",
+        "budget_label": "Aumente seu orçamento para {v} {ccy}",
+        "budget_label_no_ccy": "Aumente seu orçamento para {v}",
+        "gap_component": "IELTS {comp}: exigido {req}, você tem {obs} (faltam {gap}).",
+        "gap_three": ("IELTS: pelo menos três componentes em {req}, você tem {obs} "
+                      "componente(s) nesse nível."),
+        "gap_overall": "{exam}: exigido {req}, você tem {obs} (faltam {gap}).",
+        "gap_toefl": "TOEFL: exigido {req}, você tem {obs} (faltam {gap}).",
+        "gap_fee_label": "Mensalidade",
+        "gap_fee_base": "Mensalidade: {ccy} {fee}",
+        "gap_fee_converted": " (cerca de {ccy} {fee}{rates})",
+        "gap_fee_rates": ", câmbio de {as_of}",
+        "gap_fee_short": "; seu orçamento é {obs} — faltam cerca de {ccy} {short}.",
+        "gap_fee_no_short": ("; seu orçamento é {obs}, está em outra moeda e não há "
+                             "valor convertido disponível, então nenhum déficit "
+                             "é informado."),
+        "why_header": "Por que {pid} não foi atendido: {n} regra(s) abaixo do mínimo exigido.",
+        "why_none": "Nenhuma regra foi reprovada para {pid}.",
+        "why_academic_gaokao": ("Acadêmico: não é possível decidir com base nas evidências "
+                                "publicadas. Nenhuma universidade publica "
+                                "equivalência de Gaokao, então uma nota maior no "
+                                "Gaokao não mudaria isso — consulte as vias "
+                                "oficiais de Gaokao, não uma correção de nota."),
+        "why_academic": "Acadêmico: não é possível decidir com base nas evidências publicadas.",
+        "why_cheapest": ("Correção mais barata (sugestão, não um fato): {label} — "
+                         "resolve {n} regra(s) ({rules})."),
+        "why_no_single": ("Nenhuma mudança isolada resolve uma regra reprovada — cada "
+                          "lacuna acima precisaria da sua própria mudança."),
+        "exam_ielts_overall": "IELTS geral",
+        "exam_toefl": "TOEFL",
+        "comp_listening": "compreensão auditiva",
+        "comp_reading": "leitura",
+        "comp_writing": "escrita",
+        "comp_speaking": "expressão oral",
+    },
+    "ar": {
+        "comp_label": "ارفع {comp} في IELTS من {a} إلى {b}",
+        "retake_label": "أعد اختبار IELTS وارفع {parts}",
+        "retake_part": "{comp} إلى {v}",
+        "toefl_label": "ارفع TOEFL من {a} إلى {b}",
+        "overall_label": "ارفع الدرجة العامة في IELTS من {a} إلى {b}",
+        "budget_label": "ارفع ميزانيتك إلى {v} {ccy}",
+        "budget_label_no_ccy": "ارفع ميزانيتك إلى {v}",
+        "gap_component": "IELTS {comp}: المطلوب {req}، لديك {obs} (النقص {gap}).",
+        "gap_three": "IELTS: ثلاثة مكونات على الأقل بدرجة {req}، لديك {obs} من المكونات بهذا المستوى.",
+        "gap_overall": "{exam}: المطلوب {req}، لديك {obs} (النقص {gap}).",
+        "gap_toefl": "TOEFL: المطلوب {req}، لديك {obs} (النقص {gap}).",
+        "gap_fee_label": "الرسوم الدراسية",
+        "gap_fee_base": "الرسوم الدراسية: {ccy} {fee}",
+        "gap_fee_converted": " (حوالي {ccy} {fee}{rates})",
+        "gap_fee_rates": "، الأسعار بتاريخ {as_of}",
+        "gap_fee_short": "؛ ميزانيتك {obs} — النقص حوالي {ccy} {short}.",
+        "gap_fee_no_short": "؛ ميزانيتك {obs} بعملة مختلفة ولا يوجد مبلغ محوّل متاح، لذا لا يُذكر أي نقص.",
+        "why_header": "لماذا لم يستوفِ {pid}: ‏{n} من القواعد أقل من الحد الأدنى المطلوب.",
+        "why_none": "لا توجد قاعدة مخالفة لـ {pid}.",
+        "why_academic_gaokao": ("أكاديميًا: لا يمكن تحديده من الأدلة المنشورة. لا تنشر أي جامعة "
+                                "معادلة لاختبار Gaokao، لذا فإن الحصول على درجة "
+                                "أعلى في Gaokao لن يغير ذلك — راجع المسارات "
+                                "الرسمية لاختبار Gaokao وليس تصحيح الدرجة."),
+        "why_academic": "أكاديميًا: لا يمكن تحديده من الأدلة المنشورة.",
+        "why_cheapest": "أرخص إصلاح (اقتراح وليس حقيقة): {label} — يحل {n} من القواعد ({rules}).",
+        "why_no_single": "لا يوجد تغيير واحد بمفرده يحل أي قاعدة مخالفة — كل فجوة أعلاه تحتاج إلى تغيير خاص بها.",
+        "exam_ielts_overall": "الدرجة العامة في IELTS",
+        "exam_toefl": "TOEFL",
+        "comp_listening": "الاستماع",
+        "comp_reading": "القراءة",
+        "comp_writing": "الكتابة",
+        "comp_speaking": "التحدث",
+    },
+}
+
+
+def _whynot_strings(locale: str) -> dict:
+    return _WHynOT_STRINGS.get(locale) or _WHynOT_STRINGS["en"]
+
+
+def _comp_name(locale: str, component: str, capital: bool = False) -> str:
+    s = _whynot_strings(locale)
+    name = s.get(f"comp_{component}", component)
+    return name[:1].upper() + name[1:] if capital and name else name
+
+
+def _candidates_for_rule(rule, gaps: list[dict], locale: str = "en") -> list[dict]:
     """Single-change candidates for one failing rule, with the rules
     each would clear judged structurally (a component raise clears
     its components rule only when it is the sole failing component;
     a combined retake clears it by raising every failing component).
     Engine verification (when a profile is supplied) re-checks this
-    and drops any candidate the engine does not flip."""
+    and drops any candidate the engine does not flip. Candidate labels
+    are template prose: they render in ``locale`` (Round 14)."""
+    s = _whynot_strings(locale)
     family = rule_family(rule.rule_id)
     out: list[dict] = []
     if family == "language-components":
@@ -408,8 +755,9 @@ def _candidates_for_rule(rule, gaps: list[dict]) -> list[dict]:
                 "component": g["label"], "from": g["observed"], "to": target,
                 "resolves_rule_ids": ([rule.rule_id] if len(comp_gaps) == 1
                                       and three_gap is None else []),
-                "label": f"Raise IELTS {g['label'].capitalize()} from "
-                         f"{_fmt_num(g['observed'])} to {_fmt_num(target)}",
+                "label": _fill(s["comp_label"],
+                               comp=_comp_name(locale, g["label"], capital=True),
+                               a=_fmt_num(g["observed"]), b=_fmt_num(target)),
             })
         if len(comp_gaps) > 1 or three_gap is not None:
             changes = {g["label"]: _round_half_up(float(g["required"]))
@@ -418,14 +766,15 @@ def _candidates_for_rule(rule, gaps: list[dict]) -> list[dict]:
                 target3 = _round_half_up(float(three_gap["required"]))
                 for comp in _COMPONENTS:
                     changes.setdefault(comp, target3)
-            parts = ", ".join(f"{c} to {_fmt_num(v)}"
+            parts = ", ".join(_fill(s["retake_part"],
+                                    comp=_comp_name(locale, c), v=_fmt_num(v))
                               for c, v in sorted(changes.items()))
             out.append({
                 "id": "ielts-components-retake",
                 "kind": "ielts_components", "field": "ieltsComponents",
                 "component": None, "from": None, "to": changes,
                 "resolves_rule_ids": [rule.rule_id],
-                "label": f"Retake IELTS and raise {parts}",
+                "label": _fill(s["retake_label"], parts=parts),
             })
         return out
     if family == "language":
@@ -439,8 +788,8 @@ def _candidates_for_rule(rule, gaps: list[dict]) -> list[dict]:
                     "field": "toefl", "component": None,
                     "from": g["observed"], "to": target,
                     "resolves_rule_ids": [rule.rule_id],
-                    "label": f"Raise TOEFL from {_fmt_num(g['observed'])} "
-                             f"to {_fmt_num(target)}",
+                    "label": _fill(s["toefl_label"],
+                                   a=_fmt_num(g["observed"]), b=_fmt_num(target)),
                 })
             else:
                 out.append({
@@ -448,8 +797,8 @@ def _candidates_for_rule(rule, gaps: list[dict]) -> list[dict]:
                     "field": "ieltsOverall", "component": None,
                     "from": g["observed"], "to": target,
                     "resolves_rule_ids": [rule.rule_id],
-                    "label": f"Raise IELTS overall from {_fmt_num(g['observed'])} "
-                             f"to {_fmt_num(target)}",
+                    "label": _fill(s["overall_label"],
+                                   a=_fmt_num(g["observed"]), b=_fmt_num(target)),
                 })
         return out
     if family == "toefl":
@@ -460,8 +809,8 @@ def _candidates_for_rule(rule, gaps: list[dict]) -> list[dict]:
                 "field": "toefl", "component": None,
                 "from": g["observed"], "to": target,
                 "resolves_rule_ids": [rule.rule_id],
-                "label": f"Raise TOEFL from {_fmt_num(g['observed'])} "
-                         f"to {_fmt_num(target)}",
+                "label": _fill(s["toefl_label"],
+                               a=_fmt_num(g["observed"]), b=_fmt_num(target)),
             })
         return out
     if family == "fee":
@@ -486,9 +835,10 @@ def _candidates_for_rule(rule, gaps: list[dict]) -> list[dict]:
                 "component": None, "from": g["observed"], "to": target,
                 "currency": currency,
                 "resolves_rule_ids": [rule.rule_id],
-                "label": (f"Raise your budget to {_fmt_num(target)} {currency}"
+                "label": (_fill(s["budget_label"], v=_fmt_num(target),
+                                ccy=currency)
                           if currency else
-                          f"Raise your budget to {_fmt_num(target)}"),
+                          _fill(s["budget_label_no_ccy"], v=_fmt_num(target))),
             })
         return out
     return out
@@ -573,44 +923,44 @@ def _verify_candidates(candidates: list[dict], evaluation: Evaluation,
     return verified
 
 
-def _gap_line(rule_id: str, gap: dict) -> str:
+def _gap_line(rule_id: str, gap: dict, locale: str = "en") -> str:
+    s = _whynot_strings(locale)
     if gap["kind"] == "component":
-        return (f"IELTS {gap['label'].capitalize()}: required "
-                f"{_fmt_num(gap['required'])}, you have "
-                f"{_fmt_num(gap['observed'])} "
-                f"(short by {_fmt_num(gap['gap'])}).")
+        return _fill(s["gap_component"],
+                     comp=_comp_name(locale, gap["label"], capital=True),
+                     req=_fmt_num(gap["required"]), obs=_fmt_num(gap["observed"]),
+                     gap=_fmt_num(gap["gap"]))
     if gap["kind"] == "three_components":
-        return (f"IELTS: at least three components at "
-                f"{_fmt_num(gap['required'])}, you have "
-                f"{gap['observed']} component(s) at that level.")
+        return _fill(s["gap_three"], req=_fmt_num(gap["required"]),
+                     obs=gap["observed"])
     if gap["kind"] == "overall":
-        exam = "TOEFL" if gap["label"] == "toefl" else "IELTS overall"
-        return (f"{exam}: required {_fmt_num(gap['required'])}, you have "
-                f"{_fmt_num(gap['observed'])} "
-                f"(short by {_fmt_num(gap['gap'])}).")
+        exam = (s["exam_toefl"] if gap["label"] == "toefl"
+                else s["exam_ielts_overall"])
+        return _fill(s["gap_overall"], exam=exam,
+                     req=_fmt_num(gap["required"]), obs=_fmt_num(gap["observed"]),
+                     gap=_fmt_num(gap["gap"]))
     if gap["kind"] == "toefl":
-        return (f"TOEFL: required {_fmt_num(gap['required'])}, you have "
-                f"{_fmt_num(gap['observed'])} "
-                f"(short by {_fmt_num(gap['gap'])}).")
+        return _fill(s["gap_toefl"],
+                     req=_fmt_num(gap["required"]), obs=_fmt_num(gap["observed"]),
+                     gap=_fmt_num(gap["gap"]))
     if gap["kind"] == "fee":
         fee = gap.get("fee_amount")
         fee_ccy = gap.get("fee_currency") or ""
-        base = (f"Tuition fee: {fee_ccy} {_fmt_num(fee)}"
-                if fee is not None else "Tuition fee")
+        base = (_fill(s["gap_fee_base"], ccy=fee_ccy, fee=_fmt_num(fee))
+                if fee is not None else s["gap_fee_label"])
         if gap.get("converted_fee") is not None:
-            base += (f" (about {gap.get('converted_currency')} "
-                     f"{_fmt_num(gap['converted_fee'])}"
-                     + (f", rates {gap['as_of']}" if gap.get("as_of") else "")
-                     + ")")
+            rates = (_fill(s["gap_fee_rates"], as_of=gap["as_of"])
+                     if gap.get("as_of") else "")
+            base += _fill(s["gap_fee_converted"],
+                          ccy=gap.get("converted_currency"),
+                          fee=_fmt_num(gap["converted_fee"]), rates=rates)
         shortfall = gap.get("gap")
         if shortfall is not None and shortfall > 0:
             ccy = gap.get("converted_currency") or fee_ccy
-            base += (f"; your budget {_fmt_num(gap['observed'])} — short by "
-                     f"about {ccy} {_fmt_num(shortfall)}.")
+            base += _fill(s["gap_fee_short"], obs=_fmt_num(gap["observed"]),
+                          ccy=ccy, short=_fmt_num(shortfall))
         else:
-            base += (f"; your budget {_fmt_num(gap['observed'])} is in a "
-                     f"different currency and no converted figure is "
-                     f"available, so no shortfall is claimed.")
+            base += _fill(s["gap_fee_no_short"], obs=_fmt_num(gap["observed"]))
         return base
     return ""
 
@@ -618,7 +968,8 @@ def _gap_line(rule_id: str, gap: dict) -> str:
 def compute_whynot(evaluation: Evaluation,
                    profile: StudentProfile | None = None,
                    budget_currency: str | None = None,
-                   fee_currency: str | None = None) -> dict:
+                   fee_currency: str | None = None,
+                   locale: str = "en") -> dict:
     """Why-not explanation for one evaluation, from engine data only.
 
     Returns the explanation contract the frontend renders and the
@@ -629,8 +980,11 @@ def compute_whynot(evaluation: Evaluation,
     the applicant's own budget currency and ``fee_currency`` the
     programme's fee currency (for bare 'amount' thresholds);
     without them a cross-currency fee gap reports no shortfall
-    rather than guessing one.
+    rather than guessing one. The template text renders in
+    ``locale`` (Round 14); the default "en" keeps old callers
+    unchanged.
     """
+    s = _whynot_strings(locale)
     failing: list[dict] = []
     unknown_ids: list[str] = []
     academic_unknown = False
@@ -660,7 +1014,7 @@ def compute_whynot(evaluation: Evaluation,
             "evidence_ids": list(r.evidence_ids),
             "gaps": gaps,
         })
-        all_candidates.extend(_candidates_for_rule(r, gaps))
+        all_candidates.extend(_candidates_for_rule(r, gaps, locale))
     if profile is not None:
         all_candidates = _verify_candidates(all_candidates, evaluation, profile)
     else:
@@ -676,37 +1030,28 @@ def compute_whynot(evaluation: Evaluation,
     no_single_fix = bool(failing) and cheapest is None
     lines = []
     if failing:
-        lines.append(
-            f"Why {evaluation.program_id} is not met: "
-            f"{len(failing)} rule(s) below the stated minimum.")
+        lines.append(_fill(s["why_header"], pid=evaluation.program_id,
+                           n=len(failing)))
         for fr in failing:
             for gap in fr["gaps"]:
-                line = _gap_line(fr["rule_id"], gap)
+                line = _gap_line(fr["rule_id"], gap, locale)
                 if line:
                     lines.append(f"- {fr['rule_id']}: {line}")
                 else:
                     lines.append(f"- {fr['rule_id']}: {gap.get('text', fr['detail'])}")
     else:
-        lines.append(f"No rule is failed for {evaluation.program_id}.")
+        lines.append(_fill(s["why_none"], pid=evaluation.program_id))
     if academic_unknown:
         if gaokao_route:
-            lines.append(
-                "Academic: cannot be decided from the published evidence. "
-                "No university publishes a Gaokao equivalence, so a higher "
-                "Gaokao score would not change this — see the official "
-                "Gaokao routes, not a score fix.")
+            lines.append(s["why_academic_gaokao"])
         else:
-            lines.append(
-                "Academic: cannot be decided from the published evidence.")
+            lines.append(s["why_academic"])
     if cheapest is not None:
-        lines.append(
-            "Cheapest fix (suggestion, not a fact): "
-            f"{cheapest['label']} — clears {cheapest['rules_resolved']} "
-            f"rule(s) ({', '.join(cheapest['resolves_rule_ids'])}).")
+        lines.append(_fill(s["why_cheapest"], label=cheapest["label"],
+                           n=cheapest["rules_resolved"],
+                           rules=", ".join(cheapest["resolves_rule_ids"])))
     elif no_single_fix:
-        lines.append(
-            "No single change on its own clears a failed rule — each gap "
-            "above would need its own change.")
+        lines.append(s["why_no_single"])
     return {
         "program_id": evaluation.program_id,
         "overall_status": evaluation.overall_status,
@@ -753,7 +1098,7 @@ def whynot_with_model(evaluation: Evaluation, locale: str = "en",
     """
     whynot = compute_whynot(evaluation, profile=profile,
                             budget_currency=budget_currency,
-                            fee_currency=fee_currency)
+                            fee_currency=fee_currency, locale=locale)
     structured, _text, status = explain_structured_with_status(
         evaluation, locale, provider)
     if structured is None:

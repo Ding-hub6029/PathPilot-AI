@@ -13,7 +13,7 @@ import { PROGRAM_RULES, ruleExpected } from '../../../lib/ruleText';
 import { formatDuration, formatFeeItems, formatIntake } from '../../../lib/format';
 import { institutionIdForProgram, displayCountryCode, displayProgramInstitutionName } from '../../../lib/rankings';
 import { displayProgramName } from '../../../lib/programs';
-import { vtRef } from '../../../lib/viewTransition';
+import { suppressNextRouteEnter, vtRef } from '../../../lib/viewTransition';
 
 export default function ProgramDetail({ params }: { params: { id: string } }) {
   const { t, tf, locale, profile } = useApp();
@@ -27,9 +27,33 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
   const canonicalId = resolveProgramId(params.id);
   const [data, setData] = useState<MatchResponse | null>(null);
   const program = findProgram(params.id);
+  // Round 14, locale flash: the store's locale starts as English and
+  // only switches to the saved locale once its hydration effect runs
+  // (after first paint), so a direct open briefly renders English UI
+  // and then switches to Chinese. Same fix as the welcome banner:
+  // render nothing locale-dependent until the client has mounted — the
+  // server render is the same neutral placeholder, and by the time
+  // this effect fires the provider's hydration effect has run in the
+  // same commit, so the first localised paint is already in the saved
+  // locale. A real browser flash check still needs the parent (no
+  // browser in this task).
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
 
   useEffect(() => {
-    if (canonicalId !== params.id) router.replace(`/programs/${canonicalId}`);
+    if (canonicalId !== params.id) {
+      // Round 14, alias blank: RouteTransition remounts on every
+      // pathname change and its quiet .3s fade starts at opacity 0, so
+      // the replace to the canonical URL blanked the (already rendered)
+      // page for a beat. Suppress this one entrance — the canonical
+      // content is already on screen via findProgram's alias
+      // resolution, so the URL is corrected with no fade and no blank.
+      // (In dev StrictMode the one-shot flag can be consumed by a
+      // discarded render and the entrance may play once; production
+      // renders once.)
+      suppressNextRouteEnter();
+      router.replace(`/programs/${canonicalId}`);
+    }
   }, [params.id, canonicalId, router]);
 
   // Round 13: the match used to depend only on params.id, so on a
@@ -44,6 +68,18 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, profile]);
 
+  if (!ready) {
+    // Neutral placeholder: no locale-dependent text, so the server
+    // render and the first client paint can never show English copy
+    // before the saved locale is applied.
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8" aria-hidden="true">
+        <div className="h-9 w-40 animate-pulse rounded-full bg-navy/10" />
+        <div className="mt-6 h-10 w-3/4 animate-pulse rounded-xl bg-navy/10" />
+        <div className="mt-4 h-24 animate-pulse rounded-2xl bg-navy/10" />
+      </div>
+    );
+  }
   if (!program) {
     return <div className="mx-auto max-w-3xl px-4 py-12"><p>{t('common.error')}</p><Link href="/" className="text-teal-dark underline">{t('program.back')}</Link></div>;
   }

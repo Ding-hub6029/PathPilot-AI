@@ -22,6 +22,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import copy
+import threading
 import time
 import uuid
 from decimal import Decimal
@@ -94,6 +95,23 @@ _rate_buckets: dict[str, list[float]] = {}
 def reset_rate_limits() -> None:
     """Clear all rate-limit buckets (test isolation only)."""
     _rate_buckets.clear()
+
+
+# --- /ai/status live-probe cache (Round 14) --------------------------------
+# The probe exercises the gateway (see ai_status below), so its result
+# is cached for 60 s: at most one tiny probe per minute per backend
+# process, shared by every user. reset_ai_status_cache() exists so
+# tests can isolate probes; it is not an endpoint.
+_AI_STATUS_TTL_S = 60.0
+_AI_STATUS_CACHE: dict = {"at": 0.0, "payload": None}
+_ai_status_lock = threading.Lock()
+
+
+def reset_ai_status_cache() -> None:
+    """Clear the cached /ai/status probe result (test isolation only)."""
+    with _ai_status_lock:
+        _AI_STATUS_CACHE["at"] = 0.0
+        _AI_STATUS_CACHE["payload"] = None
 
 
 def _client_ip(request: Request) -> str:
@@ -308,12 +326,44 @@ def ai_status():
     whether one is configured, which provider/model is selected, and the
     prompt version. With no key this reports ai_status="unavailable" and
     every AI endpoint falls back to the rules/template behaviour."""
-    info = ProviderAdapter().describe()
-    return {"ai_status": info["ai_status"], "provider": info["provider"],
+    # Round 14 (live probe, not the old config-only answer): the old
+    # endpoint returned "available" whenever a key was present, so it
+    # said "available" through the whole 2026-11-27 00:42-00:50 gateway
+    # outage while every model path was template-only — the signal the
+    # frontend used to decide whether to attempt a model call was
+    # false. ProviderAdapter.probe_live() exercises the gateway (GET
+    # /models, else one 1-token chat call, ~3 s worst case when the
+    # gateway is unreachable) and the result is cached for 60 s
+    # server-side, so a probe costs ~1 tiny call per minute per backend
+    # process, not one per user request; concurrent callers wait on
+    # the lock and share the cached value. "probed" tells callers
+    # whether the value came from that live probe (True) or from
+    # config alone (False: no provider configured, so there is nothing
+    # to probe). A failed probe also trips the provider circuit
+    # breaker, so the model paths behind it fail fast to their
+    # templates instead of each spending 15 s on a doomed attempt.
+    # (This is a plain comment, not the docstring: the docstring is
+    # the OpenAPI description, and docs/openapi.json must match it.)
+    adapter = ProviderAdapter()
+    info = adapter.describe()
+    base = {"ai_status": info["ai_status"], "provider": info["provider"],
             "model": info["model"],
             "api_key_configured": info["api_key_configured"],
             "supported_providers": info["supported_providers"],
             "prompt_version": PROMPT_VERSION, "data_version": DATA_VERSION}
+    if not adapter.available:
+        return {**base, "probed": False}
+    with _ai_status_lock:
+        cached = _AI_STATUS_CACHE["payload"]
+        if cached is not None and time.monotonic() - _AI_STATUS_CACHE["at"] < _AI_STATUS_TTL_S:
+            return dict(cached)
+        live = adapter.probe_live()
+        payload = {**base,
+                   "ai_status": "available" if live else "unavailable",
+                   "probed": True}
+        _AI_STATUS_CACHE["at"] = time.monotonic()
+        _AI_STATUS_CACHE["payload"] = payload
+        return dict(payload)
 
 
 @app.get("/api/v1/ready")
@@ -1111,12 +1161,35 @@ async def simulate(request: Request):
                                  "flips_to_met": strict_met,
                                  "rule_flips": rule_flips,
                                  "flipped_rules": flipped_rules})
-        cand_order = [c["id"] for c in leverage_candidates(raw_base)]
+        cand_order = [c["id"] for c in leverage_all]
         ranked = sorted(leverage_all,
                         key=lambda c: (-c["flips"], -c["rule_flips"],
                                        cand_order.index(c["id"])))
         top = ranked[0] if ranked and (ranked[0]["flips"] or ranked[0]["rule_flips"]) else None
         leverage = {"top": top, "all": leverage_all}
+        # Round 14: the explanation (template + model) must only name
+        # changes the caller actually asked to simulate. The response's
+        # leverage stays the global diagnosis (pinned by the Round 12
+        # tests; the frontend filters its display to the checked
+        # scenarios), but the explanation's top line is the best change
+        # among the requested ones. The scenario ``name`` is a localised
+        # label, so it cannot key this — the FIELD is the stable
+        # contract: a scenario patching ``budget`` is about the budget
+        # levers, whatever target value it sets (a requested patch need
+        # not equal the candidate's baseline+step patch).
+        requested_fields = set()
+        for spec in scenarios_spec:
+            requested_fields.update((spec.get("patch") or {}).keys())
+        scoped_all = [c for c in leverage_all
+                      if set(c["patch"]) & requested_fields]
+        scoped_ranked = sorted(
+            scoped_all,
+            key=lambda c: (-c["flips"], -c["rule_flips"],
+                           cand_order.index(c["id"])))
+        scoped_top = (scoped_ranked[0] if scoped_ranked
+                      and (scoped_ranked[0]["flips"]
+                           or scoped_ranked[0]["rule_flips"]) else None)
+        leverage_for_explain = {"top": scoped_top, "all": scoped_all}
         baseline_unknown_academic = any(
             ev is not None and any(r.rule_id.endswith("-academic") and r.status == "UNKNOWN"
                                    for r in ev.results)
@@ -1148,13 +1221,13 @@ async def simulate(request: Request):
             structured, text, ai_status = await asyncio.wait_for(
                 asyncio.to_thread(
                     explain_simulation,
-                    scenarios=scenario_entries, leverage=leverage,
+                    scenarios=scenario_entries, leverage=leverage_for_explain,
                     baseline_unknown_academic=baseline_unknown_academic,
                     locale=locale, provider=provider),
                 timeout=15.0)
         except asyncio.TimeoutError:
             structured, text, ai_status = explain_simulation(
-                scenarios=scenario_entries, leverage=leverage,
+                scenarios=scenario_entries, leverage=leverage_for_explain,
                 baseline_unknown_academic=baseline_unknown_academic,
                 locale=locale, provider=None)
         first = scenario_entries[0]
@@ -1166,7 +1239,7 @@ async def simulate(request: Request):
                 "explanation": {"text": text, "structured": structured,
                                 "ai_status": ai_status,
                                 "source": "model" if ai_status == "available" else "template",
-                                "top_change": (top or {}).get("id")}}
+                                "top_change": (scoped_top or {}).get("id")}}
     try:
         req = SimulateRequest(**body)
     except Exception as exc:

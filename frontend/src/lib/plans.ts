@@ -1,4 +1,4 @@
-import { fetchJson, fetchJsonPatient, type FetchPatientOptions } from './api';
+import { fetchJson, fetchJsonPatient, modelAvailability, type FetchPatientOptions } from './api';
 import type { Profile } from './types';
 
 /** Improvement-plan API (Day 3, spec Ch6 FR13/FR14; W3 expansion fix).
@@ -121,6 +121,16 @@ export async function createPlan(
     typeof profile.budget === 'number'
       ? { amount: profile.budget, currency: profile.budgetCurrency || 'GBP' }
       : undefined;
+  // Round 14 fail-fast: the plan endpoint has no template-only flag —
+  // the plan itself (plan_id, stored tasks) can only be created
+  // server-side — so this POST always goes out. But when the model is
+  // known-unavailable, the status read above has already run the live
+  // probe, and a failed probe trips the backend circuit breaker: the
+  // backend's model attempt then raises at once instead of spending
+  // its 15 s budget, and the template tasks return in engine time.
+  // When the status read itself fails ('unknown'), the call proceeds
+  // exactly as before — an unread status says nothing about the model.
+  await modelAvailability();
   return fetchJsonPatient<Plan>(
     '/api/improvement-plan',
     {

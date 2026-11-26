@@ -319,3 +319,97 @@ def test_explain_template_when_no_provider():
     assert status == "unavailable"
     assert "UNKNOWN" in text
     assert structured["unknowns"] and structured["unknowns"][0]["field"] == "academic"
+
+
+# --- Round 14: leverage scoped to requested scenarios -----------------------
+
+def test_leverage_scoped_to_requested_scenarios_only():
+    """Round 14 (re-test task 8): unchecking the IELTS options still
+    showed all 4 leverage rows and a top change naming an unchecked
+    change. The response's leverage stays the global diagnosis (the
+    frontend filters its display to the checked scenarios), but the
+    explanation must only name changes actually requested: requesting
+    only the budget scenario yields a template summary naming the
+    budget change — in the requested locale — and top_change scoped to
+    the budget lever. The scenario name is a localised label, so the
+    scope keys on the patched field, not the name."""
+    r = client.post("/api/v1/simulate", json={
+        "baseline_profile": AUDIT_FLAT,
+        "scenarios": [{"name": "预算 +£10,000", "patch": {"budget": 60000}}],
+        "program_ids": ["mit-cs-sb-2027", "ucl-cs-bsc-2026"],
+        "locale": "zh-CN"})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert len(body["scenarios"]) == 1
+    leverage = body["leverage"]
+    assert leverage["top"]["id"] == "budget-plus-10000"
+    assert leverage["top"]["flips"] == 1  # MIT fee rule flips to MET
+    assert body["explanation"]["top_change"] == "budget-plus-10000"
+    summary = body["explanation"]["text"]
+    assert "预算" in summary
+    assert "雅思" not in summary
+    assert "mattered most" not in summary
+
+
+# --- Round 14: simulate template localisation --------------------------------
+
+_ENGLISH_BODY = ["mattered most", "stop being blocked", "Suggestion, not a fact",
+                 "No university publishes", "rules/template summary",
+                 "No single change", "No change in this simulation"]
+
+
+def test_simulate_template_renders_zh_cn():
+    """Round 14 (re-test task 8): the simulate template rendered in
+    English on the Chinese UI. The template explanation and its top
+    line now render in the requested locale, with engine numbers
+    intact."""
+    structured, text, status = explain_simulation(
+        scenarios=_scenarios_fixture(), leverage=_leverage_fixture(),
+        baseline_unknown_academic=True, locale="zh-CN", provider=None)
+    assert status == "unavailable"
+    assert "雅思写作" in text  # top change field label, localised
+    assert "不再被卡住" in text
+    assert "高考" in text
+    assert "建议，并非事实" in text
+    for phrase in _ENGLISH_BODY:
+        assert phrase not in text, phrase
+    # Engine numbers survive: the 5.5 -> 6.5 writing step and the flip counts.
+    assert "5.5" in text and "6.5" in text
+    assert structured["claims"][0]["text"].startswith("方案writing：")
+
+
+def test_simulate_template_en_default_unchanged():
+    """The English template is byte-identical to the pre-Round-14
+    hardcoded text (pinned by the Round 12 tests)."""
+    structured, text, status = explain_simulation(
+        scenarios=_scenarios_fixture(), leverage=_leverage_fixture(),
+        baseline_unknown_academic=True, provider=None)
+    assert status == "unavailable"
+    assert "ieltsWriting 5.5 -> 6.5 mattered most" in text
+    assert structured["claims"][0]["text"].startswith("Scenario writing:")
+    assert "rules/template summary" in text
+
+
+def test_simulate_template_all_locales_no_english_body():
+    """Every non-English locale renders the template without English
+    body prose (status token MET and programme ids stay as-is)."""
+    for locale in ("es", "fr", "pt-BR", "ar"):
+        _s, text, _st = explain_simulation(
+            scenarios=_scenarios_fixture(), leverage=_leverage_fixture(),
+            baseline_unknown_academic=True, locale=locale, provider=None)
+        for phrase in _ENGLISH_BODY:
+            assert phrase not in text, (locale, phrase)
+        assert "5.5" in text and "6.5" in text
+
+
+def test_whynot_endpoint_serves_locale():
+    """Round 14: /whynot computed the locale but never passed it to
+    compute_whynot, so the endpoint served English regardless."""
+    r = client.post("/api/v1/whynot", json={
+        "profile": UG_FLAT, "program_ids": ["ucl-cs-bsc-2026"],
+        "locale": "zh-CN"})
+    assert r.status_code == 200, r.text
+    whynot = r.json()["results"][0]["whynot"]
+    assert whynot is not None
+    assert "未达标" in whynot["template_text"]
+    assert "Why ucl-cs-bsc-2026 is not met" not in whynot["template_text"]

@@ -1407,6 +1407,62 @@ export async function fetchJsonPatient<T>(
   }
 }
 
+/** Model availability, from the backend's LIVE /ai/status probe
+ * (Round 14). The probe exercises the gateway and is cached 60 s
+ * server-side; this client-side cache (same 60 s) means one status
+ * read per minute per browser tab no matter how many model-backed
+ * calls the page makes, and concurrent callers share one in-flight
+ * read instead of each probing.
+ *
+ * - 'available': the gateway answered the probe — attempt the model.
+ * - 'unavailable': the gateway did not answer — skip the model
+ *   attempt and go template-only at once (simulateMulti /
+ *   createPlan), instead of spending 15 s proving it again.
+ * - 'unknown': the status read itself failed (backend asleep on the
+ *   free tier, network error, or the read timed out) — that says
+ *   nothing about the model, so the caller attempts it once through
+ *   the normal patient fetch, which wakes a sleeping backend. A
+ *   status-read failure is never treated as "model down".
+ * The read gets a 12 s budget: the probe costs ~3 s when the gateway
+ * is unreachable, up to ~10 s when it answers only via the 1-token
+ * chat fallback. */
+export type ModelAvailability = 'available' | 'unavailable' | 'unknown';
+
+const AI_STATUS_TTL_MS = 60_000;
+const AI_STATUS_TIMEOUT_MS = 12_000;
+let _aiStatusCache: { at: number; value: ModelAvailability } | null = null;
+let _aiStatusInFlight: Promise<ModelAvailability> | null = null;
+
+export async function modelAvailability(): Promise<ModelAvailability> {
+  if (_aiStatusCache && Date.now() - _aiStatusCache.at < AI_STATUS_TTL_MS) {
+    return _aiStatusCache.value;
+  }
+  if (_aiStatusInFlight) return _aiStatusInFlight;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), AI_STATUS_TIMEOUT_MS);
+  _aiStatusInFlight = fetch('/api/ai/status', { signal: controller.signal })
+    .then(async (res) => {
+      if (!res.ok) return 'unknown' as ModelAvailability;
+      const data = await res.json().catch(() => ({})) as { ai_status?: string };
+      return (data.ai_status === 'available' ? 'available' : 'unavailable') as ModelAvailability;
+    })
+    .catch(() => 'unknown' as ModelAvailability)
+    .finally(() => { clearTimeout(timer); });
+  try {
+    const value = await _aiStatusInFlight;
+    _aiStatusCache = { at: Date.now(), value };
+    return value;
+  } finally {
+    _aiStatusInFlight = null;
+  }
+}
+
+/** Test/manual hook: drop the cached status so the next call probes. */
+export function resetModelAvailabilityCache(): void {
+  _aiStatusCache = null;
+  _aiStatusInFlight = null;
+}
+
 /** Options for matchProfile: onRetry fires before each patient retry,
  * so the caller can show a "waking the backend" state instead of an
  * offline claim while the free Render instance wakes. */

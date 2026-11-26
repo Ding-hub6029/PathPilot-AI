@@ -183,6 +183,35 @@ def _question_line(pref_id: str, locale: str) -> str:
     return lines.get(locale) or lines.get("en", "")
 
 
+def why_followup(extracted: dict, known_before: dict) -> dict | None:
+    """The WHY follow-up for a turn that just recorded new countries
+    (Round 14, P0): ``{"countries": [...], "note": <reason>}`` when
+    the extraction names countries not known before this turn and no
+    reason was on file before it — the same rule as the frontend's
+    ``shouldAskCountryWhy``. ``note`` is present only when this turn
+    also carried a reason (then the follow-up asks what that reason
+    means); without one it asks why from scratch. None when no new
+    country was recorded, or a reason from an EARLIER turn is already
+    on file (asking again would nag). The caller renders it in the
+    FIRST reply of the turn — it must never wait for the user to
+    confirm the extraction first, or a user who never taps confirm
+    never sees it."""
+    if not isinstance(extracted, dict):
+        return None
+    prior = known_before if isinstance(known_before, dict) else {}
+    new = [c for c in (extracted.get("countries") or [])
+           if c not in (prior.get("countries") or [])]
+    if not new:
+        return None
+    if (prior.get("note") or "").strip():
+        return None
+    out: dict = {"countries": new}
+    note = extracted.get("note")
+    if isinstance(note, str) and note.strip():
+        out["note"] = note.strip()
+    return out
+
+
 # ---------------------------------------------------------------------------
 # Validation of `known` (client-supplied, never trusted as-is) and of the
 # model's `extracted` (never trusted at all)
@@ -457,7 +486,8 @@ def _render_pref_lines(payload: dict, locale: str, sources: list[Source],
 
 def _fallback_result(template: dict, sources: list[Source], known: dict,
                      locale: str, *, force_no_url: bool = False,
-                     extracted: dict | None = None) -> dict:
+                     extracted: dict | None = None,
+                     why: dict | None = None) -> dict:
     """The honest offline result: template lines (at most 2) + the
     deterministic next question as the last line, the deterministic
     extraction (round 10 — ``{}`` only when nothing could be matched
@@ -492,7 +522,8 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
             "ai_status": "unavailable", "model": None,
             "sources": [{"id": s.id, "url": s.url, "title": s.title}
                         for s in sources],
-            "extracted": extracted or {}, "next_question": nxt, "done": done}
+            "extracted": extracted or {}, "next_question": nxt, "done": done,
+            "why_followup": why}
 
 
 # ---------------------------------------------------------------------------
@@ -506,13 +537,16 @@ def pref_answer(message: str, locale: str = "en",
     """One turn of the model-led preference conversation.
 
     Returns ``{lines, evidence_url, ai_status, model, sources,
-    extracted, next_question, done}``: ``lines`` at most 3, conclusion
+    extracted, next_question, done, why_followup}``: ``lines`` at most 3, conclusion
     first, the next question as the last line while anything is still
     missing; ``extracted`` holds only the preferences understood from
     THIS message, validated server-side; ``next_question`` is the
     single most useful still-missing preference, or null when all 8
-    are known (``done`` True). ``ai_status`` is ``"available"`` only
-    when a validated model output was actually used.
+    are known (``done`` True); ``why_followup`` is
+    ``{"countries": [...], "note": <reason>}`` in the FIRST reply of
+    a turn that records new countries (None otherwise) — the frontend
+    renders it at once, never behind the confirm chip. ``ai_status``
+    is ``"available"`` only when a validated model output was actually used.
     """
     loc = locale if locale in LOCALES else "en"
     msg = message or ""
@@ -548,7 +582,8 @@ def pref_answer(message: str, locale: str = "en",
         ext = _deterministic_extract(msg, clean_known)
         merged = merge_known(clean_known, ext)
         return _fallback_result(template, sources, merged, loc,
-                                extracted=ext)
+                                extracted=ext,
+                                why=why_followup(ext, clean_known))
 
     # (d) Key present: model over the retrieved sources only.
     def fallback() -> dict:
@@ -558,7 +593,8 @@ def pref_answer(message: str, locale: str = "en",
         ext = _deterministic_extract(msg, clean_known)
         merged = merge_known(clean_known, ext)
         return _fallback_result(template, sources, merged, loc,
-                                extracted=ext)
+                                extracted=ext,
+                                why=why_followup(ext, clean_known))
 
     evidence_texts = _evidence_texts(sources, pids)
     missing_before = missing_prefs(clean_known)
@@ -635,4 +671,8 @@ def pref_answer(message: str, locale: str = "en",
             "sources": sources_out,
             "extracted": extracted,
             "next_question": nxt,
-            "done": done}
+            "done": done,
+            # Round 14, P0: the WHY follow-up rides in the FIRST reply
+            # of the turn that records new countries — never gated on
+            # the user confirming the extraction first.
+            "why_followup": why_followup(extracted, clean_known)}

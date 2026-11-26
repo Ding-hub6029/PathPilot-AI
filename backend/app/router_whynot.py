@@ -156,7 +156,7 @@ async def whynot(request: Request):
                         results=rule_results)
         whynot = compute_whynot(
             ev, profile=profile, budget_currency=budget_currency,
-            fee_currency=_fee_currency(program))
+            fee_currency=_fee_currency(program), locale=locale)
         results.append({"programId": pid,
                         "eligibilitySummary": summary_for(ev.overall_status),
                         "ruleResults": [rule_to_frontend(r) for r in ev.results],

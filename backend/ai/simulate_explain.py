@@ -85,39 +85,264 @@ def leverage_candidates(baseline_flat: dict) -> list[dict]:
     return out
 
 
-def _fmt_change(change: dict) -> str:
+# Round 14: the deterministic template is user-facing text, so it is
+# localised like the explain.py template (same _STRINGS pattern; the
+# "en" row is byte-identical to the old hardcoded English, which the
+# Round 12 tests pin). Engine numbers, rule ids and evidence ids are
+# inserted unchanged; MET stays the literal status token in every
+# locale, as in the whynot template. Unknown locale -> "en".
+_SIMULATE_TEMPLATE_STRINGS = {
+    "en": {
+        "field_budget": "budget",
+        "field_ieltsOverall": "ieltsOverall",
+        "field_ieltsWriting": "ieltsWriting",
+        "top_with_strict": ("{change} mattered most: it flips {rule_flips} rule(s) "
+                            "to MET and {flips} programme(s) stop being blocked "
+                            "(all known minimums met, of which {strict_met} "
+                            "become fully MET)."),
+        "top_without_strict": ("{change} mattered most: it flips {rule_flips} rule(s) "
+                               "to MET and {flips} programme(s) stop being blocked "
+                               "(all known minimums met, but none becomes fully MET, "
+                               "because an academic or admissions-test rule stays "
+                               "UNKNOWN where no equivalence or threshold is "
+                               "published)."),
+        "no_flip_with_scenarios": ("No change in this simulation flips any rule or "
+                                   "programme: every programme that is not met stays "
+                                   "not met, and the academic rule stays UNKNOWN "
+                                   "where no equivalence is published."),
+        "no_flip": ("No single change in this simulation flips any programme "
+                    "to fully met."),
+        "claim": ("Scenario {name}: {prog_flips} programme(s) stop being blocked "
+                  "(all known minimums met) and {rule_flips} rule(s) flip to MET."),
+        "unknown_field_academic": "academic",
+        "unknown_reason": ("No university publishes a Gaokao equivalence, so the "
+                           "academic rule stays UNKNOWN whatever the Gaokao score."),
+        "unknown_question": ("Which foundation or alternative route does each "
+                             "university publish for Gaokao applicants?"),
+        "action": ("Suggestion, not a fact: consider {change} first — it flips "
+                   "{rule_flips} rule(s) to MET."),
+        "limitation": ("This is a rules/template summary from the engine's own "
+                       "numbers, not model-generated text. No admission "
+                       "probabilities are given; unknown stays unknown."),
+        "unknown_prefix": "Unknown: ",
+        "next_prefix": "Next: ",
+        "limitation_prefix": "Limitation: ",
+    },
+    "zh-CN": {
+        "field_budget": "预算",
+        "field_ieltsOverall": "雅思总分",
+        "field_ieltsWriting": "雅思写作",
+        "top_with_strict": ("{change}最关键：它使 {rule_flips} 条规则变为达标，{flips} 个课程"
+                            "不再被卡住（所有已知最低要求均已满足，其中 {strict_met} 个完全达标）。"),
+        "top_without_strict": ("{change}最关键：它使 {rule_flips} 条规则变为达标，{flips} 个课程"
+                               "不再被卡住（所有已知最低要求均已满足，但没有一个完全达标，因为学术或"
+                               "入学考试规则在没有公布等效标准或分数线的情况下仍为未知）。"),
+        "no_flip_with_scenarios": ("本次推演中没有任何改变能使规则或课程翻转：未达标的课程仍然未达标，"
+                                   "学术规则在没有公布等效标准的情况下仍为未知。"),
+        "no_flip": "本次推演中没有任何单一改变能使课程完全达标。",
+        "claim": ("方案{name}：{prog_flips} 个课程不再被卡住（所有已知最低要求均已满足），"
+                  "{rule_flips} 条规则变为达标。"),
+        "unknown_field_academic": "学业资格",
+        "unknown_reason": "没有任何大学公布高考等效标准，因此无论高考分数如何，学术规则都仍为未知。",
+        "unknown_question": "各大学为高考申请者公布了哪些预科或其他替代路径？",
+        "action": "建议，并非事实：请优先考虑{change}——它使 {rule_flips} 条规则变为达标。",
+        "limitation": ("这是根据引擎自身数字生成的规则/模板摘要，并非模型生成的文本。不提供录取概率；"
+                       "未知仍为未知。"),
+        "unknown_prefix": "未知：",
+        "next_prefix": "下一步：",
+        "limitation_prefix": "说明：",
+    },
+    "es": {
+        "field_budget": "presupuesto",
+        "field_ieltsOverall": "IELTS general",
+        "field_ieltsWriting": "IELTS Writing",
+        "top_with_strict": ("{change} es lo que más importa: cambia {rule_flips} regla(s) "
+                            "a MET y {flips} programa(s) dejan de estar bloqueados (todos "
+                            "los mínimos conocidos se cumplen, de los cuales {strict_met} "
+                            "quedan totalmente cumplidos)."),
+        "top_without_strict": ("{change} es lo que más importa: cambia {rule_flips} regla(s) "
+                               "a MET y {flips} programa(s) dejan de estar bloqueados (todos "
+                               "los mínimos conocidos se cumplen, pero ninguno queda totalmente "
+                               "cumplido, porque una regla académica o de examen de admisión "
+                               "sigue siendo UNKNOWN al no haberse publicado equivalencia "
+                               "ni umbral)."),
+        "no_flip_with_scenarios": ("Ningún cambio de esta simulación cambia ninguna regla ni "
+                                   "ningún programa: cada programa no cumplido sigue sin "
+                                   "cumplirse, y la regla académica sigue siendo UNKNOWN al no "
+                                   "haberse publicado ninguna equivalencia."),
+        "no_flip": ("Ningún cambio por sí solo en esta simulación hace que un programa "
+                    "quede totalmente cumplido."),
+        "claim": ("Escenario {name}: {prog_flips} programa(s) dejan de estar bloqueados "
+                  "(todos los mínimos conocidos se cumplen) y {rule_flips} regla(s) "
+                  "cambian a MET."),
+        "unknown_field_academic": "académico",
+        "unknown_reason": ("Ninguna universidad publica una equivalencia del Gaokao, por lo "
+                           "que la regla académica sigue siendo UNKNOWN sea cual sea la nota "
+                           "del Gaokao."),
+        "unknown_question": ("¿Qué programa de foundation o ruta alternativa publica cada "
+                             "universidad para los solicitantes del Gaokao?"),
+        "action": ("Sugerencia, no un hecho: considera {change} primero — cambia "
+                   "{rule_flips} regla(s) a MET."),
+        "limitation": ("Esto es un resumen de reglas/plantilla a partir de los números del "
+                       "propio motor, no un texto generado por un modelo. No se dan "
+                       "probabilidades de admisión; lo desconocido sigue siendo "
+                       "desconocido."),
+        "unknown_prefix": "Desconocido: ",
+        "next_prefix": "Siguiente: ",
+        "limitation_prefix": "Limitación: ",
+    },
+    "fr": {
+        "field_budget": "budget",
+        "field_ieltsOverall": "IELTS global",
+        "field_ieltsWriting": "IELTS Writing",
+        "top_with_strict": ("{change} compte le plus : il fait passer {rule_flips} règle(s) "
+                            "à MET et {flips} programme(s) ne sont plus bloqués (tous les "
+                            "minimums connus sont satisfaits, dont {strict_met} deviennent "
+                            "entièrement satisfaits)."),
+        "top_without_strict": ("{change} compte le plus : il fait passer {rule_flips} règle(s) "
+                               "à MET et {flips} programme(s) ne sont plus bloqués (tous les "
+                               "minimums connus sont satisfaits, mais aucun ne devient "
+                               "entièrement satisfait, car une règle académique ou d'examen "
+                               "d'admission reste UNKNOWN faute d'équivalence ou de seuil "
+                               "publié)."),
+        "no_flip_with_scenarios": ("Aucun changement de cette simulation ne fait basculer une "
+                                   "règle ou un programme : chaque programme non satisfait le "
+                                   "reste, et la règle académique reste UNKNOWN faute "
+                                   "d'équivalence publiée."),
+        "no_flip": ("Aucun changement isolé de cette simulation ne rend un programme "
+                    "entièrement satisfait."),
+        "claim": ("Scénario {name} : {prog_flips} programme(s) ne sont plus bloqués "
+                  "(tous les minimums connus sont satisfaits) et {rule_flips} règle(s) "
+                  "passent à MET."),
+        "unknown_field_academic": "académique",
+        "unknown_reason": ("Aucune université ne publie d'équivalence du Gaokao, donc la "
+                           "règle académique reste UNKNOWN quel que soit le score au Gaokao."),
+        "unknown_question": ("Quelle année de foundation ou quelle autre voie chaque université "
+                             "publie-t-elle pour les candidats du Gaokao ?"),
+        "action": ("Suggestion, pas un fait : envisagez {change} d'abord — il fait "
+                   "passer {rule_flips} règle(s) à MET."),
+        "limitation": ("Ceci est un résumé règles/modèle à partir des chiffres du moteur "
+                       "lui-même, et non un texte généré par un modèle. Aucune probabilité "
+                       "d'admission n'est donnée ; l'inconnu reste inconnu."),
+        "unknown_prefix": "Inconnu : ",
+        "next_prefix": "Ensuite : ",
+        "limitation_prefix": "Limite : ",
+    },
+    "pt-BR": {
+        "field_budget": "orçamento",
+        "field_ieltsOverall": "IELTS geral",
+        "field_ieltsWriting": "IELTS Writing",
+        "top_with_strict": ("{change} é o que mais importa: muda {rule_flips} regra(s) para "
+                            "MET e {flips} programa(s) deixam de estar bloqueados (todos os "
+                            "mínimos conhecidos são atendidos, dos quais {strict_met} ficam "
+                            "totalmente atendidos)."),
+        "top_without_strict": ("{change} é o que mais importa: muda {rule_flips} regra(s) para "
+                               "MET e {flips} programa(s) deixam de estar bloqueados (todos os "
+                               "mínimos conhecidos são atendidos, mas nenhum fica totalmente "
+                               "atendido, porque uma regra acadêmica ou de exame de admissão "
+                               "continua UNKNOWN sem equivalência ou limite publicado)."),
+        "no_flip_with_scenarios": ("Nenhuma mudança desta simulação altera qualquer regra ou "
+                                   "programa: cada programa não atendido continua não atendido, "
+                                   "e a regra acadêmica continua UNKNOWN sem equivalência "
+                                   "publicada."),
+        "no_flip": ("Nenhuma mudança isolada desta simulação torna um programa totalmente "
+                    "atendido."),
+        "claim": ("Cenário {name}: {prog_flips} programa(s) deixam de estar bloqueados "
+                  "(todos os mínimos conhecidos são atendidos) e {rule_flips} regra(s) "
+                  "mudam para MET."),
+        "unknown_field_academic": "acadêmico",
+        "unknown_reason": ("Nenhuma universidade publica equivalência do Gaokao, portanto a "
+                           "regra acadêmica continua UNKNOWN qualquer que seja a nota do Gaokao."),
+        "unknown_question": ("Qual programa de foundation ou rota alternativa cada universidade "
+                             "publica para candidatos do Gaokao?"),
+        "action": ("Sugestão, não fato: considere {change} primeiro — muda {rule_flips} "
+                   "regra(s) para MET."),
+        "limitation": ("Isto é um resumo de regras/modelo a partir dos números do próprio "
+                       "mecanismo, não um texto gerado por modelo. Nenhuma probabilidade de "
+                       "admissão é dada; o desconhecido continua desconhecido."),
+        "unknown_prefix": "Desconhecido: ",
+        "next_prefix": "Próximo passo: ",
+        "limitation_prefix": "Limitação: ",
+    },
+    "ar": {
+        "field_budget": "الميزانية",
+        "field_ieltsOverall": "IELTS العام",
+        "field_ieltsWriting": "IELTS الكتابة",
+        "top_with_strict": ("{change} هو الأهم: يغيّر {rule_flips} من القواعد إلى MET ويتوقف "
+                            "{flips} من البرامج عن كونها محظورة (جميع الحدود الدنيا المعروفة "
+                            "مستوفاة، ومنها {strict_met} تصبح مستوفاة بالكامل)."),
+        "top_without_strict": ("{change} هو الأهم: يغيّر {rule_flips} من القواعد إلى MET ويتوقف "
+                               "{flips} من البرامج عن كونها محظورة (جميع الحدود الدنيا المعروفة "
+                               "مستوفاة، لكن لا يصبح أي منها مستوفًى بالكامل، لأن قاعدة أكاديمية "
+                               "أو قاعدة اختبار قبول تبقى UNKNOWN حيث لا توجد معادلة أو حد منشور)."),
+        "no_flip_with_scenarios": ("لا يوجد أي تغيير في هذه المحاكاة يقلب أي قاعدة أو برنامج: كل "
+                                   "برنامج غير مستوفٍ يبقى غير مستوفٍ، وتبقى القاعدة الأكاديمية "
+                                   "UNKNOWN حيث لا توجد معادلة منشورة."),
+        "no_flip": "لا يوجد أي تغيير منفرد في هذه المحاكاة يجعل برنامجًا مستوفًى بالكامل.",
+        "claim": ("السيناريو {name}: يتوقف {prog_flips} من البرامج عن كونها محظورة "
+                  "(جميع الحدود الدنيا المعروفة مستوفاة) وتتغير {rule_flips} من القواعد "
+                  "إلى MET."),
+        "unknown_field_academic": "أكاديمي",
+        "unknown_reason": ("لا تنشر أي جامعة معادلة لامتحان Gaokao، لذا تبقى القاعدة الأكاديمية "
+                           "UNKNOWN مهما كانت نتيجة Gaokao."),
+        "unknown_question": ("ما برنامج السنة التأسيسية أو المسار البديل الذي تنشره كل جامعة "
+                             "لمتقدمي Gaokao؟"),
+        "action": ("اقتراح وليس حقيقة: فكّر في {change} أولًا — فهو يغيّر {rule_flips} "
+                   "من القواعد إلى MET."),
+        "limitation": ("هذا ملخص قواعد/قالب من أرقام المحرك نفسه، وليس نصًا مولّدًا بواسطة "
+                       "نموذج. لا تُقدَّم أي احتمالات قبول؛ والمجهول يبقى مجهولًا."),
+        "unknown_prefix": "غير معروف: ",
+        "next_prefix": "التالي: ",
+        "limitation_prefix": "القيد: ",
+    },
+}
+
+
+def _simulate_strings(locale: str) -> dict:
+    return _SIMULATE_TEMPLATE_STRINGS.get(locale) or _SIMULATE_TEMPLATE_STRINGS["en"]
+
+
+def _sim_fill(template: str, **values) -> str:
+    """Substitute {name} placeholders without str.format (same reason as
+    ai.explain._fill: a value may itself contain braces)."""
+    out = template
+    for key, value in values.items():
+        out = out.replace("{" + key + "}", str(value))
+    return out
+
+
+def _fmt_change(change: dict, locale: str = "en") -> str:
+    s = _simulate_strings(locale)
     field, frm, to = change["field"], change["from"], change["to"]
+    label = s.get(f"field_{field}", field)
     if field == "budget":
-        return f"budget GBP {frm:,} -> GBP {to:,}"
-    return f"{field} {frm} -> {to}"
+        return _sim_fill("{label} GBP {frm} -> GBP {to}", label=label,
+                         frm=f"{frm:,}", to=f"{to:,}")
+    return _sim_fill("{label} {frm} -> {to}", label=label, frm=frm, to=to)
 
 
-def _top_line(scenarios: list[dict], leverage: dict | None) -> str:
+def _top_line(scenarios: list[dict], leverage: dict | None,
+              locale: str = "en") -> str:
     """One-sentence template summary, from engine numbers only."""
+    s = _simulate_strings(locale)
     top = (leverage or {}).get("top") or {}
     if not top:
         if scenarios:
             best = max(scenarios, key=lambda s: (len(s.get("flipped_program_ids") or []),
                                                  s.get("rule_flip_count", 0)))
             if (best.get("rule_flip_count", 0) or 0) == 0 and not best.get("flipped_program_ids"):
-                return ("No change in this simulation flips any rule or programme: "
-                        "every programme that is not met stays not met, and the "
-                        "academic rule stays UNKNOWN where no equivalence is published.")
-        return ("No single change in this simulation flips any programme to "
-                "fully met.")
+                return s["no_flip_with_scenarios"]
+        return s["no_flip"]
     flips = top.get("flips", 0)
     rule_flips = top.get("rule_flips", 0)
     strict_met = top.get("flips_to_met", 0)
-    line = (f"{_fmt_change(top['change'])} mattered most: it flips "
-            f"{rule_flips} rule(s) to MET and {flips} programme(s) stop "
-            f"being blocked (all known minimums met")
+    change = _fmt_change(top["change"], locale)
     if strict_met:
-        line += f", of which {strict_met} become fully MET"
-    else:
-        line += (", but none becomes fully MET, because an academic or "
-                 "admissions-test rule stays UNKNOWN where no equivalence "
-                 "or threshold is published")
-    return line + ")."
+        return _sim_fill(s["top_with_strict"], change=change,
+                         rule_flips=rule_flips, flips=flips,
+                         strict_met=strict_met)
+    return _sim_fill(s["top_without_strict"], change=change,
+                     rule_flips=rule_flips, flips=flips)
 
 
 def template_simulate_structured(*, scenarios: list[dict],
@@ -132,6 +357,7 @@ def template_simulate_structured(*, scenarios: list[dict],
     reader can follow each claim to a verified page; numbers in the text
     are engine-computed counts and profile deltas, never model output.
     """
+    s = _simulate_strings(locale)
     claims: list[dict] = []
     for scen in scenarios:
         name = scen.get("name") or "scenario"
@@ -145,9 +371,8 @@ def template_simulate_structured(*, scenarios: list[dict],
             sources = programme_sources(pid)
             if sources:
                 evidence.append(sources[0].id)
-        text = (f"Scenario {name}: {len(prog_flips)} programme(s) stop being "
-                f"blocked (all known minimums met) and {rule_flips} rule(s) "
-                f"flip to MET.")
+        text = _sim_fill(s["claim"], name=name, prog_flips=len(prog_flips),
+                         rule_flips=rule_flips)
         claims.append({"text": text, "kind": "fact",
                        "rule_ids": rule_ids[:10], "evidence_ids": evidence})
         if len(claims) >= 20:
@@ -155,39 +380,34 @@ def template_simulate_structured(*, scenarios: list[dict],
     unknowns: list[dict] = []
     if baseline_unknown_academic:
         unknowns.append({
-            "field": "academic",
-            "reason": ("No university publishes a Gaokao equivalence, so the "
-                       "academic rule stays UNKNOWN whatever the Gaokao score."),
-            "question": "Which foundation or alternative route does each "
-                        "university publish for Gaokao applicants?"})
+            "field": s["unknown_field_academic"],
+            "reason": s["unknown_reason"],
+            "question": s["unknown_question"]})
     actions: list[dict] = []
     top = (leverage or {}).get("top") or {}
     if top:
         actions.append({
-            "explanation": (f"Suggestion, not a fact: consider "
-                            f"{_fmt_change(top['change'])} first — it flips "
-                            f"{top.get('rule_flips', 0)} rule(s) to MET."),
+            "explanation": _sim_fill(
+                s["action"], change=_fmt_change(top["change"], locale),
+                rule_flips=top.get("rule_flips", 0)),
             "evidence_ids": []})
-    limitations = [
-        "This is a rules/template summary from the engine's own numbers, "
-        "not model-generated text. No admission probabilities are given; "
-        "unknown stays unknown.",
-    ]
-    return {"summary": _top_line(scenarios, leverage), "claims": claims,
+    limitations = [s["limitation"]]
+    return {"summary": _top_line(scenarios, leverage, locale), "claims": claims,
             "unknowns": unknowns, "actions": actions,
             "limitations": limitations}
 
 
-def template_simulate_text(structured: dict) -> str:
+def template_simulate_text(structured: dict, locale: str = "en") -> str:
+    s = _simulate_strings(locale)
     lines = [structured.get("summary", "")]
     for claim in structured.get("claims", []):
         lines.append(f"- {claim.get('text', '')}")
     for u in structured.get("unknowns", []):
-        lines.append(f"- Unknown: {u.get('field', '')} — {u.get('reason', '')}")
+        lines.append(f"- {s['unknown_prefix']}{u.get('field', '')} — {u.get('reason', '')}")
     for a in structured.get("actions", []):
-        lines.append(f"- Next: {a.get('explanation', '')}")
+        lines.append(f"- {s['next_prefix']}{a.get('explanation', '')}")
     for lim in structured.get("limitations", []):
-        lines.append(f"- Limitation: {lim}")
+        lines.append(f"- {s['limitation_prefix']}{lim}")
     return "\n".join(line for line in lines if line.strip())
 
 
@@ -253,7 +473,7 @@ def _model_explain_simulation(*, scenarios, leverage,
             for s in scenarios],
         "leverage": {
             "top_change": top.get("id"),
-            "top_change_description": (_fmt_change(top["change"]) if top else None),
+            "top_change_description": (_fmt_change(top["change"], locale) if top else None),
             "all": [{"id": c["id"], "flips": c.get("flips", 0),
                      "rule_flips": c.get("rule_flips", 0)}
                     for c in (leverage or {}).get("all") or []]},
@@ -315,9 +535,9 @@ def explain_simulation(*, scenarios: list[dict], leverage: dict | None,
         scenarios=scenarios, leverage=leverage,
         baseline_unknown_academic=baseline_unknown_academic, locale=locale)
     if provider is None:
-        return template, template_simulate_text(template), "unavailable"
+        return template, template_simulate_text(template, locale), "unavailable"
     if not provider.available:
-        return template, template_simulate_text(template), "unavailable"
+        return template, template_simulate_text(template, locale), "unavailable"
     try:
         structured = _model_explain_simulation(
             scenarios=scenarios, leverage=leverage,
@@ -327,9 +547,9 @@ def explain_simulation(*, scenarios: list[dict], leverage: dict | None,
         # Round 13: a model failure must never raise/500 — any
         # unexpected error in the model path falls back to the
         # template (the engine numbers are already computed).
-        return template, template_simulate_text(template), "unavailable"
+        return template, template_simulate_text(template, locale), "unavailable"
     if structured is None:
-        return template, template_simulate_text(template), "unavailable"
+        return template, template_simulate_text(template, locale), "unavailable"
     sources = []
     for scen in scenarios:
         for pid in scen.get("flipped_program_ids") or []:

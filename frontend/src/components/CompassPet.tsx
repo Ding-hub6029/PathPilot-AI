@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
 import type { Profile } from '../lib/types';
 import { fetchJson, fetchJsonPatient, allPrograms, findProgram } from '../lib/api';
@@ -403,12 +404,20 @@ function devilProfileFor(p: Profile): Record<string, unknown> | null {
 
 export function CompassPet() {
   const { t, tf, locale, profile } = useApp();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   /** Devil's advocate (round 11): when on, free-text turns are sent
    * with mode=devil + the saved preferences, and the reply renders
    * with the devil boundary line + distinct style. */
   const [devilMode, setDevilMode] = useState(false);
+  /** Round 14: whether there is anything to challenge — the toggle
+   * renders exactly when devilProfileFor(profile) is non-null, i.e.
+   * saved preferences exist (countries, climate, level, budget or
+   * city). It is a pure function of the durable profile (hydrated
+   * from pp-profile on every load), never of session flags — see the
+   * toggle comment and the /results restore effect below. */
+  const canDevil = devilProfileFor(profile) !== null;
   const [answers, setAnswers] = useState<{ degree?: Degree; country?: Country; budget?: Band }>({});
   const [messages, setMessages] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState('');
@@ -600,6 +609,41 @@ export function CompassPet() {
     } catch { /* ignore */ }
   }, []);
 
+  /** Round 14 — the toggle vanish (re-test task 8, 2026-11-27): the
+   * toggle appeared exactly once, on the first results-page load
+   * from a stale `pp-pet-open` session flag, and never came back
+   * after a pref-chat reset + two full wizard runs with the identical
+   * 8/8 preference summary. Root cause, in code: the toggle JSX had
+   * NO profile gate — it rendered whenever the panel was open — and
+   * the panel opens on load ONLY from that session flag. Every close
+   * path (×, Escape, floating-button toggle, and every pet next-step
+   * Link calling toggle(false)) removed the flag, PrefChat restart
+   * never touches the pet or the flag, and the wizard finishes with
+   * router.push('/results') — a client-side navigation, so the
+   * layout (and CompassPet) never remounts and the mount restore
+   * never re-runs. Once closed anywhere in the flow, the panel (and
+   * the toggle inside it) stayed closed for the rest of the session,
+   * however complete the saved preferences were.
+   *
+   * Fix: the panel re-opens on arrival at /results whenever there
+   * are saved preferences to challenge (canDevil), unless the user
+   * explicitly dismissed it this session ('pp-pet-dismissed', set
+   * only by the explicit close paths in toggle(false) — never by a
+   * navigation link, which uses closeForNavigation and keeps the
+   * open memory). It calls setOpen directly, never toggle(true), so
+   * it never steals input focus on a page load. The toggle itself
+   * is gated on canDevil below, so the two agree: the panel opens
+   * exactly when the toggle will be in it. */
+  useEffect(() => {
+    if (pathname !== '/results' || open || !canDevil) return;
+    try {
+      if (sessionStorage.getItem('pp-pet-dismissed') === '1') return;
+    } catch { /* ignore */ }
+    setOpen(true);
+    try { sessionStorage.setItem('pp-pet-open', '1'); } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, canDevil, open]);
+
   useEffect(() => {
     if (open && messages.length === 0) greet();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -790,10 +834,32 @@ export function CompassPet() {
   const toggle = (next: boolean) => {
     setOpen(next);
     try {
-      if (next) sessionStorage.setItem('pp-pet-open', '1');
-      else sessionStorage.removeItem('pp-pet-open');
+      if (next) {
+        // Opening clears an explicit dismiss from earlier in the
+        // session, so the /results restore above can work again.
+        sessionStorage.setItem('pp-pet-open', '1');
+        sessionStorage.removeItem('pp-pet-dismissed');
+      } else {
+        // Round 14: an EXPLICIT close (×, Escape, floating button)
+        // records the dismiss, so the /results restore never fights
+        // a close the user chose. Navigation-link closes use
+        // closeForNavigation instead and never set this.
+        sessionStorage.removeItem('pp-pet-open');
+        sessionStorage.setItem('pp-pet-dismissed', '1');
+      }
     } catch { /* ignore */ }
     if (next) setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  /** Close the panel for a navigation the pet itself started (a
+   * next-step Link or the "edit preferences" link): the panel gets
+   * out of the way, but the open memory (pp-pet-open) is kept and no
+   * dismiss is recorded — returning to /results restores the panel
+   * (see the effect above) instead of losing the toggle for the
+   * rest of the session, which is what the old toggle(false) here
+   * did. */
+  const closeForNavigation = () => {
+    setOpen(false);
   };
 
   const push = (msg: ChatTurn) => setMessages((prev) => [...prev, msg]);
@@ -1205,7 +1271,7 @@ export function CompassPet() {
           {hasPreferences(profile) && (
             <div className="flex items-center justify-between gap-2 bg-amber/15 px-3 py-2 text-xs text-navy">
               <p className="min-w-0 truncate">{tf('pet.prefSaved', { prefs: prefSummary(profile, t) })}</p>
-              <Link href="/wizard" onClick={() => toggle(false)} className="btn-press shrink-0 rounded-full bg-white px-2.5 py-1 font-semibold text-navy ring-1 ring-navy/10">{t('results.prefEdit')}</Link>
+              <Link href="/wizard" onClick={closeForNavigation} className="btn-press shrink-0 rounded-full bg-white px-2.5 py-1 font-semibold text-navy ring-1 ring-navy/10">{t('results.prefEdit')}</Link>
             </div>
           )}
           <div className="flex-1 space-y-2 overflow-y-auto bg-paper p-3 text-sm">
@@ -1231,16 +1297,16 @@ export function CompassPet() {
                     )}
                     {rendered.nextSteps && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <Link href={rendered.nextSteps.wizard ?? '/wizard'} onClick={() => toggle(false)} className="btn-press rounded-full bg-amber px-3 py-1.5 text-xs font-bold text-navy">
+                        <Link href={rendered.nextSteps.wizard ?? '/wizard'} onClick={closeForNavigation} className="btn-press rounded-full bg-amber px-3 py-1.5 text-xs font-bold text-navy">
                           {t('pet.ctaWizard')}
                         </Link>
                         {rendered.nextSteps.program && (
-                          <Link href={rendered.nextSteps.program} onClick={() => toggle(false)} className="btn-press rounded-full border border-navy/25 px-3 py-1.5 text-xs font-semibold text-navy">
+                          <Link href={rendered.nextSteps.program} onClick={closeForNavigation} className="btn-press rounded-full border border-navy/25 px-3 py-1.5 text-xs font-semibold text-navy">
                             {t('pet.ctaProgram')}
                           </Link>
                         )}
                         {rendered.nextSteps.institution && !rendered.nextSteps.program && (
-                          <Link href={rendered.nextSteps.institution} onClick={() => toggle(false)} className="btn-press rounded-full border border-navy/25 px-3 py-1.5 text-xs font-semibold text-navy">
+                          <Link href={rendered.nextSteps.institution} onClick={closeForNavigation} className="btn-press rounded-full border border-navy/25 px-3 py-1.5 text-xs font-semibold text-navy">
                             {t('pet.ctaInstitution')}
                           </Link>
                         )}
@@ -1275,20 +1341,30 @@ export function CompassPet() {
             <div ref={bottomRef} />
           </div>
           <div className="border-t border-navy/10 bg-white p-2">
-            {/* Devil's advocate toggle (round 11): a second AI voice
-                that challenges the saved preferences with verified
-                facts. The reply renders with the devil boundary line
-                above, never as a verdict. */}
-            <div className="mb-2 flex items-center justify-start px-1">
-              <button
-                type="button"
-                onClick={() => setDevilMode((d) => !d)}
-                aria-pressed={devilMode}
-                className={`btn-press rounded-full px-3 py-1.5 text-xs font-semibold ${devilMode ? 'bg-amber/15 text-navy ring-1 ring-amber' : 'text-navy/70 ring-1 ring-navy/20 hover:bg-paper'}`}
-              >
-                {devilMode ? t('devil.toggleActive') : t('devil.toggle')}
-              </button>
-            </div>
+            {/* Devil's advocate toggle (round 11; round 14 gating):
+                a second AI voice that challenges the saved preferences
+                with verified facts. The reply renders with the devil
+                boundary line above, never as a verdict. Round 14: the
+                toggle renders exactly when there is something to
+                challenge (canDevil — devilProfileFor(profile) is
+                non-null, i.e. saved preferences exist) and is hidden
+                only when there genuinely is nothing to challenge.
+                Before, it was unconditional inside the panel, so its
+                visibility depended entirely on the panel's session
+                flag (see the /results restore effect): it appeared
+                once from a stale flag and then never came back. */}
+            {canDevil && (
+              <div className="mb-2 flex items-center justify-start px-1">
+                <button
+                  type="button"
+                  onClick={() => setDevilMode((d) => !d)}
+                  aria-pressed={devilMode}
+                  className={`btn-press rounded-full px-3 py-1.5 text-xs font-semibold ${devilMode ? 'bg-amber/15 text-navy ring-1 ring-amber' : 'text-navy/70 ring-1 ring-navy/20 hover:bg-paper'}`}
+                >
+                  {devilMode ? t('devil.toggleActive') : t('devil.toggle')}
+                </button>
+              </div>
+            )}
             <div className="flex gap-2">
               <input
                 ref={inputRef}

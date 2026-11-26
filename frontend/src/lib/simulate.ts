@@ -4,7 +4,7 @@
 // (ai/simulate_explain.py): only changes the engine actually evaluates.
 // No Gaokao candidate exists on either side: no university publishes a
 // Gaokao equivalence, so the academic rule stays UNKNOWN whatever the score.
-import { fetchJsonPatient, type FetchPatientOptions } from './api';
+import { fetchJsonPatient, modelAvailability, type FetchPatientOptions } from './api';
 import { DATA_VERSION, MatchResponse, Profile, RULES_VERSION } from './types';
 
 export interface SimulateChange {
@@ -109,13 +109,26 @@ export function toggleSimulateSelection(prev: string[], id: string): string[] {
  * response carries the per-scenario deltas, the leverage ranking and
  * the (template or model) explanation. `explain: true` asks the backend
  * to attempt one citation-checked model call; without it the response
- * carries the deterministic template explanation only. */
+ * carries the deterministic template explanation only.
+ *
+ * Round 14 fail-fast: when the model is KNOWN-unavailable (the live
+ * /ai/status probe said so — cached 60 s, shared with createPlan),
+ * the explained call is never fired: explain:false goes out at once
+ * and the template renders in engine time instead of spending the
+ * backend's 15 s model budget proving the gateway is still down. When
+ * the status read itself fails ('unknown' — backend asleep, network
+ * error), the model is attempted once as before: an unread status
+ * says nothing about the model, and the patient fetch wakes a
+ * sleeping backend. The existing fallback (a failed explain:true call
+ * retries once with explain:false in SimulatePanel) is untouched. */
 export async function simulateMulti(
   profile: Profile,
   programIds: string[],
   scenarios: { name: string; patch: Partial<Profile> }[],
   opts?: { explain?: boolean; locale?: string; patientOptions?: FetchPatientOptions },
 ): Promise<MultiSimulateResponse> {
+  const wantExplain = opts?.explain ?? true;
+  const explain = wantExplain && (await modelAvailability()) !== 'unavailable';
   return fetchJsonPatient<MultiSimulateResponse>('/api/simulate', {
     method: 'POST',
     body: JSON.stringify({
@@ -123,7 +136,7 @@ export async function simulateMulti(
       scenarios,
       program_ids: programIds,
       locale: opts?.locale,
-      explain: opts?.explain ?? true,
+      explain,
       versions: { data_version: DATA_VERSION, rules_version: RULES_VERSION },
     }),
   },

@@ -30,7 +30,7 @@ from fastapi.testclient import TestClient
 from ai.chat import _climate_evidence
 from ai.pref_chat import (PREF_ORDER, _deterministic_extract, _question_line,
                           first_missing, missing_prefs, pref_answer,
-                          validate_extracted, validate_known)
+                          validate_extracted, validate_known, why_followup)
 from ai.provider import ProviderAdapter
 from app import router_chat
 
@@ -745,3 +745,85 @@ def test_pref_chat_invalid_output_falls_back_after_one_call(monkeypatch):
     # The deterministic extraction still records the country.
     assert r["extracted"] == {"countries": ["CH"]}
     assert r["next_question"] == "climate"
+
+
+# ---------------------------------------------------------------------------
+# Round 14, P0: why_followup rides in the FIRST reply
+# ---------------------------------------------------------------------------
+
+def test_why_followup_unit():
+    # New country + reason in this turn -> ask what the reason means.
+    assert why_followup({"countries": ["CH"], "note": "环境优美"},
+                        {"countries": [], "note": None}) == {
+        "countries": ["CH"], "note": "环境优美"}
+    # A chip tap carries no reason -> ask why from scratch (no note).
+    assert why_followup({"countries": ["CH"]}, {"countries": []}) == {
+        "countries": ["CH"]}
+    # No new country -> no follow-up, even with a reason in the turn.
+    assert why_followup({"countries": ["CH"]}, {"countries": ["CH"]}) is None
+    # A reason from an EARLIER turn suppresses it (asking again nags).
+    assert why_followup({"countries": ["CH"], "note": "x"},
+                        {"countries": [], "note": "y"}) is None
+    assert why_followup({}, {"countries": []}) is None
+    assert why_followup({"countries": ["CH"]},
+                        {"countries": [], "note": "   "}) == {
+        "countries": ["CH"]}
+
+
+def test_pref_chat_why_followup_in_first_reply_model(monkeypatch):
+    # The audit turn: "我想去瑞士，因为那边环境优美" must carry the
+    # WHY follow-up in its FIRST reply — before any confirm tap —
+    # while next_question still moves on to climate.
+    provider = _mock_provider(monkeypatch, _pref_handler({}))
+    r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
+                    provider=provider)
+    assert r["ai_status"] == "available"
+    assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
+    assert r["extracted"]["countries"] == ["CH"]
+    assert r["next_question"] == "climate"
+
+
+def test_pref_chat_why_followup_chip_no_reason(monkeypatch):
+    # A bare chip tap ("瑞士") records the country with no reason:
+    # the follow-up asks why from scratch.
+    provider = _mock_provider(monkeypatch, _pref_handler({}))
+    r = pref_answer("瑞士", "zh-CN", known={}, provider=provider)
+    assert r["why_followup"] == {"countries": ["CH"]}
+    assert "note" not in r["why_followup"]
+
+
+def test_pref_chat_why_followup_suppressed_by_earlier_reason(monkeypatch):
+    provider = _mock_provider(monkeypatch, _pref_handler({}))
+    r = pref_answer("我想去瑞士", "zh-CN", known={"note": "环境优美"},
+                    provider=provider)
+    assert r["why_followup"] is None
+
+
+def test_pref_chat_why_followup_absent_no_new_country(monkeypatch):
+    provider = _mock_provider(monkeypatch, _pref_handler({}))
+    r = pref_answer("我想去瑞士", "zh-CN", known={"countries": ["CH"]},
+                    provider=provider)
+    assert r["why_followup"] is None
+
+
+def test_pref_chat_why_followup_in_no_key_fallback(monkeypatch):
+    # Gateway-down path 1: no key at all — the deterministic
+    # extraction still carries the WHY follow-up in the first reply.
+    provider = _no_key_provider(monkeypatch)
+    r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
+                    provider=provider)
+    assert r["ai_status"] == "unavailable"
+    assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
+    assert r["extracted"]["countries"] == ["CH"]
+    assert r["next_question"] == "climate"
+
+
+def test_pref_chat_why_followup_in_gateway_failure_fallback(monkeypatch):
+    # Gateway-down path 2: the model call fails (HTTP 500) — the
+    # fallback still carries the WHY follow-up in the first reply.
+    provider = _mock_provider(monkeypatch, _http500_handler)
+    r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
+                    provider=provider)
+    assert r["ai_status"] == "unavailable"
+    assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
+    assert r["extracted"]["countries"] == ["CH"]

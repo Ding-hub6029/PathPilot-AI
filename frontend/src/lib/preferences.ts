@@ -99,8 +99,16 @@ export function prefSummary(profile: Profile, t: (k: string) => string): string 
   // Split every part into atoms on the joining separators first
   // ('；' ';' '、' '，' — never '·' or ',', which live inside the
   // campus label and the multi-country list), then dedupe atoms.
+  // Round 14: the countries NOTE is one free-text value (the reason),
+  // not a list — a single reason sentence may carry '、' or '，' as
+  // ordinary punctuation ("空气清新、湖光山色、安静宜居"), and splitting
+  // it there shreds one reason into several summary atoms. Only the
+  // old storage join separator ('；' / ';') splits a note; new notes
+  // are joined with '·' (chat.ts normaliseCountryNote) and the
+  // '·'-segment dedupe below still strips a segment that duplicates
+  // another surviving atom.
   const atoms = parts.flatMap((p) =>
-    p.text.split(/[；;、，]+/).map((s) => s.trim()).filter(Boolean)
+    p.text.split(p.fromNote ? /[；;]+/ : /[；;、，]+/).map((s) => s.trim()).filter(Boolean)
       .map((text) => ({ text, fromNote: p.fromNote })),
   );
   // Round 10, R2: exact-match dedupe was not enough — a free-text value
