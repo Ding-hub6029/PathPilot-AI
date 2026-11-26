@@ -18,6 +18,8 @@ import { RuleRow } from '../../components/RuleRow';
 import { CompassFace } from '../../components/CompassPet';
 import { ViewTransitionLink } from '../../components/ViewTransitionLink';
 import { vtRef } from '../../lib/viewTransition';
+import { useBackendStatus } from '../../lib/backendStatus';
+import { GaokaoPanel } from '../../components/GaokaoPanel';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
 
 type Filter = 'all' | 'met' | 'notmet' | 'unknown';
@@ -25,7 +27,11 @@ type Filter = 'all' | 'met' | 'notmet' | 'unknown';
 export default function ResultsPage() {
   const { t, tf, locale, profile } = useApp();
   const f = { t, tf, locale, budgetCurrency: profile.budgetCurrency };
-  const { programs: livePrograms, live: programsLive, loading: programsLoading } = usePrograms();
+  const { programs: livePrograms } = usePrograms();
+  // Round 9 (R9): backend status comes from the one shared probe
+  // (lib/backendStatus) — never from this page's own match/fetch, so
+  // this header can no longer contradict the rankings/browse footers.
+  const backendStatus = useBackendStatus();
   // Round 6: lookups cover the merged list (live v2 + expansion mirror),
   // so expansion results resolve to a programme card.
   const programs = useMemo(() => mergePrograms(livePrograms), [livePrograms]);
@@ -122,9 +128,9 @@ export default function ResultsPage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="line-mask text-2xl font-bold"><span>{t('results.title')}</span></h1>
       {profile.sample && <p className="mt-2 inline-block rounded-lg bg-amber/25 px-3 py-1 text-sm font-semibold">{t('common.synthetic')}</p>}
-      {data && !data.live && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('common.offline')}: {t('results.offlineNote')}</p>}
-      {data && data.live && <p className="mt-3 rounded-lg bg-teal/10 p-3 text-sm font-semibold text-teal-dark" role="status">{t('common.online')}</p>}
-      {!programsLoading && !programsLive && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('programs.offlineNote')}</p>}
+      {backendStatus === 'live' && <p className="mt-3 rounded-lg bg-teal/10 p-3 text-sm font-semibold text-teal-dark" role="status">{t('r9pages.backendLive')}</p>}
+      {backendStatus === 'checking' && <p className="mt-3 rounded-lg bg-white/70 p-3 text-sm font-semibold text-navy/70" role="status">{t('r9pages.backendChecking')}</p>}
+      {backendStatus === 'offline' && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('common.offline')}: {t('results.offlineNote')}</p>}
       {/* Round 8: every count says what it counts — the filtered
           result count, the full result count, the 8 deeply-verified
           v2 programmes and the 881 expansion programmes — so the
@@ -161,6 +167,30 @@ export default function ResultsPage() {
               <Link href="/report" className="btn-press rounded-full bg-navy px-5 py-2 font-semibold text-white">{t('results.nextReport')}</Link>
               <Link href="/wizard" className="btn-press rounded-full border border-navy/30 bg-white px-5 py-2 font-semibold">{t('results.nextEdit')}</Link>
             </div>
+          </section>
+        );
+      })()}
+
+      {/* Round 9 (R11): "0 个课程符合所有已知要求" with no explanation
+          reads as a verdict on the applicant. For a Gaokao applicant it
+          is structural — no university publishes a Gaokao equivalence,
+          so the academic rule is UNKNOWN everywhere and nothing can
+          ever be fully MET. Say so in plain words, and point at the
+          Gaokao route panel (what universities actually publish) instead
+          of leaving the zero unexplained. Shown only when the zero is
+          really caused by unknown academics for a Gaokao profile. */}
+      {data && !loading && (() => {
+        const usable = data.results.filter((r) => !r.trackMismatch && r.ruleResults.length > 0);
+        const metCount = usable.filter((r) => r.ruleResults.every((x) => x.status === 'MET')).length;
+        const hasGaokao = profile.gaokaoScore !== '' && profile.gaokaoScore !== undefined;
+        const academicUnknown = usable.some((r) => r.ruleResults.some((x) => x.ruleId.endsWith('-academic') && x.status === 'UNKNOWN'));
+        if (metCount !== 0 || !hasGaokao || !academicUnknown) return null;
+        return (
+          <section className="mt-4 rounded-2xl border border-amber/40 bg-amber/10 p-5" aria-labelledby="zero-met-title">
+            <h2 id="zero-met-title" className="text-lg font-bold">{t('r9pages.zeroMetTitle')}</h2>
+            <p className="mt-1 text-sm text-navy/80">{t('r9pages.zeroMetBody')}</p>
+            <p className="mt-2 text-sm font-semibold">{t('r9pages.zeroMetGaokaoHint')}</p>
+            <GaokaoPanel />
           </section>
         );
       })()}
@@ -326,7 +356,7 @@ export default function ResultsPage() {
                               <li key={b.ruleId}>
                                 {sentence ?? (
                                   <>
-                                    <strong>{ruleName(b.ruleId, t)}</strong>{t('common.colon')}{ruleExpected(b, t)} — {t('results.yourSituation')}{t('common.colon')}{formatObserved(b, f)}
+                                    <strong>{ruleName(b.ruleId, t)}</strong>{t('common.colon')}{ruleExpected(b, f)} — {t('results.yourSituation')}{t('common.colon')}{formatObserved(b, f)}
                                   </>
                                 )}
                               </li>

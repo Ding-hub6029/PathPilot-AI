@@ -100,10 +100,54 @@ export function ruleName(ruleId: string, t: (key: string) => string): string {
   return v === key ? ruleId : v;
 }
 
-export function ruleExpected(rule: RuleResult, t: (key: string) => string): string {
+function hasThresholdValue(v: unknown): boolean {
+  if (v === null || v === undefined) return false;
+  if (typeof v === 'number') return true;
+  if (typeof v === 'string') return v.length > 0;
+  if (Array.isArray(v)) return v.some(hasThresholdValue);
+  if (typeof v === 'object') return Object.values(v as Record<string, unknown>).some(hasThresholdValue);
+  return false;
+}
+
+/** "要求" line for a rule, in the current locale.
+ * Round 9 integration: expansion rules render from their structured
+ * thresholdRaw instead of the backend's English `expected` string, so
+ * the fee line is localised (with the approximate converted figure
+ * when the fee was compared across currencies) and a genuinely
+ * threshold-less rule shows the localised "未公布具体要求" instead
+ * of a bare English placeholder. Per-rule locale keys (v2 rules)
+ * still win; anything else falls back to `rule.expected`. */
+export function ruleExpected(rule: RuleResult, f: Fmt): string {
+  const { t, tf, locale } = f;
   const key = `rule.${rule.ruleId}.expected`;
   const v = t(key);
-  return v === key ? rule.expected : v;
+  if (v !== key) return v;
+  if (rule.ruleId === 'exp-fee') {
+    const thr = isRecord(rule.thresholdRaw) ? rule.thresholdRaw : null;
+    if (thr && typeof thr.amount === 'number') {
+      const period = thr.period === 'total' ? t('fee.period.total') : t('fee.period.perYear');
+      let line = tf('r9money.feeExpected', {
+        currency: String(thr.currency ?? ''),
+        amount: fmtNum(thr.amount, locale),
+        period,
+      });
+      const approx = isRecord(thr.approx_converted) ? thr.approx_converted : null;
+      if (approx && typeof approx.amount === 'number' && typeof approx.currency === 'string') {
+        line += ` (${tf('r9money.feeConverted', {
+          currency: approx.currency,
+          amount: fmtNum(approx.amount, locale),
+        })}${typeof approx.as_of === 'string' && approx.as_of ? ` · ${approx.as_of}` : ''})`;
+      }
+      return line;
+    }
+    if (rule.status === 'UNKNOWN') return t('r9money.noThreshold');
+    return rule.expected;
+  }
+  if (rule.ruleId.startsWith('exp-') && rule.status === 'UNKNOWN'
+    && !hasThresholdValue(rule.thresholdRaw)) {
+    return t('r9money.noThreshold');
+  }
+  return rule.expected;
 }
 
 export function statusText(status: string, t: (key: string) => string): string {

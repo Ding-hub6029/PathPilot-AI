@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { fetchRankings, RankingsResult } from '../../lib/api';
+import { useBackendStatus } from '../../lib/backendStatus';
 import { RANKING_ENTRIES, RANKING_INSTITUTIONS, RANKING_PROVIDERS, displayCountryCode, displayCountryName, displayInstitutionName } from '../../lib/rankings';
 import { crestFor, monogramFor } from '../../lib/crests';
 import { useApp } from '../../lib/store';
@@ -38,6 +39,11 @@ type SortKey = 'rank' | 'name' | 'country';
 
 export default function RankingsPage() {
   const { t, tf, locale } = useApp();
+  // Round 9 (R9): the offline footer reads the one shared backend
+  // status, not this page's refresh result — the old footer seeded
+  // live:false and claimed "实时后端尚未连接" from first paint while
+  // the results page already said "后端已连接" for the same backend.
+  const backendStatus = useBackendStatus();
   const [data, setData] = useState<RankingsResult>(LOCAL_DATA);
   const [refreshing, setRefreshing] = useState(true);
   const [provider, setProvider] = useState('all');
@@ -358,7 +364,14 @@ export default function RankingsPage() {
         </section>
       )}
 
-      {data && !data.live && (
+      {/* Round 9 (R9): status from the shared probe — "checking" while
+          the probe is still waking the backend, offline only once it
+          has actually failed, so this footer can no longer contradict
+          the results page for the same backend state. */}
+      {backendStatus === 'checking' && (
+        <p className="mt-6 text-sm font-semibold text-navy/60" role="status">{t('r9pages.backendChecking')}</p>
+      )}
+      {backendStatus === 'offline' && (
         <p className="mt-6 text-sm text-navy/60">{t('rankings.offlineNote')}</p>
       )}
 

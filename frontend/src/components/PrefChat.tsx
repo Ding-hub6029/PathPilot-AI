@@ -18,6 +18,7 @@ import {
   type PrefChatReply, type PrefExtracted, type PrefKnown, type PrefNextQuestion,
 } from '../lib/chat';
 import { CompassFace, type PetMood } from './CompassPet';
+import { useElapsed } from '../lib/useElapsed';
 import enMessages from '../../messages/en.json';
 
 /**
@@ -337,6 +338,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const [input, setInput] = useState('');
   /** A model call (chat, parse or pref-chat) is in flight. */
   const [thinking, setThinking] = useState(false);
+  /** Round 9, R6: seconds spent waiting on the model, for the visible
+   * progress line — a bare "想想……" with no progress is what the
+   * re-test flagged. */
+  const thinkingElapsed = useElapsed(thinking);
   /** The backend is being woken (a retry is in flight after the first
    * attempt failed): show the waking line, not the offline line. */
   const [waking, setWaking] = useState(false);
@@ -616,7 +621,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       }
       case 'climate': return climateLabel(profile.prefClimate, t);
       case 'environment': return environmentLabel(profile.prefEnvironment, t);
-      case 'city': return profile.prefCity ?? '';
+      // Round 9, R8c: the stored city is the canonical English name
+      // ("Zurich") — the bubble shows the localised name ("苏黎世"),
+      // never the raw stored value.
+      case 'city': return cityDisplayName(profile.prefCity ?? '', t);
       case 'afterGrad': return afterGradLabel(profile.prefAfterGrad, t);
       case 'salary': return `${profile.prefSalary} ${profile.prefSalaryCurrency ?? ''}`.trim();
       case 'pressure': return pressureLabel(profile.prefPressure, t);
@@ -916,6 +924,14 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * never unrelated cities. */
   const cityChips = citiesInCountries(profile.prefCountries ?? [], allPrograms());
 
+  /** Round 9, R8b: the city input placeholder no longer says
+   * "例如：伦敦" on every locale — it names the top verified city of
+   * the user's chosen countries ("例如：苏黎世"), or a neutral prompt
+   * when no country is chosen yet. */
+  const cityPlaceholder = cityChips.length
+    ? tf('r9chat.cityPlaceholder', { city: cityDisplayName(cityChips[0].city, t) })
+    : t('r9chat.cityPlaceholderAny');
+
   const summary = prefSummary(profile, t);
   const hasSalary = profile.prefSalary !== '' && profile.prefSalary !== undefined;
 
@@ -939,7 +955,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       <div className="flex justify-start">
         <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
           {turn.pending ? (
-            <p>{t('pet.thinking')}</p>
+            <p>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</p>
           ) : turn.reply && turn.replyLocale === locale ? (
             <>
               {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
@@ -973,7 +989,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       <div className="flex justify-start">
         <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
           {turn.pending ? (
-            <p>{t('pet.thinking')}</p>
+            <p>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</p>
           ) : turn.reply && turn.replyLocale === locale ? (
             <>
               {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
@@ -1032,7 +1048,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         <div className="flex flex-wrap gap-2">
           {cityChips.map(({ city }) => (
             <button key={city} type="button"
-              onClick={() => void sendToPrefChat(city)}
+              // Round 9, R8c: the chip sends its LOCALISED label
+              // ("苏黎世"), not the canonical English name ("Zurich") —
+              // the user's bubble must show what they tapped.
+              onClick={() => void sendToPrefChat(cityDisplayName(city, t))}
               className="btn-press anim-chip rounded-full border-2 border-navy/15 bg-white px-3 py-1.5 text-sm font-semibold">
               {cityDisplayName(city, t)}
             </button>
@@ -1157,7 +1176,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
 
             {thinking && (
               <div className="flex justify-start">
-                <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? t('pet.waking') : t('pet.thinking')}</div>
+                <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</div>
               </div>
             )}
 
@@ -1168,7 +1187,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                   <input value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') submitModelText(); }}
-                    placeholder={nextQ === 'city' ? t('wizard.prefCityPlaceholder') : t('wizard.prefFreeText')}
+                    placeholder={nextQ === 'city' ? cityPlaceholder : t('wizard.prefFreeText')}
                     aria-label={t('wizard.chatTypePlaceholder')}
                     disabled={thinking || !!pendingExtract}
                     className="min-w-0 flex-1 rounded-full border border-navy/25 bg-white px-3 py-2 text-sm disabled:opacity-50" />
@@ -1288,7 +1307,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 {renderModelTurns(currentQ)}
                 {thinking && (
                   <div className="flex justify-start">
-                    <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? t('pet.waking') : t('pet.thinking')}</div>
+                    <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</div>
                   </div>
                 )}
 
@@ -1373,7 +1392,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                     <input value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') void submitFreeText(); }}
-                      placeholder={currentQ === 'countries' ? t('wizard.prefCountriesOther') : currentQ === 'city' ? t('wizard.prefCityPlaceholder') : t('wizard.prefFreeText')}
+                      placeholder={currentQ === 'countries' ? t('wizard.prefCountriesOther') : currentQ === 'city' ? cityPlaceholder : t('wizard.prefFreeText')}
                       aria-label={t('wizard.chatTypePlaceholder')}
                       disabled={thinking || !!pendingParse}
                       className="min-w-0 flex-1 rounded-full border border-navy/25 bg-white px-3 py-2 text-sm disabled:opacity-50" />

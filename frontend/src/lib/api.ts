@@ -3,6 +3,7 @@ import { RANKING_ENTRIES, RANKING_INSTITUTIONS, RANKING_PROVIDERS } from './rank
 import { EXPANSION_PROGRAMS } from './expansion';
 import { MatchResponse, MatchResult, Profile, Program, RankingEntry, RankingInstitution, RankingProvider, RuleResult, RULES_VERSION, DATA_VERSION, ExpansionProgram } from './types';
 import { cityClimate, climateFit, normaliseClimatePref } from './preferences';
+import { convertCurrency, FX_AS_OF } from './fx';
 
 // Local (offline) evaluation mirroring the backend contract. Used ONLY when
 // the live backend is unreachable; results are labelled offline in the UI.
@@ -160,13 +161,50 @@ function expClassifyLanguage(req: { id: string; description: string; threshold?:
   const th = req.threshold;
   if (!th || typeof th !== 'object') return null;
   if ('ielts_overall' in th || 'ielts' in th) return 'ielts';
-  if ('toefl_ibt' in th || 'toefl_ibt_overall' in th) return 'toefl';
+  if ('toefl_ibt' in th || 'toefl_ibt_overall' in th || 'toefl_overall' in th) return 'toefl';
+  // Round 9, R13: classify on the structured threshold keys first, so
+  // a CEFR requirement is 'cefr' even when its id/description never
+  // spells the word out (the Swiss German C1 / French B2 requirements
+  // were read as 'other').
+  if ('cefr_level' in th) return 'cefr';
+  if ('duolingo_overall' in th || 'duolingo' in th) return 'duolingo';
+  if ('pte_overall' in th) return 'pte';
+  if ('hsk_level' in th) return 'hsk';
   const rid = req.id.toLowerCase();
   const desc = req.description.slice(0, 40).toLowerCase();
   for (const key of ['ielts', 'toefl', 'duolingo', 'pte', 'hsk', 'cefr'] as const) {
     if (rid.includes(key) || desc.includes(key)) return key;
   }
   return 'other';
+}
+
+/** Human label for a structured non-IELTS/TOEFL language requirement,
+ * e.g. "German C1 (CEFR)" — the mirror of the backend's
+ * _other_language_label. */
+function expOtherLanguageLabel(req: { threshold?: Record<string, unknown> | null }, kind: ExpLangKind | null): string | null {
+  const th = req.threshold;
+  if (!th || typeof th !== 'object') return null;
+  if (kind === 'cefr') {
+    const level = th.cefr_level;
+    const lang = th.language;
+    if (typeof level === 'string' && level.trim()) {
+      return typeof lang === 'string' && lang.trim() ? `${lang} ${level} (CEFR)` : `CEFR ${level}`;
+    }
+    return null;
+  }
+  if (kind === 'hsk') {
+    const level = expNum(th.hsk_level);
+    return level !== null ? `HSK ${level}` : null;
+  }
+  if (kind === 'duolingo') {
+    const score = expNum(th.duolingo_overall) ?? expNum(th.duolingo);
+    return score !== null ? `Duolingo ${score}` : null;
+  }
+  if (kind === 'pte') {
+    const score = expNum(th.pte_overall);
+    return score !== null ? `PTE ${score}` : null;
+  }
+  return null;
 }
 
 function expIeltsOverallOf(th: Record<string, unknown>, kind: ExpLangKind): number | null {
@@ -180,7 +218,9 @@ function expIeltsOverallOf(th: Record<string, unknown>, kind: ExpLangKind): numb
 
 function expToeflOverallOf(th: Record<string, unknown>, kind: ExpLangKind): number | null {
   if (kind !== 'toefl') return null;
-  for (const key of ['toefl_ibt_overall', 'toefl_ibt', 'overall']) {
+  // Round 9, R13: the bare "toefl_overall" key (UCLA CS BS / CSE BS,
+  // TOEFL 100) was not read, so a real stated threshold was dropped.
+  for (const key of ['toefl_ibt_overall', 'toefl_ibt', 'toefl_overall', 'overall']) {
     const v = expNum(th[key]);
     if (v !== null) return v;
   }
@@ -227,16 +267,21 @@ interface ExpLangThresholds {
   componentSets: Record<string, number>[];
   hasToeflSections: boolean;
   hasAnyLanguageReq: boolean;
+  /** Real stated requirements in another system (CEFR / HSK /
+   * Duolingo / PTE) — shown instead of a fake IELTS/TOEFL label. */
+  otherLabels: string[];
 }
 
 function expLanguageThresholds(ep: ExpansionProgram): ExpLangThresholds {
-  const out: ExpLangThresholds = { ieltsOveralls: [], toeflOveralls: [], componentSets: [], hasToeflSections: false, hasAnyLanguageReq: false };
+  const out: ExpLangThresholds = { ieltsOveralls: [], toeflOveralls: [], componentSets: [], hasToeflSections: false, hasAnyLanguageReq: false, otherLabels: [] };
   for (const req of ep.requirements) {
     if (req.category !== 'language') continue;
     out.hasAnyLanguageReq = true;
     const th = req.threshold;
     if (!th || typeof th !== 'object') continue;
     const kind = expClassifyLanguage(req);
+    const label = expOtherLanguageLabel(req, kind);
+    if (label !== null && !out.otherLabels.includes(label)) out.otherLabels.push(label);
     if (!kind || kind === 'duolingo' || kind === 'pte' || kind === 'hsk' || kind === 'cefr' || kind === 'other') continue;
     const io = expIeltsOverallOf(th, kind);
     if (io !== null) out.ieltsOveralls.push(io);
@@ -317,44 +362,88 @@ function expAlevelTop3(alevels: string | undefined): number[] | null {
   return ranks.sort((a, b) => b - a).slice(0, 3);
 }
 
+/** Human period text for fee display: the raw "per_year" token must
+ * never reach the screen (round 9, R2). */
+function expPeriodText(period: string): string {
+  if (period === 'per_year') return 'per year';
+  if (period === 'per_credit') return 'per credit';
+  return period || '';
+}
+
 function expFeeRule(profile: Profile, ep: ExpansionProgram): RuleResult {
   const fees = ep.fees;
   const amount = expNum(fees.amount);
   const currency = fees.currency || '';
   const period = fees.period || '';
   const evidence = ep.requirements.filter((r) => r.category === 'fee').flatMap((r) => r.sourceIds);
-  const thresholdRaw = amount !== null ? { amount, currency, period } : null;
-  // Round 8 (P5 display fix, mirroring backend _exp_expected): show
-  // the real fee when one is stated ("Tuition fee GBP 66580
-  // per_year"); the generic label only when there genuinely is no
-  // amount — and then the rule is UNKNOWN below, never NOT_MET.
-  const expected = amount !== null
-    ? ['Tuition fee', currency, fmtNumG(amount), period].filter(Boolean).join(' ')
-    : 'Tuition fee as stated on the official programme page';
+  let thresholdRaw: Record<string, unknown> | null = amount !== null ? { amount, currency, period } : null;
   const budget = num(profile.budget);
   const budgetCurrency = profile.budgetCurrency || (profile.track === 'undergraduate' ? 'GBP' : 'SGD');
   const budgetPeriod = profile.track === 'undergraduate' ? 'per_year' : 'total';
+  const budgetObserved = budget === null
+    ? 'Not provided'
+    : `Budget ${budgetCurrency} ${budget.toLocaleString('en-US')} ${expPeriodText(budgetPeriod)}`;
+  // Round 8 (P5 display fix, mirroring backend _exp_expected): show
+  // the real fee when one is stated ("Tuition fee CHF 4,380 per
+  // year"); the generic label only when there genuinely is no amount
+  // — and then the rule is UNKNOWN below, never NOT_MET. Round 9
+  // (R2): when the fee currency differs from the budget currency and
+  // the reference table converts it, the expected line also shows the
+  // approximate converted figure, always labelled approximate. The
+  // converted figure is also carried in thresholdRaw.approx_converted
+  // (round 9 integration) so the localised renderer (ruleExpected)
+  // can show it without re-parsing the string.
+  let expected = amount !== null
+    ? ['Tuition fee', currency, amount.toLocaleString('en-US'), expPeriodText(period)].filter(Boolean).join(' ')
+    : 'Tuition fee as stated on the official programme page';
+  let converted: number | null = null;
+  // The approximate figure is shown only when the periods match, so
+  // it is never displayed next to a rule that is UNKNOWN on period.
+  if (amount !== null && budget !== null && currency && budgetCurrency !== currency && budgetPeriod === period) {
+    converted = convertCurrency(amount, currency, budgetCurrency);
+    if (converted !== null) {
+      expected += ` (approx. ${budgetCurrency} ${Math.round(converted).toLocaleString('en-US')}, rates ${FX_AS_OF})`;
+      thresholdRaw = { ...thresholdRaw, approx_converted: { amount: Math.round(converted), currency: budgetCurrency, as_of: FX_AS_OF } };
+    }
+  }
   if (amount === null) {
     return expRule('exp-fee', 'UNKNOWN', 'Not provided', expected, evidence,
       'No tuition fee amount is stated on the official programme page, so the fee cannot be compared with the budget.', { thresholdRaw });
   }
   if (period === 'per_credit') {
-    return expRule('exp-fee', 'UNKNOWN', `Tuition is ${currency} ${amount} per credit`, expected, evidence,
+    return expRule('exp-fee', 'UNKNOWN', `Tuition is ${currency} ${amount.toLocaleString('en-US')} per credit`, expected, evidence,
       'Tuition is charged per credit; the profile has no credit count, so a per-credit fee cannot be compared with the budget.', { thresholdRaw });
   }
   if (budget === null) {
     return expRule('exp-fee', 'UNKNOWN', 'Not provided', expected, evidence, 'No budget supplied.', { thresholdRaw });
   }
-  if (budgetCurrency !== currency || budgetPeriod !== period) {
-    return expRule('exp-fee', 'UNKNOWN', `Budget ${budgetCurrency} ${budgetPeriod}`, expected, evidence,
-      `Budget currency/period (${budgetCurrency} ${budgetPeriod}) does not match ${currency} ${period}, so it cannot be compared with the fee.`,
+  if (budgetPeriod !== period) {
+    return expRule('exp-fee', 'UNKNOWN', budgetObserved, expected, evidence,
+      `Budget period (${budgetPeriod}) does not match the fee period (${period}), so it cannot be compared with the fee.`,
       { observedRaw: { amount: budget, currency: budgetCurrency, period: budgetPeriod }, thresholdRaw, reasonKey: 'budget-mismatch' });
   }
-  if (budget >= amount) {
-    return expRule('exp-fee', 'MET', `Budget ${currency} ${budget} ${period}`, expected, evidence,
+  if (budgetCurrency !== currency) {
+    // Round 9, R2: cross-currency comparison with the dated,
+    // approximate FX reference table (frontend/src/lib/fx.ts). A
+    // currency with no reference rate is UNKNOWN ("cannot be
+    // converted"), never a false mismatch.
+    if (converted === null) {
+      return expRule('exp-fee', 'UNKNOWN', budgetObserved, expected, evidence,
+        `The fee is ${currency} ${amount.toLocaleString('en-US')} ${expPeriodText(period)} and the budget is in ${budgetCurrency}; no reference exchange rate is available for this currency pair, so the fee cannot be converted for comparison.`,
+        { observedRaw: { amount: budget, currency: budgetCurrency, period: budgetPeriod }, thresholdRaw, reasonKey: 'fx-cannot-convert' });
+    }
+    if (budget >= converted) {
+      return expRule('exp-fee', 'MET', budgetObserved, expected, evidence,
+        undefined, { observedRaw: budget, thresholdRaw });
+    }
+    return expRule('exp-fee', 'NOT_MET', budgetObserved, expected, evidence,
       undefined, { observedRaw: budget, thresholdRaw });
   }
-  return expRule('exp-fee', 'NOT_MET', `Budget ${currency} ${budget} ${period}`, expected, evidence,
+  if (budget >= amount) {
+    return expRule('exp-fee', 'MET', budgetObserved, expected, evidence,
+      undefined, { observedRaw: budget, thresholdRaw });
+  }
+  return expRule('exp-fee', 'NOT_MET', budgetObserved, expected, evidence,
     undefined, { observedRaw: budget, thresholdRaw });
 }
 
@@ -365,7 +454,7 @@ function expFeeRule(profile: Profile, ep: ExpansionProgram): RuleResult {
  * NOT_APPLICABLE), never NOT_MET. Multiple alternative sets are
  * joined with " or ". */
 function expComponentExpected(sets: Record<string, number>[]): string {
-  const generic = 'IELTS component minimums as stated on the official programme page';
+  const generic = 'No IELTS component minimum published';
   if (!sets.length) return generic;
   const renderSet = (s: Record<string, number>): string | null => {
     if ('__three__' in s && '__remaining__' in s) {
@@ -391,6 +480,11 @@ function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: Ex
   // generic label only when the programme states no IELTS/TOEFL
   // overall minimum — and then the rule is UNKNOWN below, never
   // NOT_MET (a NOT_MET here always has a threshold behind it).
+  // Round 9 (R13): a requirement in another system (CEFR / HSK /
+  // Duolingo / PTE) is named as such ("German C1 (CEFR)"), never
+  // relabelled as an IELTS/TOEFL minimum; and the generic label is
+  // honest ("No IELTS/TOEFL minimum published") instead of the
+  // placeholder-like "... as stated on the official programme page".
   const expectedParts: string[] = [];
   if (thresholds.ieltsOveralls.length) {
     expectedParts.push(`IELTS overall ${fmtNumG(Math.min(...thresholds.ieltsOveralls))}`);
@@ -398,9 +492,10 @@ function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: Ex
   if (thresholds.toeflOveralls.length) {
     expectedParts.push(`TOEFL iBT ${fmtNumG(Math.min(...thresholds.toeflOveralls))}`);
   }
+  expectedParts.push(...thresholds.otherLabels);
   const expected = expectedParts.length
     ? expectedParts.join(' or ')
-    : 'IELTS / TOEFL minimum as stated on the official programme page';
+    : 'No IELTS/TOEFL minimum published';
   let met = false;
   let assessableFailed = false;
   let relevantSupplied = false;
@@ -420,7 +515,10 @@ function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: Ex
     }
   }
   const observed = `ielts_overall: ${ieltsScore ?? 'None'}, toefl_overall: ${toeflScore ?? 'None'}`;
-  const thresholdRaw = { ielts_overall: thresholds.ieltsOveralls.length ? thresholds.ieltsOveralls : null, toefl_overall: thresholds.toeflOveralls.length ? thresholds.toeflOveralls : null };
+  // Round 9, R13: "other_requirements" carries the real non-IELTS/TOEFL
+  // labels (CEFR / HSK / Duolingo / PTE) so the renderer can name them
+  // instead of a generic placeholder (mirrors the backend threshold).
+  const thresholdRaw = { ielts_overall: thresholds.ieltsOveralls.length ? thresholds.ieltsOveralls : null, toefl_overall: thresholds.toeflOveralls.length ? thresholds.toeflOveralls : null, other_requirements: thresholds.otherLabels.length ? thresholds.otherLabels : null };
   const observedRaw = { ielts_overall: ieltsScore, toefl_overall: toeflScore };
   if (met) {
     results.push(expRule('exp-language', 'MET', observed, expected, evidence, undefined, { observedRaw, thresholdRaw }));
@@ -429,7 +527,13 @@ function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: Ex
   } else if (!relevantSupplied) {
     let reason: string;
     let reasonKey = 'missing-info';
-    if (!thresholds.ieltsOveralls.length && !thresholds.toeflOveralls.length && !thresholds.componentSets.length) {
+    if (thresholds.otherLabels.length) {
+      // Round 9, R13: name the real requirement (CEFR / HSK /
+      // Duolingo / PTE) instead of claiming no IELTS/TOEFL score is
+      // stated — e.g. the Swiss German C1 / French B2 requirements.
+      reason = `This programme requires ${thresholds.otherLabels.join(', ')}, not an IELTS/TOEFL score; the profile has no evidence for that requirement, so it cannot be assessed from a test score.`;
+      reasonKey = 'missing-info';
+    } else if (!thresholds.ieltsOveralls.length && !thresholds.toeflOveralls.length && !thresholds.componentSets.length) {
       reason = 'This programme states a language requirement, but no IELTS/TOEFL score is stated on the official page, so it cannot be assessed from a test score.';
       reasonKey = 'no-threshold';
     } else if (toeflScore !== null && thresholds.toeflOveralls.length) {
@@ -503,39 +607,95 @@ function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: Ex
   return results;
 }
 
+/** Real structured academic threshold when one exists but is not an
+ * A-level (IB total, GPA, ATAR, degree class) — display only; the
+ * rule stays UNKNOWN because the evaluator never converts other
+ * qualifications to A-levels. Round 9, R13: show the real number
+ * instead of a fake "A-level threshold as stated..." label. */
+function expOtherAcademicThreshold(ep: ExpansionProgram): string | null {
+  for (const req of ep.requirements) {
+    if (req.category !== 'academic') continue;
+    const th = req.threshold;
+    if (!th || typeof th !== 'object') continue;
+    const ib = expNum(th.ib_total);
+    if (ib !== null) return `IB total ${fmtNumG(ib)}`;
+    const gpa = expNum(th.gpa);
+    if (gpa !== null) return `GPA ${fmtNumG(gpa)}`;
+    const atar = expNum(th.atar);
+    if (atar !== null) return `ATAR ${fmtNumG(atar)}`;
+    if (typeof th.degree_class === 'string' && th.degree_class.trim()) {
+      return `Degree class: ${th.degree_class}`;
+    }
+  }
+  return null;
+}
+
+/** English fallback observed string for the academic rule, from the
+ * applicant's own curriculum branch (the localised renderer uses
+ * observedRaw; this string is only the fallback). */
+function expAcademicObservedText(profile: Profile): string {
+  const raw = ugObservedRaw(profile);
+  const cur = curriculumOf(profile);
+  if (cur === 'cn_gaokao') {
+    if (typeof raw.gaokao_score !== 'number') return 'Not provided';
+    return `Gaokao ${raw.gaokao_score}/${typeof raw.gaokao_total === 'number' ? raw.gaokao_total : '–'}`;
+  }
+  if (cur === 'ib') {
+    if (raw.total == null && raw.hl_maths == null && raw.hl_total == null) return 'Not provided';
+    return `IB total ${raw.total == null ? '–' : raw.total}`;
+  }
+  if (cur === 'usa') {
+    const parts: string[] = [];
+    if (typeof raw.sat_total === 'number') parts.push(`SAT ${raw.sat_total}`);
+    if (typeof raw.act_composite === 'number') parts.push(`ACT ${raw.act_composite}`);
+    if (Array.isArray(raw.ap_grades) && raw.ap_grades.length) parts.push(`AP ${raw.ap_grades.join(', ')}`);
+    return parts.length ? parts.join(' · ') : 'Not provided';
+  }
+  return profile.alevels || 'Not provided';
+}
+
 function expAcademicRule(profile: Profile, ep: ExpansionProgram, alevels: ExpAlevelReq[]): RuleResult {
   const evidence = ep.requirements.filter((r) => r.category === 'academic').flatMap((r) => r.sourceIds);
   // Round 8 (P5 display fix, mirroring backend _exp_expected): the
   // real A-level grade string when a threshold is stated ("A-level
-  // A*AA"); the generic label only when none is — and then the rule
-  // is UNKNOWN below, never NOT_MET.
+  // A*AA"). Round 9 (R13): when no A-level threshold exists, show a
+  // real structured threshold of another kind when one is recorded
+  // ("IB total 39"), and otherwise an honest "No A-level threshold
+  // published" — never the placeholder-like "A-level threshold as
+  // stated on the official programme page". The rule is UNKNOWN in
+  // both cases, never NOT_MET.
   const gradeLetter = (rank: number): string =>
     ({ 5: 'A*', 4: 'A', 3: 'B', 2: 'C', 1: 'D', 0: 'E' } as Record<number, string>)[rank] ?? '?';
+  const otherThreshold = alevels.length ? null : expOtherAcademicThreshold(ep);
   const expected = alevels.length
     ? `A-level ${[...new Set(alevels.map((r) => r.minimum.map(gradeLetter).join('')))].join(' / ')}`
-    : 'A-level threshold as stated on the official programme page';
+    : otherThreshold ?? 'No A-level threshold published';
+  // Round 9, R10: the observed values carry the applicant's own
+  // curriculum branch (Gaokao / IB / USA / A-level) so the card shows
+  // the supplied score instead of "Not provided".
+  const observedText = expAcademicObservedText(profile);
+  const observedRaw = ugObservedRaw(profile);
   if (profile.track === 'taught_masters') {
     return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
       'A-level thresholds apply to undergraduate entry; this is a taught-masters programme, so no A-level rule can be assessed here.');
   }
   if (!alevels.length) {
-    return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
+    return expRule('exp-academic', 'UNKNOWN', observedText, expected, evidence,
       'No A-level threshold is stated for this programme (the academic requirement uses GPA / IB / degree-class or free-text criteria), so academic eligibility cannot be decided from grades alone.',
-      { reasonKey: 'no-threshold' });
+      { reasonKey: 'no-threshold', observedRaw });
   }
   const cur = curriculumOf(profile);
   if (cur !== 'uk_alevel' && cur !== 'sg_alevel') {
-    return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
+    return expRule('exp-academic', 'UNKNOWN', observedText, expected, evidence,
       "An A-level threshold is stated, but this applicant's curriculum is not A-level; A-level thresholds are only assessed for UK / Singapore A-level applicants, and other scores are never converted to A-levels.",
-      { reasonKey: 'no-equivalence' });
+      { reasonKey: 'no-equivalence', observedRaw });
   }
   const top = expAlevelTop3(profile.alevels);
   if (top === null) {
     return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
-      'A-level grades not supplied (three grades are needed).');
+      'A-level grades not supplied (three grades are needed).', { observedRaw });
   }
   const mathsRank = profile.mathsGrade ? (EXP_GRADE_RANK[profile.mathsGrade.trim().toUpperCase()] ?? null) : null;
-  const observedRaw = { grades: profile.alevels ? (profile.alevels.match(/A\*|[A-E]/gi) || []).map((g) => g.toUpperCase()) : null, maths: profile.mathsGrade || null };
   for (const req of alevels) {
     if (!expTripleMeets(top, req.minimum)) continue;
     if (req.kind === 'grades' && req.mathsRank !== null) {
@@ -613,6 +773,9 @@ export function expansionToProgram(ep: ExpansionProgram): Program {
     datasetVersion: DATA_VERSION,
     sources: ep.sources.map((s) => ({ id: s.id, url: s.url, label: s.title || s.id, excerpt: '', verifiedDate: (s.retrievedAt || '').slice(0, 10) })),
     matchable: ep.matchable,
+    // Round 9 (R5): verified language of instruction, carried verbatim
+    // from the expansion mirror — null/absent for programmes without one.
+    languageOfInstruction: ep.languageOfInstruction ?? null,
   };
 }
 

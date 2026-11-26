@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { allPrograms, fetchPrograms, mergePrograms } from '../../lib/api';
+import { useBackendStatus } from '../../lib/backendStatus';
 import { RANKING_INSTITUTIONS, displayCountryCode, displayProgramInstitutionName } from '../../lib/rankings';
 import { displayProgramName } from '../../lib/programs';
 import { formatDuration, formatFeeItems, formatIntake } from '../../lib/format';
@@ -35,8 +36,11 @@ const INSTITUTION_IDS = new Set(RANKING_INSTITUTIONS.map((i) => i.id));
 
 export default function ProgramsPage() {
   const { t, tf, locale } = useApp();
+  // Round 9 (R9): the offline note reads the one shared backend
+  // status — the old `live` flag started false and showed
+  // "实时后端尚未连接" on first paint even while the backend was up.
+  const backendStatus = useBackendStatus();
   const [programs, setPrograms] = useState<Program[]>(() => allPrograms());
-  const [live, setLive] = useState(false);
   const [country, setCountry] = useState('all');
   const [level, setLevel] = useState('all');
   const [query, setQuery] = useState('');
@@ -50,7 +54,6 @@ export default function ProgramsPage() {
         // The live list is only the v2 page; mergePrograms keeps every
         // local expansion programme and lets live entries win on id.
         if (res.live) setPrograms(mergePrograms(res.programs));
-        setLive(res.live);
       })
       .catch(() => undefined);
     return () => { cancelled = true; };
@@ -97,7 +100,8 @@ export default function ProgramsPage() {
       <p className="mt-2 text-navy/70">{t('programs.subtitle')}</p>
       <p className="mt-2 text-sm text-navy/60" role="status">
         {tf('programs.resultsCount', { count: filtered.length })}
-        {!live && <span className="ms-2 font-semibold">{t('programs.offlineNote')}</span>}
+        {backendStatus === 'checking' && <span className="ms-2 font-semibold">{t('r9pages.backendChecking')}</span>}
+        {backendStatus === 'offline' && <span className="ms-2 font-semibold">{t('programs.offlineNote')}</span>}
       </p>
 
       <div className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-navy/10 bg-white p-4 shadow-sm">

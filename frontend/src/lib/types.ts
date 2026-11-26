@@ -51,6 +51,11 @@ export interface Program {
   /** Round 6: v2 programmes are always matchable; expansion programmes
    * converted by expansionToProgram carry their stored flag. */
   matchable?: boolean;
+  /** Round 9 (R5): verified language of instruction, only where an
+   * official page states it (ETH/EPFL/UZH bachelor's). Absent
+   * everywhere else — the UI renders nothing for it. Carried through
+   * by expansionToProgram; v2 programmes never have it. */
+  languageOfInstruction?: LanguageOfInstruction | null;
 }
 
 export interface Profile {
@@ -173,6 +178,10 @@ export interface MatchResponse {
   rulesVersion: string;
   sourceManifestHash: string;
   live: boolean;
+  /** Ids the caller asked for that could not be resolved (unknown or
+   * display-only programmes). Present only when non-empty; the rest
+   * of the batch still evaluates (round 9, R11). */
+  skippedProgramIds?: string[];
 }
 
 // --- Rankings (Day 3, spec Ch9 FR15/FR16) ----------------------------------
@@ -252,6 +261,17 @@ export interface ExpansionSource {
   title: string;
   retrievedAt: string;
 }
+/** Round 9 (R5): verified language of instruction for one programme.
+ * Only ever set where an official page states the teaching language;
+ * `language` is the English name (German / French / English), `note`
+ * is the official statement in its original language, `sourceUrl`
+ * is the official page it came from. Mirrored verbatim from
+ * data/expansions/expansion.json by tools/generate_frontend_mirrors.py. */
+export interface LanguageOfInstruction {
+  language: string;
+  note?: string | null;
+  sourceUrl: string;
+}
 export interface ExpansionFee {
   amount: number | null;
   amountMin: number | null;
@@ -287,6 +307,10 @@ export interface ExpansionProgram {
   fees: ExpansionFee;
   applicationDeadline: string | null;
   applicationStatus: string; // 'open' | 'closed' | 'unknown'
+  /** Round 9 (R5): verified language of instruction, only where an
+   * official page states it — never guessed. Absent for the other
+   * ~886 programmes; the UI renders nothing for it. */
+  languageOfInstruction?: LanguageOfInstruction | null;
   requirements: ExpansionRequirement[];
   sources: ExpansionSource[];
 }

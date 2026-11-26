@@ -5,6 +5,7 @@ import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
 import { evaluateLocal, matchProfile, mergePrograms } from '../../lib/api';
 import { programMatchesField } from '../../lib/fields';
+import { sortRecsByPreference } from '../../lib/preferences';
 import { sampleUndergrad, sampleMasters, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
 import { PrefChat } from '../../components/PrefChat';
@@ -138,10 +139,14 @@ export default function WizardPage() {
 
   // Recommendations: when the user reaches the last step, evaluate the
   // field-filtered catalogue against the conditions already entered and
-  // order by eligibility (MET, then partly unknown, then not met), with
-  // climate conflicts last (round 6: a cool preference must not surface
-  // Singapore first). No admission probabilities anywhere — only
-  // MET / NOT_MET / UNKNOWN.
+  // order preference-first (round 9, R1): the user's preferred
+  // countries first, then eligibility (MET, then partly unknown, then
+  // not met), then the preferred city, with climate conflicts last
+  // (round 6: a cool preference must not surface Singapore first).
+  // Eligibility-first used to bury the five verified Swiss UG
+  // programmes below UCL / Imperial / Peking / Tsinghua / MIT for a
+  // user whose stated first choice was Switzerland. No admission
+  // probabilities anywhere — only MET / NOT_MET / UNKNOWN.
   // targetProgramIds is synced to the FULL evaluated list so the results
   // page shows every match without the user having to tick anything.
   useEffect(() => {
@@ -151,10 +156,7 @@ export default function WizardPage() {
     setRecLoading(true);
     setRecWaking(false);
     const ids = candidates.map((p) => p.id);
-    const rank = (s: string) => s === 'MET' ? 0 : s === 'PARTIAL_UNKNOWN' ? 1 : s === 'NOT_MET' ? 2 : 3;
-    const sortRecs = (rs: MatchResult[]) => [...rs].sort((a, b) =>
-      rank(a.eligibilitySummary) - rank(b.eligibilitySummary)
-      || (a.preferenceFit === 'conflict' ? 1 : 0) - (b.preferenceFit === 'conflict' ? 1 : 0));
+    const sortRecs = (rs: MatchResult[]) => sortRecsByPreference(rs, programs, profile);
     matchProfile({ ...profile, targetProgramIds: ids }, { onRetry: () => setRecWaking(true) })
       .then((res) => {
         const sorted = sortRecs(res.results);
@@ -266,6 +268,15 @@ export default function WizardPage() {
         {step === 3 && (
           <div className="space-y-4">
             <h2 className="text-lg font-bold">{t('wizard.stepAcademic')}</h2>
+            {/* Round 9, R7: the planned intake year is collected here —
+                before preferences and recommendations — so RecChat and
+                the results page can show it and judge each programme's
+                intake against it. It used to live only as a field
+                underneath RecChat on the last step, so the wizard never
+                asked for it and the "计划入学年份" line sat empty. */}
+            <div className="max-w-xs">
+              <NumField label={t('wizard.intakeYear')} value={profile.intakeYear} onChange={(v) => updateProfile({ intakeYear: v })} step="1" min={2026} max={2030} />
+            </div>
             {profile.track === 'undergraduate' ? (
               <>
                 {(profile.curriculum === 'uk_alevel' || profile.curriculum === 'sg_alevel') && (

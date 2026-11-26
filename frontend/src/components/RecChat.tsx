@@ -7,8 +7,9 @@ import { fetchJson, fetchJsonPatient } from '../lib/api';
 import { isModelReply, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import {
   catalogueCountInCountry, cityDisplayName, climateLabel, countryAlternatives,
-  fieldDisplayLabel, missingPrefCountries, trackDisplayLabel,
+  fieldDisplayLabel, missingPrefCountries, sortRecsByPreference, trackDisplayLabel,
 } from '../lib/preferences';
+import { useElapsed } from '../lib/useElapsed';
 import { StatusChip } from './StatusChip';
 import { CompassFace, type PetMood } from './CompassPet';
 import { formatDuration, formatFeeItemWithLabel, formatIntake, pickFeeItem } from '../lib/format';
@@ -76,6 +77,11 @@ export function RecChat({
   /** The last free-text message, kept so the retry action can re-send
    * it instead of dropping the user's words. */
   const [lastQuestion, setLastQuestion] = useState<string | null>(null);
+  /** Round 9, R6: seconds spent waiting on the model / the match, for
+   * the visible progress line — a bare "想想……" with no progress is
+   * what the re-test flagged. */
+  const aiElapsed = useElapsed(aiBusy);
+  const recElapsed = useElapsed(recLoading);
 
   /** Locale change: re-fetch model answers in the new locale. A
    * failed or template-only re-fetch marks the turn offline instead
@@ -101,7 +107,14 @@ export function RecChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
-  const filtered = (recs ?? []).filter((r) => {
+  /** Round 9, R1: the list is ordered preference-first (preferred
+   * countries first, then eligibility) — the wizard page sorts the
+   * same way, and this re-sort keeps RecChat correct even when recs
+   * arrive in backend order. Eligibility-first used to put UCL /
+   * Imperial / Peking / Tsinghua / MIT in both batches while the five
+   * verified Swiss UG programmes sat buried mid-list. */
+  const orderedRecs = sortRecsByPreference(recs ?? [], programs, profile);
+  const filtered = orderedRecs.filter((r) => {
     const p = programs.find((x) => x.id === r.programId);
     if (!p) return false;
     if (filter?.country && p.country !== filter.country) return false;
@@ -297,7 +310,7 @@ export function RecChat({
 
         {recLoading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{recWaking ? t('pet.waking') : t('wizard.recommendLoading')}</div>
+            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{recWaking ? tf('pet.wakingElapsed', { seconds: recElapsed }) : tf('r9chat.matchingElapsed', { seconds: recElapsed })}</div>
           </div>
         )}
 
@@ -394,7 +407,11 @@ export function RecChat({
               </p>
             )}
             <p className="text-center text-sm text-navy/60">
-              {tf(filter ? 'wizard.recChatCountFiltered' : 'wizard.recChatCount', { shown: shown.length, total: filtered.length })}
+              {/* Round 9, R8a: the vars must match the strings' own
+                  placeholders ({count} / {total}) — the old call passed
+                  {shown, total}, so "本方向共 {count} 个已评估推荐"
+                  rendered with the raw {count} in it. */}
+              {tf(filter ? 'wizard.recChatCountFiltered' : 'wizard.recChatCount', { count: filtered.length, total: (recs ?? []).length })}
             </p>
           </div>
         )}
@@ -421,7 +438,7 @@ export function RecChat({
             <div className="flex justify-start">
               <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
                 {turn.pending ? (
-                  <p>{t('pet.thinking')}</p>
+                  <p>{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</p>
                 ) : turn.reply && turn.replyLocale === locale ? (
                   <>
                     {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
@@ -442,7 +459,7 @@ export function RecChat({
         ))}
         {aiBusy && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? t('pet.waking') : t('pet.thinking')}</div>
+            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</div>
           </div>
         )}
         {aiOffline && (

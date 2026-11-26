@@ -1,13 +1,13 @@
 'use client';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../../lib/store';
-import { fetchInstitutionRankings } from '../../../lib/api';
-import { RANKING_PROVIDERS, displayCountryCode, displayCountryName, displayInstitutionName, displayProgramInstitutionName } from '../../../lib/rankings';
+import { useBackendStatus } from '../../../lib/backendStatus';
+import { RANKING_INSTITUTIONS, RANKING_PROVIDERS, displayCountryCode, displayCountryName, displayInstitutionName, displayProgramInstitutionName } from '../../../lib/rankings';
 import { RankingCards } from '../../../components/RankingCards';
+import { LanguageOfInstructionLine } from '../../../components/RuleRow';
 import { PROGRAMS, displayProgramName } from '../../../lib/programs';
 import { EXPANSION_PROGRAMS } from '../../../lib/expansion';
-import { ExpansionProgram, RankingInstitution } from '../../../lib/types';
+import { ExpansionProgram } from '../../../lib/types';
 import { crestFor, monogramFor } from '../../../lib/crests';
 import { ViewTransitionLink } from '../../../components/ViewTransitionLink';
 import { vtRef } from '../../../lib/viewTransition';
@@ -90,6 +90,11 @@ function ExpansionProgramCard({ p, locale }: { p: ExpansionProgram; locale: stri
         {fee ?? t('institution.feeNotPublished')}
         {p.applicationDeadline ? ` · ${t('institution.deadline')}: ${p.applicationDeadline}` : ''}
       </p>
+      {/* Round 9 (R5): verified language of instruction, shown on the
+          programme card — ETH/EPFL bachelor's are not taught in
+          English, and that decides whether an applicant can follow
+          the course. */}
+      <LanguageOfInstructionLine languageOfInstruction={p.languageOfInstruction} />
       {p.applicationStatus === 'open' && (
         <p className="mt-2"><span className="inline-block rounded-full bg-teal/15 px-3 py-1 text-xs font-semibold text-teal-dark">{t('institution.statusOpen')}</span></p>
       )}
@@ -135,20 +140,16 @@ function ExpansionProgramCard({ p, locale }: { p: ExpansionProgram; locale: stri
 
 export default function InstitutionDetail({ params }: { params: { id: string } }) {
   const { t, locale } = useApp();
-  const [institution, setInstitution] = useState<RankingInstitution | undefined>(undefined);
-  const [loaded, setLoaded] = useState(false);
-  const [live, setLive] = useState(false);
+  // Round 9 (R12): the institution renders from the local mirror
+  // synchronously — the old code gated the whole page (including the
+  // course section) on fetchInstitutionRankings, a network call with a
+  // 20s timeout, so a waking backend left the course section on
+  // "正在加载课程…" for 5–8s+. The mirror holds the identical verified
+  // data (round 8), so no network call is needed to render this page.
+  // Round 9 (R9): the footer status comes from the one shared probe.
+  const backendStatus = useBackendStatus();
+  const institution = RANKING_INSTITUTIONS.find((i) => i.id === params.id);
 
-  useEffect(() => {
-    fetchInstitutionRankings(params.id)
-      .then((r) => { setInstitution(r.institution); setLive(r.live); setLoaded(true); })
-      .catch(() => setLoaded(true));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id]);
-
-  if (!loaded) {
-    return <div className="mx-auto max-w-4xl px-4 py-12"><p>{t('programs.loading')}</p></div>;
-  }
   if (!institution) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12">
@@ -262,7 +263,11 @@ export default function InstitutionDetail({ params }: { params: { id: string } }
         )}
       </section>
 
-      {!live && <p className="mt-6 text-sm text-navy/60">{t('rankings.offlineNote')}</p>}
+      {/* Round 9 (R9): status from the shared probe — "checking" while
+          the probe is still waking the backend, offline only once it
+          has actually failed. */}
+      {backendStatus === 'checking' && <p className="mt-6 text-sm font-semibold text-navy/60" role="status">{t('r9pages.backendChecking')}</p>}
+      {backendStatus === 'offline' && <p className="mt-6 text-sm text-navy/60">{t('rankings.offlineNote')}</p>}
       {/* Complete source lines for all three providers (Round 8): QS
           carries its exact attribution notice; THE and ARWU carry their
           not-licensed warnings — the warnings are kept, never dropped. */}

@@ -1,4 +1,4 @@
-import { ClimateClass, Profile, Program } from './types';
+import { ClimateClass, MatchResult, Profile, Program } from './types';
 import { CLIMATE_CITIES } from './climate';
 import { programMatchesField } from './fields';
 
@@ -345,4 +345,49 @@ export function countryAlternatives(
  * in these results" note. */
 export function catalogueCountInCountry(country: string, programs: Program[]): number {
   return programs.filter((p) => p.country === country).length;
+}
+
+// --- Preference-first recommendation order (round 9, R1) ------------------
+// The old order was eligibility-first (MET, then PARTIAL_UNKNOWN, then
+// NOT_MET), so a user whose stated first choice was Switzerland saw
+// UCL / Imperial / Peking / Tsinghua / MIT in both batches while the
+// five verified Swiss UG programmes sat buried mid-list — a silent
+// zero for the preference the user actually stated. Recommendations
+// are now ordered: (1) the user's preferred countries first, in the
+// order they listed them; (2) eligibility rank within that; (3) the
+// preferred city first within the same country + eligibility; (4)
+// climate conflicts last. A preferred country with no programme in
+// the set is still explained by missingPrefCountries / the results
+// page — never silently zero. Pure (no mutation): returns a new array.
+
+export function sortRecsByPreference(
+  recs: MatchResult[],
+  programs: Program[],
+  profile: Profile,
+): MatchResult[] {
+  const rank = (s: string) => s === 'MET' ? 0 : s === 'PARTIAL_UNKNOWN' ? 1 : s === 'NOT_MET' ? 2 : 3;
+  const prefCountries = profile.prefCountries ?? [];
+  const wantCity = (profile.prefCity ?? '').trim().toLowerCase();
+  const byId = new Map(programs.map((p) => [p.id, p]));
+  return [...recs].sort((a, b) => {
+    const pa = byId.get(a.programId);
+    const pb = byId.get(b.programId);
+    const ca = pa ? prefCountries.indexOf(pa.country) : -1;
+    const cb = pb ? prefCountries.indexOf(pb.country) : -1;
+    const ra = ca === -1 ? Infinity : ca;
+    const rb = cb === -1 ? Infinity : cb;
+    if (ra !== rb) return ra - rb;
+    const ea = rank(a.eligibilitySummary);
+    const eb = rank(b.eligibilitySummary);
+    if (ea !== eb) return ea - eb;
+    if (wantCity) {
+      const ma = pa && (pa.city ?? '').toLowerCase() === wantCity ? 0 : 1;
+      const mb = pb && (pb.city ?? '').toLowerCase() === wantCity ? 0 : 1;
+      if (ma !== mb) return ma - mb;
+    }
+    const fa = a.preferenceFit === 'conflict' ? 1 : 0;
+    const fb = b.preferenceFit === 'conflict' ? 1 : 0;
+    if (fa !== fb) return fa - fb;
+    return a.programId.localeCompare(b.programId);
+  });
 }

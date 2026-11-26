@@ -67,7 +67,7 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
             <ul className="mt-3 space-y-2">
               {minimumRuleIds.map((ruleId) => (
                 <li key={ruleId} className="border-t border-navy/5 pt-2 text-sm">
-                  <span className="font-semibold">{ruleExpected({ ruleId, status: 'UNKNOWN', observed: '', expected: '', evidenceIds: [], reasonCode: '' }, t)}</span>
+                  <span className="font-semibold">{ruleExpected({ ruleId, status: 'UNKNOWN', observed: '', expected: '', evidenceIds: [], reasonCode: '' }, f)}</span>
                 </li>
               ))}
             </ul>

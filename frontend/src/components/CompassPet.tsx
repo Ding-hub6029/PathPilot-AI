@@ -341,6 +341,10 @@ export function CompassPet() {
   const [waking, setWaking] = useState(false);
   /** Seconds spent waking, for the visible progress line. */
   const wakingElapsed = useElapsed(waking);
+  /** Round 9, R6: seconds spent waiting on the model, for the visible
+   * progress line — a bare "想想……" with no progress is what the
+   * re-test flagged. */
+  const busyElapsed = useElapsed(busy);
   /** The last offline verdict came after the patient budget was spent
    * (a retry fired, then the call still failed): the footer and the
    * offline turns say "timed out after ~90s", not a bare "offline". */
@@ -1052,7 +1056,7 @@ export function CompassPet() {
             })}
             {busy && (
               <div className="flex justify-start">
-                <div className="rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: wakingElapsed }) : t('pet.thinking')}</div>
+                <div className="rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: wakingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: busyElapsed })}</div>
               </div>
             )}
             {chips.length > 0 && !busy && (
