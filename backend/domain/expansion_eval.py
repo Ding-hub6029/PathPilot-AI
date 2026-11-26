@@ -6,9 +6,14 @@ programmes have no hand-written rules: this module evaluates ONLY the
 verified structured data in data/expansions/expansion.json —
 
 - fee: fees.amount + currency + period, compared against the profile
-  budget exactly the way v2 does (currency + period must match, else
-  UNKNOWN; currencies are never converted; per-credit fees are
-  UNKNOWN because the profile has no credit count);
+  budget. Same currency + period compares exactly, as v2 does.
+  Different currencies are compared with the dated, approximate FX
+  reference table in data/expansions/fx_rates.json (round 9, R2):
+  the fee is converted into the budget currency via GBP and the
+  converted figure is always labelled approximate. A currency with no
+  reference rate, a period mismatch, or a per-credit fee is UNKNOWN
+  ("cannot be converted for comparison") — never a false mismatch.
+  Per-credit fees are UNKNOWN because the profile has no credit count;
 - language: structured IELTS / TOEFL thresholds. Language
   requirements on one programme are ALTERNATIVE routes (an IELTS
   requirement, a TOEFL requirement and a Duolingo requirement are
@@ -52,8 +57,10 @@ track for foundation / joint_honours).
 """
 from __future__ import annotations
 
+import json
 import re
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
 from app.schemas import Language, RuleResult, StudentProfile, UndergradProfile
@@ -67,6 +74,68 @@ from domain.eligibility import (
     _toefl_score,
     effective_curriculum,
 )
+
+# --- FX reference table (round 9, R2) ---------------------------------------
+# data/expansions/fx_rates.json: dated, approximate mid-market rates
+# (units per 1 GBP, three significant figures) for cross-currency fee
+# comparison. A missing/unreadable file means "no rates": every
+# cross-currency comparison is UNKNOWN, never a mismatch, never a
+# crash. See docs/FX_RATES.md.
+_FX_PATH = Path(__file__).resolve().parents[2] / "data" / "expansions" / "fx_rates.json"
+
+
+def _load_fx_table() -> tuple[dict[str, Decimal], str | None]:
+    try:
+        with open(_FX_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        rates: dict[str, Decimal] = {}
+        for code, value in (data.get("rates_per_gbp") or {}).items():
+            if isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0:
+                rates[str(code).upper()] = Decimal(str(value))
+        return rates, str(data.get("as_of") or "") or None
+    except Exception:
+        return {}, None
+
+
+FX_RATES, FX_AS_OF = _load_fx_table()
+
+
+def _convert_fee(amount: Decimal, from_currency: str,
+                 to_currency: str) -> Decimal | None:
+    """Convert a fee amount from one currency to another via GBP.
+
+    Returns None when either currency has no reference rate (the
+    caller must then return UNKNOWN, never a mismatch). Same currency
+    returns the amount unchanged.
+    """
+    from_currency = (from_currency or "").upper()
+    to_currency = (to_currency or "").upper()
+    if from_currency == to_currency:
+        return amount
+    from_rate = FX_RATES.get(from_currency)
+    to_rate = FX_RATES.get(to_currency)
+    if from_rate is None or to_rate is None:
+        return None
+    return amount / from_rate * to_rate
+
+
+def _fx_note(from_currency: str, to_currency: str) -> str:
+    """Rate provenance suffix for a converted-fee detail, e.g.
+    " (reference rate 1 GBP = 1.09 CHF, 26 Nov 2026 — approximate)".
+    The rate shown is for the non-GBP side(s) of the conversion —
+    showing the GBP side's own rate (1) would read "1 GBP = 1 GBP"."""
+    parts: list[str] = []
+    for ccy in ((from_currency or "").upper(), (to_currency or "").upper()):
+        if ccy and ccy != "GBP":
+            rate = FX_RATES.get(ccy)
+            if rate is not None:
+                part = f"1 GBP = {rate:g} {ccy}"
+                if part not in parts:
+                    parts.append(part)
+    if not parts:
+        return ""
+    return (f" (reference rate {', '.join(parts)}, "
+            f"{FX_AS_OF or 'undated'} — approximate)")
 
 _GRADE_RANK = {"A*": 5, "A": 4, "B": 3, "C": 2, "D": 1, "E": 0}
 
@@ -87,8 +156,12 @@ def _classify_language_requirement(req: dict) -> str | None:
     """'ielts' | 'toefl' | 'duolingo' | 'pte' | 'hsk' | 'cefr' | 'other'.
 
     None when the requirement carries no structured threshold at all.
-    Classification uses explicit threshold keys first, then the
-    requirement id / description prefix (e.g. "...-ielts",
+    Classification uses explicit threshold keys first — including
+    the non-IELTS/TOEFL keys (cefr_level, duolingo_overall, pte_overall,
+    hsk_level), so a CEFR requirement is classified 'cefr' even when
+    its id/description never spells the word out (round 9, R13: the
+    Swiss German C1 / French B2 requirements were read as 'other') —
+    then the requirement id / description prefix (e.g. "...-ielts",
     "TOEFL iBT 90 ..."). The bare "overall" key is meaningless on its
     own — a TOEFL requirement's overall is an iBT score, a Duolingo
     requirement's overall is a Duolingo score — so an unclassified
@@ -99,8 +172,16 @@ def _classify_language_requirement(req: dict) -> str | None:
         return None
     if "ielts_overall" in th or "ielts" in th:
         return "ielts"
-    if "toefl_ibt" in th or "toefl_ibt_overall" in th:
+    if "toefl_ibt" in th or "toefl_ibt_overall" in th or "toefl_overall" in th:
         return "toefl"
+    if "cefr_level" in th:
+        return "cefr"
+    if "duolingo_overall" in th or "duolingo" in th:
+        return "duolingo"
+    if "pte_overall" in th:
+        return "pte"
+    if "hsk_level" in th:
+        return "hsk"
     rid = str(req.get("id", "")).lower()
     desc = str(req.get("description", ""))[:40].lower()
     for key in ("ielts", "toefl", "duolingo", "pte", "hsk", "cefr"):
@@ -122,7 +203,9 @@ def _ielts_overall_of(th: dict, kind: str) -> float | int | None:
 def _toefl_overall_of(th: dict, kind: str) -> float | int | None:
     if kind != "toefl":
         return None
-    for key in ("toefl_ibt_overall", "toefl_ibt", "overall"):
+    # Round 9, R13: the bare "toefl_overall" key (UCLA CS BS / CSE BS,
+    # TOEFL 100) was not read, so a real stated threshold was dropped.
+    for key in ("toefl_ibt_overall", "toefl_ibt", "toefl_overall", "overall"):
         v = _num(th.get(key))
         if v is not None:
             return v
@@ -176,6 +259,34 @@ def _has_toefl_section_minima(th: dict, kind: str) -> bool:
                for k in _BARE_COMPONENT_KEYS)
 
 
+def _other_language_label(req: dict, kind: str | None) -> str | None:
+    """Human label for a structured non-IELTS/TOEFL language
+    requirement, e.g. "German C1 (CEFR)", "French B2 (CEFR)",
+    "HSK 6", "Duolingo 130", "PTE 65". Round 9, R13: the Swiss
+    programmes state a real CEFR requirement, and the card must name
+    it instead of claiming an IELTS/TOEFL minimum. None when the
+    requirement carries no such structured threshold."""
+    th = req.get("threshold")
+    if not isinstance(th, dict):
+        return None
+    if kind == "cefr":
+        level = th.get("cefr_level")
+        lang = th.get("language")
+        if isinstance(level, str) and level.strip():
+            return f"{lang} {level} (CEFR)".strip() if isinstance(lang, str) and lang.strip() else f"CEFR {level}"
+        return None
+    if kind == "hsk":
+        level = _num(th.get("hsk_level"))
+        return f"HSK {level:g}" if level is not None else None
+    if kind == "duolingo":
+        score = _num(th.get("duolingo_overall")) or _num(th.get("duolingo"))
+        return f"Duolingo {score:g}" if score is not None else None
+    if kind == "pte":
+        score = _num(th.get("pte_overall"))
+        return f"PTE {score:g}" if score is not None else None
+    return None
+
+
 def _language_thresholds(program: dict) -> dict[str, Any]:
     """Collect the evaluable language thresholds of one programme."""
     ielts_overalls: list[float] = []
@@ -184,6 +295,7 @@ def _language_thresholds(program: dict) -> dict[str, Any]:
     has_toefl_sections = False
     has_any_language_req = False
     has_unassessable_only = False
+    other_labels: list[str] = []
     for req in program.get("requirements", []):
         if req.get("category") != "language":
             continue
@@ -192,6 +304,9 @@ def _language_thresholds(program: dict) -> dict[str, Any]:
         if not isinstance(th, dict):
             continue
         kind = _classify_language_requirement(req)
+        label = _other_language_label(req, kind)
+        if label is not None and label not in other_labels:
+            other_labels.append(label)
         if kind in ("duolingo", "pte", "hsk", "cefr", "other"):
             has_unassessable_only = True
             continue
@@ -209,7 +324,8 @@ def _language_thresholds(program: dict) -> dict[str, Any]:
             "component_sets": component_sets,
             "has_toefl_sections": has_toefl_sections,
             "has_any_language_req": has_any_language_req,
-            "has_unassessable_only": has_unassessable_only}
+            "has_unassessable_only": has_unassessable_only,
+            "other_labels": other_labels}
 
 
 def _toefl_route(score: float, threshold: float,
@@ -311,9 +427,9 @@ def _fee_rule(profile: StudentProfile, program: dict) -> RuleResult:
     if budget is None or budget.amount is None:
         return _r("exp-fee", "UNKNOWN", "No budget supplied.", evidence,
                   threshold=threshold)
-    if budget.currency != currency or budget.period != period:
+    if budget.period != period:
         return _r("exp-fee", "UNKNOWN",
-                  f"Budget currency/period ({budget.currency} {budget.period}) does not match {currency} {period}, so it cannot be compared with the fee.",
+                  f"Budget period ({budget.period}) does not match the fee period ({period}), so it cannot be compared with the fee.",
                   evidence,
                   observed={"amount": _plain_number(budget.amount),
                             "currency": budget.currency,
@@ -321,12 +437,45 @@ def _fee_rule(profile: StudentProfile, program: dict) -> RuleResult:
                   threshold=threshold)
     fee = _dec(amount)
     got = _dec(budget.amount)
-    if got >= fee:
+    if budget.currency == currency:
+        if got >= fee:
+            return _r("exp-fee", "MET",
+                      f"Budget {currency} {got:g} {period} meets the {currency} {fee:g} {period} tuition fee.",
+                      evidence, observed=_plain_number(got), threshold=threshold)
+        return _r("exp-fee", "NOT_MET",
+                  f"Budget {currency} {got:g} {period} is below the {currency} {fee:g} {period} tuition fee.",
+                  evidence, observed=_plain_number(got), threshold=threshold)
+    # Round 9, R2: cross-currency comparison with the dated,
+    # approximate FX reference table (docs/FX_RATES.md). The converted
+    # figure is always labelled approximate; a currency with no
+    # reference rate is UNKNOWN ("cannot be converted"), never a
+    # false "budget does not match" verdict.
+    converted = _convert_fee(fee, currency, budget.currency or "")
+    if converted is None:
+        return _r("exp-fee", "UNKNOWN",
+                  f"The fee is {currency} {fee:g} {period} and the budget is in {budget.currency}; no reference exchange rate is available for this currency pair, so the fee cannot be converted for comparison.",
+                  evidence,
+                  observed={"amount": _plain_number(budget.amount),
+                            "currency": budget.currency,
+                            "period": budget.period},
+                  threshold=threshold)
+    converted_note = (f"(about {budget.currency} {converted:,.0f}"
+                      f"{_fx_note(currency, budget.currency or '')})")
+    # Round 9 integration: carry the converted figure in the threshold
+    # payload so renderers (adapter _exp_expected, frontend
+    # ruleExpected) can show it without re-parsing the detail string.
+    # Whole units only — the figure is approximate, matching the
+    # detail's "(about GBP 4,018 ...)" and the mirror's Math.round.
+    threshold = {**threshold,
+                 "approx_converted": {"amount": round(float(converted)),
+                                      "currency": budget.currency or "",
+                                      "as_of": FX_AS_OF}}
+    if got >= converted:
         return _r("exp-fee", "MET",
-                  f"Budget {currency} {got:g} {period} meets the {currency} {fee:g} {period} tuition fee.",
+                  f"Budget {budget.currency} {got:g} {period} covers the {currency} {fee:g} {period} tuition fee {converted_note}.",
                   evidence, observed=_plain_number(got), threshold=threshold)
     return _r("exp-fee", "NOT_MET",
-              f"Budget {currency} {got:g} {period} is below the {currency} {fee:g} {period} tuition fee.",
+              f"Budget {budget.currency} {got:g} {period} is below the {currency} {fee:g} {period} tuition fee {converted_note}.",
               evidence, observed=_plain_number(got), threshold=threshold)
 
 
@@ -366,24 +515,43 @@ def _language_rules(profile: StudentProfile, program: dict,
             elif "below" in verdicts:
                 assessable_failed = True
             # "unknown" verdicts (scale/date) leave the route undecided.
+    # Threshold payload. "other_requirements" carries the real
+    # non-IELTS/TOEFL requirement labels (CEFR / HSK / Duolingo /
+    # PTE) so the renderer can name them instead of showing a generic
+    # placeholder — round 9, R13 (the adapter's _exp_expected reads
+    # this dict for the live path).
+    threshold = {"ielts_overall": ielts_overalls or None,
+                 "toefl_overall": toefl_overalls or None,
+                 "other_requirements": thresholds.get("other_labels") or None}
     if met:
         detail = ("Language requirement met by a supplied test score "
                   "(IELTS or TOEFL route).")
         results.append(_r("exp-language", "MET", detail, evidence,
                           observed={"ielts_overall": ielts_score,
                                     "toefl_overall": toefl_score},
-                          threshold={"ielts_overall": ielts_overalls or None,
-                                     "toefl_overall": toefl_overalls or None}))
+                          threshold=threshold))
     elif assessable_failed:
         results.append(_r("exp-language", "NOT_MET",
                           "A supplied test score is below the stated IELTS/TOEFL minimum for this programme.",
                           evidence,
                           observed={"ielts_overall": ielts_score,
                                     "toefl_overall": toefl_score},
-                          threshold={"ielts_overall": ielts_overalls or None,
-                                     "toefl_overall": toefl_overalls or None}))
+                          threshold=threshold))
     elif not relevant_supplied:
-        if not ielts_overalls and not toefl_overalls \
+        if thresholds.get("other_labels"):
+            # Round 9, R13: the programme states a real requirement in
+            # another system (CEFR / HSK / Duolingo / PTE) — name it.
+            # The old wording claimed "no IELTS/TOEFL score is stated",
+            # which is false for e.g. the Swiss German C1 / French B2
+            # requirements. (Detail wording avoids the adapter's
+            # reason-key trigger phrases, so this maps to
+            # 'missing-info', not a false 'no-threshold'.)
+            labels = ", ".join(thresholds["other_labels"])
+            reason = (f"This programme requires {labels}, not an "
+                      "IELTS/TOEFL score; the profile has no evidence "
+                      "for that requirement, so it cannot be assessed "
+                      "from a test score.")
+        elif not ielts_overalls and not toefl_overalls \
                 and not thresholds["component_sets"]:
             reason = ("This programme states a language requirement, but no "
                       "IELTS/TOEFL score is stated on the official page, so "
@@ -409,8 +577,7 @@ def _language_rules(profile: StudentProfile, program: dict,
         results.append(_r("exp-language", "UNKNOWN", reason, evidence,
                           observed={"ielts_overall": ielts_score,
                                     "toefl_overall": toefl_score},
-                          threshold={"ielts_overall": ielts_overalls or None,
-                                     "toefl_overall": toefl_overalls or None}))
+                          threshold=threshold))
     else:
         # A relevant test was supplied but its route could not be
         # assessed (TOEFL scale/date): UNKNOWN, never a failure.
@@ -426,8 +593,7 @@ def _language_rules(profile: StudentProfile, program: dict,
         results.append(_r("exp-language", "UNKNOWN", reason, evidence,
                           observed={"ielts_overall": ielts_score,
                                     "toefl_overall": toefl_score},
-                          threshold={"ielts_overall": ielts_overalls or None,
-                                     "toefl_overall": toefl_overalls or None}))
+                          threshold=threshold))
     # --- Components: IELTS components only (the profile has no TOEFL
     # component scores). NOT_APPLICABLE when no component minimum is
     # stated at all and a test was supplied. ---
@@ -483,6 +649,37 @@ def _language_rules(profile: StudentProfile, program: dict,
     return results
 
 
+def _ug_observed(ug: UndergradProfile) -> dict[str, Any]:
+    """Branch-aware observed values for the academic rule.
+
+    Round 9, R10: the frontend renders "你的情况" from observedRaw,
+    and a Gaokao / IB / USA profile used to get no observed at all,
+    so the card read "未提供" even though the score was supplied
+    (e.g. Gaokao 680/750). Only the branch-relevant keys are kept —
+    the frontend's localised renderer keys off `curriculum` — and
+    None values are dropped so the English fallback string stays
+    readable.
+    """
+    curriculum = effective_curriculum(ug)
+    obs: dict[str, Any] = {"curriculum": curriculum}
+    if curriculum == "cn_gaokao":
+        obs.update({"gaokao_score": ug.gaokao_score,
+                    "gaokao_total": ug.gaokao_total,
+                    "gaokao_maths": ug.gaokao_maths})
+    elif curriculum == "ib":
+        obs.update({"total": ug.ib_total,
+                    "hl_maths": ug.ib_hl_maths_grade,
+                    "hl_total": ug.ib_hl_total})
+    elif curriculum == "usa":
+        obs.update({"sat_total": ug.sat_total,
+                    "act_composite": ug.act_composite,
+                    "ap_grades": ug.ap_grades})
+    elif curriculum in ("uk_alevel", "sg_alevel"):
+        obs.update({"grades": ug.a_level_grades,
+                    "maths": ug.a_level_maths_grade})
+    return {k: v for k, v in obs.items() if v is not None or k == "curriculum"}
+
+
 def _academic_rule(profile: StudentProfile, program: dict,
                    alevels: list[dict[str, Any]]) -> RuleResult:
     evidence: list[str] = []
@@ -496,19 +693,20 @@ def _academic_rule(profile: StudentProfile, program: dict,
                   evidence)
     ug = profile.undergrad_profile or UndergradProfile()
     curriculum = effective_curriculum(ug)
+    observed = _ug_observed(ug)
     if not alevels:
         return _r("exp-academic", "UNKNOWN",
                   "No A-level threshold is stated for this programme (the academic requirement uses GPA / IB / degree-class or free-text criteria), so academic eligibility cannot be decided from grades alone.",
-                  evidence)
+                  evidence, observed=observed)
     if curriculum not in ("uk_alevel", "sg_alevel"):
         return _r("exp-academic", "UNKNOWN",
                   "An A-level threshold is stated, but this applicant's curriculum is not A-level; A-level thresholds are only assessed for UK / Singapore A-level applicants, and other scores are never converted to A-levels.",
-                  evidence)
+                  evidence, observed=observed)
     top = _alevel_top3(ug.a_level_grades)
     if top is None:
         return _r("exp-academic", "UNKNOWN",
                   "A-level grades not supplied (three grades are needed).",
-                  evidence)
+                  evidence, observed=observed)
     maths_rank = _GRADE_RANK.get((ug.a_level_maths_grade or "").upper())
     for req in alevels:
         if top < req["minimum"]:
@@ -518,18 +716,16 @@ def _academic_rule(profile: StudentProfile, program: dict,
                 if maths_rank is None:
                     return _r("exp-academic", "UNKNOWN",
                               "A-level grades meet the stated grades, but the required Mathematics grade cannot be checked (no A-level Maths grade supplied).",
-                              evidence)
+                              evidence, observed=observed)
                 if maths_rank < req["maths_rank"]:
                     continue
         return _r("exp-academic", "MET",
                   "A-level grades meet the stated A-level threshold.",
-                  evidence, observed={"grades": ug.a_level_grades,
-                                      "maths": ug.a_level_maths_grade},
+                  evidence, observed=observed,
                   threshold={"a_level": req["minimum"]})
     return _r("exp-academic", "NOT_MET",
               "A-level grades do not meet the stated A-level threshold.",
-              evidence, observed={"grades": ug.a_level_grades,
-                                  "maths": ug.a_level_maths_grade},
+              evidence, observed=observed,
               threshold={"a_level": min(req["minimum"] for req in alevels)})
 
 

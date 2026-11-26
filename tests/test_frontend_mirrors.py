@@ -113,3 +113,54 @@ def test_carousel_cards_have_no_stars():
         text = (root / name).read_text(encoding="utf-8")
         assert "★" not in text and "☆" not in text, name
         assert '"rating"' not in text and "rating=" not in text, name
+
+
+# Round 9 (R5): verified language of instruction — the field must survive
+# the mirror generation (data/expansions/expansion.json ->
+# frontend/src/lib/expansion.ts) verbatim, so the UI can show it with
+# its official source. Only programmes whose official page states the
+# teaching language carry it; it is never guessed.
+SWISS_LOI = {
+    "eth-cs-bsc-2027": ("German", "https://ethz.ch/en/studies/bachelor/application/bachelor-human-medicine/application-admission/language-requirements.html"),
+    "eth-cse-bsc-2027": ("German", "https://ethz.ch/en/studies/bachelor/application/bachelor-human-medicine/application-admission/language-requirements.html"),
+    "epfl-cs-bsc-2027": ("French", "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/"),
+    "epfl-ai-bsc-2027": ("French", "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/"),
+    # Verified correction (2026-11-26): UZH Informatics BSc is
+    # GERMAN-taught (main language of instruction: German), not
+    # English — the official degrees page states it, and the IfI page
+    # requires a German C1 certificate.
+    "zurich-informatics-bsc-2027": ("German", "https://www.degrees.uzh.ch/en/bachelor/50000003/51082599/51085518"),
+}
+
+
+def _load_expansion_mirror() -> list[dict]:
+    text = EXPANSION_TS.read_text(encoding="utf-8")
+    # The header comment contains '=' — split on the export assignment.
+    payload = text[text.index(" = [") + 3:].strip().rstrip(";")
+    return json.loads(payload)
+
+
+def test_language_of_instruction_survives_mirror():
+    src = json.loads(EXPANSION_SRC.read_text(encoding="utf-8"))
+    src_by_id = {p["id"]: p for p in src["programs"]}
+    mirror = {p["id"]: p for p in _load_expansion_mirror()}
+    for pid, (language, url) in SWISS_LOI.items():
+        prog = src_by_id[pid]
+        loi = prog.get("language_of_instruction")
+        assert loi, pid
+        assert loi["language"] == language, pid
+        assert loi["source_url"] == url, pid
+        assert loi["source_url"].startswith("https://"), pid
+        # The source URL must be one of the programme's own listed
+        # sources (traceability — the UI links to it).
+        assert url in {s["url"] for s in prog["sources"]}, pid
+        # And the mirror must carry the same facts, converted to the
+        # frontend's camelCase shape (language + note + sourceUrl).
+        assert mirror[pid].get("languageOfInstruction") == {
+            "language": loi["language"],
+            "note": loi["note"],
+            "sourceUrl": loi["source_url"],
+        }, pid
+    # Nothing else gains the field: only the five verified programmes.
+    with_loi = {pid for pid, p in mirror.items() if p.get("languageOfInstruction")}
+    assert with_loi == set(SWISS_LOI), with_loi

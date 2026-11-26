@@ -468,6 +468,11 @@ def _derive_reason_key(rule_id: str, status: str, detail: str) -> str | None:
             return "missing-info"
         if "does not match" in d:
             return "budget-mismatch"
+        if "cannot be converted" in d:
+            # Round 9, R2: the fee is known but no reference rate
+            # converts it into the budget currency — localised via
+            # reason.fx-cannot-convert, never a false mismatch.
+            return "fx-cannot-convert"
         if "not A-level" in d or "never converted" in d:
             return "no-equivalence"
         if "no IELTS/TOEFL score is stated" in d:
@@ -520,6 +525,20 @@ def _grade_letter(rank: int) -> str:
     return {5: "A*", 4: "A", 3: "B", 2: "C", 1: "D", 0: "E"}.get(rank, "?")
 
 
+def _fmt_amount(amount: Any) -> str:
+    """Thousands-separated amount, e.g. 4380 -> "4,380"."""
+    try:
+        f = float(amount)
+    except (TypeError, ValueError):
+        return str(amount)
+    return f"{f:,.0f}" if f == int(f) else f"{f:,.2f}"
+
+
+def _period_text(period: str) -> str:
+    return {"per_year": "per year", "total": "total",
+            "per_credit": "per credit"}.get(period or "", period or "")
+
+
 def _exp_expected(rule_id: str, threshold: dict | None) -> str:
     """English `expected` for a generic expansion rule, showing the
     actual numeric threshold it was judged against.
@@ -531,50 +550,86 @@ def _exp_expected(rule_id: str, threshold: dict | None) -> str:
     label is now kept ONLY when the programme genuinely states no
     numeric threshold (and then the rule is UNKNOWN, never NOT_MET,
     per the placeholder rule in domain/expansion_eval.py).
+
+    Round 9 integration: the fee renders a human period ("per year",
+    never the raw "per_year" token) with thousands separators and the
+    approximate converted figure when the fee was compared across
+    currencies; the language rule names real non-IELTS/TOEFL
+    requirements (CEFR / HSK / Duolingo / PTE) from the threshold's
+    "other_requirements"; where no threshold exists at all the label
+    is an honest "No ... published" line — never the bare English
+    placeholder, so the frontend's localised "未公布具体要求" can
+    replace it (see ruleText.ruleExpected).
     """
-    if isinstance(threshold, dict):
-        if rule_id == "exp-fee":
-            amount = threshold.get("amount")
-            if isinstance(amount, (int, float)) and not isinstance(amount, bool):
-                currency = str(threshold.get("currency") or "").strip()
-                period = str(threshold.get("period") or "").strip()
-                return " ".join(p for p in
-                                ("Tuition fee", currency, f"{amount:g}", period)
-                                if p)
-        if rule_id == "exp-language":
-            parts: list[str] = []
-            for key, label in (("ielts_overall", "IELTS overall"),
-                               ("toefl_overall", "TOEFL iBT")):
-                value = threshold.get(key)
-                nums = ([value] if isinstance(value, (int, float))
-                        else value if isinstance(value, list) else [])
-                nums = [v for v in nums if isinstance(v, (int, float))]
-                if nums:
-                    parts.append(f"{label} {min(nums):g}")
-            if parts:
-                return " or ".join(parts)
-        if rule_id == "exp-language-components":
-            if "__three__" in threshold and "__remaining__" in threshold:
-                three = threshold.get("__three__")
-                remaining = threshold.get("__remaining__")
-                if isinstance(three, (int, float)) and isinstance(remaining, (int, float)):
-                    return (f"IELTS {three:g} in at least three components, "
-                            f"{remaining:g} in the remaining component")
-            vals = [v for v in threshold.values()
-                    if isinstance(v, (int, float)) and not isinstance(v, bool)]
-            if vals and len(set(vals)) == 1:
-                return f"IELTS minimum {vals[0]:g} in each component"
-            if vals:
-                comps = ", ".join(
-                    f"{k} {v:g}" for k, v in threshold.items()
-                    if isinstance(v, (int, float)) and not isinstance(v, bool))
-                return f"IELTS component minimums: {comps}"
-        if rule_id == "exp-academic":
-            ranks = threshold.get("a_level")
-            if (isinstance(ranks, list) and ranks
-                    and all(isinstance(x, int) and not isinstance(x, bool)
-                            for x in ranks)):
-                return "A-level " + "".join(_grade_letter(x) for x in ranks)
+    if not isinstance(threshold, dict):
+        return {
+            "exp-fee": "No tuition fee amount published",
+            "exp-language": "No IELTS/TOEFL minimum published",
+            "exp-language-components": "No IELTS component minimum published",
+            "exp-academic": "No A-level threshold published",
+        }.get(rule_id, EXPECTED[rule_id])
+    if rule_id == "exp-fee":
+        amount = threshold.get("amount")
+        if isinstance(amount, (int, float)) and not isinstance(amount, bool):
+            currency = str(threshold.get("currency") or "").strip()
+            period = _period_text(str(threshold.get("period") or "").strip())
+            base = " ".join(p for p in
+                            ("Tuition fee", currency, _fmt_amount(amount), period)
+                            if p)
+            approx = threshold.get("approx_converted")
+            if isinstance(approx, dict):
+                a_amount = approx.get("amount")
+                a_currency = str(approx.get("currency") or "").strip()
+                a_as_of = str(approx.get("as_of") or "").strip()
+                if isinstance(a_amount, (int, float)) and a_currency:
+                    note = f"approx. {a_currency} {_fmt_amount(a_amount)}"
+                    if a_as_of:
+                        note += f", rates {a_as_of}"
+                    base += f" ({note})"
+            return base
+        return "No tuition fee amount published"
+    if rule_id == "exp-language":
+        parts: list[str] = []
+        for key, label in (("ielts_overall", "IELTS overall"),
+                           ("toefl_overall", "TOEFL iBT")):
+            value = threshold.get(key)
+            nums = ([value] if isinstance(value, (int, float))
+                    else value if isinstance(value, list) else [])
+            nums = [v for v in nums if isinstance(v, (int, float))]
+            if nums:
+                parts.append(f"{label} {min(nums):g}")
+        other = threshold.get("other_requirements")
+        if isinstance(other, list):
+            parts.extend(str(x) for x in other if isinstance(x, str) and x)
+        elif isinstance(other, str) and other:
+            parts.append(other)
+        if parts:
+            return " or ".join(parts)
+        return "No IELTS/TOEFL minimum published"
+    if rule_id == "exp-language-components":
+        if "__three__" in threshold and "__remaining__" in threshold:
+            three = threshold.get("__three__")
+            remaining = threshold.get("__remaining__")
+            if isinstance(three, (int, float)) and isinstance(remaining, (int, float)):
+                return (f"IELTS {three:g} in at least three components, "
+                        f"{remaining:g} in the remaining component")
+        vals = [v for v in threshold.values()
+                if isinstance(v, (int, float)) and not isinstance(v, bool)]
+        if vals and len(set(vals)) == 1:
+            return f"IELTS minimum {vals[0]:g} in each component"
+        if vals:
+            comps = ", ".join(
+                f"{k} {v:g}" for k, v in threshold.items()
+                if isinstance(v, (int, float)) and not isinstance(v, bool))
+            return f"IELTS component minimums: {comps}"
+        return "No IELTS component minimum published"
+    if rule_id == "exp-academic":
+        ranks = threshold.get("a_level")
+        if (isinstance(ranks, list) and ranks
+                and all(isinstance(x, int) and not isinstance(x, bool)
+                        for x in ranks)):
+            return "A-level " + "".join(_grade_letter(x) for x in ranks)
+        return "No A-level threshold published"
     return EXPECTED[rule_id]
 
 

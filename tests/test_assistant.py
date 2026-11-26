@@ -313,10 +313,13 @@ def test_suggest_degrades_gracefully_for_country_without_programmes():
     # honest unknown answer — never a 422, never a crash, never an
     # invented programme, fee or route. GB/SG budget-band logic is
     # untouched (see test_suggest_fee_fit_is_honest).
+    # Round 9: US/CN/JP now HAVE verified expansion programmes, so
+    # they no longer degrade — the no-programme case is a country
+    # with nothing in the catalogue at all (AQ).
     for level, country, band, locale, needle in (
-            ("undergraduate", "US", "mid", "en", "no verified programme"),
-            ("taught_masters", "CN", "low", "zh-CN", "没有"),
-            ("undergraduate", "JP", "high", "es", "no hay programas verificados")):
+            ("undergraduate", "AQ", "mid", "en", "no verified programme"),
+            ("taught_masters", "AQ", "low", "zh-CN", "没有"),
+            ("undergraduate", "AQ", "high", "es", "no hay programas verificados")):
         r = suggest(level, country, band, locale)
         assert r["program_id"] is None, (level, country, band)
         assert r["evidence_url"] is None
@@ -327,7 +330,7 @@ def test_suggest_degrades_gracefully_for_country_without_programmes():
         assert "48,600" not in "\n".join(r["lines"])
     # Same through the endpoint (was 422 before the global fix).
     r = client.post("/api/v1/assistant/suggest",
-                    json={"degree_level": "undergraduate", "country": "US",
+                    json={"degree_level": "undergraduate", "country": "AQ",
                           "budget_band": "mid", "locale": "en"})
     assert r.status_code == 200
     assert r.json()["program_id"] is None

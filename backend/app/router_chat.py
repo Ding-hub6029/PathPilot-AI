@@ -31,6 +31,7 @@ endpoints.
 """
 from __future__ import annotations
 
+import asyncio
 import uuid
 from typing import Literal
 
@@ -187,9 +188,17 @@ async def assistant_chat_endpoint(request: Request):
     req, err = await _parse_body(request, ChatRequest)
     if err is not None:
         return err
-    return chat_answer(req.message, req.locale,
-                       [turn.model_dump() for turn in req.history],
-                       provider=get_provider())
+    # Round 9 (R6-backend): chat_answer's model call is synchronous
+    # (httpx.Client, ~9-12 s live, up to 20 s + 15 s repair) and this
+    # endpoint is async — calling it inline blocked the single
+    # uvicorn event loop for the whole turn, so /health and every
+    # other endpoint stopped answering. Run it in a worker thread:
+    # the turn still takes as long as the model takes, but the loop
+    # stays free for concurrent requests.
+    return await asyncio.to_thread(
+        chat_answer, req.message, req.locale,
+        [turn.model_dump() for turn in req.history],
+        provider=get_provider())
 
 
 @router.post("/assistant/pref-chat")
@@ -209,10 +218,13 @@ async def assistant_pref_chat_endpoint(request: Request):
     req, err = await _parse_body(request, PrefChatRequest)
     if err is not None:
         return err
-    return pref_answer(req.message, req.locale,
-                       req.known.model_dump(),
-                       [turn.model_dump() for turn in req.history],
-                       provider=get_provider())
+    # Round 9 (R6-backend): same event-loop blockage as /assistant/chat
+    # — the synchronous model call runs in a worker thread.
+    return await asyncio.to_thread(
+        pref_answer, req.message, req.locale,
+        req.known.model_dump(),
+        [turn.model_dump() for turn in req.history],
+        provider=get_provider())
 
 
 @router.post("/profile/parse")
@@ -228,4 +240,7 @@ async def profile_parse_endpoint(request: Request):
     req, err = await _parse_body(request, ParseRequest)
     if err is not None:
         return err
-    return parse_profile(req.text, req.locale, provider=get_provider())
+    # Round 9 (R6-backend): same event-loop blockage as the chat
+    # endpoints — the synchronous model call runs in a worker thread.
+    return await asyncio.to_thread(
+        parse_profile, req.text, req.locale, provider=get_provider())

@@ -795,10 +795,20 @@ async def match(request: Request):
                         field_errors=[{"field": "application_track", "message": problem}])
         ids = body.get("program_ids") or []
         results = []
+        skipped: list[str] = []
         for pid in ids:
             program = _get_programme_or_404(pid)
             if program is None:
-                return _err(rid, "PROGRAM_NOT_FOUND", f"No program with id '{pid}'.", 404)
+                # Round 9, R11: one unresolvable id must not fail the
+                # whole batch. An id is unresolvable when it is unknown
+                # entirely or a display-only expansion programme (e.g.
+                # 'ntu-cyber-msc-2027', listed by /programs but not
+                # evaluable by /match). It is recorded in
+                # skippedProgramIds and the resolvable programmes are
+                # still evaluated, so the frontend can show the skipped
+                # ones as unknown instead of failing.
+                skipped.append(pid)
+                continue
             mismatch = track_mismatch(profile, program)
             if mismatch:
                 results.append({"programId": pid, "eligibilitySummary": "TRACK_MISMATCH",
@@ -809,8 +819,20 @@ async def match(request: Request):
                             "eligibilitySummary": summary_for(ev.overall_status),
                             "ruleResults": [rule_to_frontend(r) for r in ev.results],
                             "trackMismatch": False})
+        if not results and skipped:
+            # Nothing in the batch could be evaluated: keep the
+            # pre-existing 404 contract for an all-unresolvable batch
+            # (a lone display-only id still 404s, as before).
+            if len(skipped) == 1:
+                return _err(rid, "PROGRAM_NOT_FOUND",
+                            f"No program with id '{skipped[0]}'.", 404)
+            return _err(rid, "PROGRAM_NOT_FOUND",
+                        f"No program with ids {skipped}.", 404)
         _attach_preference_fit(results, raw_profile)
-        return match_response(f"eval-{rid[:8]}", results)
+        resp = match_response(f"eval-{rid[:8]}", results)
+        if skipped:
+            resp["skippedProgramIds"] = skipped
+        return resp
     try:
         req = MatchRequest(**body)
     except Exception as exc:  # pydantic validation error -> 422, spec shape

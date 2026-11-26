@@ -55,7 +55,8 @@ from ai.assistant import (LOCALES, _t, ask as assistant_ask,
 from ai.chat import (_clean_history, _detect_climate_class,
                      _detect_country, _evidence_texts, _parse_model_json,
                      _render_lines, _resolve_evidence_url, _retrieve,
-                     _validate_chat_payload, evidence_cities_line)
+                     _validate_chat_payload, country_evidence_line,
+                     evidence_cities_line)
 from ai.grounding import Source
 from ai.prompts import PROMPT_VERSION, pref_chat_system
 from ai.provider import ProviderAdapter, ProviderError
@@ -371,10 +372,15 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     lines = list(template["lines"][:2])
     if not force_no_url:
         cities = evidence_cities_line(sources, locale)
+        country = country_evidence_line(sources, locale)
         if cities is not None and lines and lines[0] == _t(locale, "unknown"):
             lines[0] = cities
+        elif country is not None and lines and lines[0] == _t(locale, "unknown"):
+            lines[0] = country
         elif cities is not None and not lines:
             lines = [cities]
+        elif country is not None and not lines:
+            lines = [country]
     if nxt is not None:
         lines.append(_question_line(nxt, locale))
     return {"lines": lines[:3],
@@ -455,14 +461,15 @@ def pref_answer(message: str, locale: str = "en",
     }
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
     system = pref_chat_system(loc)
-    # Timeouts (round 7 fix): live gateway calls took ~9-12 s each on
-    # 2026-11-26, so the old 12 s / 8 s budgets were marginal — the
-    # 8 s repair budget was shorter than one call, so any
-    # first-attempt validation failure fell back. 30 s first call,
-    # 20 s repair; the frontend's patient fetch allows ~90 s.
+    # Timeouts (round 9 fix): live gateway calls took ~9-12 s each on
+    # 2026-11-26, and the round-7 budgets (30 s first call + 20 s
+    # repair) let one turn stack to ~50 s of silence. A single turn
+    # now gets 20 s first attempt + 15 s repair (35 s worst case);
+    # anything slower falls back to the template. The event-loop
+    # blockage itself is fixed at the router (see app/router_chat.py).
     started = time.monotonic()
     try:
-        result = provider.chat(messages, system=system, timeout_s=30.0)
+        result = provider.chat(messages, system=system, timeout_s=20.0)
     except ProviderError as e:
         logger.info("pref_chat model call failed kind=%s latency_ms=%d",
                     e.kind, int((time.monotonic() - started) * 1000))
@@ -485,7 +492,7 @@ def pref_answer(message: str, locale: str = "en",
             retry_started = time.monotonic()
             retry = provider.chat(
                 messages + [{"role": "user", "content": repair}],
-                system=system, timeout_s=20.0)
+                system=system, timeout_s=15.0)
         except ProviderError as e:
             logger.info("pref_chat repair call failed kind=%s latency_ms=%d",
                         e.kind, int((time.monotonic() - retry_started) * 1000))

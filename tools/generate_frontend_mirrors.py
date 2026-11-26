@@ -97,6 +97,17 @@ def generate_expansion():
             },
             "applicationDeadline": p.get("application_deadline"),
             "applicationStatus": p.get("application_status") or "unknown",
+            # Round 9 (R5): verified language of instruction, only where
+            # an official page states it — never guessed. The mirror
+            # carries it verbatim, converted to the frontend's camelCase
+            # shape (language + note + sourceUrl) so the UI can show it
+            # with its source link.
+            "languageOfInstruction": (
+                {"language": (p.get("language_of_instruction") or {}).get("language"),
+                 "note": (p.get("language_of_instruction") or {}).get("note"),
+                 "sourceUrl": (p.get("language_of_instruction") or {}).get("source_url")}
+                if p.get("language_of_instruction") else None
+            ),
             "requirements": [
                 {
                     "id": r["id"],
@@ -1043,6 +1054,71 @@ TRANSLATIONS = {
         "fr": "Expériences et avis partagés par des internautes — tels qu'ils les ont racontés, sans vérification officielle.",
         "pt-BR": "Experiências e avaliações compartilhadas por internautas — como foram contadas, sem verificação oficial.",
         "ar": "تجارب وآراء شاركها مستخدمو الإنترنت — كما رووها، دون توثيق رسمي.",
+    },
+    # --- Round 9 (2026-11-26): language of instruction (R5), shared
+    # backend status (R9), zero-fully-met explanation (R11). All keys
+    # live under the new top-level "r9pages" section.
+    "r9pages.taughtIn": {
+        "en": "Taught in {language}", "zh-CN": "授课语言：{language}",
+        "es": "Se imparte en {language}", "fr": "Enseigné en {language}",
+        "pt-BR": "Ministrado em {language}", "ar": "لغة التدريس: {language}",
+    },
+    "r9pages.langGerman": {
+        "en": "German", "zh-CN": "德语", "es": "alemán", "fr": "allemand",
+        "pt-BR": "alemão", "ar": "الألمانية",
+    },
+    "r9pages.langFrench": {
+        "en": "French", "zh-CN": "法语", "es": "francés", "fr": "français",
+        "pt-BR": "francês", "ar": "الفرنسية",
+    },
+    "r9pages.langEnglish": {
+        "en": "English", "zh-CN": "英语", "es": "inglés", "fr": "anglais",
+        "pt-BR": "inglês", "ar": "الإنجليزية",
+    },
+    "r9pages.languageSource": {
+        "en": "Official source", "zh-CN": "官方来源",
+        "es": "Fuente oficial", "fr": "Source officielle",
+        "pt-BR": "Fonte oficial", "ar": "المصدر الرسمي",
+    },
+    "r9pages.backendChecking": {
+        "en": "Checking the live backend…",
+        "zh-CN": "正在确认实时后端…",
+        "es": "Comprobando el servidor en vivo…",
+        "fr": "Vérification du serveur en direct…",
+        "pt-BR": "Verificando o servidor ao vivo…",
+        "ar": "جارٍ التحقق من الخادم المباشر…",
+    },
+    "r9pages.backendLive": {
+        "en": "Live backend connected",
+        "zh-CN": "实时后端已连接",
+        "es": "Servidor en vivo conectado",
+        "fr": "Serveur en direct connecté",
+        "pt-BR": "Servidor ao vivo conectado",
+        "ar": "الخادم المباشر متصل",
+    },
+    "r9pages.zeroMetTitle": {
+        "en": "Why no programme shows as fully met",
+        "zh-CN": "为什么没有专业显示为“全部符合”",
+        "es": "Por qué ningún programa aparece como totalmente cumplido",
+        "fr": "Pourquoi aucun programme n'apparaît comme entièrement rempli",
+        "pt-BR": "Por que nenhum programa aparece como totalmente atendido",
+        "ar": "لماذا لا يظهر أي برنامج كمستوفٍ بالكامل",
+    },
+    "r9pages.zeroMetBody": {
+        "en": "No university publishes a Gaokao-to-local-grades equivalence, so the academic requirement stays unknown for every programme — and a programme only counts as fully met when every requirement is confirmed. The zero is not a verdict on your Gaokao score; it means no programme can be fully confirmed from published rules alone.",
+        "zh-CN": "没有任何大学公布高考成绩与当地成绩的换算标准，因此所有专业的学术要求都只能是“未知”——而只有每一项要求都被确认，专业才算“全部符合”。这个 0 不是对你高考成绩的否定，而是说仅凭已公布的规则，无法完全确认任何一个专业。",
+        "es": "Ninguna universidad publica una equivalencia entre el Gaokao y las notas locales, así que el requisito académico queda como desconocido en todos los programas, y un programa solo cuenta como totalmente cumplido cuando todos sus requisitos están confirmados. El cero no es un juicio sobre tu nota del Gaokao: significa que con las reglas publicadas no se puede confirmar ningún programa por completo.",
+        "fr": "Aucune université ne publie d'équivalence entre le Gaokao et les notes locales : l'exigence académique reste donc inconnue pour tous les programmes, et un programme n'est compté comme entièrement rempli que lorsque toutes ses exigences sont confirmées. Le zéro n'est pas un jugement sur ta note au Gaokao : il signifie simplement qu'aucun programme ne peut être entièrement confirmé à partir des seules règles publiées.",
+        "pt-BR": "Nenhuma universidade publica uma equivalência entre o Gaokao e as notas locais, então o requisito acadêmico fica desconhecido em todos os programas — e um programa só conta como totalmente atendido quando todos os requisitos são confirmados. O zero não é um julgamento sobre sua nota no Gaokao; significa que, apenas com as regras publicadas, nenhum programa pode ser totalmente confirmado.",
+        "ar": "لا تنشر أي جامعة معادلة بين الغاوكاو والدرجات المحلية، لذا يبقى المتطلب الأكاديمي غير معروف لكل برنامج — ولا يُحتسب البرنامج كمستوفٍ بالكامل إلا عند تأكيد جميع متطلباته. الصفر ليس حكمًا على درجتك في الغاوكاو؛ بل يعني أنه لا يمكن تأكيد أي برنامج بالكامل من القواعد المنشورة وحدها.",
+    },
+    "r9pages.zeroMetGaokaoHint": {
+        "en": "Your Gaokao score is recorded — the routes below are what universities actually publish for Gaokao applicants.",
+        "zh-CN": "你的高考成绩已记录——下面是各大学针对高考生实际公布的升学路径。",
+        "es": "Tu nota del Gaokao está registrada: abajo verás las vías que las universidades publican realmente para los aspirantes del Gaokao.",
+        "fr": "Ta note au Gaokao est enregistrée — voici les voies que les universités publient réellement pour les candidats du Gaokao.",
+        "pt-BR": "Sua nota no Gaokao está registrada — abaixo estão as rotas que as universidades realmente publicam para candidatos do Gaokao.",
+        "ar": "درجتك في الغاوكاو مسجلة — فيما يلي المسارات التي تنشرها الجامعات فعليًا لمتقدمي الغاوكاو.",
     },
 }
 

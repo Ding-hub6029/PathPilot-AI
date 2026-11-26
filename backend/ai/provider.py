@@ -112,6 +112,12 @@ class ProviderAdapter:
             kwargs["transport"] = self._transport
         return httpx.Client(**kwargs)
 
+    def _async_client(self, timeout_s: float) -> httpx.AsyncClient:
+        kwargs: dict = {"timeout": timeout_s}
+        if self._transport is not None:
+            kwargs["transport"] = self._transport
+        return httpx.AsyncClient(**kwargs)
+
     # -- public API ---------------------------------------------------------
     def chat(self, messages: list[dict], *, system: str | None = None,
              timeout_s: float | None = None, max_tokens: int | None = None,
@@ -165,6 +171,56 @@ class ProviderAdapter:
         return self.chat([{"role": "user", "content": prompt}],
                          timeout_s=timeout_s).text
 
+    async def achat(self, messages: list[dict], *, system: str | None = None,
+                    timeout_s: float | None = None,
+                    max_tokens: int | None = None,
+                    temperature: float = 0.2) -> ChatResult:
+        """Async twin of :meth:`chat`: the same request, validation and
+        error mapping, but over ``httpx.AsyncClient`` — awaiting it
+        never blocks the server's event loop, so a slow model call
+        cannot wedge /health or any other endpoint. Same
+        ``ProviderError`` contract as :meth:`chat`; never returns
+        invented text."""
+        if not self.available:
+            raise ProviderError(
+                "No AI provider configured (AI_PROVIDER/AI_MODEL/AI_API_KEY "
+                "absent or incomplete).", retryable=False, kind="not_configured")
+        budget_s = (self.timeout_ms / 1000.0)
+        if timeout_s is None:
+            timeout_s = budget_s
+        else:
+            timeout_s = min(timeout_s, budget_s)
+        started = time.monotonic()
+        try:
+            if self.provider in ("openai", "deepseek"):
+                text, usage = await self._achat_openai_compatible(
+                    messages, system=system, timeout_s=timeout_s,
+                    max_tokens=max_tokens or self.max_tokens,
+                    temperature=temperature)
+            elif self.provider == "gemini":
+                text, usage = await self._achat_gemini(
+                    messages, system=system, timeout_s=timeout_s,
+                    max_tokens=max_tokens or self.max_tokens,
+                    temperature=temperature)
+            else:  # pragma: no cover - guarded by `available`
+                raise ProviderError(f"Unsupported provider {self.provider!r}.",
+                                    retryable=False, kind="unsupported_provider")
+        except ProviderError:
+            raise
+        except httpx.TimeoutException:
+            raise ProviderError("AI provider call timed out.",
+                                retryable=True, kind="timeout")
+        except httpx.HTTPError:
+            raise ProviderError("Could not reach the AI provider.",
+                                retryable=True, kind="transport_error")
+        latency_ms = int((time.monotonic() - started) * 1000)
+        if not text or not text.strip():
+            raise ProviderError("AI provider returned an empty reply.",
+                                retryable=True, kind="empty_reply")
+        return ChatResult(text=text.strip(), model=self.model or "",
+                          provider=self.provider or "", latency_ms=latency_ms,
+                          usage=usage)
+
     # -- OpenAI-compatible (OpenAI, DeepSeek) --------------------------------
     def _chat_openai_compatible(self, messages, *, system, timeout_s,
                                 max_tokens, temperature):
@@ -215,6 +271,76 @@ class ProviderAdapter:
             body["systemInstruction"] = {"parts": [{"text": system}]}
         with self._client(timeout_s) as client:
             resp = client.post(
+                f"{self.base_url}/models/{self.model}:generateContent",
+                json=body,
+                headers={"x-goog-api-key": self.api_key,
+                         "Content-Type": "application/json"})
+        if resp.status_code == 429 or resp.status_code >= 500:
+            raise ProviderError(
+                f"AI provider returned HTTP {resp.status_code}.",
+                retryable=True, kind="provider_http")
+        if resp.status_code >= 400:
+            raise ProviderError(
+                f"AI provider rejected the request (HTTP {resp.status_code}).",
+                retryable=False, kind="provider_http")
+        try:
+            data = resp.json()
+            parts = data["candidates"][0]["content"]["parts"]
+            text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+            usage = data.get("usageMetadata") or {}
+        except (ValueError, KeyError, IndexError, TypeError):
+            raise ProviderError("AI provider returned an unreadable reply.",
+                                retryable=True, kind="bad_reply")
+        return text, usage
+
+    # -- Async twins (same payloads / error mapping as above) --------------
+    async def _achat_openai_compatible(self, messages, *, system, timeout_s,
+                                       max_tokens, temperature):
+        payload_messages = ([{"role": "system", "content": system}]
+                            if system else []) + list(messages)
+        body = {"model": self.model, "messages": payload_messages,
+                "temperature": temperature, "max_tokens": max_tokens}
+        async with self._async_client(timeout_s) as client:
+            resp = await client.post(
+                f"{self.base_url}/chat/completions", json=body,
+                headers={"Authorization": f"Bearer {self.api_key}",
+                         "Content-Type": "application/json"})
+        if resp.status_code == 429 or resp.status_code >= 500:
+            raise ProviderError(
+                f"AI provider returned HTTP {resp.status_code}.",
+                retryable=True, kind="provider_http")
+        if resp.status_code >= 400:
+            raise ProviderError(
+                f"AI provider rejected the request (HTTP {resp.status_code}).",
+                retryable=False, kind="provider_http")
+        try:
+            data = resp.json()
+            text = data["choices"][0]["message"]["content"]
+            usage = data.get("usage") or {}
+        except (ValueError, KeyError, IndexError, TypeError):
+            raise ProviderError("AI provider returned an unreadable reply.",
+                                retryable=True, kind="bad_reply")
+        if not isinstance(text, str):
+            raise ProviderError("AI provider returned an unreadable reply.",
+                                retryable=True, kind="bad_reply")
+        return text, usage
+
+    async def _achat_gemini(self, messages, *, system, timeout_s,
+                            max_tokens, temperature):
+        contents = []
+        for m in messages:
+            role = "model" if m.get("role") == "assistant" else "user"
+            contents.append({"role": role,
+                             "parts": [{"text": m.get("content", "")}]})
+        body: dict = {
+            "contents": contents,
+            "generationConfig": {"temperature": temperature,
+                                 "maxOutputTokens": max_tokens},
+        }
+        if system:
+            body["systemInstruction"] = {"parts": [{"text": system}]}
+        async with self._async_client(timeout_s) as client:
+            resp = await client.post(
                 f"{self.base_url}/models/{self.model}:generateContent",
                 json=body,
                 headers={"x-goog-api-key": self.api_key,

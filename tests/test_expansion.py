@@ -106,6 +106,33 @@ def test_validator_accepts_good_program():
     assert validate_expansion_data(_good_data([_good_program()]), RANKING_IDS, V2_IDS) == []
 
 
+def test_validator_language_of_instruction():
+    # Round 9 (R5): the field is optional, but when present it must name
+    # the language, carry an https source URL, and that URL must be one
+    # of the programme's own listed sources (traceability).
+    good = _good_program()
+    good["language_of_instruction"] = {
+        "language": "German",
+        "note": "Main teaching language is German.",
+        "source_url": "https://mitadmissions.org/",
+    }
+    assert validate_expansion_data(_good_data([good]), RANKING_IDS, V2_IDS) == []
+
+    no_language = _good_program()
+    no_language["language_of_instruction"] = {"source_url": "https://mitadmissions.org/"}
+    assert validate_expansion_data(_good_data([no_language]), RANKING_IDS, V2_IDS) != []
+
+    http_url = _good_program()
+    http_url["language_of_instruction"] = {
+        "language": "German", "source_url": "http://mitadmissions.org/"}
+    assert validate_expansion_data(_good_data([http_url]), RANKING_IDS, V2_IDS) != []
+
+    unlisted = _good_program()
+    unlisted["language_of_instruction"] = {
+        "language": "German", "source_url": "https://example.com/other-page"}
+    assert validate_expansion_data(_good_data([unlisted]), RANKING_IDS, V2_IDS) != []
+
+
 def test_validator_rejects_v2_collision():
     prog = _good_program(pid="ucl-cs-bsc-2026", iid="ucl")
     errors = validate_expansion_data(_good_data([prog]), RANKING_IDS, V2_IDS)

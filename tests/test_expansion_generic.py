@@ -34,7 +34,8 @@ def _reset_rate_limits():
 
 def _ug(grades=None, maths=None, curriculum="uk_alevel", ielts=None,
         toefl=None, test_date=None, budget=None, budget_currency="GBP",
-        budget_period="per_year"):
+        budget_period="per_year", gaokao_score=None, gaokao_total=None,
+        gaokao_maths=None):
     lang = None
     if ielts is not None:
         lang = Language(exam="ielts", overall=ielts[0],
@@ -50,6 +51,8 @@ def _ug(grades=None, maths=None, curriculum="uk_alevel", ielts=None,
             ("uk_alevel", "sg_alevel") else "other",
             curriculum=curriculum,
             a_level_grades=grades, a_level_maths_grade=maths,
+            gaokao_score=gaokao_score, gaokao_total=gaokao_total,
+            gaokao_maths=gaokao_maths,
             residency="overseas", intake_year=2027,
             graduation_status="final"),
         language=lang,
@@ -103,9 +106,19 @@ def test_fee_unknown_no_amount():
 
 
 def test_fee_unknown_currency_period_mismatch():
-    # Never FX-convert: a USD budget against a GBP fee is UNKNOWN.
+    # Round 9, R2: a USD budget against a GBP fee is now CONVERTED
+    # with the dated FX reference table, not UNKNOWN. GBP 33,708 is
+    # about USD 44,157 at 1 GBP = 1.31 USD, above a USD 40,000 budget,
+    # so the fee rule is a real NOT_MET.
     r = _rules("glasgow-cs-bsc-2027",
                _ug(budget=40000, budget_currency="USD"))
+    assert r["exp-fee"].status == "NOT_MET"
+    assert "about USD 44,157" in r["exp-fee"].detail
+    # A budget period that differs from the fee period still cannot be
+    # compared (no duration is known to annualise a total fee).
+    r = _rules("glasgow-cs-bsc-2027",
+               _ug(budget=40000, budget_currency="GBP",
+                   budget_period="total"))
     assert r["exp-fee"].status == "UNKNOWN"
     assert "does not match" in r["exp-fee"].detail
 
@@ -247,13 +260,17 @@ def test_promotion_counts():
                if p["degree_level"] == "undergraduate") == 365
     assert sum(1 for p in promoted
                if p["degree_level"] == "taught_masters") == 228
-    # By evaluable rule.
+    # By evaluable rule. Language 119 -> 121 (round 9, R13: the UCLA
+    # TOEFL 100 thresholds under the bare "toefl_overall" key are now
+    # read); academic 20 -> 24 (round 9, R13: A-level thresholds
+    # verified on the official pages for Imperial / UCL Mechanical
+    # Engineering and Cambridge General Engineering).
     assert sum(1 for p in EXPANSION_PROGRAMS.values()
                if evaluable_rules(p)["fee"]) == 558
     assert sum(1 for p in EXPANSION_PROGRAMS.values()
-               if evaluable_rules(p)["language"]) == 119
+               if evaluable_rules(p)["language"]) == 121
     assert sum(1 for p in EXPANSION_PROGRAMS.values()
-               if evaluable_rules(p)["academic"]) == 20
+               if evaluable_rules(p)["academic"]) == 24
     # Display-only reasons: 244 UG/TM with no evaluable rule, 39
     # joint_honours/foundation without one, 10 with a rule but no
     # wizard track.
@@ -562,16 +579,20 @@ def test_exp_expected_shows_the_real_threshold():
     shown = {r.rule_id: rule_to_frontend(r)["expected"] for r in rules}
     assert shown["exp-language"] == "IELTS overall 7.5"
     assert shown["exp-language-components"] == "IELTS minimum 7 in each component"
-    assert shown["exp-fee"] == "Tuition fee GBP 66580 per_year"
+    assert shown["exp-fee"] == "Tuition fee GBP 66,580 per year"
     assert shown["exp-academic"] == "A-level A*AA"
     # ... while a programme with genuinely no numeric threshold keeps
-    # the generic label — and its rule is UNKNOWN, never NOT_MET.
+    # an honest "no threshold published" label — and its rule is
+    # UNKNOWN, never NOT_MET. (Round 9 integration: the bare English
+    # "... as stated on the official programme page" placeholder is
+    # gone from the live path too; the frontend renders the localised
+    # "未公布具体要求" for these.)
     rules = evaluate_expansion(prof, _placeholder_program())
     shown = {r.rule_id: rule_to_frontend(r)["expected"] for r in rules}
-    assert shown["exp-language"] == ("IELTS / TOEFL minimum as stated on "
-                                     "the official programme page")
-    assert shown["exp-fee"] == ("Tuition fee as stated on the official "
-                                "programme page")
+    assert shown["exp-language"] == "No IELTS/TOEFL minimum published"
+    assert shown["exp-language-components"] == "No IELTS component minimum published"
+    assert shown["exp-fee"] == "No tuition fee amount published"
+    assert shown["exp-academic"] == "No A-level threshold published"
 
 
 # --- Round 8: multi-programme /match makes no model calls -------------------
@@ -635,3 +656,237 @@ def test_match_single_programme_still_uses_model_explain(monkeypatch):
     assert _CountingProvider.calls == 2
     assert resp.json()["ai_status"] == "unavailable"
     assert "oxford-cs-ba-2027" in resp.json()["explanation"]
+
+
+# --- Round 9: R2 cross-currency fees, R10 Gaokao observed, R11 /match
+# batch skip, R13 real thresholds ----------------------------------------
+
+def _audit_profile(**overrides):
+    """The live re-test audit profile: China Gaokao, undergraduate,
+    Computer Science, Gaokao 680/750, IELTS 7.0 (L7 R7 W6.5 S7),
+    budget GBP 50,000, 2027 entry."""
+    base = _ug(ielts=(7.0, 7.0), budget=50000, curriculum="cn_gaokao",
+               gaokao_score=680, gaokao_total=750)
+    # IELTS writing 6.5 (the _ug helper sets every component to the
+    # second tuple value, so rebuild the language explicitly).
+    base.language = Language(exam="ielts", overall=7.0, listening=7.0,
+                             reading=7.0, writing=6.5, speaking=7.0)
+    return base
+
+
+def test_fee_chf_converted_met_audit_profile():
+    # R2: CHF 4,380/yr (ETH / EPFL CS) is about GBP 4,018 at the
+    # reference rate — far below a GBP 50,000 budget, so MET, never a
+    # mismatch and never UNKNOWN.
+    prof = _audit_profile()
+    for pid in ("eth-cs-bsc-2027", "epfl-cs-bsc-2027", "epfl-ai-bsc-2027"):
+        r = _rules(pid, prof)["exp-fee"]
+        assert r.status == "MET", (pid, r.detail)
+        assert "about GBP 4,018" in r.detail
+        assert "2026-11-26" in r.detail
+    # CHF 2,440/yr (UZH Informatics) is about GBP 2,239.
+    r = _rules("zurich-informatics-bsc-2027", prof)["exp-fee"]
+    assert r.status == "MET"
+    assert "about GBP 2,239" in r.detail
+
+
+def test_fee_eur_cny_aud_converted_met_audit_profile():
+    # R2: the other audit fee cases — EUR 17,310 (Delft CSE),
+    # CNY 30,000 (Peking / Tsinghua CS) and AUD 57,640 (ANU Computing)
+    # are all far below GBP 50,000 once converted.
+    prof = _audit_profile()
+    cases = {"delft-cse-bsc-2027": "about GBP 14,546",
+             "peking-cs-bsc-2027": "about GBP 3,436",
+             "tsinghua-cs-bsc-2027": "about GBP 3,436",
+             "anu-computing-bachelor-2027": "about GBP 29,111"}
+    for pid, approx in cases.items():
+        r = _rules(pid, prof)["exp-fee"]
+        assert r.status == "MET", (pid, r.detail)
+        assert approx in r.detail, (pid, r.detail)
+
+
+def test_fee_unknown_currency_without_rate():
+    # R2: a currency with no reference rate is UNKNOWN ("cannot be
+    # converted"), NEVER a false mismatch.
+    prog = _placeholder_program(
+        fees={"amount": 1000, "currency": "XXX", "period": "per_year"},
+        requirements=[])
+    r = {x.rule_id: x for x in
+         evaluate_expansion(_ug(budget=50000), prog)}["exp-fee"]
+    assert r.status == "UNKNOWN"
+    assert "cannot be converted" in r.detail
+    assert "does not match" not in r.detail
+
+
+def test_academic_gaokao_observed_audit_profile():
+    # R10: the Gaokao score supplied by the audit profile is rendered
+    # in the academic rule's observed values — the card must show
+    # "高考 680/750", not "未提供".
+    prof = _audit_profile()
+    r = _rules("oxford-cs-ba-2027", prof)["exp-academic"]
+    assert r.status == "UNKNOWN"
+    assert r.observed == {"curriculum": "cn_gaokao",
+                          "gaokao_score": 680, "gaokao_total": 750}
+    # Same for a programme with no A-level threshold at all.
+    r = _rules("mit-cs-sb-2027", prof)["exp-academic"]
+    assert r.status == "UNKNOWN"
+    assert r.observed == {"curriculum": "cn_gaokao",
+                          "gaokao_score": 680, "gaokao_total": 750}
+    # And for an A-level profile the observed values still carry the
+    # grades (now with the curriculum key).
+    r = _rules("oxford-cs-ba-2027",
+               _ug(grades=["A*", "A", "A"], maths="A*"))["exp-academic"]
+    assert r.status == "MET"
+    assert r.observed == {"curriculum": "uk_alevel",
+                          "grades": ["A*", "A", "A"], "maths": "A*"}
+
+
+def test_match_skips_unknown_ids():
+    # R11: a mixed batch returns the resolvable result and records
+    # the unresolvable id instead of failing the whole batch with
+    # PROGRAM_NOT_FOUND. ntu-cyber-msc-2027 is listed by /programs
+    # but display-only, so /match cannot evaluate it.
+    resp = client.post("/api/v1/match", json={
+        "profile": _flat_ug(),
+        "program_ids": ["ucl-cs-bsc-2026", "ntu-cyber-msc-2027"]})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert [r["programId"] for r in body["results"]] == ["ucl-cs-bsc-2026"]
+    assert body["skippedProgramIds"] == ["ntu-cyber-msc-2027"]
+    # A genuinely unknown id is skipped the same way.
+    resp = client.post("/api/v1/match", json={
+        "profile": _flat_ug(),
+        "program_ids": ["ucl-cs-bsc-2026", "no-such-program"]})
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["skippedProgramIds"] == ["no-such-program"]
+    # But a batch in which NOTHING resolves keeps the pre-existing
+    # 404 contract.
+    resp = client.post("/api/v1/match", json={
+        "profile": _flat_ug(),
+        "program_ids": ["ntu-cyber-msc-2027"]})
+    assert resp.status_code == 404
+    assert resp.json()["error"]["code"] == "PROGRAM_NOT_FOUND"
+
+
+def test_language_cefr_requirement_named():
+    # R13: the Swiss programmes state a real CEFR requirement — the
+    # language rule must name it (German C1 / French B2), not claim
+    # that no IELTS/TOEFL score is stated.
+    prof = _audit_profile()
+    cases = {"eth-cs-bsc-2027": "German C1 (CEFR)",
+             "epfl-cs-bsc-2027": "French B2 (CEFR)",
+             "zurich-informatics-bsc-2027": "German C1 (CEFR)"}
+    for pid, label in cases.items():
+        r = _rules(pid, prof)["exp-language"]
+        assert r.status == "UNKNOWN", (pid, r.detail)
+        assert label in r.detail, (pid, r.detail)
+        assert "no IELTS/TOEFL score is stated" not in r.detail
+
+
+def test_language_toefl_overall_key_read():
+    # R13: UCLA CS BS states TOEFL 100 under the bare "toefl_overall"
+    # key, which the evaluator used to drop. A dated TOEFL 100 now
+    # meets it; an IELTS-only profile is still UNKNOWN (no IELTS
+    # route is stated), never a failure.
+    r = _rules("ucla-cs-bs-2027",
+               _ug(toefl=100, test_date="2025-06-01"))
+    assert r["exp-language"].status == "MET"
+    r = _rules("ucla-cs-bs-2027", _ug(ielts=(8.0, 7.5)))
+    assert r["exp-language"].status == "UNKNOWN"
+
+
+def test_academic_new_structured_thresholds():
+    # R13: A-level thresholds verified on the official programme pages
+    # on 2026-11-26 and added to the data (see docs; DECISIONS #R9).
+    # UCL Mechanical Engineering BEng: A*AA.
+    r = _rules("ucl-mechanical-engineering-beng-2027",
+               _ug(grades=["A*", "A", "A"], maths="A"))
+    assert r["exp-academic"].status == "MET"
+    r = _rules("ucl-mechanical-engineering-beng-2027",
+               _ug(grades=["A", "A", "A"], maths="A"))
+    assert r["exp-academic"].status == "NOT_MET"
+    # Cambridge General Engineering MEng: A*A*A.
+    r = _rules("cambridge-general-engineering-meng-2027",
+               _ug(grades=["A*", "A*", "A"], maths="A*"))
+    assert r["exp-academic"].status == "MET"
+    r = _rules("cambridge-general-engineering-meng-2027",
+               _ug(grades=["A*", "A", "A"], maths="A*"))
+    assert r["exp-academic"].status == "NOT_MET"
+    # Imperial Mechanical Engineering MEng: A*A*A or A*AAA with A* in
+    # Mathematics (official minimum for 2027 entry).
+    r = _rules("imperial-mechanical-engineering-meng-2027",
+               _ug(grades=["A*", "A", "A"], maths="A*"))
+    assert r["exp-academic"].status == "MET"
+    r = _rules("imperial-mechanical-engineering-meng-2027",
+               _ug(grades=["A*", "A", "A"], maths="A"))
+    assert r["exp-academic"].status == "NOT_MET"
+
+
+def test_match_audit_profile_swiss_fees_met():
+    # R2 end to end: the audit profile against the 5 Swiss UG
+    # programmes returns all 5, and no Swiss fee is judged a budget
+    # mismatch.
+    resp = client.post("/api/v1/match", json={
+        "profile": {"track": "undergraduate", "curriculum": "cn_gaokao",
+                    "gaokaoScore": 680, "gaokaoTotal": 750,
+                    "ieltsOverall": 7.0, "ieltsListening": 7.0,
+                    "ieltsReading": 7.0, "ieltsWriting": 6.5,
+                    "ieltsSpeaking": 7.0, "budget": 50000,
+                    "budgetCurrency": "GBP"},
+        "program_ids": ["eth-cs-bsc-2027", "eth-cse-bsc-2027",
+                        "epfl-cs-bsc-2027", "epfl-ai-bsc-2027",
+                        "zurich-informatics-bsc-2027"]})
+    assert resp.status_code == 200, resp.text
+    results = {r["programId"]: r for r in resp.json()["results"]}
+    assert len(results) == 5
+    for pid, r in results.items():
+        by_rule = {x["ruleId"]: x for x in r["ruleResults"]}
+        assert by_rule["exp-fee"]["status"] == "MET", (pid, by_rule["exp-fee"])
+        # The Gaokao score is carried through to the card.
+        assert by_rule["exp-academic"]["observedRaw"] == {
+            "curriculum": "cn_gaokao", "gaokao_score": 680,
+            "gaokao_total": 750}, (pid, by_rule["exp-academic"])
+
+
+# --- Round 9 integration: adapter live-path strings -----------------------
+
+def _audit_ug():
+    return _ug(curriculum="cn_gaokao", gaokao_score=680, gaokao_total=750,
+               ielts=(7.0, 6.5), budget=50000)
+
+
+def test_exp_expected_fee_human_period_and_approx():
+    # R2/R13 live path: the fee renders a human period ("per year",
+    # never the raw "per_year" token) with thousands separators, and
+    # the approximate converted figure with its rate date.
+    from app.adapter import rule_to_frontend
+    rules = {r.rule_id: r for r in
+             evaluate_expansion(_audit_ug(), EXPANSION_PROGRAMS["eth-cs-bsc-2027"])}
+    assert rules["exp-fee"].status == "MET"
+    assert rule_to_frontend(rules["exp-fee"])["expected"] == (
+        "Tuition fee CHF 4,380 per year (approx. GBP 4,018, rates 2026-11-26)")
+    assert rules["exp-fee"].threshold["approx_converted"] == {
+        "amount": 4018, "currency": "GBP", "as_of": "2026-11-26"}
+
+
+def test_exp_expected_language_names_other_requirement():
+    # R13 live path: a programme whose only language requirement is
+    # German C1 names it instead of the IELTS/TOEFL placeholder.
+    from app.adapter import rule_to_frontend
+    rules = {r.rule_id: r for r in
+             evaluate_expansion(_audit_ug(), EXPANSION_PROGRAMS["eth-cs-bsc-2027"])}
+    assert rules["exp-language"].status == "UNKNOWN"
+    assert rule_to_frontend(rules["exp-language"])["expected"] == "German C1 (CEFR)"
+
+
+def test_exp_expected_reason_key_fx_cannot_convert():
+    # R2 live path: an unconvertible fee maps to the localised
+    # "fx-cannot-convert" reason, never a false mismatch.
+    from app.adapter import rule_to_frontend
+    prog = _placeholder_program(
+        fees={"amount": 1000, "currency": "XXX", "period": "per_year"},
+        requirements=[])
+    r = {x.rule_id: x for x in
+         evaluate_expansion(_ug(budget=50000), prog)}["exp-fee"]
+    assert r.status == "UNKNOWN"
+    assert rule_to_frontend(r)["reasonKey"] == "fx-cannot-convert"

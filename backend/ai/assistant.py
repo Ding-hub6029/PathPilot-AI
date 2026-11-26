@@ -5,9 +5,17 @@ always ``"unavailable"``) and no model is ever claimed to be answering.
 Every fact comes from the verified local catalogue:
 
 - the 8 programmes in ``data/versions/v2/programs.json`` (official pages
-  only — fees, IELTS thresholds, deadlines), and
+  only — fees, IELTS thresholds, deadlines), plus the expansion
+  catalogue (``data/expansions/expansion.json`` — 886 programmes, 593
+  of them matchable), and
 - the 300 ranking entries in ``data/versions/v2/rankings.json``
   (QS 2027 / THE 2027 / ARWU 2026, top 100 each).
+
+Round 9: the pet's retrieval covers the FULL catalogue, all countries
+— never GB/SG only. A country question is answered from that
+country's own verified programmes/institutions; only a country with
+no verified programme at all gets the honest "no verified programme"
+answer.
 
 Hard policy (test-pinned in ``tests/test_assistant.py``):
 
@@ -32,7 +40,8 @@ from __future__ import annotations
 import re
 
 from app.data import (DATA_VERSION, EXPANSION_INSTITUTIONS,
-                      EXPANSION_MATCHABLE, PROGRAMS, RANKINGS)
+                      EXPANSION_MATCHABLE, EXPANSION_PROGRAMS, PROGRAMS,
+                      RANKINGS)
 
 AI_STATUS = "unavailable"
 MAX_ANSWER_LINES = 3
@@ -70,12 +79,18 @@ _T: dict[str, dict[str, str]] = {
         "level_taught_masters": "Taught masters",
         "country_GB": "UK",
         "country_SG": "Singapore",
+        "country_CH": "Switzerland",
+        "country_FR": "France",
+        "country_DE": "Germany",
+        "country_US": "United States",
         "suggest_within": "{level} · {country}: start with {program}.",
         "suggest_above": "{level} · {country}: every verified programme here is above your budget band; the cheapest is {program}.",
         "suggest_none": "{level} · {country}: no verified programme in this track yet, so I don't know.",
+        "country_list": "{country} verified institutions: {names} — {n} verified programmes in total (all levels and fields).",
         "fee_within": "Tuition {fee} — inside your budget band.",
         "fee_above": "Tuition {fee} — above your budget band.",
         "fee_unknown": "No verified tuition figure for this programme in the data.",
+        "fee_plain": "Tuition {fee}.",
         "next": "Next step: start the eligibility check to confirm grades and language.",
         "ask_fee": "{program} tuition: {fee}.",
         "ask_ielts": "{program} IELTS: {fact}.",
@@ -112,12 +127,18 @@ _T: dict[str, dict[str, str]] = {
         "level_taught_masters": "授课型硕士",
         "country_GB": "英国",
         "country_SG": "新加坡",
+        "country_CH": "瑞士",
+        "country_FR": "法国",
+        "country_DE": "德国",
+        "country_US": "美国",
         "suggest_within": "{level} · {country}：先看 {program}。",
         "suggest_above": "{level} · {country}：已核实的专业都在你的预算带之上，最便宜的是 {program}。",
         "suggest_none": "{level} · {country}：已核实的目录里还没有这个方向的专业，我不知道。",
+        "country_list": "{country}已核实的学校：{names}，共 {n} 个已验证项目（全部学位/方向）。",
         "fee_within": "学费 {fee}，在你的预算带内。",
         "fee_above": "学费 {fee}，高于你的预算带。",
         "fee_unknown": "这个专业的学费在已核实的数据里查不到。",
+        "fee_plain": "学费 {fee}。",
         "next": "下一步：开始资格检查，确认成绩和语言是否达标。",
         "ask_fee": "{program} 学费：{fee}。",
         "ask_ielts": "{program} 雅思要求：{fact}。",
@@ -154,12 +175,18 @@ _T: dict[str, dict[str, str]] = {
         "level_taught_masters": "Máster impartido",
         "country_GB": "Reino Unido",
         "country_SG": "Singapur",
+        "country_CH": "Suiza",
+        "country_FR": "Francia",
+        "country_DE": "Alemania",
+        "country_US": "Estados Unidos",
         "suggest_within": "{level} · {country}: empieza por {program}.",
         "suggest_above": "{level} · {country}: todos los programas verificados superan tu presupuesto; el más barato es {program}.",
         "suggest_none": "{level} · {country}: aún no hay programas verificados en esta vía; no lo sé.",
+        "country_list": "Instituciones verificadas en {country}: {names} — {n} programas verificados en total (todos los niveles y campos).",
         "fee_within": "Matrícula {fee}, dentro de tu presupuesto.",
         "fee_above": "Matrícula {fee}, por encima de tu presupuesto.",
         "fee_unknown": "No hay una cifra de matrícula verificada para este programa.",
+        "fee_plain": "Matrícula {fee}.",
         "next": "Siguiente paso: inicia la comprobación de requisitos para confirmar notas e idioma.",
         "ask_fee": "Matrícula de {program}: {fee}.",
         "ask_ielts": "IELTS de {program}: {fact}.",
@@ -196,12 +223,18 @@ _T: dict[str, dict[str, str]] = {
         "level_taught_masters": "Master enseigné",
         "country_GB": "Royaume-Uni",
         "country_SG": "Singapour",
+        "country_CH": "Suisse",
+        "country_FR": "France",
+        "country_DE": "Allemagne",
+        "country_US": "États-Unis",
         "suggest_within": "{level} · {country} : commencez par {program}.",
         "suggest_above": "{level} · {country} : tous les programmes vérifiés dépassent votre budget ; le moins cher est {program}.",
         "suggest_none": "{level} · {country} : aucun programme vérifié dans cette voie pour l'instant ; je ne sais pas.",
+        "country_list": "Établissements vérifiés en {country} : {names} — {n} programmes vérifiés au total (tous niveaux et domaines).",
         "fee_within": "Frais {fee}, dans votre budget.",
         "fee_above": "Frais {fee}, au-dessus de votre budget.",
         "fee_unknown": "Aucun montant de frais vérifié pour ce programme.",
+        "fee_plain": "Frais {fee}.",
         "next": "Étape suivante : lancez la vérification d'éligibilité pour confirmer notes et langue.",
         "ask_fee": "Frais de {program} : {fee}.",
         "ask_ielts": "IELTS de {program} : {fact}.",
@@ -238,12 +271,18 @@ _T: dict[str, dict[str, str]] = {
         "level_taught_masters": "Mestrado profissional",
         "country_GB": "Reino Unido",
         "country_SG": "Singapura",
+        "country_CH": "Suíça",
+        "country_FR": "França",
+        "country_DE": "Alemanha",
+        "country_US": "Estados Unidos",
         "suggest_within": "{level} · {country}: comece por {program}.",
         "suggest_above": "{level} · {country}: todos os programas verificados estão acima do seu orçamento; o mais barato é {program}.",
         "suggest_none": "{level} · {country}: ainda não há programas verificados nesta área; não sei.",
+        "country_list": "Instituições verificadas em {country}: {names} — {n} programas verificados no total (todos os níveis e áreas).",
         "fee_within": "Mensalidade {fee}, dentro do seu orçamento.",
         "fee_above": "Mensalidade {fee}, acima do seu orçamento.",
         "fee_unknown": "Não há valor de mensalidade verificado para este programa.",
+        "fee_plain": "Mensalidade {fee}.",
         "next": "Próximo passo: inicie a verificação de elegibilidade para confirmar notas e idioma.",
         "ask_fee": "Mensalidade de {program}: {fee}.",
         "ask_ielts": "IELTS de {program}: {fact}.",
@@ -280,12 +319,18 @@ _T: dict[str, dict[str, str]] = {
         "level_taught_masters": "ماجستير دراسي",
         "country_GB": "المملكة المتحدة",
         "country_SG": "سنغافورة",
+        "country_CH": "سويسرا",
+        "country_FR": "فرنسا",
+        "country_DE": "ألمانيا",
+        "country_US": "الولايات المتحدة",
         "suggest_within": "{level} · {country}: ابدأ بـ{program}.",
         "suggest_above": "{level} · {country}: جميع البرامج الموثّقة أعلى من ميزانيتك؛ وأرخصها {program}.",
         "suggest_none": "{level} · {country}: لا يوجد برنامج موثّق في هذا المسار بعد؛ لا أعرف.",
+        "country_list": "المؤسسات الموثّقة في {country}: {names} — {n} برنامجًا موثّقًا في المجموع (جميع المستويات والمجالات).",
         "fee_within": "الرسوم {fee}، ضمن ميزانيتك.",
         "fee_above": "الرسوم {fee}، أعلى من ميزانيتك.",
         "fee_unknown": "لا يوجد مبلغ رسوم موثّق لهذا البرنامج.",
+        "fee_plain": "الرسوم {fee}.",
         "next": "الخطوة التالية: ابدأ فحص الأهلية لتأكيد الدرجات واللغة.",
         "ask_fee": "رسوم {program}: {fee}.",
         "ask_ielts": "آيلتس {program}: {fact}.",
@@ -409,9 +454,13 @@ def fee_fit(fee_range, degree_level: str, country: str, budget_band: str) -> str
 
     Only the ceiling matters for affordability — a cheaper programme is
     always affordable. A fee range that straddles the ceiling is unknown,
-    not a guess.
+    not a guess. Budget bands are defined only for GB/SG (the guided
+    flow's countries); any other country has no band, so the fit is
+    unknown — never a KeyError, never an invented band.
     """
     if fee_range is None:
+        return "unknown"
+    if (degree_level, country) not in _BANDS:
         return "unknown"
     _low, high, _cur, _per, _q = fee_range
     _lo_bound, ceiling = _BANDS[(degree_level, country)][budget_band]
@@ -438,6 +487,107 @@ def program_evidence_url(program: dict) -> str | None:
     return sources[0].get("url") if sources else None
 
 
+def country_display_name(code: str, locale: str = "en") -> str:
+    """Localised country name for a country code: the template table
+    first (GB/SG/CH/FR/DE/US), else the official country_name from the
+    verified rankings data (English), else the raw code — never a
+    guessed translation."""
+    loc = locale if locale in _T else "en"
+    name = (_T[loc].get(f"country_{code}") or _T["en"].get(f"country_{code}"))
+    if name:
+        return name
+    for inst in RANKINGS.get("institutions", []):
+        if inst.get("country") == code and inst.get("country_name"):
+            return inst["country_name"]
+    return code
+
+
+def _qs_rank(institution_id: str) -> int | None:
+    """QS 2027 rank number for an institution, or None (no verified
+    QS entry). rank_display may be a tie ("=8")."""
+    for entry in RANKINGS.get("entries", []):
+        if (entry.get("institution_id") == institution_id
+                and entry.get("provider") == "qs"
+                and entry.get("verification_status") == "verified"):
+            raw = str(entry.get("rank_display", "")).lstrip("=").strip()
+            try:
+                return int(raw)
+            except ValueError:
+                return None
+    return None
+
+
+def country_programmes(country: str) -> list[dict]:
+    """Every verified programme in a country (v2 + all expansion
+    programmes, matchable or display-only), by id. A country with no
+    verified programme yields [] — never a guess."""
+    pool = [p for p in list(PROGRAMS.values())
+            + list(EXPANSION_PROGRAMS.values())
+            if p.get("country") == country]
+    return sorted(pool, key=lambda p: p["id"])
+
+
+def country_institutions(country: str) -> list[tuple[str, str]]:
+    """(institution_id, official_name) with verified programmes in the
+    country, best QS rank first (no QS entry sorts last), then name.
+    Deterministic; institutions with no programme never appear."""
+    seen: dict[str, str] = {}
+    for p in country_programmes(country):
+        iid = p.get("institution_id")
+        if iid and iid not in seen:
+            seen[iid] = p.get("institution", "") or iid
+    # v2 programmes carry no institution_id; resolve via the mapping.
+    from app.data import V2_PROGRAM_INSTITUTION
+    for p in country_programmes(country):
+        if not p.get("institution_id") and p["id"] in V2_PROGRAM_INSTITUTION:
+            iid = V2_PROGRAM_INSTITUTION[p["id"]]
+            if iid not in seen:
+                seen[iid] = p.get("institution", "") or iid
+    return sorted(seen.items(),
+                  key=lambda kv: (_qs_rank(kv[0]) if _qs_rank(kv[0]) is not None
+                                  else 10 ** 9, kv[1]))
+
+
+def country_answer(country: str, locale: str = "en") -> dict | None:
+    """Template answer to 'which good schools are in <country>?':
+    the country's top verified institutions (at most 3, best QS rank
+    first) and its total verified programme count — scoped as ALL
+    levels/fields, so the count can never contradict a filtered
+    (e.g. undergraduate-computing) count elsewhere. Returns None when
+    the country has no verified programme at all."""
+    loc = locale if locale in _T else "en"
+    programmes = country_programmes(country)
+    if not programmes:
+        return None
+    institutions = country_institutions(country)
+    sep = "、" if loc == "zh-CN" else ", "
+    names = sep.join(name for _iid, name in institutions[:3])
+    country_name = country_display_name(country, loc)
+    line1 = _fmt("country_list", loc, country=country_name, names=names,
+                 n=len(programmes))
+    # Evidence programme: the top institution's first undergraduate
+    # programme (then first by id) — e.g. ETH Zurich's CS BSc for CH.
+    top_id = institutions[0][0] if institutions else None
+    own = [p for p in programmes if p.get("institution_id") == top_id]
+    if not own:
+        from app.data import V2_PROGRAM_INSTITUTION
+        own = [p for p in programmes
+               if V2_PROGRAM_INSTITUTION.get(p["id"]) == top_id]
+    own.sort(key=lambda p: (0 if p.get("degree_level") == "undergraduate" else 1,
+                            p["id"]))
+    picked = own[0] if own else programmes[0]
+    return {"lines": [line1, _t(loc, "next")],
+            "program_id": picked["id"],
+            "program_name": program_display_name(picked),
+            "institution_id": top_id,
+            "evidence_url": program_evidence_url(picked),
+            "ai_status": AI_STATUS, "data_version": DATA_VERSION,
+            "next_steps": {"wizard": "/wizard",
+                           "program": f"/programs/{picked['id']}",
+                           "institution": (f"/institutions/{top_id}"
+                                           if top_id else None)}}
+
+
 # ---------------------------------------------------------------------------
 # Suggestion from the 3 answers
 # ---------------------------------------------------------------------------
@@ -445,16 +595,25 @@ def suggest(degree_level: str, country: str, budget_band: str,
             locale: str = "en") -> dict:
     """The 3-question flow's answer: cheapest verified programme in the
     track/country that fits the budget band, else the cheapest overall
-    with an honest 'above your band' line. At most 3 lines."""
+    with an honest 'above your band' line. At most 3 lines.
+
+    Round 9: the candidate pool is the FULL verified catalogue (v2 +
+    matchable expansion programmes) for countries the v2 set does not
+    cover at all (CH/FR/DE/US/...) — those previously got a false
+    "no verified programme" answer. GB/SG keep the curated v2 pool
+    exactly: the flow names no field, so a cheapest-overall pick
+    across the expansion catalogue would surface an irrelevant
+    cheapest programme (e.g. a Marketing BA) instead of the CS route
+    the flow was built around. GB/SG keep their budget-band logic
+    exactly; other countries have no band, so the cheapest programme
+    is named with its plain fee line (``fee_fit`` "unknown"), never a
+    band claim."""
     loc = locale if locale in _T else "en"
     level = _t(loc, f"level_{degree_level}")
-    # Global scope: only GB/SG have a localised country name in _T.
-    # Any other country has no verified programme, so the answer below
-    # is the honest "no verified programme" one — fall back to the raw
-    # country code for the name instead of raising KeyError.
-    country_name = (_T[loc].get(f"country_{country}")
-                    or _T["en"].get(f"country_{country}") or country)
-    candidates = [p for p in PROGRAMS.values()
+    country_name = country_display_name(country, loc)
+    pool = (list(PROGRAMS.values()) if country in ("GB", "SG")
+            else list(PROGRAMS.values()) + list(EXPANSION_MATCHABLE.values()))
+    candidates = [p for p in pool
                   if p.get("degree_level") == degree_level and p.get("country") == country]
     if not candidates:
         return {"lines": [_fmt("suggest_none", loc, level=level, country=country_name),
@@ -469,6 +628,19 @@ def suggest(degree_level: str, country: str, budget_band: str,
         return (fr[0] if fr else float("inf"), p["id"])
 
     candidates.sort(key=sort_key)
+    if (degree_level, country) not in _BANDS:
+        picked = candidates[0]
+        fr = program_fee_range(picked)
+        name = program_display_name(picked)
+        line1 = _fmt("suggest_within", loc, level=level, country=country_name, program=name)
+        line2 = _fmt("fee_plain", loc, fee=fee_text(fr, loc)) if fr else _t(loc, "fee_unknown")
+        lines = [line1, line2, _t(loc, "next")][:MAX_ANSWER_LINES]
+        return {"lines": lines,
+                "program_id": picked["id"], "program_name": name,
+                "evidence_url": program_evidence_url(picked),
+                "fee_fit": "unknown", "fee_text": fee_text(fr, loc) if fr else None,
+                "ai_status": AI_STATUS, "data_version": DATA_VERSION,
+                "next_steps": {"wizard": "/wizard", "program": f"/programs/{picked['id']}"}}
     within = [p for p in candidates
               if fee_fit(program_fee_range(p), degree_level, country, budget_band) == "within"]
     picked = within[0] if within else candidates[0]
@@ -553,6 +725,15 @@ _INSTITUTION_ALIASES: dict[str, str] = {
     "hong kong university": "university-of-hong-kong", "香港大学": "university-of-hong-kong",
     "kaist": "korea-advanced-institute-of-science-and-technology",
     "tum": "technical-university-of-munich", "慕尼黑工业大学": "technical-university-of-munich",
+    "epfl": "ecole-polytechnique-federale-de-lausanne",
+    "洛桑联邦理工": "ecole-polytechnique-federale-de-lausanne",
+    "洛桑联邦理工学院": "ecole-polytechnique-federale-de-lausanne",
+    "university of zurich": "university-of-zurich",
+    "苏黎世大学": "university-of-zurich",
+    "university of basel": "university-of-basel",
+    "巴塞尔大学": "university-of-basel",
+    "university of geneva": "university-of-geneva",
+    "日内瓦大学": "university-of-geneva",
 }
 
 # Programme aliases -> programme id.
@@ -606,6 +787,63 @@ def _institution_by_alias(message: str) -> str | None:
     for alias, inst_id in _INSTITUTION_ALIASES.items():
         if alias in message:
             return inst_id
+    return None
+
+
+# Chinese country names -> ISO code (the rankings data supplies the
+# official English country_name per institution; see _detect_country).
+_COUNTRY_ZH_ALIASES: dict[str, str] = {
+    "瑞士": "CH", "法国": "FR", "德国": "DE", "美国": "US",
+    "英国": "GB", "新加坡": "SG", "澳大利亚": "AU", "加拿大": "CA",
+    "日本": "JP", "韩国": "KR", "荷兰": "NL", "中国": "CN",
+    "香港": "HK", "爱尔兰": "IE", "意大利": "IT", "西班牙": "ES",
+    "瑞典": "SE", "丹麦": "DK", "新西兰": "NZ", "马来西亚": "MY",
+    "台湾": "TW", "挪威": "NO", "比利时": "BE", "奥地利": "AT",
+    "以色列": "IL", "沙特": "SA", "阿根廷": "AR",
+}
+
+
+# Question markers for the country branch in ask(): a country
+# question ("瑞士有哪些好学校？") is answered from that country's
+# own data, but a mere mention ("我想去瑞士，因为那边环境优美")
+# is a preference statement, not a question — it must keep the
+# template unknown so the pref-chat flow's own retrieval (climate
+# cities) stays exactly as pinned.
+_COUNTRY_QUESTION_WORDS = ("哪些", "哪", "什么", "怎么", "如何", "推荐",
+                           "建议", "？", "?", "which", "what", "best",
+                           "recommend", "suggest")
+_SUGGEST_WORDS_ASK = ("推荐", "建议", "recommend", "suggest")
+
+
+def _looks_like_suggestion(message: str) -> bool:
+    """A recommendation request (suggest word + degree-level word):
+    the guided flow's constructed message, or "Recommend an
+    undergraduate programme in Switzerland". Those are answered by
+    the suggestion pick, never by the country list."""
+    msg = _norm(message or "")
+    if not any(w in msg for w in _SUGGEST_WORDS_ASK):
+        return False
+    return any(w in msg for w in _UG_WORDS + _TM_WORDS)
+
+
+def _detect_country(message: str) -> str | None:
+    """Country code from a message: official English country names
+    from the verified rankings data, plus the Chinese aliases above.
+    Short names match on word boundaries only, so "us" never fires
+    inside another word."""
+    msg = _norm(message or "")
+    names: dict[str, str] = dict(_COUNTRY_ZH_ALIASES)
+    for inst in RANKINGS.get("institutions", []):
+        name = (inst.get("country_name") or "").strip().lower()
+        code = inst.get("country")
+        if name and code and name not in names:
+            names[name] = code
+    for alias, code in sorted(names.items(), key=lambda kv: -len(kv[0])):
+        if len(alias) <= 3:
+            if re.search(r"(?<![a-z])" + re.escape(alias) + r"(?![a-z])", msg):
+                return code
+        elif alias in msg:
+            return code
     return None
 
 
@@ -817,6 +1055,24 @@ def ask(message: str, locale: str = "en") -> dict:
             names = "、".join(program_display_name(_lookup_program(pid))
                               for pid in pids)
             return _ask_result([_fmt("ambiguous_programme", loc, names=names)], loc)
+
+    # Round 9 (R3): a country QUESTION ("瑞士有哪些好学校？") is
+    # answered from that country's own verified programmes and
+    # institutions — never "no Swiss data" while the catalogue holds
+    # 25 CH programmes. A mere country mention (a preference
+    # statement) and a suggestion request are not country questions:
+    # they fall through to the honest unknown / suggestion pick.
+    # Only a country with no verified programme at all falls through
+    # to the honest unknown below.
+    country = _detect_country(msg)
+    if (country and not _looks_like_suggestion(msg)
+            and any(w in msg for w in _COUNTRY_QUESTION_WORDS)):
+        result = country_answer(country, loc)
+        if result is not None:
+            return _ask_result(result["lines"], loc,
+                               program_id=result["program_id"],
+                               institution_id=result["institution_id"],
+                               evidence_url=result["evidence_url"])
 
     return _ask_result([_t(loc, "unknown"), _t(loc, "unknown_2")], loc)
 

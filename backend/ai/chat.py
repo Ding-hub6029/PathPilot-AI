@@ -42,9 +42,11 @@ import time
 
 from ai.assistant import (LOCALES, _DEADLINE_WORDS, _FEE_WORDS,
                           _IELTS_WORDS, _RANK_WORDS, _TM_WORDS, _UG_WORDS,
-                          _match_programmes, _norm, _t,
+                          _match_programmes, _norm, _qs_rank, _t,
                           ask as assistant_ask, check_no_forbidden,
-                          contains_personal_data, program_fee_range)
+                          contains_personal_data, country_display_name,
+                          country_programmes, program_display_name,
+                          program_evidence_url, program_fee_range)
 from ai.grounding import (FORBIDDEN_PATTERNS, Source,
                           check_model_output, gaokao_sources,
                           programme_fact_texts, programme_sources,
@@ -52,7 +54,8 @@ from ai.grounding import (FORBIDDEN_PATTERNS, Source,
 from ai.prompts import PROMPT_VERSION, chat_system
 from ai.provider import ProviderAdapter, ProviderError
 from app.data import (CLIMATE, DATA_DIR, EXPANSION_MATCHABLE,
-                      EXPANSION_PROGRAMS, PROGRAMS, RANKINGS)
+                      EXPANSION_PROGRAMS, PROGRAMS, RANKINGS,
+                      V2_PROGRAM_INSTITUTION)
 
 MAX_HISTORY_TURNS = 6
 
@@ -133,7 +136,8 @@ def _enriched_programme_sources(program_id: str) -> list[Source]:
 
 
 def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
-              climate_class: str | None = None):
+              climate_class: str | None = None,
+              country_programmes: bool = False):
     """(template ask() result, retrieved sources, programme ids).
 
     Retrieval reuses the template assistant: its ``ask()`` already does
@@ -150,6 +154,14 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
     classes instead. ``climate_class`` overrides the class detected
     from the message (the pref-chat flow passes the stored climate
     preference); None means detect from the message as before.
+
+    ``country_programmes`` (pet path only, round 9 R3): when no
+    programme matched yet and the message names a country, that
+    country's own verified programmes join the catalogue — one per
+    top institution — plus a country summary source, so the model can
+    never claim a covered country has no data. The pref-chat flow
+    leaves this off: its country evidence is the climate-city list,
+    pinned by its own tests.
     """
     template = assistant_ask(message, locale)
     sources: list[Source] = []
@@ -201,6 +213,32 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
         # answer() passes none, so the pet is unaffected.
         for city, n in _country_cities(countries):
             _add([_climate_source(city, n)])
+    if country_programmes and not _match_programmes(_norm(message or "")):
+        # Round 9 (R3): a country question with no matched programme
+        # ("瑞士有哪些好学校？") retrieved nothing, so even the live
+        # model could only say the country has no verified data —
+        # while the results page showed 5 Swiss programmes. The
+        # country's own programmes + a country summary source join
+        # the catalogue here, so that claim can never be made again
+        # for a covered country. Only fires on the pet path, only
+        # when no specific programme was named (the template may
+        # already have answered from the country list — its programme
+        # is the top institution's, the picks below add the rest),
+        # and never for a suggestion request (the suggest pick below
+        # owns those).
+        detected = _detect_country(message or "")
+        if detected and _suggest_pick(message or "") is None:
+            country_src = _country_source(detected)
+            if country_src is not None:
+                _add([country_src])
+                for picked in _country_programme_picks(detected):
+                    _add(_enriched_programme_sources(picked["id"]))
+                    if picked["id"] not in pids:
+                        pids.append(picked["id"])
+                    iid = (picked.get("institution_id")
+                           or V2_PROGRAM_INSTITUTION.get(picked["id"]))
+                    if iid:
+                        _add(ranking_sources(iid))
     # (Round 6, Job A) Suggestion intent: the guided 3-question flow
     # sends one constructed message (degree + country + budget band).
     # With no programme matched, the cheapest verified programme in
@@ -328,7 +366,61 @@ def _climate_source(city: str, count: int) -> Source:
         url=entry.get("source_url"),
         title=f"{city} climate",
         excerpt=(f"{city}: {_CLIMATE_CLASS_LABEL[entry['climate']]} "
-                 f"climate. Verified programmes in {city}: {count}."))
+                 f"climate. Verified programmes in {city} "
+                 f"(all levels and fields): {count}."))
+
+
+# ---------------------------------------------------------------------------
+# Country evidence (round 9, R3) — the pet's full-catalogue retrieval
+#
+# A country question used to retrieve nothing at all, so the model
+# answered "no verified data" for Switzerland while the results page
+# showed 5 Swiss programmes. These helpers give the model the
+# country's own verified programmes (one per top institution) plus a
+# country summary source whose count is scoped in the text itself:
+# the TOTAL across all levels/fields, never a filtered sub-count.
+# ---------------------------------------------------------------------------
+
+def _country_programme_picks(country: str, limit: int = 3) -> list[dict]:
+    """Up to ``limit`` programmes in a country, one per institution:
+    institutions best QS rank first (no QS entry sorts last), each
+    institution's first undergraduate programme, else first by id.
+    Deterministic; a country with no verified programme yields []."""
+    programmes = country_programmes(country)
+    by_inst: dict[str, list[dict]] = {}
+    for p in programmes:
+        iid = p.get("institution_id") or V2_PROGRAM_INSTITUTION.get(p["id"])
+        if iid:
+            by_inst.setdefault(iid, []).append(p)
+    ordered = sorted(
+        by_inst.items(),
+        key=lambda kv: (_qs_rank(kv[0]) if _qs_rank(kv[0]) is not None
+                        else 10 ** 9,
+                        kv[1][0].get("institution", "") or kv[0]))
+    picks: list[dict] = []
+    for _iid, own in ordered[:limit]:
+        own.sort(key=lambda p: (0 if p.get("degree_level") == "undergraduate"
+                                else 1, p["id"]))
+        picks.append(own[0])
+    return picks
+
+
+def _country_source(country: str) -> Source | None:
+    """One citable summary source for a country: total verified
+    programme count (all levels and fields) + the picked programmes
+    by name. None when the country has no verified programme."""
+    programmes = country_programmes(country)
+    picks = _country_programme_picks(country)
+    if not programmes or not picks:
+        return None
+    name = country_display_name(country, "en")
+    names = "; ".join(program_display_name(p) for p in picks)
+    return Source(
+        id=f"country:{country.lower()}",
+        url=program_evidence_url(picks[0]),
+        title=f"{name} verified programmes",
+        excerpt=(f"{name}: {len(programmes)} verified programmes in total "
+                 f"(all levels and fields). Including: {names}."))
 
 
 # ---------------------------------------------------------------------------
@@ -369,13 +461,18 @@ _EVIDENCE_CITIES_LINES = {
     "pt-BR": "Os dados verificados listam estas cidades: {cities}.",
     "ar": "تتضمن البيانات الموثّقة هذه المدن: {cities}.",
 }
+# Round 9 (R4): every count in a chat evidence line is labelled
+# with its scope — the city counts are ALL programmes in that city
+# (all levels/fields), never a filtered sub-count, so "Zurich 14"
+# in chat can never contradict "5 undergraduate-computing" on a
+# results page: they count different scopes, and the label says so.
 _CITY_ITEM = {
-    "en": "{city} ({cls}, {n} programmes)",
-    "zh-CN": "{city}（{cls}，{n} 个项目）",
-    "es": "{city} ({cls}, {n} programas)",
-    "fr": "{city} ({cls}, {n} programmes)",
-    "pt-BR": "{city} ({cls}, {n} programas)",
-    "ar": "{city} ({cls}، {n})",
+    "en": "{city} ({cls}, {n} programmes, all levels/fields)",
+    "zh-CN": "{city}（{cls}，{n} 个项目，全部学位/方向）",
+    "es": "{city} ({cls}, {n} programas, todos los niveles y campos)",
+    "fr": "{city} ({cls}, {n} programmes, tous niveaux et domaines)",
+    "pt-BR": "{city} ({cls}, {n} programas, todos os níveis e áreas)",
+    "ar": "{city} ({cls}، {n} برنامجًا، جميع المستويات والمجالات)",
 }
 
 
@@ -403,6 +500,41 @@ def evidence_cities_line(sources: list[Source], locale: str) -> str | None:
               or _EVIDENCE_CITIES_LINES["en"])
     sep = "、" if locale == "zh-CN" else ", "
     return line_t.format(cities=sep.join(items))
+
+
+_COUNTRY_SOURCE_RE = re.compile(
+    r"^(.+?): (\d+) verified programmes in total "
+    r"\(all levels and fields\)\. Including: (.+)\.$")
+_COUNTRY_LINES = {
+    "en": "Verified data for {country} lists {names} — {n} verified programmes in total (all levels and fields).",
+    "zh-CN": "已核实的数据里，{country}有 {names}，共 {n} 个已验证项目（全部学位/方向）。",
+    "es": "Los datos verificados de {country} incluyen {names}: {n} programas verificados en total (todos los niveles y campos).",
+    "fr": "Les données vérifiées pour {country} listent {names} : {n} programmes vérifiés au total (tous niveaux et domaines).",
+    "pt-BR": "Os dados verificados de {country} listam {names}: {n} programas verificados no total (todos os níveis e áreas).",
+    "ar": "تتضمن البيانات الموثّقة لـ{country} {names}: {n} برنامجًا موثّقًا في المجموع (جميع المستويات والمجالات).",
+}
+
+
+def country_evidence_line(sources: list[Source], locale: str) -> str | None:
+    """One deterministic line stating what the retrieved country
+    summary shows — country name (localised), named programmes, and
+    the total verified count scoped as all levels/fields — or None
+    when no country source was retrieved. Built only from the
+    verified catalogue, never model text."""
+    for s in sources:
+        if not s.id.startswith("country:"):
+            continue
+        m = _COUNTRY_SOURCE_RE.match(s.excerpt or "")
+        if not m:
+            continue
+        code = s.id[len("country:"):].upper()
+        country = country_display_name(code, locale)
+        n, names = m.group(2), m.group(3)
+        if locale == "zh-CN":
+            names = names.replace("; ", "、")
+        line_t = _COUNTRY_LINES.get(locale) or _COUNTRY_LINES["en"]
+        return line_t.format(country=country, names=names, n=n)
+    return None
 
 
 def _climate_evidence(wanted: str, countries: list[str] | None = None
@@ -735,8 +867,11 @@ def _template_result(template: dict, sources: list[Source],
     template line is left exactly as the template wrote it."""
     lines = list(template["lines"])
     cities = evidence_cities_line(sources, locale)
+    country = country_evidence_line(sources, locale)
     if cities is not None and lines and lines[0] == _t(locale, "unknown"):
         lines[0] = cities
+    elif country is not None and lines and lines[0] == _t(locale, "unknown"):
+        lines[0] = country
     return {"lines": lines,
             "evidence_url": template.get("evidence_url"),
             "ai_status": "unavailable", "model": None,
@@ -770,7 +905,7 @@ def answer(message: str, locale: str = "en",
                 "ai_status": "unavailable", "model": None, "sources": []}
 
     provider = provider or ProviderAdapter()
-    template, sources, pids = _retrieve(msg, loc)
+    template, sources, pids = _retrieve(msg, loc, country_programmes=True)
     sources_out = [{"id": s.id, "url": s.url, "title": s.title} for s in sources]
 
     # (c) No key: the template assistant is the honest answer.
@@ -778,11 +913,17 @@ def answer(message: str, locale: str = "en",
         return _template_result(template, sources, loc)
 
     # (d) Key present: model over the retrieved sources only.
-    # Timeouts (round 7 fix): live gateway calls took ~9-12 s each on
-    # 2026-11-26, so the old 12 s / 8 s budgets were marginal — the
-    # 8 s repair budget was shorter than one call, so any
-    # first-attempt validation failure fell back. 30 s first call,
-    # 20 s repair; the frontend's patient fetch allows ~90 s.
+    # Timeouts (round 9 fix): live gateway calls took ~9-12 s each on
+    # 2026-11-26, and the round-7 budgets (30 s first call + 20 s
+    # repair) let one turn stack to ~50 s of silence — the worst
+    # cause of the 10-45 s replies in the live re-test. A single
+    # turn now gets 20 s first attempt + 15 s repair (35 s worst
+    # case, still ~2x the observed call time); anything slower falls
+    # back to the template instead of holding the user. The
+    # event-loop blockage itself is fixed at the router (see
+    # app/router_chat.py): the sync model call runs in a worker
+    # thread, so a slow chat can no longer wedge /health or any
+    # other endpoint.
     evidence_texts = _evidence_texts(sources, pids)
     envelope = {
         "task": "chat",
@@ -797,7 +938,7 @@ def answer(message: str, locale: str = "en",
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
     started = time.monotonic()
     try:
-        result = provider.chat(messages, system=chat_system(loc), timeout_s=30.0)
+        result = provider.chat(messages, system=chat_system(loc), timeout_s=20.0)
     except ProviderError as e:
         logger.info("assistant/chat model call failed kind=%s latency_ms=%d",
                     e.kind, int((time.monotonic() - started) * 1000))
@@ -820,7 +961,7 @@ def answer(message: str, locale: str = "en",
             retry_started = time.monotonic()
             retry = provider.chat(
                 messages + [{"role": "user", "content": repair}],
-                system=chat_system(loc), timeout_s=20.0)
+                system=chat_system(loc), timeout_s=15.0)
         except ProviderError as e:
             logger.info("assistant/chat repair call failed kind=%s latency_ms=%d",
                         e.kind, int((time.monotonic() - retry_started) * 1000))

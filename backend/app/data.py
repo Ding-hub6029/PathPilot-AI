@@ -229,6 +229,23 @@ def validate_expansion_data(data: dict, ranking_ids: set[str],
             for sid in req.get("source_ids", []):
                 if sid not in source_ids:
                     errors.append(f"expansion program {pid!r}: requirement references unknown source {sid!r}")
+        # Round 9 (R5): language_of_instruction is optional and only ever
+        # set where an official page states the teaching language. When
+        # present it must name the language, carry an https source URL,
+        # and that URL must be one of the programme's own listed sources
+        # (traceability — the UI links to it). Never guessed.
+        loi = prog.get("language_of_instruction")
+        if loi is not None:
+            if not isinstance(loi, dict):
+                errors.append(f"expansion program {pid!r}: language_of_instruction must be an object")
+            else:
+                if not isinstance(loi.get("language"), str) or not loi["language"].strip():
+                    errors.append(f"expansion program {pid!r}: language_of_instruction needs a language")
+                url = loi.get("source_url") or ""
+                if not isinstance(url, str) or not url.startswith("https://"):
+                    errors.append(f"expansion program {pid!r}: language_of_instruction needs an https source_url")
+                elif url not in {s.get("url") for s in prog.get("sources", [])}:
+                    errors.append(f"expansion program {pid!r}: language_of_instruction source_url is not a listed source on the programme")
     return errors
 
 
