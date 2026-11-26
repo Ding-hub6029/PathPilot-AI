@@ -32,6 +32,7 @@ import secrets
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
+from ai.explain import localised_gap_state, rule_family
 from ai.grounding import (
     FORBIDDEN_PATTERNS,
     gaokao_sources,
@@ -48,7 +49,7 @@ from app.schemas import (
     StudentProfile,
     UndergradProfile,
 )
-from domain.eligibility import evaluate, overall_status
+from domain.eligibility import effective_curriculum, evaluate, overall_status
 from domain.expansion_eval import evaluate_expansion
 
 TASK_STATUSES = ("todo", "in_progress", "done", "to_verify")
@@ -189,17 +190,38 @@ def _num(value) -> float | None:
     return None
 
 
-def _fmt_threshold(threshold: dict | None) -> str:
+def _fmt_threshold(threshold: dict | None, locale: str = "en") -> str:
+    """Compact threshold rendering for ``what_is_missing``: ``None``
+    entries are skipped (never "ielts_overall=None") and
+    ``other_requirements`` renders as its verbatim labels (e.g.
+    "German C1 (CEFR)"), not a Python list. Keys stay as-is — they are
+    identifiers, not prose; the localised current_state carries the
+    readable story."""
     if not threshold:
-        return "no threshold stated in the verified sources"
-    return ", ".join(f"{k}={v}" for k, v in threshold.items())
+        return _plan_str(locale, "gap.no_threshold")
+    parts: list[str] = []
+    for k, v in threshold.items():
+        if v is None:
+            continue
+        if k == "other_requirements" and isinstance(v, list):
+            parts.extend(str(x) for x in v if x is not None)
+            continue
+        if isinstance(v, list):
+            nums = [x for x in v if x is not None]
+            if not nums:
+                continue
+            parts.append(f"{k}={', '.join(str(x) for x in nums)}")
+            continue
+        parts.append(f"{k}={v}")
+    return ", ".join(parts) if parts else _plan_str(locale, "gap.no_threshold")
 
 
 def _fmt_observed(observed) -> str:
     if observed is None:
         return "not supplied"
     if isinstance(observed, dict):
-        return ", ".join(f"{k}={v}" for k, v in observed.items())
+        parts = [f"{k}={v}" for k, v in observed.items() if v is not None]
+        return ", ".join(parts) if parts else "not supplied"
     return str(observed)
 
 
@@ -1679,8 +1701,670 @@ _PLAN_STRINGS = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Round 15 strings: localised rule labels (no raw rule id ever reaches
+# the plan UI) and the substantive per-gap task kinds — language_other
+# (weekly study plan for a non-IELTS/TOEFL requirement such as German
+# C1), toefl_general, academic_confirm, language_scores. Merged into
+# _plan_strings() below; an unknown locale falls back to English.
+# Placeholders: {rule_id} is always the LOCALISED rule label, {detail}
+# the LOCALISED gap current_state, {labels} the verbatim requirement
+# label(s) (e.g. "German C1 (CEFR)"), {language} the localised
+# language name, {level} the level/score, {exam} the exam name (proper
+# noun, verbatim), {comps} the localised missing-component list.
+# ---------------------------------------------------------------------------
+
+_PLAN_STRINGS_R15 = {
+    "en": {
+        "rule.language": "Language requirement",
+        "rule.language_components": "Language components",
+        "rule.fee": "Tuition fee",
+        "rule.academic": "Academic requirement",
+        "rule.test": "Admissions test",
+        "rule.experience": "Experience requirement",
+        "rule.gcse": "GCSE requirement",
+        "rule.other": "Requirement",
+        "gap.no_threshold": "no threshold stated in the verified sources",
+        "task.language_other.title": "Reach {labels} with a weekly study plan",
+        "task.language_other.rationale": "Rule {rule_id} cannot be decided: {detail}",
+        "task.language_other.expected": ("A recognised {labels} certificate, "
+                                         "supplied for re-check by the engine."),
+        "task.language_other.steps": [
+            "Weeks 1–2: build the base — 30 minutes a day on {language} vocabulary and grammar, plus one short reading and one short listening task each day.",
+            "Weeks 3–6: practise all four skills in {language} — reading, listening, writing and speaking — with timed exam-format tasks; keep an error log and redo every error.",
+            "Week 7: take a full timed mock exam for {labels} and review every mistake against the official marking criteria.",
+            "Week 8: book and sit the official {exam} exam — only after a timed mock meets the level on self-check — then supply the certificate for re-check.",
+        ],
+        "task.language_other.prerequisites": [
+            "Access to {language} study material and timed mock exams for {labels}",
+        ],
+        "task.language_other.acceptance": [
+            "Timed mock exam completed and reviewed",
+            "Official {exam} exam booked only after a timed mock met the level on self-check",
+            "Recognised {labels} certificate supplied for re-check",
+        ],
+        "task.language_other.alternatives": [
+            "If little time remains, use the remaining time for one timed mock task per day instead of general study.",
+            "If the official exam cannot be booked before the deadline, record that and keep the rule as UNKNOWN.",
+        ],
+        "task.language_other.uncertainty": ("Practice alone does not change the "
+                                            "rule; only a recognised certificate "
+                                            "can. Which certificates the programme "
+                                            "accepts is not in the verified sources "
+                                            "— check the official programme page. "
+                                            "Exam fees and dates are not in the "
+                                            "verified sources."),
+        "task.language_other.exam_generic": "an official {level} examination in {language}",
+        "task.toefl_general.title": "Raise TOEFL to the stated minimum",
+        "task.toefl_general.rationale": "Rule {rule_id} is not met: {detail}",
+        "task.toefl_general.expected": ("A new TOEFL score at or above the "
+                                        "stated minimum, supplied for re-check by "
+                                        "the engine."),
+        "task.toefl_general.steps": [
+            "Take one timed TOEFL practice test and record the score for each section.",
+            "Practise the lowest-scoring section daily, using official practice material.",
+            "Retake a timed practice test and compare the section scores with the previous attempt.",
+            "Book a TOEFL test date only after a timed practice attempt meets the minimum on self-check.",
+        ],
+        "task.toefl_general.prerequisites": [
+            "Access to TOEFL practice material found via the search criteria below",
+        ],
+        "task.toefl_general.acceptance": [
+            "Timed practice test completed with section scores recorded",
+            "Lowest-scoring section practised and re-tested",
+            "New TOEFL score supplied for re-check",
+        ],
+        "task.toefl_general.alternatives": [
+            "If little time remains, focus the remaining time on the lowest-scoring section only.",
+        ],
+        "task.toefl_general.uncertainty": ("Practice alone does not change the rule; only a "
+                                           "new test score can. The cost and availability of "
+                                           "a test sitting are not in the verified sources."),
+        "res.toefl_general": "TOEFL official practice materials",
+        "task.academic_confirm.title": "Confirm the accepted qualification for the academic rule",
+        "task.academic_confirm.rationale": "Rule {rule_id} cannot be decided: {detail}",
+        "task.academic_confirm.expected": ("The accepted qualification route confirmed "
+                                           "from an official source, recorded with its "
+                                           "evidence, so the academic rule can be "
+                                           "re-checked."),
+        "task.academic_confirm.steps": [
+            "Read the academic requirement on the official programme page linked below and list the qualifications it accepts.",
+            "Compare the qualifications you already hold with that list and note which route, if any, matches.",
+            "Gather the existing evidence for the matching qualification (certificate, transcript or official record).",
+            "Supply the qualification and its evidence in the plan for re-check.",
+        ],
+        "task.academic_confirm.prerequisites": [
+            "Existing qualification records for qualifications already held",
+        ],
+        "task.academic_confirm.acceptance": [
+            "Accepted qualifications listed from the official page",
+            "Matching qualification identified, or recorded as none matching",
+            "Qualification evidence supplied for re-check, if any",
+        ],
+        "task.academic_confirm.alternatives": [
+            "If none of your qualifications matches a listed route, check the official page for a foundation or alternative route it lists.",
+        ],
+        "task.academic_confirm.uncertainty": ("Scores are never converted between qualification "
+                                              "systems. If no route is published, the academic "
+                                              "rule stays UNKNOWN until another accepted "
+                                              "qualification is supplied."),
+        "task.language_scores.title": "Supply the missing IELTS component scores",
+        "task.language_scores.rationale": "Rule {rule_id} cannot be decided: {detail}",
+        "task.language_scores.expected": ("All required IELTS component scores supplied, "
+                                          "so the engine can re-check the components rule."),
+        "task.language_scores.steps": [
+            "Check which component scores are missing: {comps}.",
+            "Book an IELTS test date that covers all four components.",
+            "Supply every component score in the plan for re-check.",
+        ],
+        "task.language_scores.prerequisites": [],
+        "task.language_scores.acceptance": [
+            "Missing component scores identified",
+            "IELTS test date booked",
+            "All component scores supplied for re-check",
+        ],
+        "task.language_scores.alternatives": [
+            "If no test date is available before the deadline, record that and keep the rule as UNKNOWN.",
+        ],
+        "task.language_scores.uncertainty": ("Only supplied scores can change the rule. Test "
+                                             "fees and availability are not in the verified "
+                                             "sources."),
+    },
+    "zh-CN": {
+        "rule.language": "语言要求",
+        "rule.language_components": "语言单项",
+        "rule.fee": "学费",
+        "rule.academic": "学术要求",
+        "rule.test": "入学考试",
+        "rule.experience": "工作经验要求",
+        "rule.gcse": "GCSE 要求",
+        "rule.other": "要求",
+        "gap.no_threshold": "已核实的信息来源中没有说明最低要求",
+        "task.language_other.title": "按周学习计划达到 {labels}",
+        "task.language_other.rationale": "规则 {rule_id} 无法判定：{detail}",
+        "task.language_other.expected": "已获得受认可的 {labels} 证书，并已提交以便引擎重新核查。",
+        "task.language_other.steps": [
+            "第 1–2 周：打基础——每天 30 分钟学习{language}词汇和语法，每天再完成一篇短阅读和一段短听力。",
+            "第 3–6 周：练习{language}听说读写四项技能，做限时考试题型练习；记录错题并逐一重做。",
+            "第 7 周：完成一次全真限时模拟考试（{labels}），对照官方评分标准复盘所有错题。",
+            "第 8 周：报名并参加官方 {exam} 考试——只有在限时模拟自测达到该水平后——然后提交证书以便重新核查。",
+        ],
+        "task.language_other.prerequisites": [
+            "可获得{language}学习材料和 {labels} 限时模拟考试",
+        ],
+        "task.language_other.acceptance": [
+            "已完成限时模拟考试并复盘",
+            "只有在限时模拟自测达到该水平后，才预约官方 {exam} 考试",
+            "已提交受认可的 {labels} 证书以便重新核查",
+        ],
+        "task.language_other.alternatives": [
+            "如果剩余时间不多，请把剩余时间用于每天完成一次限时模拟任务，而不是泛泛学习。",
+            "如果在截止日期之前无法预约官方考试，请记录这一点，并将此规则保持为未知。",
+        ],
+        "task.language_other.uncertainty": ("只练习不会改变规则；只有受认可的证书才能改变。项目接受哪些证书"
+                                            "不在已核实的信息来源中——请查看官方项目页面。考试费用和日期"
+                                            "不在已核实的信息来源中。"),
+        "task.language_other.exam_generic": "官方 {level} 水平考试（{language}）",
+        "task.toefl_general.title": "将托福提高到规定的最低要求",
+        "task.toefl_general.rationale": "规则 {rule_id} 未达标：{detail}",
+        "task.toefl_general.expected": "新的托福分数达到或高于规定的最低要求，并已提交以便引擎重新核查。",
+        "task.toefl_general.steps": [
+            "完成一次限时托福模拟考试，记录每一部分的分数。",
+            "每天练习得分最低的部分，使用官方练习材料。",
+            "再次参加限时模拟考试，并与上一次的各部分分数比较。",
+            "只有在限时模拟自测达到最低要求后，再预约托福考试。",
+        ],
+        "task.toefl_general.prerequisites": [
+            "可通过下面的搜索条件找到托福练习材料",
+        ],
+        "task.toefl_general.acceptance": [
+            "已完成限时模拟考试并记录各部分分数",
+            "已练习得分最低的部分并重新测试",
+            "已提交新的托福分数以便重新核查",
+        ],
+        "task.toefl_general.alternatives": [
+            "如果剩余时间不多，请把剩余时间只用于得分最低的部分。",
+        ],
+        "task.toefl_general.uncertainty": ("只练习不会改变规则；只有新的考试分数才能改变。考试费用和考位情况"
+                                           "不在已核实的信息来源中。"),
+        "res.toefl_general": "托福官方练习材料",
+        "task.academic_confirm.title": "确认学术规则接受的学历",
+        "task.academic_confirm.rationale": "规则 {rule_id} 无法判定：{detail}",
+        "task.academic_confirm.expected": "已通过官方来源确认被接受的学历路径，并记录了相关证据，以便重新核查学术规则。",
+        "task.academic_confirm.steps": [
+            "阅读下面链接的官方项目页面上的学术要求，列出其接受的学历。",
+            "将自己已有的学历与该清单比较，注明哪条路径（如有）相符。",
+            "收集相符学历的现有证明（证书、成绩单或官方记录）。",
+            "在计划中提供该学历及其证明以便重新核查。",
+        ],
+        "task.academic_confirm.prerequisites": [
+            "已有学历的相关记录",
+        ],
+        "task.academic_confirm.acceptance": [
+            "已根据官方页面列出被接受的学历",
+            "已确定相符的学历，或已记录为无一相符",
+            "如有相符学历，已提供其证明以便重新核查",
+        ],
+        "task.academic_confirm.alternatives": [
+            "如果自己的学历与任何已公布路径都不相符，请查看官方页面是否列出预科或其他替代路径。",
+        ],
+        "task.academic_confirm.uncertainty": ("不同学历体系的分数从不换算。如果没有公布任何路径，在提供其他被接受的学历之前，学术规则将一直为未知。"),        "task.language_scores.title": "补齐缺失的雅思单项成绩",
+        "task.language_scores.rationale": "规则 {rule_id} 无法判定：{detail}",
+        "task.language_scores.expected": "已提供所有要求的雅思单项成绩，以便引擎重新核查单项规则。",
+        "task.language_scores.steps": [
+            "确认缺失的单项成绩：{comps}。",
+            "预约一次涵盖听说读写四项的雅思考试。",
+            "在计划中提供所有单项成绩以便重新核查。",
+        ],
+        "task.language_scores.prerequisites": [],
+        "task.language_scores.acceptance": [
+            "已确认缺失的单项成绩",
+            "已预约雅思考试",
+            "已提供所有单项成绩以便重新核查",
+        ],
+        "task.language_scores.alternatives": [
+            "如果在截止日期之前没有考位，请记录这一点，并将此规则保持为未知。",
+        ],
+        "task.language_scores.uncertainty": "只有提供的分数才能改变规则。考试费用和考位情况不在已核实的信息来源中。",
+    },
+    "es": {
+        "rule.language": "Requisito de idioma",
+        "rule.language_components": "Componentes de idioma",
+        "rule.fee": "Matrícula",
+        "rule.academic": "Requisito académico",
+        "rule.test": "Examen de admisión",
+        "rule.experience": "Requisito de experiencia",
+        "rule.gcse": "Requisito de GCSE",
+        "rule.other": "Requisito",
+        "gap.no_threshold": "no se establece ningún umbral en las fuentes verificadas",
+        "task.language_other.title": "Alcanza {labels} con un plan de estudio semanal",
+        "task.language_other.rationale": "La regla {rule_id} no se puede decidir: {detail}",
+        "task.language_other.expected": "Un certificado reconocido de {labels}, aportado para que el motor lo vuelva a comprobar.",
+        "task.language_other.steps": [
+            "Semanas 1–2: construye la base — 30 minutos al día de vocabulario y gramática de {language}, más una lectura corta y una escucha corta cada día.",
+            "Semanas 3–6: practica las cuatro destrezas en {language} — lectura, escucha, escritura y expresión oral — con tareas de examen con tiempo; lleva un registro de errores y repite cada error.",
+            "Semana 7: haz un examen simulado completo con tiempo para {labels} y revisa cada error con los criterios oficiales de corrección.",
+            "Semana 8: reserva y presenta el examen oficial de {exam} — solo después de que un simulacro con tiempo alcance el nivel en tu propia revisión — y aporta el certificado para volver a comprobar.",
+        ],
+        "task.language_other.prerequisites": [
+            "Acceso a material de estudio de {language} y a exámenes simulados con tiempo para {labels}",
+        ],
+        "task.language_other.acceptance": [
+            "Examen simulado con tiempo completado y revisado",
+            "Examen oficial de {exam} reservado solo después de que un simulacro con tiempo alcanzara el nivel en tu propia revisión",
+            "Certificado reconocido de {labels} aportado para volver a comprobar",
+        ],
+        "task.language_other.alternatives": [
+            "Si queda poco tiempo, usa el tiempo restante para una tarea simulada con tiempo al día en lugar de estudiar en general.",
+            "Si el examen oficial no se puede reservar antes de la fecha límite, registra eso y mantén la regla como desconocida.",
+        ],
+        "task.language_other.uncertainty": ("Practicar por sí solo no cambia la regla; solo un "
+                                            "certificado reconocido puede hacerlo. Qué "
+                                            "certificados acepta el programa no está en las "
+                                            "fuentes verificadas — consulta la página oficial "
+                                            "del programa. Las tasas y fechas del examen no "
+                                            "están en las fuentes verificadas."),
+        "task.language_other.exam_generic": "un examen oficial de nivel {level} en {language}",
+        "task.toefl_general.title": "Sube el TOEFL hasta el mínimo establecido",
+        "task.toefl_general.rationale": "La regla {rule_id} no se cumple: {detail}",
+        "task.toefl_general.expected": "Una nueva puntuación de TOEFL igual o superior al mínimo establecido, aportada para que el motor la vuelva a comprobar.",
+        "task.toefl_general.steps": [
+            "Haz una prueba de práctica de TOEFL con tiempo y anota la puntuación de cada sección.",
+            "Practica a diario la sección con la puntuación más baja, con material oficial de práctica.",
+            "Repite una prueba de práctica con tiempo y compara las puntuaciones por sección con el intento anterior.",
+            "Reserva fecha de examen solo después de que un intento de práctica con tiempo cumpla el mínimo en tu propia revisión.",
+        ],
+        "task.toefl_general.prerequisites": [
+            "Acceso a material de práctica de TOEFL encontrado con los criterios de búsqueda de abajo",
+        ],
+        "task.toefl_general.acceptance": [
+            "Prueba de práctica con tiempo completada con las puntuaciones por sección anotadas",
+            "Sección con la puntuación más baja practicada y vuelta a evaluar",
+            "Nueva puntuación de TOEFL aportada para volver a comprobar",
+        ],
+        "task.toefl_general.alternatives": [
+            "Si queda poco tiempo, dedica el tiempo restante solo a la sección con la puntuación más baja.",
+        ],
+        "task.toefl_general.uncertainty": ("Practicar por sí solo no cambia la regla; solo una "
+                                           "nueva puntuación de examen puede hacerlo. El coste "
+                                           "y la disponibilidad de una convocatoria no están "
+                                           "en las fuentes verificadas."),
+        "res.toefl_general": "Materiales oficiales de práctica de TOEFL",
+        "task.academic_confirm.title": "Confirma la titulación aceptada para la regla académica",
+        "task.academic_confirm.rationale": "La regla {rule_id} no se puede decidir: {detail}",
+        "task.academic_confirm.expected": "La vía de titulación aceptada, confirmada desde una fuente oficial y registrada con su evidencia, para que la regla académica pueda volver a comprobarse.",
+        "task.academic_confirm.steps": [
+            "Lee el requisito académico en la página oficial del programa enlazada abajo y anota las titulaciones que acepta.",
+            "Compara las titulaciones que ya tienes con esa lista y anota qué vía, si alguna, coincide.",
+            "Reúne la evidencia existente de la titulación que coincide (certificado, expediente o registro oficial).",
+            "Aporta la titulación y su evidencia en el plan para volver a comprobar.",
+        ],
+        "task.academic_confirm.prerequisites": [
+            "Registros existentes de las titulaciones ya obtenidas",
+        ],
+        "task.academic_confirm.acceptance": [
+            "Titulaciones aceptadas anotadas desde la página oficial",
+            "Titulación coincidente identificada, o registrado que ninguna coincide",
+            "Evidencia de la titulación aportada para volver a comprobar, si la hay",
+        ],
+        "task.academic_confirm.alternatives": [
+            "Si ninguna de tus titulaciones coincide con una vía publicada, consulta la página oficial por una vía de fundación o alternativa que publique.",
+        ],
+        "task.academic_confirm.uncertainty": ("Las puntuaciones nunca se convierten entre "
+                                              "sistemas de titulación. Si no se publica ninguna "
+                                              "vía, la regla académica sigue siendo desconocida "
+                                              "hasta que se aporte otra titulación aceptada."),
+        "task.language_scores.title": "Aporta las puntuaciones de componentes de IELTS que faltan",
+        "task.language_scores.rationale": "La regla {rule_id} no se puede decidir: {detail}",
+        "task.language_scores.expected": "Todas las puntuaciones de componentes de IELTS requeridas aportadas, para que el motor pueda volver a comprobar la regla de componentes.",
+        "task.language_scores.steps": [
+            "Comprueba qué puntuaciones de componentes faltan: {comps}.",
+            "Reserva una fecha de examen IELTS que cubra los cuatro componentes.",
+            "Aporta todas las puntuaciones de componentes en el plan para volver a comprobar.",
+        ],
+        "task.language_scores.prerequisites": [],
+        "task.language_scores.acceptance": [
+            "Puntuaciones de componentes que faltan identificadas",
+            "Fecha de examen IELTS reservada",
+            "Todas las puntuaciones de componentes aportadas para volver a comprobar",
+        ],
+        "task.language_scores.alternatives": [
+            "Si no hay fecha de examen disponible antes de la fecha límite, registra eso y mantén la regla como desconocida.",
+        ],
+        "task.language_scores.uncertainty": ("Solo las puntuaciones aportadas pueden cambiar la "
+                                             "regla. Las tasas y la disponibilidad del examen "
+                                             "no están en las fuentes verificadas."),
+    },
+    "fr": {
+        "rule.language": "Exigence linguistique",
+        "rule.language_components": "Composantes linguistiques",
+        "rule.fee": "Frais de scolarité",
+        "rule.academic": "Exigence académique",
+        "rule.test": "Test d'admission",
+        "rule.experience": "Exigence d'expérience",
+        "rule.gcse": "Exigence GCSE",
+        "rule.other": "Exigence",
+        "gap.no_threshold": "aucun seuil n'est établi dans les sources vérifiées",
+        "task.language_other.title": "Atteignez {labels} avec un plan d'étude hebdomadaire",
+        "task.language_other.rationale": "La règle {rule_id} ne peut pas être décidée : {detail}",
+        "task.language_other.expected": "Un certificat reconnu de {labels}, fourni pour une nouvelle vérification par le moteur.",
+        "task.language_other.steps": [
+            "Semaines 1–2 : construisez la base — 30 minutes par jour de vocabulaire et de grammaire en {language}, plus une courte lecture et une courte écoute chaque jour.",
+            "Semaines 3–6 : entraînez les quatre compétences en {language} — lecture, écoute, écriture et expression orale — avec des tâches d'examen chronométrées ; tenez un journal des erreurs et refaites chaque erreur.",
+            "Semaine 7 : passez un examen blanc complet chronométré pour {labels} et revoyez chaque erreur avec les critères officiels de correction.",
+            "Semaine 8 : inscrivez-vous et passez l'examen officiel {exam} — seulement après qu'un examen blanc chronométré a atteint le niveau en auto-évaluation — puis fournissez le certificat pour une nouvelle vérification.",
+        ],
+        "task.language_other.prerequisites": [
+            "Accès à du matériel d'étude en {language} et à des examens blancs chronométrés pour {labels}",
+        ],
+        "task.language_other.acceptance": [
+            "Examen blanc chronométré terminé et revu",
+            "Examen officiel {exam} réservé seulement après qu'un examen blanc chronométré a atteint le niveau en auto-évaluation",
+            "Certificat reconnu de {labels} fourni pour une nouvelle vérification",
+        ],
+        "task.language_other.alternatives": [
+            "S'il reste peu de temps, utilisez le temps restant pour une tâche blanche chronométrée par jour au lieu d'étudier en général.",
+            "Si l'examen officiel ne peut pas être réservé avant la date limite, notez-le et gardez la règle comme inconnue.",
+        ],
+        "task.language_other.uncertainty": ("S'entraîner seul ne change pas la règle ; seul un "
+                                            "certificat reconnu le peut. Les certificats que "
+                                            "le programme accepte ne figurent pas dans les "
+                                            "sources vérifiées — consultez la page officielle "
+                                            "du programme. Les frais et dates d'examen ne "
+                                            "figurent pas dans les sources vérifiées."),
+        "task.language_other.exam_generic": "un examen officiel de niveau {level} en {language}",
+        "task.toefl_general.title": "Augmentez le TOEFL jusqu'au minimum requis",
+        "task.toefl_general.rationale": "La règle {rule_id} n'est pas satisfaite : {detail}",
+        "task.toefl_general.expected": "Un nouveau score TOEFL égal ou supérieur au minimum requis, fourni pour une nouvelle vérification par le moteur.",
+        "task.toefl_general.steps": [
+            "Faites un test d'entraînement TOEFL chronométré et notez le score de chaque section.",
+            "Entraînez chaque jour la section au score le plus bas, avec du matériel officiel d'entraînement.",
+            "Refaites un test d'entraînement chronométré et comparez les scores par section avec la tentative précédente.",
+            "Réservez une date d'examen seulement après qu'une tentative d'entraînement chronométrée a atteint le minimum en auto-évaluation.",
+        ],
+        "task.toefl_general.prerequisites": [
+            "Accès au matériel d'entraînement TOEFL trouvé avec les critères de recherche ci-dessous",
+        ],
+        "task.toefl_general.acceptance": [
+            "Test d'entraînement chronométré terminé avec les scores par section notés",
+            "Section au score le plus bas entraînée et réévaluée",
+            "Nouveau score TOEFL fourni pour une nouvelle vérification",
+        ],
+        "task.toefl_general.alternatives": [
+            "S'il reste peu de temps, consacrez le temps restant uniquement à la section au score le plus bas.",
+        ],
+        "task.toefl_general.uncertainty": ("S'entraîner seul ne change pas la règle ; seul un "
+                                           "nouveau score de test le peut. Le coût et la "
+                                           "disponibilité d'une session ne figurent pas dans "
+                                           "les sources vérifiées."),
+        "res.toefl_general": "Matériel officiel d'entraînement au TOEFL",
+        "task.academic_confirm.title": "Confirmez le diplôme accepté pour la règle académique",
+        "task.academic_confirm.rationale": "La règle {rule_id} ne peut pas être décidée : {detail}",
+        "task.academic_confirm.expected": "La voie de diplôme acceptée, confirmée par une source officielle et enregistrée avec sa preuve, pour que la règle académique puisse être vérifiée à nouveau.",
+        "task.academic_confirm.steps": [
+            "Lisez l'exigence académique sur la page officielle du programme liée ci-dessous et listez les diplômes acceptés.",
+            "Comparez les diplômes que vous détenez déjà avec cette liste et notez quelle voie, le cas échéant, correspond.",
+            "Rassemblez la preuve existante du diplôme correspondant (certificat, relevé ou dossier officiel).",
+            "Fournissez le diplôme et sa preuve dans le plan pour une nouvelle vérification.",
+        ],
+        "task.academic_confirm.prerequisites": [
+            "Dossiers existants des diplômes déjà obtenus",
+        ],
+        "task.academic_confirm.acceptance": [
+            "Diplômes acceptés listés depuis la page officielle",
+            "Diplôme correspondant identifié, ou enregistré comme aucun ne correspondant",
+            "Preuve du diplôme fournie pour une nouvelle vérification, le cas échéant",
+        ],
+        "task.academic_confirm.alternatives": [
+            "Si aucun de vos diplômes ne correspond à une voie publiée, consultez la page officielle pour une voie de fondation ou alternative qu'elle publie.",
+        ],
+        "task.academic_confirm.uncertainty": ("Les scores ne sont jamais convertis entre systèmes "
+                                              "de diplômes. Si aucune voie n'est publiée, la "
+                                              "règle académique reste inconnue jusqu'à ce qu'un "
+                                              "autre diplôme accepté soit fourni."),
+        "task.language_scores.title": "Fournissez les scores de composantes IELTS manquants",
+        "task.language_scores.rationale": "La règle {rule_id} ne peut pas être décidée : {detail}",
+        "task.language_scores.expected": "Tous les scores de composantes IELTS requis sont fournis, pour que le moteur puisse vérifier à nouveau la règle des composantes.",
+        "task.language_scores.steps": [
+            "Vérifiez quels scores de composantes manquent : {comps}.",
+            "Réservez une date d'examen IELTS couvrant les quatre composantes.",
+            "Fournissez tous les scores de composantes dans le plan pour une nouvelle vérification.",
+        ],
+        "task.language_scores.prerequisites": [],
+        "task.language_scores.acceptance": [
+            "Scores de composantes manquants identifiés",
+            "Date d'examen IELTS réservée",
+            "Tous les scores de composantes fournis pour une nouvelle vérification",
+        ],
+        "task.language_scores.alternatives": [
+            "Si aucune date d'examen n'est disponible avant la date limite, notez-le et gardez la règle comme inconnue.",
+        ],
+        "task.language_scores.uncertainty": ("Seuls les scores fournis peuvent changer la règle. "
+                                             "Les frais et la disponibilité du test ne figurent "
+                                             "pas dans les sources vérifiées."),
+    },
+    "pt-BR": {
+        "rule.language": "Requisito de idioma",
+        "rule.language_components": "Componentes de idioma",
+        "rule.fee": "Mensalidade",
+        "rule.academic": "Requisito acadêmico",
+        "rule.test": "Teste de admissão",
+        "rule.experience": "Requisito de experiência",
+        "rule.gcse": "Requisito de GCSE",
+        "rule.other": "Requisito",
+        "gap.no_threshold": "nenhum limite estabelecido nas fontes verificadas",
+        "task.language_other.title": "Alcance {labels} com um plano de estudo semanal",
+        "task.language_other.rationale": "A regra {rule_id} não pode ser decidida: {detail}",
+        "task.language_other.expected": "Um certificado reconhecido de {labels}, enviado para nova verificação pelo mecanismo.",
+        "task.language_other.steps": [
+            "Semanas 1–2: construa a base — 30 minutos por dia de vocabulário e gramática de {language}, mais uma leitura curta e uma escuta curta por dia.",
+            "Semanas 3–6: pratique as quatro habilidades em {language} — leitura, escuta, escrita e fala — com tarefas de exame cronometradas; mantenha um registro de erros e refaça cada erro.",
+            "Semana 7: faça um simulado completo cronometrado para {labels} e revise cada erro com os critérios oficiais de correção.",
+            "Semana 8: inscreva-se e faça o exame oficial {exam} — somente depois que um simulado cronometrado atingir o nível na sua própria revisão — e envie o certificado para nova verificação.",
+        ],
+        "task.language_other.prerequisites": [
+            "Acesso a material de estudo de {language} e a simulados cronometrados para {labels}",
+        ],
+        "task.language_other.acceptance": [
+            "Simulado cronometrado concluído e revisado",
+            "Exame oficial {exam} agendado somente depois que um simulado cronometrado atingiu o nível na sua própria revisão",
+            "Certificado reconhecido de {labels} enviado para nova verificação",
+        ],
+        "task.language_other.alternatives": [
+            "Se restar pouco tempo, use o tempo restante para uma tarefa simulada cronometrada por dia em vez de estudar em geral.",
+            "Se o exame oficial não puder ser agendado antes do prazo, registre isso e mantenha a regra como desconhecida.",
+        ],
+        "task.language_other.uncertainty": ("Praticar por conta própria não muda a regra; apenas "
+                                            "um certificado reconhecido pode mudá-la. Quais "
+                                            "certificados o programa aceita não está nas fontes "
+                                            "verificadas — consulte a página oficial do "
+                                            "programa. Taxas e datas do exame não estão nas "
+                                            "fontes verificadas."),
+        "task.language_other.exam_generic": "um exame oficial de nível {level} em {language}",
+        "task.toefl_general.title": "Aumente o TOEFL até o mínimo exigido",
+        "task.toefl_general.rationale": "A regra {rule_id} não foi atendida: {detail}",
+        "task.toefl_general.expected": "Uma nova nota do TOEFL igual ou superior ao mínimo exigido, enviada para nova verificação pelo mecanismo.",
+        "task.toefl_general.steps": [
+            "Faça um teste de prática do TOEFL cronometrado e anote a nota de cada seção.",
+            "Pratique diariamente a seção com a nota mais baixa, com material oficial de prática.",
+            "Refaça um teste de prática cronometrado e compare as notas por seção com a tentativa anterior.",
+            "Agende uma data de exame somente depois que uma tentativa de prática cronometrada atingir o mínimo na sua própria revisão.",
+        ],
+        "task.toefl_general.prerequisites": [
+            "Acesso a material de prática do TOEFL encontrado com os critérios de pesquisa abaixo",
+        ],
+        "task.toefl_general.acceptance": [
+            "Teste de prática cronometrado concluído com as notas por seção anotadas",
+            "Seção com a nota mais baixa praticada e avaliada novamente",
+            "Nova nota do TOEFL enviada para nova verificação",
+        ],
+        "task.toefl_general.alternatives": [
+            "Se restar pouco tempo, dedique o tempo restante apenas à seção com a nota mais baixa.",
+        ],
+        "task.toefl_general.uncertainty": ("Praticar por conta própria não muda a regra; apenas "
+                                           "uma nova nota de exame pode mudá-la. O custo e a "
+                                           "disponibilidade de uma sessão não estão nas fontes "
+                                           "verificadas."),
+        "res.toefl_general": "Material oficial de prática do TOEFL",
+        "task.academic_confirm.title": "Confirme a qualificação aceita para a regra acadêmica",
+        "task.academic_confirm.rationale": "A regra {rule_id} não pode ser decidida: {detail}",
+        "task.academic_confirm.expected": "A via de qualificação aceita, confirmada por uma fonte oficial e registrada com sua evidência, para que a regra acadêmica possa ser verificada novamente.",
+        "task.academic_confirm.steps": [
+            "Leia o requisito acadêmico na página oficial do programa com link abaixo e liste as qualificações aceitas.",
+            "Compare as qualificações que você já possui com essa lista e anote qual via, se houver, corresponde.",
+            "Reúna a evidência existente da qualificação correspondente (certificado, histórico ou registro oficial).",
+            "Envie a qualificação e sua evidência no plano para nova verificação.",
+        ],
+        "task.academic_confirm.prerequisites": [
+            "Registros existentes das qualificações já obtidas",
+        ],
+        "task.academic_confirm.acceptance": [
+            "Qualificações aceitas listadas da página oficial",
+            "Qualificação correspondente identificada, ou registrado que nenhuma corresponde",
+            "Evidência da qualificação enviada para nova verificação, se houver",
+        ],
+        "task.academic_confirm.alternatives": [
+            "Se nenhuma das suas qualificações corresponder a uma via publicada, consulte a página oficial por uma via de fundação ou alternativa que ela publique.",
+        ],
+        "task.academic_confirm.uncertainty": ("As notas nunca são convertidas entre sistemas de "
+                                              "qualificação. Se nenhuma via for publicada, a "
+                                              "regra acadêmica permanece desconhecida até que "
+                                              "outra qualificação aceita seja fornecida."),
+        "task.language_scores.title": "Envie as notas de componentes do IELTS que faltam",
+        "task.language_scores.rationale": "A regra {rule_id} não pode ser decidida: {detail}",
+        "task.language_scores.expected": "Todas as notas de componentes do IELTS exigidas foram enviadas, para que o mecanismo possa verificar novamente a regra de componentes.",
+        "task.language_scores.steps": [
+            "Verifique quais notas de componentes faltam: {comps}.",
+            "Agende uma data de exame IELTS que cubra os quatro componentes.",
+            "Envie todas as notas de componentes no plano para nova verificação.",
+        ],
+        "task.language_scores.prerequisites": [],
+        "task.language_scores.acceptance": [
+            "Notas de componentes que faltam identificadas",
+            "Data do exame IELTS agendada",
+            "Todas as notas de componentes enviadas para nova verificação",
+        ],
+        "task.language_scores.alternatives": [
+            "Se não houver data de exame disponível antes do prazo, registre isso e mantenha a regra como desconhecida.",
+        ],
+        "task.language_scores.uncertainty": ("Somente as notas enviadas podem mudar a regra. Taxas "
+                                             "e disponibilidade do exame não estão nas fontes "
+                                             "verificadas."),
+    },
+    "ar": {
+        "rule.language": "متطلبات اللغة",
+        "rule.language_components": "مكونات اللغة",
+        "rule.fee": "الرسوم الدراسية",
+        "rule.academic": "المتطلبات الأكاديمية",
+        "rule.test": "اختبار القبول",
+        "rule.experience": "متطلبات الخبرة",
+        "rule.gcse": "متطلبات GCSE",
+        "rule.other": "المتطلبات",
+        "gap.no_threshold": "لا يوجد حد معلن في المصادر الموثّقة",
+        "task.language_other.title": "حقّق {labels} بخطة دراسة أسبوعية",
+        "task.language_other.rationale": "تعذّر تحديد القاعدة {rule_id}: {detail}",
+        "task.language_other.expected": "شهادة معترف بها في {labels}، مقدمة لإعادة التحقق بواسطة المحرك.",
+        "task.language_other.steps": [
+            "الأسبوعان 1–2: ابنِ الأساس — 30 دقيقة يوميًا لمفردات وقواعد {language}، مع مهمة قراءة قصيرة ومهمة استماع قصيرة كل يوم.",
+            "الأسابيع 3–6: تدرّب على المهارات الأربع في {language} — القراءة والاستماع والكتابة والتحدث — بمهام امتحان موقوتة؛ واحتفظ بسجل للأخطاء وأعد كل خطأ.",
+            "الأسبوع 7: أدِّ اختبارًا تجريبيًا كاملًا موقوتًا لـ {labels} وراجع كل خطأ وفق معايير التصحيح الرسمية.",
+            "الأسبوع 8: احجز وأدِّ الامتحان الرسمي {exam} — فقط بعد أن يحقق اختبار تجريبي موقوت المستوى في تقييمك الذاتي — ثم قدّم الشهادة لإعادة التحقق.",
+        ],
+        "task.language_other.prerequisites": [
+            "الوصول إلى مواد دراسة {language} واختبارات تجريبية موقوتة لـ {labels}",
+        ],
+        "task.language_other.acceptance": [
+            "تم إكمال الاختبار التجريبي الموقوت ومراجعته",
+            "تم حجز الامتحان الرسمي {exam} فقط بعد أن حقق اختبار تجريبي موقوت المستوى في التقييم الذاتي",
+            "تم تقديم شهادة معترف بها في {labels} لإعادة التحقق",
+        ],
+        "task.language_other.alternatives": [
+            "إذا بقي وقت قصير، استخدم الوقت المتبقي لمهمة تجريبية موقوتة واحدة يوميًا بدلًا من الدراسة العامة.",
+            "إذا تعذّر حجز الامتحان الرسمي قبل الموعد النهائي، سجّل ذلك وأبقِ القاعدة غير محددة.",
+        ],
+        "task.language_other.uncertainty": ("التدريب وحده لا يغيّر القاعدة؛ الشهادة المعترف بها "
+                                            "وحدها تفعل ذلك. الشهادات التي يقبلها البرنامج "
+                                            "ليست في المصادر الموثّقة — راجع صفحة البرنامج "
+                                            "الرسمية. رسوم الامتحان ومواعيده ليست في المصادر "
+                                            "الموثّقة."),
+        "task.language_other.exam_generic": "امتحان رسمي بمستوى {level} في {language}",
+        "task.toefl_general.title": "ارفع TOEFL إلى الحد الأدنى المطلوب",
+        "task.toefl_general.rationale": "القاعدة {rule_id} غير مستوفاة: {detail}",
+        "task.toefl_general.expected": "درجة TOEFL جديدة تساوي الحد الأدنى المطلوب أو تتجاوزه، مقدمة لإعادة التحقق بواسطة المحرك.",
+        "task.toefl_general.steps": [
+            "أدِّ اختبار تدريب TOEFL موقوتًا وسجّل درجة كل قسم.",
+            "تدرّب يوميًا على القسم الأقل درجة، باستخدام مواد تدريب رسمية.",
+            "أعد اختبار تدريب موقوتًا وقارن درجات الأقسام بالمحاولة السابقة.",
+            "احجز موعد اختبار TOEFL فقط بعد أن تحقق محاولة تدريب موقوتة الحد الأدنى في تقييمك الذاتي.",
+        ],
+        "task.toefl_general.prerequisites": [
+            "الوصول إلى مواد تدريب TOEFL الموجودة عبر معايير البحث أدناه",
+        ],
+        "task.toefl_general.acceptance": [
+            "تم إكمال اختبار تدريب موقوت مع تسجيل درجات الأقسام",
+            "تم التدريب على القسم الأقل درجة وإعادة اختباره",
+            "تم تقديم درجة TOEFL جديدة لإعادة التحقق",
+        ],
+        "task.toefl_general.alternatives": [
+            "إذا بقي وقت قصير، ركّز الوقت المتبقي على القسم الأقل درجة فقط.",
+        ],
+        "task.toefl_general.uncertainty": ("التدريب وحده لا يغيّر القاعدة؛ درجة الاختبار "
+                                           "الجديدة وحدها تفعل ذلك. تكلفة جلسة الاختبار "
+                                           "وتوفرها ليستا في المصادر الموثّقة."),
+        "res.toefl_general": "مواد تدريب TOEFL الرسمية",
+        "task.academic_confirm.title": "أكّد المؤهل المقبول لقاعدة المتطلبات الأكاديمية",
+        "task.academic_confirm.rationale": "تعذّر تحديد القاعدة {rule_id}: {detail}",
+        "task.academic_confirm.expected": "تم تأكيد مسار المؤهل المقبول من مصدر رسمي وتسجيله مع دليله، حتى يمكن إعادة التحقق من القاعدة الأكاديمية.",
+        "task.academic_confirm.steps": [
+            "اقرأ المتطلب الأكاديمي في صفحة البرنامج الرسمية المرتبطة أدناه وسجّل المؤهلات التي يقبلها.",
+            "قارن المؤهلات التي تحملها بالفعل بتلك القائمة ولاحظ أي مسار، إن وجد، يطابق.",
+            "اجمع الدليل الحالي للمؤهل المطابق (شهادة أو كشف درجات أو سجل رسمي).",
+            "قدّم المؤهل ودليله في الخطة لإعادة التحقق.",
+        ],
+        "task.academic_confirm.prerequisites": [
+            "سجلات المؤهلات الحالية للمؤهلات المحصلة بالفعل",
+        ],
+        "task.academic_confirm.acceptance": [
+            "تم تسجيل المؤهلات المقبولة من الصفحة الرسمية",
+            "تم تحديد المؤهل المطابق، أو تم تسجيل عدم وجود مطابق",
+            "تم تقديم دليل المؤهل لإعادة التحقق، إن وجد",
+        ],
+        "task.academic_confirm.alternatives": [
+            "إذا لم يطابق أي من مؤهلاتك مسارًا منشورًا، راجع الصفحة الرسمية للبحث عن مسار تأسيسي أو بديل تنشره.",
+        ],
+        "task.academic_confirm.uncertainty": ("لا تُحوَّل الدرجات أبدًا بين أنظمة المؤهلات. إذا لم "
+                                              "يُنشر أي مسار، تبقى القاعدة الأكاديمية غير محددة "
+                                              "حتى يتم تقديم مؤهل مقبول آخر."),
+        "task.language_scores.title": "قدّم درجات مكونات IELTS المفقودة",
+        "task.language_scores.rationale": "تعذّر تحديد القاعدة {rule_id}: {detail}",
+        "task.language_scores.expected": "تم تقديم جميع درجات مكونات IELTS المطلوبة، حتى يتمكن المحرك من إعادة التحقق من قاعدة المكونات.",
+        "task.language_scores.steps": [
+            "تحقق من درجات المكونات المفقودة: {comps}.",
+            "احجز موعد اختبار IELTS يغطي المكونات الأربعة.",
+            "قدّم كل درجات المكونات في الخطة لإعادة التحقق.",
+        ],
+        "task.language_scores.prerequisites": [],
+        "task.language_scores.acceptance": [
+            "تم تحديد درجات المكونات المفقودة",
+            "تم حجز موعد اختبار IELTS",
+            "تم تقديم جميع درجات المكونات لإعادة التحقق",
+        ],
+        "task.language_scores.alternatives": [
+            "إذا لم يتوفر موعد اختبار قبل الموعد النهائي، سجّل ذلك وأبقِ القاعدة غير محددة.",
+        ],
+        "task.language_scores.uncertainty": ("الدرجات المقدمة وحدها يمكن أن تغيّر القاعدة. رسوم "
+                                             "الاختبار وتوفره ليستا في المصادر الموثّقة."),
+    },
+}
+
+
 def _plan_strings(locale: str) -> dict:
-    return _PLAN_STRINGS.get(locale) or _PLAN_STRINGS["en"]
+    """Plan template strings for ``locale``: the base Round 14 table
+    plus the Round 15 additions (rule labels, substantive task kinds).
+    An unknown locale falls back to English in both tables."""
+    base = _PLAN_STRINGS.get(locale) or _PLAN_STRINGS["en"]
+    extra = _PLAN_STRINGS_R15.get(locale) or _PLAN_STRINGS_R15["en"]
+    return {**base, **extra}
 
 
 def _plan_fill(template: str, **values) -> str:
@@ -1700,8 +2384,218 @@ def _plan_list(locale: str, key: str) -> list[str]:
     return list(_plan_strings(locale)[key])
 
 
+def _plan_list_filled(locale: str, key: str, **values) -> list[str]:
+    """Localised list template with {name} placeholders filled (the
+    week-phased language_other steps need {language}/{exam}/{labels})."""
+    return [_plan_fill(line, **values)
+            for line in _plan_strings(locale)[key]]
+
+
 def _plan_comp(locale: str, component: str) -> str:
     return _plan_strings(locale).get(f"comp.{component}", component)
+
+
+def _rule_label(rule_id: str, category: str, locale: str = "en") -> str:
+    """Localised human-readable rule name for the plan UI. Raw rule
+    ids (e.g. "exp-language") are NEVER rendered to the user: every
+    rationale, title and reassessment change uses this label instead
+    (Round 15, Finding 1c)."""
+    rid = (rule_id or "").lower()
+    if rid == "ucl-gcse":
+        key = "rule.gcse"
+    elif (rid.endswith("-language-components")
+            or rid.endswith("-ielts-components")):
+        key = "rule.language_components"
+    elif (rid.endswith("-language") or rid.endswith("-ielts-overall")
+            or rid.endswith("-toefl")):
+        key = "rule.language"
+    elif rid.endswith("-fee"):
+        key = "rule.fee"
+    elif rid.endswith("-academic"):
+        key = "rule.academic"
+    elif any(k in rid for k in ("tmua", "tara", "gre", "gmat", "test")):
+        key = "rule.test"
+    elif category == "experience":
+        key = "rule.experience"
+    else:
+        key = "rule.other"
+    return _plan_strings(locale).get(key, _plan_strings("en")[key])
+
+
+# Localised language names for the language_other weekly plan: the
+# requirement label itself ("German C1 (CEFR)") stays verbatim, but
+# the steps name the language in the user's locale. Only the languages
+# the verified catalogue actually states (CEFR + HSK/Duolingo/PTE
+# labels) are listed; any other word renders as itself, never guessed.
+_OTHER_LANGUAGE_NAMES: dict[str, dict[str, str]] = {
+    "German": {"zh-CN": "德语", "es": "alemán", "fr": "allemand",
+               "pt-BR": "alemão", "ar": "الألمانية"},
+    "French": {"zh-CN": "法语", "es": "francés", "fr": "français",
+               "pt-BR": "francês", "ar": "الفرنسية"},
+    "Spanish": {"zh-CN": "西班牙语", "es": "español", "fr": "espagnol",
+                "pt-BR": "espanhol", "ar": "الإسبانية"},
+    "Italian": {"zh-CN": "意大利语", "es": "italiano", "fr": "italien",
+                "pt-BR": "italiano", "ar": "الإيطالية"},
+    "Portuguese": {"zh-CN": "葡萄牙语", "es": "portugués", "fr": "portugais",
+                   "pt-BR": "português", "ar": "البرتغالية"},
+    "Chinese": {"zh-CN": "中文", "es": "chino", "fr": "chinois",
+                "pt-BR": "chinês", "ar": "الصينية"},
+    "Japanese": {"zh-CN": "日语", "es": "japonés", "fr": "japonais",
+                 "pt-BR": "japonês", "ar": "اليابانية"},
+    "Korean": {"zh-CN": "韩语", "es": "coreano", "fr": "coréen",
+               "pt-BR": "coreano", "ar": "الكورية"},
+    "Dutch": {"zh-CN": "荷兰语", "es": "neerlandés", "fr": "néerlandais",
+              "pt-BR": "holandês", "ar": "الهولندية"},
+    "Russian": {"zh-CN": "俄语", "es": "ruso", "fr": "russe",
+                "pt-BR": "russo", "ar": "الروسية"},
+    "English": {"zh-CN": "英语", "es": "inglés", "fr": "anglais",
+                "pt-BR": "inglês", "ar": "الإنجليزية"},
+}
+
+
+def _other_language_name(language: str, locale: str) -> str:
+    if locale == "en":
+        return language
+    return _OTHER_LANGUAGE_NAMES.get(language, {}).get(locale, language)
+
+
+def _other_language_exam(language: str, level: str, locale: str) -> str:
+    """Official exam name for a (language, level) requirement, or the
+    generic localised phrase when no standard exam is known. Exam
+    names are proper nouns and stay verbatim in every locale; the
+    uncertainty line always says to check the official programme page
+    for which certificates it accepts."""
+    if language == "German":
+        return f"Goethe-Zertifikat {level}"
+    if language == "French":
+        return (f"DALF {level}" if level in ("C1", "C2")
+                else f"DELF {level}")
+    if language == "Spanish":
+        return f"DELE {level}"
+    if language == "Italian":
+        return f"CELI {level}"
+    if language == "Portuguese":
+        return "CELPE-Bras"
+    return _plan_str(locale, "task.language_other.exam_generic",
+                     level=level,
+                     language=_other_language_name(language, locale))
+
+
+def _parse_other_label(label: str, locale: str) -> dict:
+    """(language, level, exam) for one other-language requirement
+    label from the engine ("German C1 (CEFR)", "French B2 (CEFR)",
+    "HSK 6", "Duolingo 130", "PTE 65"). Unparseable labels fall back
+    to the first word as the language and the rest as the level, with
+    the generic exam phrase — the task still names the verbatim label,
+    never an invented exam."""
+    text = (label or "").strip()
+    hsk = re.match(r"^HSK\s+(\d+)$", text, re.IGNORECASE)
+    if hsk:
+        return {"language": _other_language_name("Chinese", locale),
+                "level": f"HSK {hsk.group(1)}", "exam": f"HSK {hsk.group(1)}"}
+    duo = re.match(r"^Duolingo\s+(\d+)$", text, re.IGNORECASE)
+    if duo:
+        return {"language": _other_language_name("English", locale),
+                "level": duo.group(1), "exam": "Duolingo English Test"}
+    pte = re.match(r"^PTE\s+(\d+)$", text, re.IGNORECASE)
+    if pte:
+        return {"language": _other_language_name("English", locale),
+                "level": pte.group(1), "exam": "PTE Academic"}
+    m = re.match(r"^([A-Za-z]+)\s+([A-C][12])\b", text)
+    if m:
+        language, level = m.group(1), m.group(2)
+        return {"language": _other_language_name(language, locale),
+                "level": level,
+                "exam": _other_language_exam(language, level, locale)}
+    parts = text.split(None, 1)
+    language = parts[0] if parts else text
+    level = parts[1] if len(parts) > 1 else ""
+    return {"language": _other_language_name(language, locale),
+            "level": level,
+            "exam": _other_language_exam(language, level, locale)}
+
+
+def _writing_below(rule) -> bool:
+    """True when IELTS writing is a failing component of this rule:
+    the writing template task (4 weeks) applies, not the general one.
+    Reads threshold + observed only — never the English detail."""
+    thr = rule.threshold if isinstance(rule.threshold, dict) else None
+    obs = rule.observed if isinstance(rule.observed, dict) else {}
+    writing = _num(obs.get("writing"))
+    if writing is None or not thr:
+        return False
+    direct = _num(thr.get("writing"))
+    if direct is not None:
+        return writing < direct
+    each = _num(thr.get("each_component"))
+    if each is not None:
+        return writing < each
+    remaining = _num(thr.get("__remaining__"))
+    if remaining is not None:
+        return writing < remaining
+    return False
+
+
+def _kind_hint_for_rule(rule, curriculum: str | None) -> str | None:
+    """Template-task kind for a gap, from the rule's structured data
+    (family, status, threshold, observed) — never from the English
+    detail text, which the plan no longer renders. None means
+    _template_task falls back to its category/evidence-class rules."""
+    thr = rule.threshold if isinstance(rule.threshold, dict) else None
+    other = (thr or {}).get("other_requirements")
+    if isinstance(other, list) and any(
+            isinstance(v, str) and v.strip() for v in other):
+        return "language_other"
+    fam = rule_family(rule.rule_id)
+    if fam == "academic" and curriculum == "cn_gaokao":
+        return "gaokao_route"
+    if fam == "language-components":
+        if rule.status == "NOT_MET":
+            return "ielts_writing" if _writing_below(rule) else "ielts_general"
+        if rule.status == "UNKNOWN":
+            return "language_scores"
+        return None
+    if fam in ("language", "toefl") and rule.status == "NOT_MET":
+        if "toefl" in rule.rule_id.lower():
+            return "toefl_general"
+        obs = rule.observed if isinstance(rule.observed, dict) else {}
+        toefl_obs = _num(obs.get("toefl_overall"))
+        ielts_obs = _num(obs.get("ielts_overall"))
+        if toefl_obs is not None and ielts_obs is None:
+            return "toefl_general"
+        return "ielts_general"
+    return None
+
+
+def _sanitise_model_task(task: dict, rule_labels: dict[str, str]) -> dict:
+    """Replace any raw rule id a model task cites in its user-facing
+    text with the localised rule label (Round 15, Finding 1c: the plan
+    UI never shows a raw rule id). Task ids and gap ids are internal
+    keys and are left alone."""
+    fields = ("title", "rationale", "current_state", "expected_outcome",
+              "uncertainty")
+    lists = ("steps", "prerequisites", "acceptance_checklist",
+             "alternatives")
+    for field in fields:
+        text = task.get(field)
+        if isinstance(text, str):
+            for rid, label in rule_labels.items():
+                text = text.replace(rid, label)
+            task[field] = text
+    for field in lists:
+        items = task.get(field)
+        if isinstance(items, list):
+            task[field] = [
+                (item if not isinstance(item, str) else
+                 _sanitise_text(item, rule_labels))
+                for item in items]
+    return task
+
+
+def _sanitise_text(text: str, rule_labels: dict[str, str]) -> str:
+    for rid, label in rule_labels.items():
+        text = text.replace(rid, label)
+    return text
 
 
 # ---------------------------------------------------------------------------
@@ -1779,10 +2673,30 @@ def diagnose_gaps(profile: StudentProfile, evaluations: list[Evaluation],
 
     Every NOT_MET rule -> hard_requirement gap; every UNKNOWN rule ->
     to_confirm gap; a MET rule met only barely -> competitiveness gap,
-    clearly labelled as such. The ``what_is_missing`` prose renders in
-    ``locale`` (Round 14); ``current_state`` stays the engine's own
-    rule detail text.
+    clearly labelled as such. Both prose fields render in ``locale``
+    (Round 14 for ``what_is_missing``; Round 15 for ``current_state``,
+    which used to be the engine's own English rule detail text and is
+    now the localised rendering from ai.explain.localised_gap_state,
+    built from the rule's structured threshold/observed only).
+    Each gap also carries the structured hints the template-task
+    builder needs without re-reading English text: ``kind_hint`` (the
+    substantive task kind, or None), ``other_requirements`` (verbatim
+    non-IELTS/TOEFL requirement labels, e.g. "German C1 (CEFR)") and
+    ``missing_components`` (IELTS components with no score supplied).
+    Raw rule ids stay in the machine fields (``gap_id``, ``rule_ids``)
+    only — they are keys, never rendered text.
     """
+    budget_currency = None
+    budget_period = None
+    if profile.budget is not None:
+        budget_currency = profile.budget.currency
+        budget_period = profile.budget.period
+    curriculum = None
+    if profile.undergrad_profile is not None:
+        try:
+            curriculum = effective_curriculum(profile.undergrad_profile)
+        except Exception:
+            curriculum = profile.undergrad_profile.curriculum
     gaps: list[dict] = []
     for ev in evaluations:
         for rule in ev.results:
@@ -1790,7 +2704,7 @@ def diagnose_gaps(profile: StudentProfile, evaluations: list[Evaluation],
                 evidence_class = "hard_requirement"
                 missing = _plan_str(
                     locale, "gap.not_met",
-                    thr=_fmt_threshold(rule.threshold),
+                    thr=_fmt_threshold(rule.threshold, locale),
                     obs=_fmt_observed(rule.observed))
             elif rule.status == "UNKNOWN":
                 evidence_class = "to_confirm"
@@ -1804,15 +2718,34 @@ def diagnose_gaps(profile: StudentProfile, evaluations: list[Evaluation],
                                     reason=reason)
             else:  # NOT_APPLICABLE
                 continue
+            category = _category_for_rule(rule.rule_id, rule.detail)
+            label = _rule_label(rule.rule_id, category, locale)
+            thr = rule.threshold if isinstance(rule.threshold, dict) else None
+            other = (thr or {}).get("other_requirements")
+            other_requirements = (
+                [str(v) for v in other
+                 if isinstance(v, str) and str(v).strip()]
+                if isinstance(other, list) else [])
+            obs_d = (rule.observed
+                     if isinstance(rule.observed, dict) else {})
+            missing_components = [
+                c for c in ("listening", "reading", "writing", "speaking")
+                if c in obs_d and obs_d.get(c) is None]
             gaps.append({
                 "gap_id": f"gap-{ev.program_id}-{rule.rule_id}",
                 "program_id": ev.program_id,
-                "category": _category_for_rule(rule.rule_id, rule.detail),
+                "category": category,
                 "evidence_class": evidence_class,
                 "rule_ids": [rule.rule_id],
                 "evidence_ids": list(rule.evidence_ids),
-                "current_state": rule.detail,
+                "current_state": localised_gap_state(
+                    rule, locale, label,
+                    budget_currency=budget_currency,
+                    budget_period=budget_period),
                 "what_is_missing": missing,
+                "kind_hint": _kind_hint_for_rule(rule, curriculum),
+                "other_requirements": other_requirements,
+                "missing_components": missing_components,
             })
     return {"track": profile.application_track, "gaps": gaps}
 
@@ -1906,12 +2839,20 @@ _TEMPLATE_TASK_SPECS = {
                       "resources": ("program", "ielts_writing")},
     "ielts_general": {"hours": 6, "cost": (0, None, None), "duration": 6,
                       "resources": ("program", "ielts_general")},
+    "toefl_general": {"hours": 6, "cost": (0, None, None), "duration": 6,
+                      "resources": ("program", "toefl_general")},
+    "language_other": {"hours": 6, "cost": (0, None, None), "duration": 8,
+                       "resources": ("program", "test_provider")},
+    "language_scores": {"hours": 2, "cost": (0, None, None), "duration": 2,
+                        "resources": ("program", "test_provider")},
     "budget": {"hours": 2, "cost": (0, 0, "currency"), "duration": 2,
                "resources": ("program", "funding")},
     "gaokao_route": {"hours": 2, "cost": (0, 0, "currency"), "duration": 2,
                      "resources": ("gaokao", "program")},
     "confirm_test": {"hours": 2, "cost": (0, None, None), "duration": 2,
                      "resources": ("program", "test_provider")},
+    "academic_confirm": {"hours": 2, "cost": (0, 0, "currency"),
+                         "duration": 2, "resources": ("program",)},
     "experience_evidence": {"hours": 3, "cost": (0, 0, "currency"),
                             "duration": 4, "resources": ("program",)},
     "strengthen_margin": {"hours": 4, "cost": (0, None, None), "duration": 4,
@@ -1926,6 +2867,7 @@ _TEMPLATE_TASK_SPECS = {
 _TEMPLATE_SEARCH = {
     "ielts_writing": "IELTS official writing practice materials band descriptors",
     "ielts_general": "IELTS official practice test materials",
+    "toefl_general": "TOEFL official practice test materials",
     "test_provider": "official admissions test registration requirements",
     "prep": "official preparation material for the stated minimum",
 }
@@ -1953,20 +2895,41 @@ def _template_task(gap: dict, programs_by_id: dict, deadline: str | None,
     an activity, or an admission effect.
 
     The human-readable text comes from _PLAN_STRINGS and renders in
-    ``locale`` (Round 14); the numbers below (hours / cost / duration)
-    and the resource composition are the same in every locale. Search
-    criteria stay English: they are search queries, not prose."""
+    ``locale`` (Round 14 for the structure, Round 15 for the gap text:
+    ``detail`` here is the LOCALISED current_state from diagnose_gaps,
+    and ``rule_id`` below is the LOCALISED rule label — a raw rule id
+    never reaches the rendered task). The numbers below (hours / cost /
+    duration) and the resource composition are the same in every
+    locale. Search criteria stay English: they are search queries, not
+    prose. Kind selection reads the gap's structured ``kind_hint``
+    (computed from rule/threshold/observed at diagnosis) and falls
+    back to category/evidence-class rules — never the English detail
+    text, which the plan no longer carries."""
     program = programs_by_id.get(gap.get("program_id") or "")
     rule_id = (gap.get("rule_ids") or [""])[0]
     detail = gap.get("current_state", "")
     category = gap.get("category", "academic")
     evidence_class = gap.get("evidence_class", "hard_requirement")
-    detail_l = detail.lower()
     currency = (budget or {}).get("currency")
+    label = _rule_label(rule_id, category, locale)
 
-    kind = "academic_prep"
-    if "gaokao" in detail_l:
-        kind = "gaokao_route"
+    # Values for the per-kind placeholders. Labels stay verbatim
+    # ("German C1 (CEFR)"); the language name is localised.
+    labels = gap.get("other_requirements") or []
+    sep = "、" if locale == "zh-CN" else ", "
+    labels_joined = sep.join(labels)
+    parsed = _parse_other_label(labels[0], locale) if labels else {
+        "language": "", "level": "", "exam": ""}
+    missing = gap.get("missing_components") or []
+    comps_joined = sep.join(_plan_comp(locale, c) for c in missing)
+    fill = {"rule_id": label, "detail": detail, "labels": labels_joined,
+            "language": parsed["language"], "level": parsed["level"],
+            "exam": parsed["exam"], "comps": comps_joined}
+
+    hint = gap.get("kind_hint")
+    kind = None
+    if hint in _TEMPLATE_TASK_SPECS:
+        kind = hint
     elif evidence_class == "competitiveness":
         kind = "strengthen_margin"
     elif evidence_class == "to_confirm":
@@ -1974,19 +2937,43 @@ def _template_task(gap: dict, programs_by_id: dict, deadline: str | None,
             kind = "confirm_test"
         elif category == "experience":
             kind = "experience_evidence"
+        elif category == "academic":
+            kind = "academic_confirm"
+        elif category == "language":
+            # Missing component scores get the component task; a
+            # no-test overall language gap keeps the generic
+            # supply-the-evidence task (its localised current_state
+            # already says no test was supplied).
+            if (rule_id.endswith("-language-components")
+                    or rule_id.endswith("-ielts-components")):
+                kind = "language_scores"
+            else:
+                kind = "confirm_evidence"
         else:
             kind = "confirm_evidence"
     elif category == "language":
-        kind = "ielts_writing" if ("writing" in detail_l
-                                   or "components" in rule_id) else "ielts_general"
+        kind = "toefl_general" if "toefl" in rule_id else "ielts_general"
     elif category == "materials":
         kind = "budget"
     elif category == "experience":
         kind = "experience_evidence"
+    else:
+        kind = "academic_prep"
 
     spec = _TEMPLATE_TASK_SPECS[kind]
     cost_min, cost_max, cost_ccy = spec["cost"]
     institution = (program or {}).get("institution") or ""
+    resources = [_template_resource(kind_name, program, catalogue,
+                                    locale, institution)
+                 for kind_name in spec["resources"]]
+    if kind == "language_other" and parsed["exam"]:
+        # The test-provider search points at the actual exam for this
+        # requirement (e.g. Goethe-Zertifikat C1), not the generic
+        # admissions-test query.
+        for res in resources:
+            if res.get("search_criteria") == _TEMPLATE_SEARCH["test_provider"]:
+                res["search_criteria"] = (
+                    f"{parsed['exam']} official exam registration")
     task = {
         "task_id": f"task-{gap['gap_id']}",
         "gap_id": gap["gap_id"],
@@ -1994,22 +2981,22 @@ def _template_task(gap: dict, programs_by_id: dict, deadline: str | None,
         "target_program_ids": [gap["program_id"]] if gap.get("program_id") else [],
         "current_state": detail,
         "deadline": deadline,
-        "title": _plan_str(locale, f"task.{kind}.title", rule_id=rule_id),
-        "rationale": _plan_str(locale, f"task.{kind}.rationale",
-                               rule_id=rule_id, detail=detail),
-        "expected_outcome": _plan_str(locale, f"task.{kind}.expected"),
-        "steps": _plan_list(locale, f"task.{kind}.steps"),
-        "resources": [_template_resource(kind_name, program, catalogue,
-                                         locale, institution)
-                      for kind_name in spec["resources"]],
+        "title": _plan_str(locale, f"task.{kind}.title", **fill),
+        "rationale": _plan_str(locale, f"task.{kind}.rationale", **fill),
+        "expected_outcome": _plan_str(locale, f"task.{kind}.expected", **fill),
+        "steps": _plan_list_filled(locale, f"task.{kind}.steps", **fill),
+        "resources": resources,
         "weekly_hours": _hours(spec["hours"], weekly_hours),
         "cost_range": {"min": cost_min, "max": cost_max,
                        "currency": currency if cost_ccy == "currency" else None},
         "duration_weeks": spec["duration"],
-        "prerequisites": _plan_list(locale, f"task.{kind}.prerequisites"),
-        "acceptance_checklist": _plan_list(locale, f"task.{kind}.acceptance"),
-        "alternatives": _plan_list(locale, f"task.{kind}.alternatives"),
-        "uncertainty": _plan_str(locale, f"task.{kind}.uncertainty"),
+        "prerequisites": _plan_list_filled(
+            locale, f"task.{kind}.prerequisites", **fill),
+        "acceptance_checklist": _plan_list_filled(
+            locale, f"task.{kind}.acceptance", **fill),
+        "alternatives": _plan_list_filled(
+            locale, f"task.{kind}.alternatives", **fill),
+        "uncertainty": _plan_str(locale, f"task.{kind}.uncertainty", **fill),
     }
     note = _finish_note(task["duration_weeks"], deadline,
                         task["alternatives"], locale)
@@ -2212,6 +3199,14 @@ def _model_tasks(gap_assessment: dict, evaluations: list[Evaluation],
     kept: list[dict] = []
     covered: set[str] = set()
     model_used = False
+    # Localised rule labels for the sanitiser: any raw rule id a model
+    # task cites in user-facing text is replaced by its label (Round
+    # 15, Finding 1c). Gap categories come from the gap assessment.
+    rule_labels: dict[str, str] = {}
+    for gap in gap_assessment.get("gaps", []):
+        for rid in gap.get("rule_ids") or []:
+            rule_labels[rid] = _rule_label(
+                rid, gap.get("category", "academic"), locale)
     for raw in raw_tasks:
         errs = _validate_model_task(raw, gap_by_id, program_ids,
                                     catalogue_urls, weekly_hours, budget,
@@ -2226,6 +3221,7 @@ def _model_tasks(gap_assessment: dict, evaluations: list[Evaluation],
         seen_ids.add(task["task_id"])
         task.setdefault("status", "todo")
         task["deadline"] = deadline
+        _sanitise_model_task(task, rule_labels)
         kept.append(task)
         covered.add(task["gap_id"])
         model_used = True
@@ -2532,8 +3528,17 @@ def reassess(plan_id: str, profile_patch: dict) -> dict:
         for r in ev["results"]:
             old = old_by_key.get((ev["program_id"], r["rule_id"]))
             if old is not None and old != r["status"]:
+                # rule_label is what the UI renders (Round 15, Finding
+                # 1c: never a raw rule id); rule_id stays as the key.
+                gap = next((g for g in current_gaps
+                            if g.get("rule_ids")
+                            and r["rule_id"] in g["rule_ids"]), None)
                 changes.append({"program_id": ev["program_id"],
                                 "rule_id": r["rule_id"],
+                                "rule_label": _rule_label(
+                                    r["rule_id"],
+                                    (gap or {}).get("category", "academic"),
+                                    locale),
                                 "old_status": old,
                                 "new_status": r["status"]})
     new_gap_assessment = diagnose_gaps(

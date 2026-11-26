@@ -199,7 +199,11 @@ def test_devil_template_audit_profile_zh(monkeypatch):
     assert r["ai_status"] == "unavailable"
     assert r["mode"] == "devil"
     joined = "\n".join(r["lines"])
-    assert "Zurich" in joined and "四季分明" in joined
+    # Round 15: city names are localised in the Chinese reply — no bare
+    # English city names in the template text.
+    assert "苏黎世" in joined and "洛桑" in joined
+    assert "Zurich" not in joined and "Lausanne" not in joined
+    assert "四季分明" in joined
     assert "%" not in joined
 
 

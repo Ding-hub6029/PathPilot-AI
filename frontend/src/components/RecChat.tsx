@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
 import { MatchResult, Program, type FeeItem, type Profile } from '../lib/types';
-import { fetchJson, fetchJsonPatient } from '../lib/api';
+import { fetchJson, fetchJsonChat } from '../lib/api';
 import { isModelReply, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import {
   catalogueCountInCountry, cityDisplayName, climateLabel, countryAlternatives,
@@ -226,10 +226,10 @@ export function RecChat({
       history.push({ role: 'assistant', content: turn.reply.lines.join(' ') });
     }
     try {
-      const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
+      const r = await fetchJsonChat<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6) }),
-      }, { onRetry: () => setWaking(true), attemptTimeoutMs: 40000 });
+      }, { onRetry: () => setWaking(true) });
       setWaking(false);
       if (!isModelReply(r)) {
         // Round 10: a template reply is a verified answer, not nothing —

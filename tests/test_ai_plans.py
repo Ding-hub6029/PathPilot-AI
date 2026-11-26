@@ -437,6 +437,7 @@ def test_reassess_flips_writing_rule_and_closes_gap():
     body = resp.json()
     assert body["new_version"] == 2
     assert {"program_id": "ucl-cs-bsc-2026", "rule_id": "ucl-ielts-components",
+            "rule_label": "Language components",
             "old_status": "NOT_MET", "new_status": "MET"} in body["changes"]
     # The hard_requirement gap closes. Because 6.0 is exactly the minimum,
     # the same rule now appears as a competitiveness gap (barely-MET rule);

@@ -21,6 +21,31 @@ import { RecChat } from '../../components/RecChat';
 // list, never a user-picked subset).
 const STEPS = ['curriculum', 'track', 'field', 'academic', 'language', 'budget', 'preferences', 'recommend'] as const;
 
+/** localStorage key for the wizard's current step (round 15, P1).
+ * The profile itself is persisted as 'pp-profile' and the pref-chat
+ * turns as 'pp-prefchat', but the step lived only in React state —
+ * leaving for the homepage unmounted the page and the wizard reset
+ * to step 1/8, six clicks from where the user left off, even though
+ * steps 1–6 form data was kept. */
+const WIZARD_STEP_KEY = 'pp-wizard-step';
+
+/** The step to resume at: the stored step (clamped to 0..7), or 0
+ * when nothing valid was stored — or when no profile was stored at
+ * all (cleared data must never resurrect a step for a fresh wizard).
+ * Same lazy-initializer pattern as PrefChat's snapshot read. */
+function loadWizardStep(): number {
+  try {
+    if (!localStorage.getItem('pp-profile')) return 0;
+    const raw = localStorage.getItem(WIZARD_STEP_KEY);
+    if (raw === null) return 0;
+    const n = Number.parseInt(raw, 10);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(STEPS.length - 1, n));
+  } catch {
+    return 0;
+  }
+}
+
 function NumField({ label, value, onChange, step = '0.1', min, max }: { label: string; value: number | '' | undefined; onChange: (v: number | '') => void; step?: string; min?: number; max?: number }) {
   return (
     <label className="block">
@@ -35,7 +60,11 @@ function NumField({ label, value, onChange, step = '0.1', min, max }: { label: s
 export default function WizardPage() {
   const { t, locale, profile, setProfile, updateProfile } = useApp();
   const router = useRouter();
-  const [step, setStep] = useState(0);
+  // Round 15, P1: the step is restored from localStorage on mount
+  // (see loadWizardStep) and persisted on every change below, so
+  // leaving the wizard mid-way and returning resumes the step —
+  // same pattern as the profile persistence.
+  const [step, setStep] = useState(loadWizardStep);
   // P0 (re-test task 6): the live programme refresh is deferred until
   // the preferences step. Steps 0-5 run no network at all: the local
   // mirror is complete (all 881 expansion programmes), so the
@@ -82,6 +111,15 @@ export default function WizardPage() {
       if (advanceTimerRef.current) { clearTimeout(advanceTimerRef.current); advanceTimerRef.current = undefined; }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  // Round 15, P1: persist the step on every change, so leaving the
+  // wizard mid-way and returning resumes it instead of resetting to
+  // step 1/8.
+  useEffect(() => {
+    try {
+      localStorage.setItem(WIZARD_STEP_KEY, String(step));
+    } catch { /* ignore storage errors */ }
   }, [step]);
 
   // Recommendation state (last step): evaluated matches for the chosen

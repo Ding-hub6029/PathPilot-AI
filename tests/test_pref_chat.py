@@ -376,7 +376,9 @@ def test_pref_chat_fallback_with_sources_states_cities(monkeypatch):
     assert r["model"] is None
     assert r["extracted"] == {}
     joined = "\n".join(r["lines"])
-    assert "Zurich" in joined and "Lausanne" in joined
+    # Round 15: city names are localised in the Chinese fallback.
+    assert "苏黎世" in joined and "洛桑" in joined
+    assert "Zurich" not in joined and "Lausanne" not in joined
     assert "四季" in joined and "14" in joined and "11" in joined
     assert "查不到" not in joined
     assert r["next_question"] == "environment"
@@ -674,7 +676,8 @@ def test_pref_chat_no_key_fallback_extracts_country_and_reason(monkeypatch):
     assert r["next_question"] == "climate"
     assert r["done"] is False
     assert r["lines"][-1] == _question_line("climate", "zh-CN")
-    assert "Zurich" in "\n".join(r["lines"])
+    # Round 15: city names are localised in the Chinese reply.
+    assert "苏黎世" in "\n".join(r["lines"])
 
 
 def _fixed_pref_handler(payload):
@@ -816,6 +819,26 @@ def test_pref_chat_why_followup_in_no_key_fallback(monkeypatch):
     assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert r["extracted"]["countries"] == ["CH"]
     assert r["next_question"] == "climate"
+
+
+def test_pref_chat_why_followup_in_gateway_error_fallback(monkeypatch):
+    # Round 15, Finding 1 re-diagnosis: gateway-down path 2 — the
+    # model call itself fails (HTTP 500 -> ProviderError -> the same
+    # deterministic fallback). The WHY follow-up must still ride in
+    # the FIRST reply, not wait for the confirm tap: the browser
+    # re-test showed the first reply leading with the climate
+    # question, and the backend side of that is pinned here (the
+    # frontend side — the bubble rendering before the confirm bubble
+    # — is pinned in tests/test_r15_pref_chat.py).
+    provider = _mock_provider(monkeypatch, _http500_handler)
+    r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
+                    provider=provider)
+    assert r["ai_status"] == "unavailable"
+    assert r["model"] is None
+    assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
+    assert r["extracted"]["countries"] == ["CH"]
+    assert r["next_question"] == "climate"
+    assert r["lines"][-1] == _question_line("climate", "zh-CN")
 
 
 def test_pref_chat_why_followup_in_gateway_failure_fallback(monkeypatch):

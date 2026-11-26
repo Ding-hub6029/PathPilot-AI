@@ -500,6 +500,105 @@ _EVIDENCE_CITIES_LINES = {
     "pt-BR": "Os dados verificados listam estas cidades: {cities}.",
     "ar": "تتضمن البيانات الموثّقة هذه المدن: {cities}.",
 }
+# Localised city names (Round 15, Finding 2): the deterministic chat
+# lines below used to interpolate the canonical English city name
+# ("Zurich", "Lausanne") into every locale, so a Chinese devil reply
+# read "Zurich（四季分明，14 个项目…）". The table mirrors the
+# frontend's own locale files (frontend/messages/*/city.* — the same
+# keys localisedCityName/cityDisplayName read there), keeping only the
+# locales where the name differs from the canonical English form; any
+# other locale, and any city absent here, renders as the canonical
+# name — never a guessed translation. "ETH Zurich" / "University of
+# Zurich" are institution proper nouns, not city names, and stay as
+# they are.
+_CITY_NAMES: dict[str, dict[str, str]] = {
+    "Adelaide": {"zh-CN": "阿德莱德"},
+    "Amsterdam": {"zh-CN": "阿姆斯特丹"},
+    "Ann Arbor": {"zh-CN": "安娜堡"},
+    "Auckland": {"zh-CN": "奥克兰"},
+    "Austin": {"zh-CN": "奥斯汀"},
+    "Baltimore": {"zh-CN": "巴尔的摩"},
+    "Beijing": {"es": "Pekín", "fr": "Pékin", "pt-BR": "Pequim", "zh-CN": "北京"},
+    "Berkeley": {"zh-CN": "伯克利"},
+    "Berlin": {"es": "Berlín", "pt-BR": "Berlim", "zh-CN": "柏林"},
+    "Birmingham": {"zh-CN": "伯明翰"},
+    "Boston": {"zh-CN": "波士顿"},
+    "Brisbane": {"zh-CN": "布里斯班"},
+    "Bristol": {"zh-CN": "布里斯托尔"},
+    "Buenos Aires": {"zh-CN": "布宜诺斯艾利斯"},
+    "Cambridge": {"zh-CN": "剑桥"},
+    "Canberra": {"zh-CN": "堪培拉"},
+    "Champaign": {"zh-CN": "香槟"},
+    "Chicago": {"zh-CN": "芝加哥"},
+    "Copenhagen": {"es": "Copenhague", "fr": "Copenhague", "pt-BR": "Copenhague", "zh-CN": "哥本哈根"},
+    "Coventry": {"zh-CN": "考文垂"},
+    "Daejeon": {"zh-CN": "大田"},
+    "Delft": {"zh-CN": "代尔夫特"},
+    "Dublin": {"es": "Dublín", "pt-BR": "Dublim", "zh-CN": "都柏林"},
+    "Durham": {"zh-CN": "杜伦"},
+    "Edinburgh": {"es": "Edimburgo", "fr": "Édimbourg", "pt-BR": "Edimburgo", "zh-CN": "爱丁堡"},
+    "Edmonton": {"zh-CN": "埃德蒙顿"},
+    "Evanston": {"zh-CN": "埃文斯顿"},
+    "Glasgow": {"zh-CN": "格拉斯哥"},
+    "Hangzhou": {"zh-CN": "杭州"},
+    "Heidelberg": {"zh-CN": "海德堡"},
+    "Hong Kong": {"zh-CN": "香港"},
+    "Ithaca": {"zh-CN": "伊萨卡"},
+    "Kowloon Tong": {"zh-CN": "九龙塘"},
+    "Kuala Lumpur": {"zh-CN": "吉隆坡"},
+    "Kyoto": {"es": "Kioto", "pt-BR": "Quioto", "zh-CN": "京都"},
+    "Lausanne": {"zh-CN": "洛桑"},
+    "Leeds": {"zh-CN": "利兹"},
+    "Leuven": {"zh-CN": "鲁汶"},
+    "London": {"es": "Londres", "fr": "Londres", "pt-BR": "Londres", "zh-CN": "伦敦"},
+    "Los Angeles": {"es": "Los Ángeles", "zh-CN": "洛杉矶"},
+    "Lund": {"zh-CN": "隆德"},
+    "Manchester": {"zh-CN": "曼彻斯特"},
+    "Melbourne": {"zh-CN": "墨尔本"},
+    "Milan": {"es": "Milán", "pt-BR": "Milão", "zh-CN": "米兰"},
+    "Montreal": {"fr": "Montréal", "zh-CN": "蒙特利尔"},
+    "Munich": {"es": "Múnich", "pt-BR": "Munique", "zh-CN": "慕尼黑"},
+    "Nanjing": {"es": "Nankín", "fr": "Nankin", "pt-BR": "Nanquim", "zh-CN": "南京"},
+    "New Haven": {"zh-CN": "纽黑文"},
+    "New York": {"es": "Nueva York", "pt-BR": "Nova York", "zh-CN": "纽约"},
+    "Nottingham": {"zh-CN": "诺丁汉"},
+    "Orsay": {"zh-CN": "奥赛"},
+    "Oxford": {"zh-CN": "牛津"},
+    "Palaiseau": {"zh-CN": "帕莱索"},
+    "Paris": {"es": "París", "zh-CN": "巴黎"},
+    "Pasadena": {"zh-CN": "帕萨迪纳"},
+    "Perth": {"zh-CN": "珀斯"},
+    "Philadelphia": {"es": "Filadelfia", "pt-BR": "Filadélfia", "zh-CN": "费城"},
+    "Pittsburgh": {"zh-CN": "匹兹堡"},
+    "Princeton": {"zh-CN": "普林斯顿"},
+    "Providence": {"zh-CN": "普罗维登斯"},
+    "San Diego": {"zh-CN": "圣迭戈"},
+    "Seattle": {"zh-CN": "西雅图"},
+    "Seoul": {"es": "Seúl", "fr": "Séoul", "pt-BR": "Seul", "zh-CN": "首尔"},
+    "Sha Tin": {"zh-CN": "沙田"},
+    "Shanghai": {"es": "Shanghái", "pt-BR": "Xangai", "zh-CN": "上海"},
+    "Sheffield": {"zh-CN": "谢菲尔德"},
+    "Singapore": {"es": "Singapur", "fr": "Singapour", "pt-BR": "Singapura", "zh-CN": "新加坡"},
+    "Stanford": {"zh-CN": "斯坦福"},
+    "Stockholm": {"es": "Estocolmo", "pt-BR": "Estocolmo", "zh-CN": "斯德哥尔摩"},
+    "Suita": {"zh-CN": "吹田"},
+    "Sydney": {"es": "Sídney", "zh-CN": "悉尼"},
+    "Taipei": {"es": "Taipéi", "pt-BR": "Taipé", "zh-CN": "台北"},
+    "Tokyo": {"es": "Tokio", "pt-BR": "Tóquio", "zh-CN": "东京"},
+    "Toronto": {"zh-CN": "多伦多"},
+    "Uppsala": {"zh-CN": "乌普萨拉"},
+    "Urbana-Champaign": {"zh-CN": "厄巴纳-香槟"},
+    "Vancouver": {"zh-CN": "温哥华"},
+    "Zurich": {"zh-CN": "苏黎世"},
+}
+
+def localised_city_name(city: str, locale: str) -> str:
+    """Localised name for a canonical (English) climate-table city in
+    ``locale``: the table above when it has an entry, the canonical
+    name otherwise."""
+    return _CITY_NAMES.get(city, {}).get(locale, city)
+
+
 # Round 9 (R4): every count in a chat evidence line is labelled
 # with its scope — the city counts are ALL programmes in that city
 # (all levels/fields), never a filtered sub-count, so "Zurich 14"
@@ -530,7 +629,8 @@ def evidence_cities_line(sources: list[Source], locale: str) -> str | None:
         cls = _CLIMATE_LABEL_TO_CLASS[label]
         words = _CLASS_WORDS.get(locale) or _CLASS_WORDS["en"]
         item_t = _CITY_ITEM.get(locale) or _CITY_ITEM["en"]
-        items.append(item_t.format(city=city, cls=words[cls], n=count))
+        items.append(item_t.format(city=localised_city_name(city, locale),
+                                   cls=words[cls], n=count))
         if len(items) >= 3:
             break
     if not items:
@@ -1492,8 +1592,9 @@ def devil_conflict_line(conflict: dict, locale: str = "en") -> str:
         wanted = words[conflict["wanted"]]
         item_t = _CITY_ITEM.get(loc) or _CITY_ITEM["en"]
         sep = "、" if loc == "zh-CN" else ", "
-        cities = sep.join(item_t.format(city=c, cls=words[cls], n=n)
-                          for c, cls, n in conflict["cities"][:3])
+        cities = sep.join(item_t.format(
+            city=localised_city_name(c, loc), cls=words[cls], n=n)
+            for c, cls, n in conflict["cities"][:3])
         return t["climate"].format(
             prefix=t["prefix"], wanted=wanted,
             country=country_display_name(conflict["country"], loc),

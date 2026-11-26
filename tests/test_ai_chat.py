@@ -423,7 +423,10 @@ def test_evidence_cities_line_states_classes_and_counts():
     sources, _ = _climate_evidence("cool", countries=["CH"])
     line = evidence_cities_line(sources, "zh-CN")
     assert line is not None
-    assert "Zurich" in line and "Lausanne" in line
+    # Round 15: city names are localised — no bare English city names
+    # in a Chinese line.
+    assert "苏黎世" in line and "洛桑" in line
+    assert "Zurich" not in line and "Lausanne" not in line
     assert "四季" in line and "14" in line and "11" in line
     line_en = evidence_cities_line(sources, "en")
     assert "four-season" in line_en
@@ -441,7 +444,9 @@ def test_chat_fallback_with_climate_sources_states_cities(monkeypatch):
     assert r["ai_status"] == "unavailable"
     assert r["model"] is None
     joined = "\n".join(r["lines"])
-    assert "Edinburgh" in joined and "Durham" in joined
+    # Round 15: city names are localised in the Chinese fallback.
+    assert "爱丁堡" in joined and "杜伦" in joined and "隆德" in joined
+    assert "Edinburgh" not in joined and "Durham" not in joined
     assert "凉爽" in joined and "19" in joined
     assert "查不到" not in joined
     assert [s["id"] for s in r["sources"]][:3] == [

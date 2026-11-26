@@ -245,6 +245,7 @@ def test_expansion_reassess_budget_drop_flips_fee_rule():
     body = resp.json()
     assert body["new_version"] == 2
     assert {"program_id": ETH_CS_BSC, "rule_id": "exp-fee",
+            "rule_label": "Tuition fee",
             "old_status": "MET", "new_status": "NOT_MET"} in body["changes"]
     remaining = {g["gap_id"]: g for g in body["remaining_gaps"]}
     assert remaining["gap-eth-cs-bsc-2027-exp-fee"]["evidence_class"] == "hard_requirement"

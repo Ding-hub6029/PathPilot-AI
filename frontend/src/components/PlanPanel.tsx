@@ -270,8 +270,11 @@ export function PlanPanel({ programId, matchable }: { programId: string; matchab
                   <li key={week.week} className="rounded-xl border border-navy/10 bg-white p-3 text-sm shadow-sm">
                     <p className="font-semibold">{tf('plan.week', { n: week.week })} · {tf('plan.hoursPerWeek', { h: week.weekly_hours })}</p>
                     <ul className="mt-1 list-disc ps-5 text-navy/80">
-                      {week.task_ids.map((id) => (
-                        <li key={id}>{taskById.get(id)?.title ?? id}</li>
+                      {/* Round 15: only tasks the plan actually has are
+                          listed — a missing id renders nothing, never a
+                          raw task id ("task-gap-...-exp-language"). */}
+                      {week.task_ids.filter((id) => taskById.has(id)).map((id) => (
+                        <li key={id}>{taskById.get(id)?.title}</li>
                       ))}
                     </ul>
                   </li>
@@ -298,7 +301,9 @@ export function PlanPanel({ programId, matchable }: { programId: string; matchab
                 ) : (
                   <ul className="mt-2 space-y-1 text-sm text-navy/80">
                     {lastReassess.changes.map((change, i) => (
-                      <li key={i}>{change.rule_id}: {change.old_status} → {change.new_status}</li>
+                      // Round 15: render the backend's localised rule
+                      // label, never the raw rule id ("exp-language").
+                      <li key={i}>{change.rule_label ?? change.rule_id}: {change.old_status} → {change.new_status}</li>
                     ))}
                   </ul>
                 )}

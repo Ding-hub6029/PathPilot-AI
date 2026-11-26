@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
 import type { Profile } from '../lib/types';
-import { fetchJson, fetchJsonPatient, allPrograms, findProgram } from '../lib/api';
+import { fetchJson, fetchJsonChat, fetchJsonPatient, allPrograms, findProgram } from '../lib/api';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, isModelReply, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
@@ -39,13 +39,17 @@ import enMessages from '../../messages/en.json';
  * Cold-start resilience (round 7, Fix A; round 8): the backend sleeps
  * after 15 min idle and takes ~50s+ to wake; a first call made while
  * it wakes used to fail fast and strand the pet offline for the
- * session. The status check and every model call now go through
- * fetchJsonPatient (lib/api.ts): up to ~90s of retries before offline
- * is declared, a "waking the backend" line with the elapsed seconds
+ * session. The status check still goes through fetchJsonPatient
+ * (lib/api.ts) with up to ~90s of retries before offline is
+ * declared, a "waking the backend" line with the elapsed seconds
  * while a retry is in flight, and an explicit retry action in the
  * footer that stays available (disabled only while a check is
  * running) so the user can re-check after waking instead of being
- * stuck offline. A call that fails after retries says it timed out
+ * stuck offline. Model calls (round 15, F2) go through
+ * fetchJsonChat instead: one turn is answered or honestly falls
+ * back within ~20 s, so a hanging gateway can no longer stack a
+ * 40 s abort + a second 40 s attempt into ~90 s of silence. A call
+ * that fails after retries — or on a slow abort — says it timed out
  * (pet.offlineTimeout), not a bare "offline"; a restart clears any
  * stuck busy state so the quick replies come back.
  *
@@ -433,27 +437,34 @@ export function CompassPet() {
    * re-test flagged. */
   const busyElapsed = useElapsed(busy);
   /** The last offline verdict came after the patient budget was spent
-   * (a retry fired, then the call still failed): the footer and the
-   * offline turns say "timed out after ~90s", not a bare "offline". */
+   * (a retry fired) or a chat turn was cut by its own ~18 s timer
+   * (an AbortError from fetchJsonChat): the footer and the offline
+   * turns say "timed out", not a bare "offline". */
   const [timedOut, setTimedOut] = useState(false);
   /** Whether any retry fired during the current patient call — set by
    * patientOnRetry, read when the call fails. */
   const retryFiredRef = useRef(false);
   const patientOnRetry = () => { retryFiredRef.current = true; setWaking(true); };
   const beginPatientCall = () => { retryFiredRef.current = false; };
-  /** Patient-fetch options for one chat call (round 10). The backend
-   * answers a turn in ~15 s worst case (one 15 s model call, then
-   * the template), so one attempt gets 40 s — the old 25 s default
-   * aborted a healthy 24-35 s turn and retried the whole thing,
-   * stacking to 45-60 s of silence before offline was declared.
-   * When the backend is already known-offline the call is a short
-   * 12 s probe, not another ~90 s wait: the old
-   * { timeoutMs, attempts } keys never existed on
-   * FetchPatientOptions, so they were silently ignored and every
-   * known-offline message still waited out the full budget. */
-  const chatPatientOpts = (isOffline: boolean) => isOffline
-    ? { budgetMs: 15000, attemptTimeoutMs: 12000, onRetry: patientOnRetry }
-    : { budgetMs: 90000, attemptTimeoutMs: 40000, onRetry: patientOnRetry };
+  /** Round 15, F2: a failed chat turn timed out when a retry fired
+   * OR the error is the per-attempt timer's abort — fetchJsonChat
+   * does not retry a slow abort, so no retry fires for it, but the
+   * turn still waited out its whole ~18 s budget. */
+  const callTimedOut = (err: unknown) =>
+    retryFiredRef.current || (err as { name?: string } | null)?.name === 'AbortError';
+  /** Chat-turn fetch options (round 15, F2): one turn is bounded
+   * to ~20 s by fetchJsonChat (lib/api.ts) — the backend caps a
+   * turn at ~15 s (one model call, then the template), so a turn
+   * that has not answered in 18 s is not saved by re-issuing it;
+   * the old round-10 shape (40 s attempt / 90 s budget, and a
+   * 15 s / 12 s short probe when known-offline) stacked a 40 s
+   * abort + a second 40 s attempt into ~90 s of silence before
+   * offline was declared. A fast failure (backend waking) still
+   * retries inside the 20 s budget; a slow abort falls back at
+   * once. The /ai/status probe on panel open below still uses
+   * the 90 s patient budget — it watches the backend wake, it is
+   * not a turn. */
+  const chatOpts = { onRetry: patientOnRetry };
   /** Whether the live model answered recently: true after a model
    * reply (ai_status "available"), false after a failure or a
    * template-only reply, null before the first check. The footer
@@ -1033,12 +1044,10 @@ export function CompassPet() {
     // the late reply land in the new conversation.
     const conv = convRef.current;
     beginPatientCall();
-    // Round 10: one attempt gets 40 s (the backend answers in ~15 s
-    // worst case now) and a known-offline call is a short 12 s probe
-    // — see chatPatientOpts. The old { timeoutMs, attempts } keys
-    // never existed on FetchPatientOptions, so the "short probe" was
-    // silently a full ~90 s wait.
-    const patientOpts = chatPatientOpts(offline);
+    // Round 15, F2: one turn is bounded to ~20 s by fetchJsonChat
+    // (lib/api.ts) — a slow abort falls back at once instead of
+    // re-issuing the whole turn for another 40 s.
+    const patientOpts = chatOpts;
     // NOTE: goOffline does not touch timedOut — the caller sets it:
     // a template reply is a fast answer (not a timeout), a thrown
     // call carries the retry verdict.
@@ -1057,7 +1066,7 @@ export function CompassPet() {
       });
     };
     try {
-      const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
+      const r = await fetchJsonChat<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({ message: suggestMessageFor(degree, country, band), locale: requestLocale }),
       }, patientOpts);
@@ -1073,10 +1082,10 @@ export function CompassPet() {
         reply: r, replyLocale: requestLocale, offline: false,
         offlineProgramId: null, offlineEvidenceUrl: null, offlineFee: null, offlineFit: null,
       });
-    } catch {
+    } catch (err) {
       setWaking(false);
       if (convRef.current === conv) {
-        setTimedOut(retryFiredRef.current);
+        setTimedOut(callTimedOut(err));
         goOffline();
       }
     } finally {
@@ -1147,12 +1156,10 @@ export function CompassPet() {
     // in the new conversation.
     const conv = convRef.current;
     beginPatientCall();
-    // Round 10: one attempt gets 40 s (the backend answers in ~15 s
-    // worst case now) and a known-offline call is a short 12 s probe
-    // — see chatPatientOpts. The old { timeoutMs, attempts } keys
-    // never existed on FetchPatientOptions, so the "short probe" was
-    // silently a full ~90 s wait.
-    const patientOpts = chatPatientOpts(offline);
+    // Round 15, F2: one turn is bounded to ~20 s by fetchJsonChat
+    // (lib/api.ts) — a slow abort falls back at once instead of
+    // re-issuing the whole turn for another 40 s.
+    const patientOpts = chatOpts;
     // NOTE: goOffline does not touch timedOut — the caller sets it:
     // a template reply is a fast answer (not a timeout), a thrown
     // call carries the retry verdict.
@@ -1173,7 +1180,7 @@ export function CompassPet() {
     // backend derives what it can from the message itself.
     const devilProf = devilMode ? devilProfileFor(profile) : null;
     try {
-      const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
+      const r = await fetchJsonChat<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({
           message: sentMessage, locale: requestLocale, history: buildHistory(messages),
@@ -1204,10 +1211,10 @@ export function CompassPet() {
       setAiLive(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
       push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, devil: devilMode, offlineRankId: null, offlineCountry: null });
-    } catch {
+    } catch (err) {
       setWaking(false);
       if (convRef.current === conv) {
-        setTimedOut(retryFiredRef.current);
+        setTimedOut(callTimedOut(err));
         goOffline();
       }
     } finally {

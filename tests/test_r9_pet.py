@@ -194,7 +194,10 @@ def test_evidence_cities_line_labels_all_levels_fields_scope():
     sources, _ = _climate_evidence("cool", countries=["CH"])
     line = evidence_cities_line(sources, "zh-CN")
     assert line is not None
-    assert "Zurich" in line and "Lausanne" in line
+    # Round 15: city names are localised — no bare English city names
+    # in a Chinese line.
+    assert "苏黎世" in line and "洛桑" in line
+    assert "Zurich" not in line and "Lausanne" not in line
     assert "14" in line and "11" in line
     assert "全部学位/方向" in line
     line_en = evidence_cities_line(sources, "en")

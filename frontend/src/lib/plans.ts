@@ -78,6 +78,10 @@ export interface Plan {
 export interface ReassessChange {
   program_id: string;
   rule_id: string;
+  /** Localised rule name from the backend (Round 15): the UI renders
+   * this, never the raw rule id. Absent only for plans created before
+   * Round 15, where the id is the fallback. */
+  rule_label?: string;
   old_status: string;
   new_status: string;
 }

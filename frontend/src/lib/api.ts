@@ -1327,6 +1327,20 @@ export interface FetchPatientOptions {
   attemptTimeoutMs?: number;
   /** Called before each retry (attempt number, 1-based). */
   onRetry?: (attempt: number) => void;
+  /** Round 15, F2: when false, an attempt that ran out its whole
+   * per-attempt timeout (the server accepted the request and is
+   * chewing on it) is final — it is NOT retried. Retrying a slow
+   * chat turn re-issues the whole model call server-side (the
+   * abandoned attempt's thread keeps running) and stacks a 40 s
+   * abort + a second 40 s attempt into ~90 s of silence before the
+   * honest fallback, which is what the 2026-11-27 02:30 re-run
+   * showed (first pref-chat reply sent 02:30, answered ~02:32,
+   * while the backend caps one turn at ~15 s). A fast failure
+   * (connection refused / 502 / 503 / 504 — the backend waking)
+   * still retries while budget remains: that failure mode is cheap
+   * and retrying it is exactly the cold-start wake. Default true
+   * (existing behaviour for match / programs / health probes). */
+  retryOnTimeout?: boolean;
   /** P0 (re-test task 6): an outer AbortSignal (e.g. a component
    * unmount). When it fires the in-flight attempt is aborted at once
    * and the retry loop stops instead of retrying for up to 90s after
@@ -1365,7 +1379,12 @@ export async function fetchJsonPatient<T>(
     // the old code let a 25s attempt start at 79s and fail at ~104s,
     // so "offline" was declared ~15s after the promised ~90s.
     const remaining = budgetMs - (Date.now() - started);
-    const timer = setTimeout(() => controller.abort(), Math.max(1000, Math.min(attemptTimeoutMs, remaining)));
+    const attemptTimeout = Math.max(1000, Math.min(attemptTimeoutMs, remaining));
+    // Round 15, F2: remember whether THIS attempt was killed by its
+    // own timer (slow abort) as opposed to failing fast — only a
+    // slow abort is final under retryOnTimeout=false.
+    let timerFired = false;
+    const timer = setTimeout(() => { timerFired = true; controller.abort(); }, attemptTimeout);
     try {
       const res = await fetch(path, {
         ...init,
@@ -1393,6 +1412,11 @@ export async function fetchJsonPatient<T>(
       if (status !== undefined) throw err;
       // P0: an outer abort is final — never retry after unmount.
       if (options?.signal?.aborted) throw err;
+      // Round 15, F2: a slow abort (the per-attempt timer fired) is
+      // final when retryOnTimeout is false — the server is up but
+      // slow, and re-issuing the turn only stacks another full
+      // attempt onto the wait. A fast failure still retries below.
+      if (timerFired && options?.retryOnTimeout === false) throw err;
       // Network error / abort: retry while budget remains.
       if (Date.now() - started + 2000 < budgetMs) {
         options?.onRetry?.(attempt);
@@ -1405,6 +1429,37 @@ export async function fetchJsonPatient<T>(
       if (options?.signal) options.signal.removeEventListener('abort', onOuterAbort);
     }
   }
+}
+
+/** One chat turn through the patient fetch, bounded to ~20 s total
+ * (Round 15, F2). The backend already bounds one turn at ~15 s (one
+ * model call, `timeout_s=15.0` in ai/pref_chat.py and ai/chat.py,
+ * then the template) plus retrieval, so a chat turn that has not
+ * answered in 18 s is not going to be saved by re-issuing it — the
+ * old 40 s attempt / 90 s budget stacked a 40 s abort + a second
+ * 40 s attempt into ~90 s of silence (browser re-test task 9,
+ * 2026-11-27 02:30–02:32: first pref-chat reply took 1–2 min).
+ * One attempt gets 18 s (headroom over the backend's 15 s + local
+ * retrieval); a fast failure (backend waking: connection refused /
+ * 502 / 503 / 504) still retries inside the 20 s total budget, and
+ * a slow abort is final at once (retryOnTimeout=false), so the
+ * caller falls back honestly — guided template / offline line —
+ * within ~20 s. A backend that is merely waking is re-tried by the
+ * caller's retry action (retryModelChat / pet footer retry) once it
+ * is up, instead of the turn itself paying the ~50 s wake.
+ * Not for match / programs / health probes: those keep the 90 s
+ * patient budget (a wake there is worth waiting for). */
+export async function fetchJsonChat<T>(
+  path: string,
+  init?: RequestInit,
+  options?: Pick<FetchPatientOptions, 'onRetry' | 'signal' | 'attemptTimeoutMs' | 'budgetMs'>,
+): Promise<T> {
+  return fetchJsonPatient<T>(path, init, {
+    budgetMs: 20_000,
+    attemptTimeoutMs: 18_000,
+    retryOnTimeout: false,
+    ...options,
+  });
 }
 
 /** Model availability, from the backend's LIVE /ai/status probe

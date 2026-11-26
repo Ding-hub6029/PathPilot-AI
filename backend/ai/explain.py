@@ -1150,3 +1150,863 @@ def build_comparison(evaluations: list[Evaluation]) -> dict:
     families.sort(key=lambda f: _FAMILY_ORDER.index(f)
                   if f in _FAMILY_ORDER else len(_FAMILY_ORDER))
     return {"rule_families": families, "columns": columns}
+
+
+# ---------------------------------------------------------------------------
+# Localised gap state (Round 15, Finding 1)
+#
+# ``localised_gap_state`` renders one engine RuleResult as the
+# ``current_state`` sentence a plan gap shows — in the requested locale,
+# built ONLY from the rule's structured data (rule id family, status,
+# threshold, observed), never from the engine's English ``detail``
+# string. The plan UI used to render ``rule.detail`` verbatim, so a
+# Chinese plan showed an English sentence ("This programme requires
+# German C1 (CEFR), not an IELTS/TOEFL score; ...") inside a Chinese
+# frame. Requirement labels (e.g. "German C1 (CEFR)", "IELTS", "TMUA")
+# are proper names and stay verbatim in every locale; only the
+# surrounding prose is translated. Numeric language/fee gaps reuse
+# the whynot renderer (_gaps_for_rule/_gap_line) so the numbers match
+# the why-not view exactly; the branches below cover the shapes it
+# does not (other-language requirements, no test, TOEFL date/scale,
+# fee unknowns, academic/Gaokao, GCSE, test, experience, generic).
+# ``template_explanation`` above still embeds the raw English detail
+# — that endpoint's contract is unchanged by this round (see report).
+# ---------------------------------------------------------------------------
+
+_GAP_STATE_STRINGS = {
+    "en": {
+        "lang_other": ("This programme requires {labels}; no evidence for "
+                       "that requirement was supplied, so it cannot be "
+                       "assessed from a test score."),
+        "lang_no_test": "No language test supplied.",
+        "lang_wrong_exam_ielts": ("IELTS was supplied, but this programme "
+                                  "states no IELTS minimum, so the supplied "
+                                  "score is not evidence for any stated route."),
+        "lang_wrong_exam_toefl": ("TOEFL was supplied, but this programme "
+                                  "states no TOEFL minimum, so the supplied "
+                                  "score is not evidence for any stated route."),
+        "lang_unknown": ("{label}: cannot be decided from the supplied "
+                         "evidence. Check the official programme page for "
+                         "which language tests and scores it accepts."),
+        "lang_met_overall": "{exam} overall {obs} meets the stated minimum {req}.",
+        "lang_met_components": "Every required IELTS component meets its minimum.",
+        "lang_components_missing": "IELTS component score(s) not supplied: {comps}.",
+        "lang_components_unknown": ("{label}: the supplied evidence does not "
+                                    "include IELTS component scores, so the "
+                                    "components cannot be assessed."),
+        "lang_toefl_date": ("TOEFL was supplied but no valid test date was "
+                            "given, so the scale cannot be chosen and TOEFL "
+                            "cannot be compared."),
+        "lang_toefl_scale": ("The supplied TOEFL score looks like the new "
+                             "1–6 scale, but only an iBT threshold is stated, "
+                             "so the score cannot be compared."),
+        "fee_met": ("Budget {ccy} {obs} {period} covers the {fee_ccy} {fee} "
+                    "{period} tuition fee."),
+        "fee_met_converted": ("Budget {ccy} {obs} {period} covers the "
+                              "{fee_ccy} {fee} {period} tuition fee (about "
+                              "{ccy} {converted})."),
+        "fee_no_amount": ("No tuition fee amount is stated on the official "
+                          "programme page, so the fee cannot be compared "
+                          "with the budget."),
+        "fee_no_budget": "No budget supplied.",
+        "fee_period_mismatch": ("Budget period ({bperiod}) does not match "
+                                "the fee period ({fperiod}), so it cannot be "
+                                "compared with the fee."),
+        "fee_no_rate": ("The fee and the budget are in different currencies "
+                        "and no reference exchange rate is available for "
+                        "this currency pair, so the fee cannot be converted "
+                        "for comparison."),
+        "fee_unknown": ("{label}: cannot be decided from the supplied "
+                        "evidence. Check the official programme page for the "
+                        "published fee."),
+        "academic_gaokao": ("Gaokao {score}/{total}: no university publishes "
+                            "a Gaokao equivalence, and Gaokao scores are "
+                            "never converted to A-level grades — see the "
+                            "official Gaokao routes, not a score fix."),
+        "academic_gaokao_no_score": ("No university publishes a Gaokao "
+                                     "equivalence, and Gaokao scores are "
+                                     "never converted to A-level grades — see "
+                                     "the official Gaokao routes, not a score fix."),
+        "academic_alevel_below": "A-level grades do not meet the stated A-level threshold.",
+        "academic_no_threshold": ("No A-level threshold is stated for this "
+                                  "programme, so academic eligibility cannot "
+                                  "be decided from grades alone."),
+        "academic_not_alevel": ("An A-level threshold is stated, but this "
+                                "applicant's curriculum is not A-level; "
+                                "scores are never converted to A-levels."),
+        "academic_no_grades": "A-level grades not supplied (three grades are needed).",
+        "academic_masters": ("A-level thresholds apply to undergraduate "
+                             "entry; this is a taught-masters programme, so "
+                             "no A-level rule can be assessed here."),
+        "academic_not_met": "{label}: the stated academic minimum was not met.",
+        "academic_unknown": ("{label}: cannot be decided from the published "
+                             "evidence. Check the official programme page for "
+                             "the accepted qualifications."),
+        "test_unknown": ("{test}: the requirement cannot be decided from the "
+                         "supplied evidence. Check the official programme "
+                         "page for whether a test is required and what score "
+                         "is published."),
+        "test_not_met": "{test}: the stated minimum was not met.",
+        "gcse_below": "GCSE English {eng} / Maths {maths}: grade C/4 is required.",
+        "gcse_unknown": ("GCSE grade(s) not supplied or unrecognised: "
+                         "{subjects}. GCSE English and Maths at grade C/4 "
+                         "are required."),
+        "gcse_met": "GCSE English and Maths are both at grade C/4 or above.",
+        "experience_unknown": ("{label}: the required experience evidence "
+                               "was not supplied, so this rule cannot be "
+                               "decided."),
+        "experience_not_met": "{label}: the stated minimum was not met.",
+        "generic_not_met": "{label}: the stated minimum was not met.",
+        "generic_unknown": ("{label}: cannot be decided from the supplied "
+                            "evidence. Check the official programme page for "
+                            "what is required."),
+        "generic_met": "{label}: meets the stated minimum.",
+        "period.per_year": "per year",
+        "period.total": "in total",
+        "subject.english": "English",
+        "subject.maths": "Maths",
+    },
+    "zh-CN": {
+        "lang_other": ("该项目要求 {labels}，而不是雅思/托福成绩；未提供该要求的证明，"
+                       "因此无法通过考试成绩评估。"),
+        "lang_no_test": "未提供任何语言考试成绩。",
+        "lang_wrong_exam_ielts": ("已提供雅思成绩，但该项目没有公布雅思最低要求，"
+                                  "因此该成绩不能作为任何已公布路线的证明。"),
+        "lang_wrong_exam_toefl": ("已提供托福成绩，但该项目没有公布托福最低要求，"
+                                  "因此该成绩不能作为任何已公布路线的证明。"),
+        "lang_unknown": "{label}：根据现有证据无法判定。请查看官方项目页面，了解其接受哪些语言考试和分数。",
+        "lang_met_overall": "{exam}总分 {obs} 达到规定的最低要求 {req}。",
+        "lang_met_components": "所有要求的雅思单项均达到最低要求。",
+        "lang_components_missing": "未提供雅思单项成绩：{comps}。",
+        "lang_components_unknown": "{label}：现有证据中没有雅思单项成绩，因此无法评估各单项。",
+        "lang_toefl_date": "已提供托福成绩，但没有有效的考试日期，因此无法确定适用量表，也无法比较托福成绩。",
+        "lang_toefl_scale": "所提供的托福成绩像是新的 1–6 分量表，但只公布了 iBT 门槛，因此无法比较该成绩。",
+        "fee_met": "预算 {ccy} {obs}{period}已覆盖学费 {fee_ccy} {fee}{period}。",
+        "fee_met_converted": "预算 {ccy} {obs}{period}已覆盖学费 {fee_ccy} {fee}{period}（约 {ccy} {converted}）。",
+        "fee_no_amount": "官方项目页面上没有公布学费金额，因此无法将学费与预算比较。",
+        "fee_no_budget": "未提供预算。",
+        "fee_period_mismatch": "预算周期（{bperiod}）与学费周期（{fperiod}）不一致，因此无法比较。",
+        "fee_no_rate": "学费与预算币种不同，且没有该货币对的参考汇率，因此无法换算比较。",
+        "fee_unknown": "{label}：根据现有证据无法判定。请查看官方项目页面上公布的学费。",
+        "academic_gaokao": "高考 {score}/{total}：没有大学公布高考分数换算标准，高考分数从不换算为 A-level 成绩——请查看官方公布的高考入学路径，而不是纠结分数。",
+        "academic_gaokao_no_score": "没有大学公布高考分数换算标准，高考分数从不换算为 A-level 成绩——请查看官方公布的高考入学路径，而不是纠结分数。",
+        "academic_alevel_below": "A-level 成绩未达到规定的 A-level 门槛。",
+        "academic_no_threshold": "该项目没有公布 A-level 门槛，因此无法仅凭成绩判定学术资格。",
+        "academic_not_alevel": "该项目公布了 A-level 门槛，但申请人的课程体系不是 A-level；分数从不换算为 A-level 成绩。",
+        "academic_no_grades": "未提供 A-level 成绩（需要三门成绩）。",
+        "academic_masters": "A-level 门槛只适用于本科入学；这是授课型硕士项目，因此此处无法评估 A-level 规则。",
+        "academic_not_met": "{label}：未达到规定的学术最低要求。",
+        "academic_unknown": "{label}：根据已公布的证据无法判定。请查看官方项目页面，了解其接受哪些学历。",
+        "test_unknown": "{test}：根据现有证据无法判定。请查看官方项目页面，了解是否需要考试以及公布的分数。",
+        "test_not_met": "{test}：未达到规定的最低要求。",
+        "gcse_below": "GCSE 英语 {eng} / 数学 {maths}：要求达到 C/4。",
+        "gcse_unknown": "未提供或无法识别 GCSE 成绩：{subjects}。要求 GCSE 英语和数学达到 C/4。",
+        "gcse_met": "GCSE 英语和数学均达到 C/4 或以上。",
+        "experience_unknown": "{label}：未提供所需的工作经验依据，因此无法判定此规则。",
+        "experience_not_met": "{label}：未达到规定的最低要求。",
+        "generic_not_met": "{label}：未达到规定的最低要求。",
+        "generic_unknown": "{label}：根据现有证据无法判定。请查看官方项目页面，了解具体要求。",
+        "generic_met": "{label}：达到规定的最低要求。",
+        "period.per_year": "每年",
+        "period.total": "总计",
+        "subject.english": "英语",
+        "subject.maths": "数学",
+    },
+    "es": {
+        "lang_other": ("Este programa exige {labels}, no una puntuación de "
+                       "IELTS/TOEFL; no se aportó evidencia de ese "
+                       "requisito, así que no se puede evaluar con una "
+                       "puntuación de examen."),
+        "lang_no_test": "No se aportó ningún examen de idioma.",
+        "lang_wrong_exam_ielts": ("Se aportó IELTS, pero este programa no "
+                                  "establece un mínimo de IELTS, así que la "
+                                  "puntuación no es evidencia de ninguna vía "
+                                  "establecida."),
+        "lang_wrong_exam_toefl": ("Se aportó TOEFL, pero este programa no "
+                                  "establece un mínimo de TOEFL, así que la "
+                                  "puntuación no es evidencia de ninguna vía "
+                                  "establecida."),
+        "lang_unknown": ("{label}: no se puede decidir con la evidencia "
+                         "proporcionada. Consulta la página oficial del "
+                         "programa para ver qué exámenes de idioma y "
+                         "puntuaciones acepta."),
+        "lang_met_overall": "{exam} general {obs} alcanza el mínimo establecido {req}.",
+        "lang_met_components": "Todos los componentes exigidos de IELTS alcanzan su mínimo.",
+        "lang_components_missing": "Puntuación(es) de componentes de IELTS no aportada(s): {comps}.",
+        "lang_components_unknown": ("{label}: la evidencia proporcionada no "
+                                    "incluye puntuaciones de componentes de "
+                                    "IELTS, así que los componentes no se "
+                                    "pueden evaluar."),
+        "lang_toefl_date": ("Se aportó TOEFL pero no una fecha válida de "
+                            "examen, así que no se puede elegir la escala y "
+                            "el TOEFL no se puede comparar."),
+        "lang_toefl_scale": ("La puntuación de TOEFL aportada parece de la "
+                             "nueva escala 1–6, pero solo se establece un "
+                             "umbral iBT, así que la puntuación no se puede "
+                             "comparar."),
+        "fee_met": ("El presupuesto de {ccy} {obs} {period} cubre la "
+                    "matrícula de {fee_ccy} {fee} {period}."),
+        "fee_met_converted": ("El presupuesto de {ccy} {obs} {period} cubre "
+                              "la matrícula de {fee_ccy} {fee} {period} "
+                              "(aprox. {ccy} {converted})."),
+        "fee_no_amount": ("La página oficial del programa no establece "
+                          "ningún importe de matrícula, así que la matrícula "
+                          "no se puede comparar con el presupuesto."),
+        "fee_no_budget": "No se aportó presupuesto.",
+        "fee_period_mismatch": ("El periodo del presupuesto ({bperiod}) no "
+                                "coincide con el periodo de la matrícula "
+                                "({fperiod}), así que no se pueden comparar."),
+        "fee_no_rate": ("La matrícula y el presupuesto están en monedas "
+                        "distintas y no hay tipo de cambio de referencia "
+                        "disponible para ese par, así que la matrícula no se "
+                        "puede convertir para comparar."),
+        "fee_unknown": ("{label}: no se puede decidir con la evidencia "
+                        "proporcionada. Consulta la página oficial del "
+                        "programa para ver la matrícula publicada."),
+        "academic_gaokao": ("Gaokao {score}/{total}: ninguna universidad "
+                            "publica una equivalencia de Gaokao, y las "
+                            "puntuaciones de Gaokao nunca se convierten a "
+                            "calificaciones A-level — consulta las vías "
+                            "oficiales de Gaokao, no una corrección de "
+                            "puntuación."),
+        "academic_gaokao_no_score": ("Ninguna universidad publica una "
+                                     "equivalencia de Gaokao, y las "
+                                     "puntuaciones de Gaokao nunca se "
+                                     "convierten a calificaciones A-level — "
+                                     "consulta las vías oficiales de Gaokao, "
+                                     "no una corrección de puntuación."),
+        "academic_alevel_below": "Las calificaciones A-level no alcanzan el umbral A-level establecido.",
+        "academic_no_threshold": ("Este programa no establece ningún umbral "
+                                  "A-level, así que la elegibilidad académica "
+                                  "no se puede decidir solo con las notas."),
+        "academic_not_alevel": ("Se establece un umbral A-level, pero el "
+                                "plan de estudios de este solicitante no es "
+                                "A-level; las puntuaciones nunca se convierten "
+                                "a A-level."),
+        "academic_no_grades": "Calificaciones A-level no aportadas (se necesitan tres calificaciones).",
+        "academic_masters": ("Los umbrales A-level se aplican al acceso de "
+                             "grado; este es un programa de máster, así que "
+                             "ninguna regla A-level se puede evaluar aquí."),
+        "academic_not_met": "{label}: el mínimo académico establecido no se alcanzó.",
+        "academic_unknown": ("{label}: no se puede decidir con la evidencia "
+                             "publicada. Consulta la página oficial del "
+                             "programa para ver las titulaciones aceptadas."),
+        "test_unknown": ("{test}: el requisito no se puede decidir con la "
+                         "evidencia proporcionada. Consulta la página "
+                         "oficial del programa para ver si se exige un examen "
+                         "y qué puntuación se publica."),
+        "test_not_met": "{test}: el mínimo establecido no se alcanzó.",
+        "gcse_below": "GCSE inglés {eng} / matemáticas {maths}: se exige la nota C/4.",
+        "gcse_unknown": ("Nota(s) de GCSE no aportada(s) o no reconocida(s): "
+                         "{subjects}. Se exigen GCSE inglés y matemáticas "
+                         "con nota C/4."),
+        "gcse_met": "GCSE inglés y matemáticas están ambos en C/4 o por encima.",
+        "experience_unknown": ("{label}: la evidencia de experiencia "
+                               "requerida no se aportó, así que esta regla no "
+                               "se puede decidir."),
+        "experience_not_met": "{label}: el mínimo establecido no se alcanzó.",
+        "generic_not_met": "{label}: el mínimo establecido no se alcanzó.",
+        "generic_unknown": ("{label}: no se puede decidir con la evidencia "
+                            "proporcionada. Consulta la página oficial del "
+                            "programa para ver lo que se exige."),
+        "generic_met": "{label}: alcanza el mínimo establecido.",
+        "period.per_year": "al año",
+        "period.total": "en total",
+        "subject.english": "inglés",
+        "subject.maths": "matemáticas",
+    },
+    "fr": {
+        "lang_other": ("Ce programme exige {labels}, et non un score "
+                       "IELTS/TOEFL ; aucune preuve de cette exigence n'a "
+                       "été fournie, elle ne peut donc pas être évaluée à "
+                       "partir d'un score de test."),
+        "lang_no_test": "Aucun test de langue fourni.",
+        "lang_wrong_exam_ielts": ("Un score IELTS a été fourni, mais ce "
+                                  "programme n'établit aucun minimum IELTS, "
+                                  "ce score n'est donc la preuve d'aucune voie "
+                                  "établie."),
+        "lang_wrong_exam_toefl": ("Un score TOEFL a été fourni, mais ce "
+                                  "programme n'établit aucun minimum TOEFL, "
+                                  "ce score n'est donc la preuve d'aucune voie "
+                                  "établie."),
+        "lang_unknown": ("{label} : impossible à décider à partir des "
+                         "preuves fournies. Consultez la page officielle du "
+                         "programme pour savoir quels tests de langue et "
+                         "quels scores il accepte."),
+        "lang_met_overall": "{exam} global {obs} atteint le minimum requis {req}.",
+        "lang_met_components": "Toutes les composantes IELTS exigées atteignent leur minimum.",
+        "lang_components_missing": "Score(s) de composantes IELTS non fourni(s) : {comps}.",
+        "lang_components_unknown": ("{label} : les preuves fournies ne "
+                                    "comprennent pas de scores de composantes "
+                                    "IELTS, les composantes ne peuvent donc "
+                                    "pas être évaluées."),
+        "lang_toefl_date": ("Un score TOEFL a été fourni mais sans date de "
+                            "test valide, l'échelle ne peut donc pas être "
+                            "choisie et le TOEFL ne peut pas être comparé."),
+        "lang_toefl_scale": ("Le score TOEFL fourni ressemble à la nouvelle "
+                             "échelle 1–6, mais seul un seuil iBT est "
+                             "établi, le score ne peut donc pas être comparé."),
+        "fee_met": ("Le budget de {ccy} {obs} {period} couvre les frais de "
+                    "scolarité de {fee_ccy} {fee} {period}."),
+        "fee_met_converted": ("Le budget de {ccy} {obs} {period} couvre les "
+                              "frais de scolarité de {fee_ccy} {fee} "
+                              "{period} (environ {ccy} {converted})."),
+        "fee_no_amount": ("La page officielle du programme n'indique aucun "
+                          "montant de frais de scolarité, les frais ne "
+                          "peuvent donc pas être comparés au budget."),
+        "fee_no_budget": "Aucun budget fourni.",
+        "fee_period_mismatch": ("La période du budget ({bperiod}) ne "
+                                "correspond pas à la période des frais "
+                                "({fperiod}), ils ne peuvent donc pas être "
+                                "comparés."),
+        "fee_no_rate": ("Les frais et le budget sont dans des devises "
+                        "différentes et aucun taux de change de référence "
+                        "n'est disponible pour cette paire, les frais ne "
+                        "peuvent donc pas être convertis pour comparaison."),
+        "fee_unknown": ("{label} : impossible à décider à partir des "
+                        "preuves fournies. Consultez la page officielle du "
+                        "programme pour les frais publiés."),
+        "academic_gaokao": ("Gaokao {score}/{total} : aucune université ne "
+                            "publie d'équivalence du Gaokao, et les scores "
+                            "Gaokao ne sont jamais convertis en notes "
+                            "A-level — consultez les voies Gaokao officielles, "
+                            "pas une correction de score."),
+        "academic_gaokao_no_score": ("Aucune université ne publie "
+                                     "d'équivalence du Gaokao, et les scores "
+                                     "Gaokao ne sont jamais convertis en notes "
+                                     "A-level — consultez les voies Gaokao "
+                                     "officielles, pas une correction de score."),
+        "academic_alevel_below": "Les notes A-level n'atteignent pas le seuil A-level requis.",
+        "academic_no_threshold": ("Ce programme n'établit aucun seuil "
+                                  "A-level, l'éligibilité académique ne peut "
+                                  "donc pas être décidée à partir des notes "
+                                  "seules."),
+        "academic_not_alevel": ("Un seuil A-level est établi, mais le cursus "
+                                "de ce candidat n'est pas A-level ; les scores "
+                                "ne sont jamais convertis en A-level."),
+        "academic_no_grades": "Notes A-level non fournies (trois notes sont nécessaires).",
+        "academic_masters": ("Les seuils A-level s'appliquent à l'entrée en "
+                             "licence ; il s'agit d'un programme de master, "
+                             "aucune règle A-level ne peut donc être évaluée "
+                             "ici."),
+        "academic_not_met": "{label} : le minimum académique requis n'est pas atteint.",
+        "academic_unknown": ("{label} : impossible à décider à partir des "
+                             "preuves publiées. Consultez la page officielle "
+                             "du programme pour les diplômes acceptés."),
+        "test_unknown": ("{test} : l'exigence ne peut pas être décidée à "
+                         "partir des preuves fournies. Consultez la page "
+                         "officielle du programme pour savoir si un test est "
+                         "exigé et quel score est publié."),
+        "test_not_met": "{test} : le minimum requis n'est pas atteint.",
+        "gcse_below": "GCSE anglais {eng} / mathématiques {maths} : la note C/4 est exigée.",
+        "gcse_unknown": ("Note(s) GCSE non fournie(s) ou non reconnue(s) : "
+                         "{subjects}. GCSE anglais et mathématiques à la "
+                         "note C/4 sont exigés."),
+        "gcse_met": "GCSE anglais et mathématiques sont tous deux à C/4 ou au-dessus.",
+        "experience_unknown": ("{label} : la preuve d'expérience requise n'a "
+                               "pas été fournie, cette règle ne peut donc pas "
+                               "être décidée."),
+        "experience_not_met": "{label} : le minimum requis n'est pas atteint.",
+        "generic_not_met": "{label} : le minimum requis n'est pas atteint.",
+        "generic_unknown": ("{label} : impossible à décider à partir des "
+                            "preuves fournies. Consultez la page officielle "
+                            "du programme pour savoir ce qui est exigé."),
+        "generic_met": "{label} : satisfait le minimum requis.",
+        "period.per_year": "par an",
+        "period.total": "au total",
+        "subject.english": "anglais",
+        "subject.maths": "mathématiques",
+    },
+    "pt-BR": {
+        "lang_other": ("Este programa exige {labels}, e não uma nota de "
+                       "IELTS/TOEFL; nenhuma evidência desse requisito foi "
+                       "fornecida, portanto ele não pode ser avaliado por "
+                       "uma nota de exame."),
+        "lang_no_test": "Nenhum exame de idioma fornecido.",
+        "lang_wrong_exam_ielts": ("O IELTS foi fornecido, mas este programa "
+                                  "não estabelece um mínimo de IELTS, portanto "
+                                  "a nota não é evidência de nenhuma via "
+                                  "estabelecida."),
+        "lang_wrong_exam_toefl": ("O TOEFL foi fornecido, mas este programa "
+                                  "não estabelece um mínimo de TOEFL, portanto "
+                                  "a nota não é evidência de nenhuma via "
+                                  "estabelecida."),
+        "lang_unknown": ("{label}: não é possível decidir com base nas "
+                         "evidências fornecidas. Consulte a página oficial "
+                         "do programa para ver quais exames de idioma e "
+                         "notas ele aceita."),
+        "lang_met_overall": "{exam} geral {obs} atinge o mínimo exigido {req}.",
+        "lang_met_components": "Todos os componentes exigidos do IELTS atingem seu mínimo.",
+        "lang_components_missing": "Nota(s) de componentes do IELTS não fornecida(s): {comps}.",
+        "lang_components_unknown": ("{label}: as evidências fornecidas não "
+                                    "incluem notas de componentes do IELTS, "
+                                    "portanto os componentes não podem ser "
+                                    "avaliados."),
+        "lang_toefl_date": ("O TOEFL foi fornecido, mas sem uma data válida "
+                            "de exame, portanto a escala não pode ser "
+                            "escolhida e o TOEFL não pode ser comparado."),
+        "lang_toefl_scale": ("A nota de TOEFL fornecida parece da nova "
+                             "escala 1–6, mas apenas um limite iBT é "
+                             "estabelecido, portanto a nota não pode ser "
+                             "comparada."),
+        "fee_met": ("O orçamento de {ccy} {obs} {period} cobre a mensalidade "
+                    "de {fee_ccy} {fee} {period}."),
+        "fee_met_converted": ("O orçamento de {ccy} {obs} {period} cobre a "
+                              "mensalidade de {fee_ccy} {fee} {period} "
+                              "(cerca de {ccy} {converted})."),
+        "fee_no_amount": ("A página oficial do programa não informa nenhum "
+                          "valor de mensalidade, portanto a mensalidade não "
+                          "pode ser comparada com o orçamento."),
+        "fee_no_budget": "Nenhum orçamento fornecido.",
+        "fee_period_mismatch": ("O período do orçamento ({bperiod}) não "
+                                "corresponde ao período da mensalidade "
+                                "({fperiod}), portanto não podem ser "
+                                "comparados."),
+        "fee_no_rate": ("A mensalidade e o orçamento estão em moedas "
+                        "diferentes e não há taxa de câmbio de referência "
+                        "disponível para esse par, portanto a mensalidade não "
+                        "pode ser convertida para comparação."),
+        "fee_unknown": ("{label}: não é possível decidir com base nas "
+                        "evidências fornecidas. Consulte a página oficial do "
+                        "programa para ver a mensalidade publicada."),
+        "academic_gaokao": ("Gaokao {score}/{total}: nenhuma universidade "
+                            "publica uma equivalência de Gaokao, e as notas "
+                            "do Gaokao nunca são convertidas para notas "
+                            "A-level — consulte as vias oficiais de Gaokao, "
+                            "não uma correção de nota."),
+        "academic_gaokao_no_score": ("Nenhuma universidade publica uma "
+                                     "equivalência de Gaokao, e as notas do "
+                                     "Gaokao nunca são convertidas para notas "
+                                     "A-level — consulte as vias oficiais de "
+                                     "Gaokao, não uma correção de nota."),
+        "academic_alevel_below": "As notas A-level não atingem o limite A-level estabelecido.",
+        "academic_no_threshold": ("Este programa não estabelece nenhum limite "
+                                  "A-level, portanto a elegibilidade acadêmica "
+                                  "não pode ser decidida apenas com as notas."),
+        "academic_not_alevel": ("Um limite A-level é estabelecido, mas o "
+                                "currículo deste candidato não é A-level; as "
+                                "notas nunca são convertidas para A-level."),
+        "academic_no_grades": "Notas A-level não fornecidas (são necessárias três notas).",
+        "academic_masters": ("Os limites A-level aplicam-se ao ingresso na "
+                             "graduação; este é um programa de mestrado, "
+                             "portanto nenhuma regra A-level pode ser avaliada "
+                             "aqui."),
+        "academic_not_met": "{label}: o mínimo acadêmico exigido não foi atingido.",
+        "academic_unknown": ("{label}: não é possível decidir com base nas "
+                             "evidências publicadas. Consulte a página "
+                             "oficial do programa para ver as qualificações "
+                             "aceitas."),
+        "test_unknown": ("{test}: o requisito não pode ser decidido com base "
+                         "nas evidências fornecidas. Consulte a página "
+                         "oficial do programa para saber se um exame é "
+                         "exigido e qual nota é publicada."),
+        "test_not_met": "{test}: o mínimo exigido não foi atingido.",
+        "gcse_below": "GCSE inglês {eng} / matemática {maths}: exige-se a nota C/4.",
+        "gcse_unknown": ("Nota(s) do GCSE não fornecida(s) ou não "
+                         "reconhecida(s): {subjects}. Exigem-se GCSE inglês "
+                         "e matemática com nota C/4."),
+        "gcse_met": "GCSE inglês e matemática estão ambos em C/4 ou acima.",
+        "experience_unknown": ("{label}: a evidência de experiência "
+                               "exigida não foi fornecida, portanto esta regra "
+                               "não pode ser decidida."),
+        "experience_not_met": "{label}: o mínimo exigido não foi atingido.",
+        "generic_not_met": "{label}: o mínimo exigido não foi atingido.",
+        "generic_unknown": ("{label}: não é possível decidir com base nas "
+                            "evidências fornecidas. Consulte a página oficial "
+                            "do programa para ver o que é exigido."),
+        "generic_met": "{label}: atinge o mínimo exigido.",
+        "period.per_year": "por ano",
+        "period.total": "no total",
+        "subject.english": "inglês",
+        "subject.maths": "matemática",
+    },
+    "ar": {
+        "lang_other": ("يتطلب هذا البرنامج {labels}، وليس درجة IELTS/TOEFL؛ "
+                       "ولم يتم تقديم أي دليل على هذا المتطلب، لذا لا يمكن "
+                       "تقييمه من درجة اختبار."),
+        "lang_no_test": "لم يتم تقديم أي اختبار لغة.",
+        "lang_wrong_exam_ielts": ("تم تقديم IELTS، لكن هذا البرنامج لا يحدد "
+                                  "حدًا أدنى لـ IELTS، لذا فإن الدرجة المقدمة "
+                                  "ليست دليلًا على أي مسار محدد."),
+        "lang_wrong_exam_toefl": ("تم تقديم TOEFL، لكن هذا البرنامج لا يحدد "
+                                  "حدًا أدنى لـ TOEFL، لذا فإن الدرجة المقدمة "
+                                  "ليست دليلًا على أي مسار محدد."),
+        "lang_unknown": ("{label}: لا يمكن تحديده من الأدلة المقدمة. راجع "
+                         "صفحة البرنامج الرسمية لمعرفة اختبارات اللغة "
+                         "والدرجات التي يقبلها."),
+        "lang_met_overall": "{exam} العامة {obs} تستوفي الحد الأدنى المطلوب {req}.",
+        "lang_met_components": "جميع مكونات IELTS المطلوبة تستوفي الحد الأدنى.",
+        "lang_components_missing": "لم يتم تقديم درجة (درجات) مكونات IELTS: {comps}.",
+        "lang_components_unknown": ("{label}: الأدلة المقدمة لا تتضمن درجات "
+                                    "مكونات IELTS، لذا لا يمكن تقييم "
+                                    "المكونات."),
+        "lang_toefl_date": ("تم تقديم TOEFL ولكن دون تاريخ اختبار صالح، لذا "
+                            "لا يمكن اختيار المقياس ولا يمكن مقارنة TOEFL."),
+        "lang_toefl_scale": ("تبدو درجة TOEFL المقدمة من المقياس الجديد 1–6، "
+                             "لكن الحد المعلن الوحيد هو حد iBT، لذا لا يمكن "
+                             "مقارنة الدرجة."),
+        "fee_met": ("الميزانية {ccy} {obs} {period} تغطي الرسوم الدراسية "
+                    "{fee_ccy} {fee} {period}."),
+        "fee_met_converted": ("الميزانية {ccy} {obs} {period} تغطي الرسوم "
+                              "الدراسية {fee_ccy} {fee} {period} (حوالي "
+                              "{ccy} {converted})."),
+        "fee_no_amount": ("لا تذكر صفحة البرنامج الرسمية أي مبلغ للرسوم "
+                          "الدراسية، لذا لا يمكن مقارنة الرسوم بالميزانية."),
+        "fee_no_budget": "لم يتم تقديم ميزانية.",
+        "fee_period_mismatch": ("فترة الميزانية ({bperiod}) لا تطابق فترة "
+                                "الرسوم ({fperiod})، لذا لا يمكن مقارنتهما."),
+        "fee_no_rate": ("الرسوم والميزانية بعملتين مختلفتين ولا يوجد سعر "
+                        "صرف مرجعي متاح لهذا الزوج، لذا لا يمكن تحويل الرسوم "
+                        "للمقارنة."),
+        "fee_unknown": ("{label}: لا يمكن تحديده من الأدلة المقدمة. راجع "
+                        "صفحة البرنامج الرسمية لمعرفة الرسوم المنشورة."),
+        "academic_gaokao": ("Gaokao {score}/{total}: لا تنشر أي جامعة معادلة "
+                            "لاختبار Gaokao، ولا تُحوَّل درجات Gaokao أبدًا "
+                            "إلى درجات A-level — راجع المسارات الرسمية "
+                            "لاختبار Gaokao وليس تصحيح الدرجة."),
+        "academic_gaokao_no_score": ("لا تنشر أي جامعة معادلة لاختبار Gaokao، "
+                                     "ولا تُحوَّل درجات Gaokao أبدًا إلى درجات "
+                                     "A-level — راجع المسارات الرسمية لاختبار "
+                                     "Gaokao وليس تصحيح الدرجة."),
+        "academic_alevel_below": "درجات A-level لا تستوفي الحد الأدنى المطلوب لـ A-level.",
+        "academic_no_threshold": ("لا يحدد هذا البرنامج أي حد لـ A-level، لذا "
+                                  "لا يمكن تحديد الأهلية الأكاديمية من الدرجات "
+                                  "وحدها."),
+        "academic_not_alevel": ("يوجد حد لـ A-level، لكن منهج هذا المتقدم ليس "
+                                "A-level؛ ولا تُحوَّل الدرجات أبدًا إلى "
+                                "A-level."),
+        "academic_no_grades": "لم يتم تقديم درجات A-level (يلزم ثلاث درجات).",
+        "academic_masters": ("تنطبق حدود A-level على الالتحاق بالبكالوريوس؛ "
+                             "هذا برنامج ماجستير، لذا لا يمكن تقييم أي قاعدة "
+                             "A-level هنا."),
+        "academic_not_met": "{label}: لم يتم استيفاء الحد الأدنى الأكاديمي المطلوب.",
+        "academic_unknown": ("{label}: لا يمكن تحديده من الأدلة المنشورة. "
+                             "راجع صفحة البرنامج الرسمية لمعرفة المؤهلات "
+                             "المقبولة."),
+        "test_unknown": ("{test}: لا يمكن تحديد المتطلب من الأدلة المقدمة. "
+                         "راجع صفحة البرنامج الرسمية لمعرفة ما إذا كان "
+                         "الاختبار مطلوبًا وما الدرجة المنشورة."),
+        "test_not_met": "{test}: لم يتم استيفاء الحد الأدنى المطلوب.",
+        "gcse_below": "GCSE الإنجليزية {eng} / الرياضيات {maths}: الدرجة C/4 مطلوبة.",
+        "gcse_unknown": ("لم يتم تقديم درجة (درجات) GCSE أو لم يتم التعرف "
+                         "عليها: {subjects}. يشترط الحصول على C/4 في GCSE "
+                         "الإنجليزية والرياضيات."),
+        "gcse_met": "GCSE الإنجليزية والرياضيات كلاهما بدرجة C/4 أو أعلى.",
+        "experience_unknown": ("{label}: لم يتم تقديم دليل الخبرة المطلوب، لذا "
+                               "لا يمكن تحديد هذه القاعدة."),
+        "experience_not_met": "{label}: لم يتم استيفاء الحد الأدنى المطلوب.",
+        "generic_not_met": "{label}: لم يتم استيفاء الحد الأدنى المطلوب.",
+        "generic_unknown": ("{label}: لا يمكن تحديده من الأدلة المقدمة. راجع "
+                            "صفحة البرنامج الرسمية لمعرفة المطلوب."),
+        "generic_met": "{label}: يستوفي الحد الأدنى المطلوب.",
+        "period.per_year": "سنويًا",
+        "period.total": "إجمالًا",
+        "subject.english": "الإنجليزية",
+        "subject.maths": "الرياضيات",
+    },
+}
+
+
+def _gap_state_strings(locale: str) -> dict:
+    return _GAP_STATE_STRINGS.get(locale) or _GAP_STATE_STRINGS["en"]
+
+
+def _gap_state_period(s: dict, period: str | None) -> str:
+    """Localised period word for a fee sentence: 'per year' / 'in
+    total' in the locale, '' when the period is unknown (the sentence
+    templates tolerate an empty period)."""
+    if period == "per_year":
+        return s["period.per_year"]
+    if period == "total":
+        return s["period.total"]
+    return ""
+
+
+def _gap_state_other_labels(rule) -> list[str]:
+    thr = rule.threshold if isinstance(rule.threshold, dict) else None
+    labels = (thr or {}).get("other_requirements")
+    if isinstance(labels, list):
+        return [str(v) for v in labels if isinstance(v, str) and str(v).strip()]
+    return []
+
+
+def _gap_state_obs_dict(rule) -> dict:
+    return rule.observed if isinstance(rule.observed, dict) else {}
+
+
+def _gap_state_exam(rule) -> str:
+    """IELTS / TOEFL / Language, from the rule id: v2 overall rules
+    name the exam (ucl-ielts-overall); the IELTS-or-TOEFL rules
+    (nus-language) stay neutral."""
+    rid = (rule.rule_id or "").lower()
+    if "toefl" in rid:
+        return "TOEFL"
+    if "ielts" in rid:
+        return "IELTS"
+    return "Language"
+
+
+def _gap_state_test_name(rule) -> str | None:
+    """TMUA / TARA / GRE / GMAT, from the rule id, else None."""
+    rid = (rule.rule_id or "").lower()
+    for name in ("tmua", "tara", "gre", "gmat"):
+        if name in rid:
+            return name.upper()
+    return None
+
+
+def _gap_state_fee_numbers(rule, budget_currency, budget_period):
+    """(fee_amount, fee_currency, period, budget_amount, approx) for a
+    fee rule, from threshold + observed + the profile budget. The fee
+    currency falls back to the budget currency only when the engine
+    compared without a converted figure — i.e. same-currency — so it
+    is never a cross-currency guess."""
+    thr = rule.threshold if isinstance(rule.threshold, dict) else None
+    fee_amount = None
+    fee_currency = None
+    if thr:
+        for key, currency in (("gbp_per_year", "GBP"),
+                              ("sgd_total", "SGD")):
+            if _num(thr.get(key)) is not None:
+                fee_amount, fee_currency = _num(thr.get(key)), currency
+                break
+        if fee_amount is None:
+            fee_amount = _num(thr.get("amount"))
+            fee_currency = (thr.get("currency")
+                            if isinstance(thr.get("currency"), str) else None)
+    obs = rule.observed
+    budget_amount = _num(obs)
+    if budget_amount is None and isinstance(obs, dict):
+        budget_amount = _num(obs.get("amount"))
+    period = (thr or {}).get("period") or budget_period
+    approx = (thr or {}).get("approx_converted")
+    approx = approx if isinstance(approx, dict) else None
+    if fee_currency is None and approx is None:
+        fee_currency = budget_currency
+    return fee_amount, fee_currency, period, budget_amount, approx
+
+
+def localised_gap_state(rule, locale: str = "en", label: str | None = None,
+                        budget_currency: str | None = None,
+                        budget_period: str | None = None) -> str:
+    """One localised ``current_state`` sentence for an engine
+    RuleResult, built from structured data only (family, status,
+    threshold, observed). ``label`` is the caller's localised rule
+    name (plans.py passes it); without one the raw rule id is used as
+    a last resort, never an invented name. Numbers are engine numbers
+    formatted by _fmt_num; requirement labels stay verbatim. An
+    unknown locale falls back to English."""
+    s = _gap_state_strings(locale)
+    fam = rule_family(rule.rule_id)
+    status = rule.status
+    label = label or rule.rule_id
+    thr = rule.threshold if isinstance(rule.threshold, dict) else None
+    obs = rule.observed
+    obs_d = _gap_state_obs_dict(rule)
+    out = ""
+
+    def _period_word(period):
+        return _gap_state_period(s, period)
+
+    if status == "MET":
+        if fam in ("language", "language-components", "toefl", "fee"):
+            gaps = _gaps_for_rule(rule, budget_currency=budget_currency,
+                                  fee_currency=(thr or {}).get("currency"))
+            if fam == "fee" and gaps:
+                g = gaps[0]
+                fee_amount, fee_ccy, period, budget_amount, approx = (
+                    _gap_state_fee_numbers(rule, budget_currency,
+                                           budget_period))
+                if (approx is not None
+                        and _num(approx.get("amount")) is not None):
+                    out = _fill(s["fee_met_converted"], ccy=budget_currency or "",
+                                obs=_fmt_num(budget_amount),
+                                period=_period_word(period),
+                                fee_ccy=fee_ccy or "",
+                                fee=_fmt_num(fee_amount),
+                                converted=_fmt_num(_num(approx.get("amount"))))
+                elif fee_amount is not None and budget_amount is not None:
+                    out = _fill(s["fee_met"], ccy=budget_currency or "",
+                                obs=_fmt_num(budget_amount),
+                                period=_period_word(period),
+                                fee_ccy=fee_ccy or "",
+                                fee=_fmt_num(fee_amount))
+            elif fam == "language":
+                required = None
+                if thr:
+                    required = _num(thr.get("overall"))
+                    if required is None:
+                        for key in ("ielts_overall", "toefl_overall"):
+                            raw = thr.get(key)
+                            if isinstance(raw, list):
+                                nums = [v for v in (_num(v) for v in raw)
+                                        if v is not None]
+                                required = min(nums) if nums else None
+                            else:
+                                required = _num(raw)
+                            if required is not None:
+                                break
+                observed_num = _num(obs)
+                if observed_num is None and obs_d:
+                    observed_num = (_num(obs_d.get("ielts_overall"))
+                                    or _num(obs_d.get("toefl_overall")))
+                if required is not None and observed_num is not None:
+                    out = _fill(s["lang_met_overall"],
+                                exam=_gap_state_exam(rule),
+                                obs=_fmt_num(observed_num),
+                                req=_fmt_num(required))
+            elif fam == "language-components":
+                out = s["lang_met_components"]
+        if not out:
+            if fam == "gcse":
+                out = s["gcse_met"]
+            else:
+                out = _fill(s["generic_met"], label=label)
+    elif status == "NOT_MET":
+        if fam in ("language", "language-components", "toefl", "fee"):
+            gaps = _gaps_for_rule(rule, budget_currency=budget_currency,
+                                  fee_currency=(thr or {}).get("currency"))
+            lines = [_gap_line(rule.rule_id, g, locale) for g in gaps]
+            lines = [line for line in lines if line]
+            if lines:
+                out = " ".join(lines)
+        if not out:
+            if fam == "academic":
+                if thr and _num(thr.get("a_level")) is not None:
+                    out = s["academic_alevel_below"]
+                else:
+                    out = _fill(s["academic_not_met"], label=label)
+            elif fam == "gcse":
+                # NOT_MET means both grades were supplied and one is
+                # below C/4; a missing grade would be UNKNOWN, not here.
+                eng = obs_d.get("english")
+                maths = obs_d.get("maths")
+                out = _fill(s["gcse_below"],
+                            eng=(str(eng) if eng is not None else ""),
+                            maths=(str(maths) if maths is not None else ""))
+            elif fam in ("test", "gre"):
+                test = _gap_state_test_name(rule)
+                out = (_fill(s["test_not_met"], test=test)
+                       if test else _fill(s["generic_not_met"], label=label))
+            elif fam == "experience":
+                out = _fill(s["experience_not_met"], label=label)
+            else:
+                out = _fill(s["generic_not_met"], label=label)
+    else:  # UNKNOWN
+        if fam == "language":
+            labels = _gap_state_other_labels(rule)
+            ielts_obs = _num(obs_d.get("ielts_overall"))
+            toefl_obs = _num(obs_d.get("toefl_overall"))
+            if labels:
+                sep = "、" if locale == "zh-CN" else ", "
+                out = _fill(s["lang_other"], labels=sep.join(labels))
+            elif ielts_obs is None and toefl_obs is None and _num(obs) is None:
+                out = s["lang_no_test"]
+            elif (toefl_obs is not None and thr is not None
+                    and not _num(thr.get("toefl_overall"))
+                    and not (thr.get("toefl_overall") or [])):
+                out = s["lang_wrong_exam_toefl"]
+            elif (ielts_obs is not None and thr is not None
+                    and not _num(thr.get("ielts_overall"))
+                    and not (thr.get("ielts_overall") or [])):
+                out = s["lang_wrong_exam_ielts"]
+            elif obs_d.get("exam") == "toefl" or "toefl" in rule.rule_id:
+                if (_num(obs_d.get("overall")) is not None
+                        and _num(obs_d.get("overall")) <= 6
+                        and not obs_d.get("test_date")):
+                    out = s["lang_toefl_scale"]
+                elif not obs_d.get("test_date"):
+                    out = s["lang_toefl_date"]
+                else:
+                    out = _fill(s["lang_unknown"], label=label)
+            else:
+                out = _fill(s["lang_unknown"], label=label)
+        elif fam == "language-components":
+            missing = [c for c in _COMPONENTS
+                       if c in obs_d and obs_d.get(c) is None]
+            present = [c for c in _COMPONENTS
+                       if c in obs_d and obs_d.get(c) is not None]
+            if obs_d and not present:
+                out = s["lang_no_test"]
+            elif missing:
+                comp_names = [_comp_name(locale, c, capital=True)
+                              for c in missing]
+                sep = "、" if locale == "zh-CN" else ", "
+                out = _fill(s["lang_components_missing"],
+                            comps=sep.join(comp_names))
+            else:
+                out = _fill(s["lang_components_unknown"], label=label)
+        elif fam == "toefl":
+            if (_num(obs_d.get("overall")) is not None
+                    and _num(obs_d.get("overall")) <= 6
+                    and not obs_d.get("test_date")):
+                out = s["lang_toefl_scale"]
+            elif not obs_d.get("test_date"):
+                out = s["lang_toefl_date"]
+            else:
+                out = _fill(s["lang_unknown"], label=label)
+        elif fam == "fee":
+            fee_amount, fee_ccy, period, budget_amount, approx = (
+                _gap_state_fee_numbers(rule, budget_currency, budget_period))
+            if fee_amount is None:
+                out = s["fee_no_amount"]
+            elif budget_amount is None and _num(obs) is None:
+                out = s["fee_no_budget"]
+            elif (isinstance(obs, dict) and thr
+                    and obs.get("period") and thr.get("period")
+                    and obs.get("period") != thr.get("period")):
+                out = _fill(s["fee_period_mismatch"],
+                            bperiod=_period_word(obs.get("period")),
+                            fperiod=_period_word(thr.get("period")))
+            elif (isinstance(obs, dict) and thr
+                    and obs.get("currency") and thr.get("currency")
+                    and obs.get("currency") != thr.get("currency")
+                    and approx is None):
+                out = s["fee_no_rate"]
+            else:
+                out = _fill(s["fee_unknown"], label=label)
+        elif fam == "academic":
+            curriculum = obs_d.get("curriculum")
+            if curriculum == "cn_gaokao":
+                score = obs_d.get("gaokao_score")
+                total = obs_d.get("gaokao_total")
+                if score is not None and total is not None:
+                    out = _fill(s["academic_gaokao"],
+                                score=_fmt_num(score), total=_fmt_num(total))
+                else:
+                    out = s["academic_gaokao_no_score"]
+            elif rule.rule_id == "exp-academic" and obs is None:
+                out = s["academic_masters"]
+            elif thr and _num(thr.get("a_level")) is not None \
+                    and curriculum not in ("uk_alevel", "sg_alevel", None):
+                out = s["academic_not_alevel"]
+            elif thr is None and curriculum in ("uk_alevel", "sg_alevel"):
+                grades = obs_d.get("grades")
+                if not grades:
+                    out = s["academic_no_grades"]
+                else:
+                    out = s["academic_no_threshold"]
+            elif thr is None:
+                out = s["academic_no_threshold"]
+            else:
+                out = _fill(s["academic_unknown"], label=label)
+        elif fam == "gcse":
+            missing = []
+            if obs_d.get("english") is None:
+                missing.append(s["subject.english"])
+            if obs_d.get("maths") is None:
+                missing.append(s["subject.maths"])
+            sep = "、" if locale == "zh-CN" else ", "
+            out = _fill(s["gcse_unknown"], subjects=sep.join(missing))
+        elif fam in ("test", "gre"):
+            test = _gap_state_test_name(rule)
+            out = (_fill(s["test_unknown"], test=test)
+                   if test else _fill(s["generic_unknown"], label=label))
+        elif fam == "experience":
+            out = _fill(s["experience_unknown"], label=label)
+        else:
+            out = _fill(s["generic_unknown"], label=label)
+    # Collapse any empty period slot ("Budget GBP 50000  covers ...")
+    # to single spaces; Chinese/Arabic prose has no inter-word spaces
+    # of its own to lose.
+    return " ".join((out or "").split())

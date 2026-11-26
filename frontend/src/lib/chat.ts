@@ -370,6 +370,24 @@ export function whyFollowupFromExtracted(
   return note ? { countries: fresh, note } : { countries: fresh };
 }
 
+/** Round 15: which turn the WHY follow-up bubble anchors to. The
+ * WHY belongs to the FIRST reply of the turn that recorded the new
+ * countries, so it renders immediately after that turn's reply
+ * bubble — before the confirm bubble, never after it. The id of that
+ * turn (or null when the follow-up was armed without one: an old
+ * blob, or the guided preserve path, whose turn was removed): the
+ * caller then renders the bubble right after all turns, still
+ * before the confirm bubble. A turnId for a turn that is no longer
+ * in the list is also null — the bubble must never attach to the
+ * wrong turn. */
+export function whyAnchoredTurnId(
+  awaitingReason: { turnId?: number } | null,
+  turnIds: number[],
+): number | null {
+  if (!awaitingReason || awaitingReason.turnId === undefined) return null;
+  return turnIds.includes(awaitingReason.turnId) ? awaitingReason.turnId : null;
+}
+
 /** Localised city name for a stored (canonical English) city value:
  * `city.<slug>` when the locale file has one, the stored value
  * itself otherwise (a Chinese city name, or an untranslated city,
@@ -577,6 +595,61 @@ export function savedPrefsContext(profile: Profile): string | null {
   return `The user's saved preferences from the eligibility check: ${parts.join('; ')}.`;
 }
 
+// --- Append-only model drop (round 15, F1) --------------------------------
+// A mid-conversation model drop must APPEND a guided continuation,
+// never rewrite or discard earlier turns. The pre-round-15 code in
+// PrefChat.preserveFailedAnswer did
+// `setTurns(prev => prev.filter(x => x.id !== turnId))` — deleting
+// the just-sent turn — and then switched `mode` to 'guided', whose
+// branch does not render `turns` at all, so every earlier model turn
+// vanished from the screen and the chat read as "rewritten as guided
+// template" (browser re-test task 9, 2026-11-27 ~02:27 and ~02:33).
+// The fix (PrefChat patch, see tests/test_r15_w3.py): mark the failed
+// turn offline IN PLACE and render the kept turns above the guided
+// continuation. This helper is the turn-array half of that fix —
+// pure, so the invariant is unit-testable here:
+// - length never changes, order never changes, every other turn is
+//   returned untouched (same reference);
+// - the dropped turn keeps its question verbatim, keeps a template
+//   reply when one arrived, loses nothing else, and is marked
+//   offline + not pending, so it renders with the honest offline
+//   line instead of disappearing;
+// - the caller's answer preservation (local mapping / failedText
+//   prefill) is untouched — the turn and the preserved answer are
+//   two halves of the same drop, neither may delete the other.
+
+export interface DropTurnLike<Reply> {
+  id: number;
+  question: string;
+  reply: Reply | null;
+  replyLocale: string | null;
+  offline: boolean;
+  pending: boolean;
+}
+
+/** Mark one turn offline after a model drop, in place. `reply` /
+ * `replyLocale` carry a template reply when one arrived (round 10:
+ * a template reply with an extraction is kept, labelled offline);
+ * both default to null (the call itself failed — no reply at all).
+ * Every other turn is returned as-is; nothing is removed, reordered
+ * or rewritten. */
+export function markTurnOffline<Reply, T extends DropTurnLike<Reply>>(
+  turns: readonly T[],
+  turnId: number,
+  reply?: Reply | null,
+  replyLocale?: string | null,
+): T[] {
+  return turns.map((x) => (x.id === turnId
+    ? {
+        ...x,
+        reply: reply !== undefined ? reply : null,
+        replyLocale: replyLocale !== undefined ? replyLocale : null,
+        offline: true,
+        pending: false,
+      }
+    : x));
+}
+
 // --- Pref-chat progress persistence (round 14, P1) --------------------------
 // Leaving the wizard mid-way used to reset the pref-chat to 0/8: only
 // the completed summary was saved (the Profile itself is already
@@ -617,9 +690,23 @@ export interface PrefChatPersistedState {
   qIndex: number;
   skipped: string[];
   serverNext: PrefNextQuestion | undefined;
-  awaitingReason: { countries: string[]; note?: string } | null;
+  awaitingReason: { countries: string[]; note?: string; turnId?: number } | null;
   verbatim: Record<string, string>;
   failedText: string | null;
+  /** Round 15: an extraction waiting for confirmation — it is NOT in
+   * the Profile yet (confirmation owns that), so without it a
+   * leave-and-return silently dropped the turn's understanding and
+   * the progress count fell (2/8 -> 1/8: the climate answer was
+   * understood but never confirmed). Restored as-is, so the confirm
+   * bubble and the count survive the return. */
+  pendingExtract: { extracted: PrefExtracted; rawText: string } | null;
+  /** Round 15: every "noted" bubble — the WHY answer ("干净的空气、
+   * 湖光山色、安静的生活") and the confirm summary ("瑞士·'环境优美'").
+   * Round 14 kept only the latest one in a transient `confirmedNote`
+   * slot (answering WHY and then confirming overwrote the WHY answer
+   * even before leaving, and leaving lost the slot entirely). A list
+   * keeps each bubble, in order, across leave-and-return. */
+  confirmedNotes: string[];
   fingerprint: string;
 }
 
@@ -658,7 +745,10 @@ export function serializePrefChatState(
     qIndex: state.qIndex, skipped: state.skipped,
     serverNext: state.serverNext ?? null,
     awaitingReason: state.awaitingReason, verbatim: state.verbatim,
-    failedText: state.failedText, fingerprint,
+    failedText: state.failedText,
+    pendingExtract: state.pendingExtract ?? null,
+    confirmedNotes: state.confirmedNotes ?? [],
+    fingerprint,
   });
 }
 
@@ -722,6 +812,10 @@ export function parsePrefChatState(
       awaitingReason = {
         countries: a.countries as string[],
         ...(_isStr(a.note) && a.note ? { note: a.note } : {}),
+        // Round 15: the turn that armed the WHY (see
+        // whyAnchoredTurnId) — old blobs have none, which simply
+        // means "render after the turns, before the confirm bubble".
+        ...(_isNum(a.turnId) ? { turnId: Math.floor(a.turnId) } : {}),
       };
     }
   }
@@ -731,10 +825,28 @@ export function parsePrefChatState(
       if (_isStr(v)) verbatim[k] = v;
     }
   }
+  // Round 15: an extraction waiting for confirmation, restored as-is
+  // (its `extracted` is validated when it is applied, exactly as a
+  // fresh reply's is). A malformed entry is dropped, never applied.
+  let pendingExtract: PrefChatPersistedState['pendingExtract'] = null;
+  if (d.pendingExtract && typeof d.pendingExtract === 'object') {
+    const p = d.pendingExtract as Record<string, unknown>;
+    if (p.extracted && typeof p.extracted === 'object' && _isStr(p.rawText)) {
+      pendingExtract = {
+        extracted: p.extracted as PrefExtracted, rawText: p.rawText,
+      };
+    }
+  }
+  // Round 15: the "noted" bubbles, in order. Old (round 14) blobs
+  // have none — they parse as an empty list, never as a failure.
+  const confirmedNotes: string[] = Array.isArray(d.confirmedNotes)
+    ? (d.confirmedNotes as unknown[]).filter((v): v is string => _isStr(v) && !!v.trim())
+    : [];
   return {
     version: 1, mode: d.mode, turns, modelTurns, qIndex, skipped,
     serverNext, awaitingReason, verbatim,
     failedText: _isStr(d.failedText) ? d.failedText : null,
+    pendingExtract, confirmedNotes,
     fingerprint,
   };
 }

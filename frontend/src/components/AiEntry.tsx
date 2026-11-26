@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../lib/store';
-import { fetchJsonPatient } from '../lib/api';
+import { fetchJsonChat } from '../lib/api';
 import { deriveChatLinks, isModelReply, type ChatReply } from '../lib/chat';
 import type { Profile } from '../lib/types';
 
@@ -18,8 +18,8 @@ import type { Profile } from '../lib/types';
  * the component, and reaching it from a page would mean a new global
  * event or store field plus touching the layout and the store, both
  * outside this layer's ownership. The inline panel is self-contained,
- * reuses the pet's own rules (fetchJsonPatient with the same ~90 s
- * patient budget, isModelReply for the AI/offline distinction, and
+ * reuses the pet's own rules (fetchJsonChat with the same ~20 s
+ * bounded-chat budget, isModelReply for the AI/offline distinction, and
  * deriveChatLinks for next-step links, never from model text), and
  * aborts its request on unmount/close (the P0 abort pattern).
  *
@@ -146,12 +146,13 @@ export function AiEntry({ label, question, note, programId, institutionId }: AiE
     setWaking(false);
     setFailed(false);
     try {
-      const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
+      const r = await fetchJsonChat<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({ message: q, locale: loc }),
       }, {
-        budgetMs: 90000,
-        attemptTimeoutMs: 40000,
+        // Round 15: bounded chat turn (~20 s) — the old 40 s attempt /
+        // 90 s budget could stack a hung gateway into 1-2 min of
+        // silence, same as the pet/pref-chat turns had.
         onRetry: () => { if (requestRef.current === req) setWaking(true); },
         signal: controller.signal,
       });
