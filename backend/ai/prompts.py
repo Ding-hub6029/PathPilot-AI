@@ -124,7 +124,7 @@ Output JSON schema:
  "extracted": {"countries": [ISO country codes, e.g. "CH"],
                "climate": "warm" | "cool" | "four_seasons" | "mild",
                "environment": "big_city" | "small_city" | "campus" | "quiet_town",
-               "city": string (the user's own words),
+               "city": string (a real city name the user actually named, e.g. "Zurich" — never a kind of place such as "大学城", "校园", "big city" or "small city"; omit it entirely when the user named a kind of place, not a city),
                "afterGrad": "stay" | "return_home" | "hometown" | "undecided",
                "salary": {"amount": number, "currency": "GBP" | "SGD" | "USD"},
                "pressure": "low" | "medium" | "high",

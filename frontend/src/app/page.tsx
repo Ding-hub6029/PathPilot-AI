@@ -167,7 +167,14 @@ export default function HomePage() {
             <p className="mt-1 text-sm text-navy/70">{t('home.browseSub')}</p>
           </div>
         </div>
-        {programsLoading && <p className="mt-2 text-sm text-navy/60">{t('programs.loading')}</p>}
+        {/* Round 10, P2: the list renders from the local PROGRAMS
+            immediately, so the loading line is only meaningful while
+            the list is actually empty. The old
+            `{programsLoading && ...}` kept "正在加载课程…" on screen for
+            up to the 90s patient fetch while the list was already
+            visible — the offline note below still waits for loading to
+            settle, so no offline claim is made early. */}
+        {programsLoading && programs.length === 0 && <p className="mt-2 text-sm text-navy/60">{t('programs.loading')}</p>}
         {!programsLoading && !programsLive && <p className="mt-2 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('programs.offlineNote')}</p>}
         <div className="grid-12 mt-4">
           {programs.map((p, i) => {

@@ -500,6 +500,11 @@ def _derive_reason_key(rule_id: str, status: str, detail: str) -> str | None:
         return "toefl-scale-unknown"
     if "Tuition-grant" in d or "tuition-grant status" in d or "fee band" in d:
         return "fee-residency-unknown"
+    if "cannot be converted" in d:
+        # Round 10 (O1): the fee is known but no reference rate converts
+        # it into the budget currency — localised via
+        # reason.fx-cannot-convert, never a false mismatch.
+        return "fx-cannot-convert"
     if "does not match" in d:
         return "budget-mismatch"
     if "no rejection rule" in d:

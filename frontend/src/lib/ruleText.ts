@@ -131,7 +131,7 @@ export function ruleExpected(rule: RuleResult, f: Fmt): string {
         amount: fmtNum(thr.amount, locale),
         period,
       });
-      const approx = isRecord(thr.approx_converted) ? thr.approx_converted : null;
+      const approx = thr && isRecord(thr.approx_converted) ? thr.approx_converted : null;
       if (approx && typeof approx.amount === 'number' && typeof approx.currency === 'string') {
         line += ` (${tf('r9money.feeConverted', {
           currency: approx.currency,
@@ -481,6 +481,20 @@ export function formatFeeSentence(rule: RuleResult, f: Fmt): string | null {
   const budgetCurrency = f.budgetCurrency ?? meta.currency;
   const feeCurrency = meta.currency;
   const period = periodShortText(meta.period, f.t);
+  // Round 10 (O2): when the backend genuinely compared via the dated FX
+  // table, thresholdRaw carries approx_converted — render the below
+  // sentence on the converted figure instead of claiming the currencies
+  // cannot be compared.
+  const approx = thr && isRecord(thr.approx_converted) ? thr.approx_converted : null;
+  if (approx && typeof approx.amount === 'number' && typeof approx.currency === 'string') {
+    return f.tf('rule.fee.below', {
+      budgetCurrency,
+      budget: fmtNum(raw, f.locale),
+      feeCurrency: approx.currency,
+      fee: fmtNum(approx.amount, f.locale),
+      period,
+    });
+  }
   if (budgetCurrency !== feeCurrency) {
     return f.tf('rule.fee.currencyDiffers', {
       budgetCurrency,

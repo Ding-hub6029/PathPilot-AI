@@ -25,15 +25,20 @@ Edinburgh for a Switzerland user. This module replaces the fixed
 - grounding is exactly the ``ai.chat`` chain: the same retrieval, the
   same ``check_model_output`` validation (citation id whitelist,
   numeric cross-check, no admission probabilities/guarantees, no raw
-  URLs), one repair retry, then the template fallback;
+  URLs), one model call per turn and NO repair retry (round 10),
+  then the template fallback with the deterministic extraction;
 - the personal-data guard runs FIRST (reused from ``ai.assistant``);
   a message that looks like it contains a name/phone/email is refused
   with the fixed line — the value is never echoed and never stored;
 - when the provider is unavailable or the model output fails
   validation: ``ai_status="unavailable"``, the template fallback
-  lines, ``extracted={}`` (no regex extraction in this path — keep it
-  simple and honest), and ``next_question`` computed deterministically
-  as the first still-missing preference in the default order.
+  lines, a DETERMINISTIC extraction (round 10: the country named in
+  the message + the user's reason in their own words, matched
+  without a model — so "我想去瑞士，因为那边环境优美" is recorded
+  even while the gateway is down, instead of losing the sentence),
+  and ``next_question`` computed deterministically as the first
+  still-missing preference in the default order, AFTER applying
+  that extraction.
 
 The next question is asked as the last line of ``lines``. The line is
 built server-side from a fixed localised template (never model text),
@@ -48,13 +53,15 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 
 from ai.assistant import (LOCALES, _t, ask as assistant_ask,
                           check_no_forbidden, contains_personal_data)
 from ai.chat import (_clean_history, _detect_climate_class,
-                     _detect_country, _evidence_texts, _parse_model_json,
-                     _render_lines, _resolve_evidence_url, _retrieve,
+                     _detect_country, _country_names, _evidence_texts,
+                     _parse_model_json, _render_lines,
+                     _resolve_evidence_url, _retrieve,
                      _validate_chat_payload, country_evidence_line,
                      evidence_cities_line)
 from ai.grounding import Source
@@ -253,6 +260,13 @@ def validate_extracted(raw) -> dict:
     both are present and valid, ``note`` as the user's reason
     (verbatim-ish, capped at 200 chars). Out-of-range/invalid values
     are dropped, never clamped or converted. Unknown keys are dropped.
+
+    Round 10: ``city`` is dropped when it names a KIND of place
+    instead of a city — the live model answered "大学城" to the
+    environment question with ``environment=campus`` AND
+    ``city="大学城"``, which counted the city as known so the city
+    question was never asked and prefCity became "大学城". A real
+    city name (e.g. "苏黎世", "Zurich") still passes.
     """
     if not isinstance(raw, dict):
         return {}
@@ -265,7 +279,7 @@ def validate_extracted(raw) -> dict:
         if value is not None:
             out[field] = value
     city = _clean_city(raw.get("city"))
-    if city is not None:
+    if city is not None and _norm_place_word(city) not in _PLACE_CITY_WORDS:
         out["city"] = city
     salary_raw = raw.get("salary")
     salary = None
@@ -277,6 +291,90 @@ def validate_extracted(raw) -> dict:
     note = _clean_note(raw.get("note"))
     if note is not None:
         out["note"] = note
+    return out
+
+
+def _norm_place_word(value: str) -> str:
+    """Normalised form for kind-of-place comparison: lower-cased,
+    spaces and CJK/ASCII punctuation stripped."""
+    return re.sub(r"[\s·、，,；;。.!！？?\-_]", "", value.lower())
+
+
+# Words that name a KIND of place, never a city — in the languages the
+# chat serves. Any ``city`` extraction matching one (after
+# normalisation) is dropped in validate_extracted, so the city
+# question is still asked. Deliberately narrow: a real city name
+# never collides with these.
+_PLACE_CITY_WORDS: frozenset[str] = frozenset({
+    "大学城", "大城市", "小城市", "校园", "小镇", "安静的小镇",
+    "安静小镇", "市中心", "郊区",
+    "bigcity", "smallcity", "campus", "quiettown", "downtown",
+    "citycentre", "citycenter", "suburb", "universitytown",
+    "grandville", "petiteville", "campusuniversitaire",
+    "cidadegrande", "cidadepequena",
+    "مدينةكبيرة", "مدينةصغيرة", "حرمجامعي",
+})
+
+
+# ---------------------------------------------------------------------------
+# Deterministic extraction (round 10) — no model needed
+#
+# The gateway is intermittently down, and while it is down the old
+# fallback returned extracted={}: the user's sentence was lost (the
+# frontend dropped the turn and entered the guided queue without
+# replaying it). What can be matched WITHOUT a model — a country
+# named in the message (validated against the verified catalogue)
+# and the reason the user gave for it — is extracted here, both for
+# the offline fallback and as a fill-in when the model returns an
+# empty extraction. Nothing is guessed: no country is inferred from
+# a city, no enum is read from a synonym, and the note is the user's
+# own words (the part after "因为" when present, else the whole
+# sentence when it says more than the country name alone).
+# ---------------------------------------------------------------------------
+
+def _deterministic_extract(message: str, known: dict | None = None) -> dict:
+    """(countries, note) understood from one message without a model.
+    Only fills what is missing: a country already known is not
+    re-reported, and the note is only the user's reason — a bare
+    country name yields no note."""
+    msg = (message or "").strip()
+    if not msg:
+        return {}
+    known = known if isinstance(known, dict) else {}
+    out: dict = {}
+    country = _detect_country(msg)
+    if country and country in KNOWN_COUNTRIES:
+        if country not in (known.get("countries") or []):
+            out["countries"] = [country]
+    # The reason, in the user's own words: the clause after 因为 /
+    # because, else the whole sentence when it says more than the
+    # country name plus bare travel scaffolding ("我想去瑞士" says
+    # nothing beyond the country, so it yields no note; "瑞士，风景好"
+    # does).
+    reason: str | None = None
+    m = re.search(r"因为|because", msg, re.IGNORECASE)
+    if m:
+        tail = re.split(r"[，。！？；,.;!?]", msg[m.end():])[0].strip()
+        if tail:
+            reason = tail
+    if reason is None and country:
+        # Lowercased copy: the alias table is lowercase, so a
+        # capitalised "Switzerland" still strips for this check.
+        remainder = msg.lower()
+        for alias, code in _country_names().items():
+            if code == country:
+                remainder = remainder.replace(alias, "")
+        for word in ("我想去", "想去", "留学", "读书", "上学", "申请",
+                     "study in", "study", "go to", "i want to",
+                     "want to", "would like to"):
+            remainder = remainder.replace(word, "")
+        remainder = remainder.replace("去", "")
+        if re.sub(r"[\s·、，,；;。.!！？?]", "", remainder):
+            reason = msg
+    if reason:
+        note = _clean_note(reason)
+        if note is not None:
+            out["note"] = note
     return out
 
 
@@ -326,12 +424,15 @@ def merge_known(known: dict, extracted: dict) -> dict:
 
 
 def _validate_next_question(value, merged_known: dict) -> str | None:
-    """The model's next_question, accepted only when it names a
-    preference still missing after this message; otherwise the
-    deterministic first missing preference (or None when done)."""
+    """The next question to ask: the FIRST still-missing preference
+    in default order, always (round 10). The model's suggestion is
+    not trusted for ordering — live on 2026-11-26 it answered the
+    environment turn with next_question="afterGrad", skipping the
+    city entirely, so Zurich was never asked for. The model still
+    leads the wording and the opinions; the rotation order is the
+    server's, so every missing preference is eventually asked and
+    none can be skipped by a model choice. None when done."""
     missing = missing_prefs(merged_known)
-    if isinstance(value, str) and value in missing:
-        return value
     return missing[0] if missing else None
 
 
@@ -355,12 +456,15 @@ def _render_pref_lines(payload: dict, locale: str, sources: list[Source],
 
 
 def _fallback_result(template: dict, sources: list[Source], known: dict,
-                     locale: str, *, force_no_url: bool = False) -> dict:
+                     locale: str, *, force_no_url: bool = False,
+                     extracted: dict | None = None) -> dict:
     """The honest offline result: template lines (at most 2) + the
-    deterministic next question as the last line, empty extraction,
-    deterministic next_question. ``force_no_url`` lets the
-    personal-data guard force ``evidence_url`` None (the template's
-    evidence link is meaningless there — chat.py does the same).
+    deterministic next question as the last line, the deterministic
+    extraction (round 10 — ``{}`` only when nothing could be matched
+    without a model, e.g. a bare greeting), deterministic
+    next_question. ``force_no_url`` lets the personal-data guard force
+    ``evidence_url`` None (the template's evidence link is meaningless
+    there — chat.py does the same).
 
     Round 7 fix: when retrieval returned relevant climate evidence,
     the generic "I don't know" first line is replaced by what the
@@ -388,7 +492,7 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
             "ai_status": "unavailable", "model": None,
             "sources": [{"id": s.id, "url": s.url, "title": s.title}
                         for s in sources],
-            "extracted": {}, "next_question": nxt, "done": done}
+            "extracted": extracted or {}, "next_question": nxt, "done": done}
 
 
 # ---------------------------------------------------------------------------
@@ -437,13 +541,24 @@ def pref_answer(message: str, locale: str = "en",
     sources_out = [{"id": s.id, "url": s.url, "title": s.title}
                    for s in sources]
 
-    # (c) No key: the template assistant is the honest answer.
+    # (c) No key: the template assistant is the honest answer, plus
+    # the deterministic extraction (round 10) so the user's words
+    # are recorded even with no model at all.
     if not provider.available:
-        return _fallback_result(template, sources, clean_known, loc)
+        ext = _deterministic_extract(msg, clean_known)
+        merged = merge_known(clean_known, ext)
+        return _fallback_result(template, sources, merged, loc,
+                                extracted=ext)
 
     # (d) Key present: model over the retrieved sources only.
     def fallback() -> dict:
-        return _fallback_result(template, sources, clean_known, loc)
+        # Same deterministic extraction on a model failure: the
+        # sentence is recorded and the next question advances past
+        # what it stated, instead of losing the turn.
+        ext = _deterministic_extract(msg, clean_known)
+        merged = merge_known(clean_known, ext)
+        return _fallback_result(template, sources, merged, loc,
+                                extracted=ext)
 
     evidence_texts = _evidence_texts(sources, pids)
     missing_before = missing_prefs(clean_known)
@@ -461,15 +576,20 @@ def pref_answer(message: str, locale: str = "en",
     }
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
     system = pref_chat_system(loc)
-    # Timeouts (round 9 fix): live gateway calls took ~9-12 s each on
-    # 2026-11-26, and the round-7 budgets (30 s first call + 20 s
-    # repair) let one turn stack to ~50 s of silence. A single turn
-    # now gets 20 s first attempt + 15 s repair (35 s worst case);
-    # anything slower falls back to the template. The event-loop
-    # blockage itself is fixed at the router (see app/router_chat.py).
+    # Timeouts (round 10 fix): live gateway calls took ~7-10 s each
+    # on 2026-11-26, and the round-9 budgets (20 s first call + 15 s
+    # repair) let one turn stack to ~35 s server-side — past the
+    # frontend's 25 s per-attempt abort, so the browser retried the
+    # whole turn and the user saw 45-60 s of silence. A turn now gets
+    # ONE model call with a 15 s budget and NO repair retry: an
+    # unparsable or invalid output falls back to the template at once
+    # (with the deterministic extraction, so the words are still
+    # recorded). Worst case per turn is ~15 s + retrieval, inside one
+    # frontend attempt. The event-loop blockage itself is fixed at the
+    # router (see app/router_chat.py).
     started = time.monotonic()
     try:
-        result = provider.chat(messages, system=system, timeout_s=20.0)
+        result = provider.chat(messages, system=system, timeout_s=15.0)
     except ProviderError as e:
         logger.info("pref_chat model call failed kind=%s latency_ms=%d",
                     e.kind, int((time.monotonic() - started) * 1000))
@@ -481,35 +601,22 @@ def pref_answer(message: str, locale: str = "en",
         return fallback()
     errors = _validate_chat_payload(parsed, sources, evidence_texts, loc)
     if errors:
+        # Round 10: no repair retry — one bad output costs a second
+        # ~10 s model call and still usually fails; the template +
+        # deterministic extraction answers the user faster.
         logger.info("pref_chat model output failed validation errors=%d",
                     len(errors))
-        # One repair retry: send the validation errors back, ask to fix
-        # only those. Anything still invalid falls back to the template.
-        repair = ("Your previous output failed validation. Fix ONLY these "
-                  f"problems and output JSON only: {'; '.join(errors)}\n\n"
-                  f"Previous output:\n{result.text[:4000]}")
-        try:
-            retry_started = time.monotonic()
-            retry = provider.chat(
-                messages + [{"role": "user", "content": repair}],
-                system=system, timeout_s=15.0)
-        except ProviderError as e:
-            logger.info("pref_chat repair call failed kind=%s latency_ms=%d",
-                        e.kind, int((time.monotonic() - retry_started) * 1000))
-            return fallback()
-        parsed2 = _parse_model_json(retry.text)
-        if parsed2 is None:
-            logger.info("pref_chat repair output unparsable")
-            return fallback()
-        errors2 = _validate_chat_payload(parsed2, sources, evidence_texts, loc)
-        if errors2:
-            logger.info("pref_chat repair output failed validation errors=%d",
-                        len(errors2))
-            return fallback()
-        parsed = parsed2
+        return fallback()
     # (e) Server-side validation of the model's extraction + next
     # question — never trusted, always recomputed against merged known.
+    # Round 10: the deterministic extraction fills in a country / a
+    # reason the model missed (never overrides what the model did
+    # extract), so a silent model gap cannot drop the user's words.
     extracted = validate_extracted(parsed.get("extracted"))
+    det = _deterministic_extract(msg, clean_known)
+    for key in ("countries", "note"):
+        if key not in extracted and key in det:
+            extracted[key] = det[key]
     merged = merge_known(clean_known, extracted)
     nxt = _validate_next_question(parsed.get("next_question"), merged)
     done = nxt is None

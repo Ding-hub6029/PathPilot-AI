@@ -87,13 +87,31 @@ export function prefSummary(profile: Profile, t: (k: string) => string): string 
   if (profile.prefPressure) parts.push(pressureLabel(profile.prefPressure, t));
   if (profile.prefTeaching) parts.push(teachingLabel(profile.prefTeaching, t));
   const norm = (s: string) => s.toLowerCase().replace(/[·、，,；;。.\s]/g, '');
-  const seen = new Set<string>();
-  return parts.filter(Boolean).filter((p) => {
+  // Round 10, R2: exact-match dedupe was not enough — a free-text value
+  // can repeat an enum label in fewer words (e.g. city/note "大学城"
+  // next to the campus label "大学城·校园氛围"), and the summary then
+  // showed the same preference twice ("…大学城·校园氛围 · 大学城").
+  // A part whose normalised form is contained in another part's (or
+  // contains it) is the same preference in fewer/more words: keep the
+  // longer, more informative wording, drop the shorter. The 2-character
+  // floor keeps a single character shared by chance from ever dropping
+  // a real preference. Exact duplicates still keep the first.
+  const deduped: string[] = [];
+  for (const p of parts.filter(Boolean)) {
     const n = norm(p);
-    if (seen.has(n)) return false;
-    seen.add(n);
-    return true;
-  }).join(' · ');
+    if (!n) continue;
+    if (deduped.some((k) => norm(k) === n)) continue;
+    const sub = deduped.findIndex((k) => {
+      const kn = norm(k);
+      return n.length >= 2 && kn.length >= 2 && (kn.includes(n) || n.includes(kn));
+    });
+    if (sub >= 0) {
+      if (n.length > norm(deduped[sub]).length) deduped[sub] = p;
+      continue;
+    }
+    deduped.push(p);
+  }
+  return deduped.join(' · ');
 }
 
 /** Localised city name for chips and filters: `city.<slug>` when the

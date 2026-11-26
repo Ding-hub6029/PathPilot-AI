@@ -27,9 +27,9 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from ai.chat import _climate_evidence
-from ai.pref_chat import (PREF_ORDER, _question_line, first_missing,
-                          missing_prefs, pref_answer, validate_extracted,
-                          validate_known)
+from ai.pref_chat import (PREF_ORDER, _deterministic_extract, _question_line,
+                          first_missing, missing_prefs, pref_answer,
+                          validate_extracted, validate_known)
 from ai.provider import ProviderAdapter
 from app import router_chat
 
@@ -335,13 +335,17 @@ def test_pref_chat_no_key_done_when_all_known(monkeypatch):
 
 
 def test_pref_chat_garbage_model_falls_back(monkeypatch):
+    # Round 10: a garbage model output still falls back — but the
+    # fallback now carries the DETERMINISTIC extraction, so the
+    # country the message named is recorded instead of lost, and the
+    # next question advances past it.
     provider = _mock_provider(monkeypatch, _garbage_handler)
     r = pref_answer("我想去瑞士", "zh-CN", known={},
                     provider=provider)
     assert r["ai_status"] == "unavailable"
     assert r["model"] is None
-    assert r["extracted"] == {}
-    assert r["next_question"] == "countries"
+    assert r["extracted"] == {"countries": ["CH"]}
+    assert r["next_question"] == "climate"
     assert r["done"] is False
 
 
@@ -591,3 +595,125 @@ def test_pref_chat_endpoint_validation_errors(monkeypatch):
         r = client.post("/api/v1/assistant/pref-chat", json=body)
         assert r.status_code == 422, body
         assert r.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+# ---------------------------------------------------------------------------
+# Round 10: deterministic extraction, bogus-city rejection, single call
+# ---------------------------------------------------------------------------
+
+def test_deterministic_extract_switzerland_reason():
+    # The audit sentence, matched without any model: country AND the
+    # reason in the user's own words.
+    assert _deterministic_extract("我想去瑞士，因为那边环境优美") == {
+        "countries": ["CH"], "note": "那边环境优美"}
+    # A bare country name: the country is recorded, no reason invented.
+    assert _deterministic_extract("我想去瑞士") == {"countries": ["CH"]}
+    assert _deterministic_extract("瑞士") == {"countries": ["CH"]}
+    # Greeting / small talk: nothing to extract.
+    assert _deterministic_extract("你好") == {}
+    assert _deterministic_extract("") == {}
+    # A country already known is not re-reported.
+    assert _deterministic_extract("我想去瑞士",
+                                  {"countries": ["CH"]}) == {}
+    # A reason without a country name still travels as the note.
+    assert _deterministic_extract("因为那边环境优美") == {
+        "note": "那边环境优美"}
+
+
+def test_validate_extracted_drops_place_word_as_city():
+    # Live 2026-11-26: the model answered "大学城" with
+    # environment=campus AND city="大学城", so the city counted as
+    # known, the city question was never asked, and Zurich was never
+    # recorded. A kind of place is not a city.
+    for place in ("大学城", "校园", "campus", "big city", "大城市",
+                  "小城市", "安静的小镇", "University Town"):
+        out = validate_extracted({"environment": "campus", "city": place})
+        assert out == {"environment": "campus"}, (place, out)
+    # A real city name still passes.
+    assert validate_extracted({"city": "苏黎世"}) == {"city": "苏黎世"}
+    assert validate_extracted({"city": "Zurich"}) == {"city": "Zurich"}
+
+
+def test_pref_chat_no_key_fallback_extracts_country_and_reason(monkeypatch):
+    # Round 10: with no model at all, the audit sentence is still
+    # recorded — country AND reason — and the next question advances
+    # to climate instead of re-asking countries.
+    r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
+                    provider=_no_key_provider(monkeypatch))
+    assert r["ai_status"] == "unavailable"
+    assert r["model"] is None
+    assert r["extracted"] == {"countries": ["CH"], "note": "那边环境优美"}
+    assert r["next_question"] == "climate"
+    assert r["done"] is False
+    assert r["lines"][-1] == _question_line("climate", "zh-CN")
+    assert "Zurich" in "\n".join(r["lines"])
+
+
+def _fixed_pref_handler(payload):
+    """A mock model that returns one fixed payload whatever the message."""
+    def handler(request: httpx.Request) -> httpx.Response:
+        return _openai_reply(json.dumps(payload, ensure_ascii=False))
+    return handler
+
+
+def test_pref_chat_model_place_word_city_dropped_next_is_city(monkeypatch):
+    # Live 2026-11-26: the model answered "大学城" with
+    # environment=campus AND city="大学城", so the city question was
+    # skipped entirely and Zurich was never recorded. The server must
+    # drop the bogus city and ask the city next.
+    payload = {
+        "summary": "明白，你更看重大学城那种校园氛围。",
+        "claims": [{"text": "Zurich: four-season climate.",
+                    "kind": "fact", "rule_ids": [],
+                    "evidence_ids": ["climate:zurich"]}],
+        "unknowns": [], "actions": [], "limitations": [],
+        "extracted": {"environment": "campus", "city": "大学城"},
+        "next_question": "afterGrad"}
+    provider = _mock_provider(monkeypatch, _fixed_pref_handler(payload))
+    r = pref_answer("大学城", "zh-CN",
+                    known={"countries": ["CH"], "climate": "cool"},
+                    provider=provider)
+    assert r["ai_status"] == "available"
+    assert r["extracted"] == {"environment": "campus"}
+    assert "city" not in r["extracted"]
+    assert r["next_question"] == "city"
+    assert r["done"] is False
+    assert r["lines"][-1] == _question_line("city", "zh-CN")
+
+
+def test_pref_chat_model_empty_extraction_filled_deterministically(monkeypatch):
+    # The model answered in valid JSON but extracted nothing from the
+    # audit sentence; the deterministic fill-in must still record the
+    # country and the reason instead of dropping the turn.
+    payload = {
+        "summary": "明白，瑞士记下了。",
+        "claims": [{"text": "Zurich: four-season climate.",
+                    "kind": "fact", "rule_ids": [],
+                    "evidence_ids": ["climate:zurich"]}],
+        "unknowns": [], "actions": [], "limitations": [],
+        "extracted": {},
+        "next_question": "climate"}
+    provider = _mock_provider(monkeypatch, _fixed_pref_handler(payload))
+    r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
+                    provider=provider)
+    assert r["ai_status"] == "available"
+    assert r["extracted"] == {"countries": ["CH"], "note": "那边环境优美"}
+    assert r["next_question"] == "climate"
+
+
+def test_pref_chat_invalid_output_falls_back_after_one_call(monkeypatch):
+    # Round 10: one model call per turn, no repair retry — an invalid
+    # output falls back at once instead of paying for a second call.
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        return _openai_reply("this is not json at all")
+
+    provider = _mock_provider(monkeypatch, handler)
+    r = pref_answer("我想去瑞士", "zh-CN", known={}, provider=provider)
+    assert r["ai_status"] == "unavailable"
+    assert calls["n"] == 1, calls
+    # The deterministic extraction still records the country.
+    assert r["extracted"] == {"countries": ["CH"]}
+    assert r["next_question"] == "climate"

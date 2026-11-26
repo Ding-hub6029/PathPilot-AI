@@ -431,7 +431,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       }).then((fresh) => {
         if (!isModelReply(fresh)) {
           setAiOffline(true);
-          setModelTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
+          // Round 10: keep a template reply's verified lines
+          // (labelled offline at render time) instead of clearing.
+          setModelTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh.lines?.length ? fresh : null, replyLocale: fresh.lines?.length ? locale : null, offline: true } : x)));
           return;
         }
         setModelTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh, replyLocale: locale, offline: false } : x)));
@@ -464,6 +466,14 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         }),
       }).then((fresh) => {
         if (!isModelPrefReply(fresh)) {
+          // Round 10: a template reply in the new locale is still a
+          // verified answer — store it as an offline turn instead of
+          // clearing the reply. Its `extracted` is ignored, so a
+          // locale switch never applies anything.
+          if (fresh.lines?.length) {
+            setTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh, replyLocale: locale, offline: true } : x)));
+            return;
+          }
           setTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
           return;
         }
@@ -514,11 +524,15 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   };
 
   /** One model-led turn: message + known prefs + history to the
-   * pref-chat endpoint. A template-only reply or any failure falls
-   * back to the guided queue — never a faked AI answer. Round 8: the
-   * turn is pushed optimistically first, so the user's message shows
-   * at once; on failure it is removed again (the guided queue does
-   * not render model turns — the retry there re-sends the words). */
+   * pref-chat endpoint. A template-only reply with NO extraction, or
+   * any failure, falls back to the guided queue — never a faked AI
+   * answer. Round 10: a template reply that still carries a
+   * deterministic extraction is kept as an offline turn with its
+   * confirmation bubble, so the user's words are recorded instead
+   * of dropped. Round 8: the turn is pushed optimistically first,
+   * so the user's message shows at once; on failure it is removed
+   * again (the guided queue does not render model turns — the retry
+   * there re-sends the words). */
   const sendToPrefChat = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || thinking) return;
@@ -539,9 +553,30 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       const r = await fetchJsonPatient<PrefChatReply>('/api/assistant/pref-chat', {
         method: 'POST',
         body: JSON.stringify({ message: trimmed, locale: requestLocale, known: requestKnown, history: history.slice(-6) }),
-      }, { onRetry: () => setWaking(true) });
+      }, {
+        // Round 10: one attempt gets 40 s — the backend answers a
+        // turn in ~15 s worst case now, and the old 25 s default
+        // aborted healthy turns and retried the whole thing, stacking
+        // to 45-60 s of silence.
+        attemptTimeoutMs: 40000, onRetry: () => setWaking(true),
+      });
       setWaking(false);
       if (!isModelPrefReply(r)) {
+        // Round 10: a template reply that still carries a
+        // deterministic extraction (country + reason matched without
+        // a model) is NOT dropped — the turn stays, labelled offline,
+        // and the confirmation bubble offers it, so the user's words
+        // are recorded instead of lost when the guided queue takes
+        // over without replaying the sentence.
+        if (r.extracted && Object.keys(r.extracted).length > 0) {
+          setAiOffline(true);
+          setFailedText(null);
+          setTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: true, pending: false } : x)));
+          if (r.next_question !== undefined) setServerNext(r.next_question);
+          setPendingExtract({ extracted: r.extracted, rawText: trimmed });
+          flashMood('celebrate');
+          return;
+        }
         setFailedText(trimmed);
         setTurns((prev) => prev.filter((x) => x.id !== turnId));
         enterGuidedMode();
@@ -741,10 +776,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   };
 
   /** A free-text question goes to the real model (grounded, with the
-   * earlier model turns as history). A template-only reply is never
-   * shown as an answer — the turn is stored as offline instead.
-   * Round 8: the turn is pushed optimistically first, so the user's
-   * question shows at once instead of after the model wait. */
+   * earlier model turns as history). A template-only reply is shown
+   * led by the offline line (round 10 — the verified template lines
+   * are a real answer; discarding them used to leave nothing), never
+   * as an AI answer. Round 8: the turn is pushed optimistically
+   * first, so the user's question shows at once instead of after
+   * the model wait. */
   const askModel = async (q: PrefQId, text: string) => {
     setThinking(true);
     setWaking(false);
@@ -761,11 +798,16 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6) }),
-      }, { onRetry: () => setWaking(true) });
+      }, {
+        // Round 10: one attempt gets 40 s — see sendToPrefChat.
+        attemptTimeoutMs: 40000, onRetry: () => setWaking(true),
+      });
       setWaking(false);
       if (!isModelReply(r)) {
         setAiOffline(true);
-        setModelTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: null, replyLocale: null, offline: true, pending: false } : x)));
+        // Round 10: keep the verified template lines (labelled
+        // offline at render time) when the reply has any.
+        setModelTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r.lines?.length ? r : null, replyLocale: r.lines?.length ? requestLocale : null, offline: true, pending: false } : x)));
         return;
       }
       setAiOffline(false);
@@ -833,7 +875,11 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       parsed = await fetchJsonPatient<ParseReply>('/api/profile/parse', {
         method: 'POST',
         body: JSON.stringify({ text, locale }),
-      }, { onRetry: () => setWaking(true) });
+      }, {
+        // Round 10: one attempt gets 40 s — the old 25 s default
+        // could abort a healthy parse turn and retry it.
+        attemptTimeoutMs: 40000, onRetry: () => setWaking(true),
+      });
     } catch {
       setWaking(false);
       setAiOffline(true);
@@ -958,7 +1004,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
             <p>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</p>
           ) : turn.reply && turn.replyLocale === locale ? (
             <>
-              {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
+              {/* Round 10: an offline turn shows its stored template
+                  lines led by the offline line, never as an AI answer. */}
+              {turn.offline && (<p>{t('wizard.chatAiOffline')}</p>)}
+              {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 || turn.offline ? 'mt-1' : ''}>{line}</p>))}
               {turn.reply.evidence_url && (
                 <a href={turn.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
                   {t('pet.evidence')} ↗
@@ -992,7 +1041,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
             <p>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</p>
           ) : turn.reply && turn.replyLocale === locale ? (
             <>
-              {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
+              {/* Round 10: an offline turn shows its stored template
+                  lines led by the offline line, never as an AI answer. */}
+              {turn.offline && (<p>{t('wizard.chatAiOffline')}</p>)}
+              {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 || turn.offline ? 'mt-1' : ''}>{line}</p>))}
               {turn.reply.evidence_url && (
                 <a href={turn.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
                   {t('pet.evidence')} ↗
@@ -1174,7 +1226,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
               </div>
             )}
 
-            {thinking && (
+            {/* Round 10: the pending turn above already renders this
+                exact "checking…" line — the standalone bubble here
+                used to render it a SECOND time, so every reply showed
+                two identical "正在查已核实资料… 0 秒" bubbles. Show
+                it only when no pending turn exists. */}
+            {thinking && !turns.some((x) => x.pending) && (
               <div className="flex justify-start">
                 <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</div>
               </div>
@@ -1305,7 +1362,11 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
 
                 {/* Model answers to this question's free-text questions. */}
                 {renderModelTurns(currentQ)}
-                {thinking && (
+                {/* Round 10: same double-bubble fix as the model-led
+                    chat above — the pending turn already renders this
+                    line. The standalone bubble stays only for the
+                    /profile/parse wait, which has no pending turn. */}
+                {thinking && !modelTurns.some((x) => x.pending) && (
                   <div className="flex justify-start">
                     <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</div>
                   </div>

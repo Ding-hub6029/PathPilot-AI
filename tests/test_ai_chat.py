@@ -519,3 +519,37 @@ def test_suggest_pick_unit(monkeypatch):
     assert prog_us["country"] == "US"
     # No verified programme in the track/country: no pick, never a guess.
     assert _pick_suggest_programme("undergraduate", "AQ", None) is None
+
+
+# ---------------------------------------------------------------------------
+# Round 10: one model call per turn; the template carries the product
+# when the gateway is down (the pet must show it, not discard it)
+# ---------------------------------------------------------------------------
+
+def test_chat_single_model_call_on_garbage_output(monkeypatch):
+    # Round 10: one model call per turn, no repair retry — garbage
+    # output falls back to the template after exactly one call.
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        return _openai_reply("this is not json at all")
+
+    provider = _mock_provider(monkeypatch, handler)
+    r = answer("UCL本科的学费是多少", "zh-CN", provider=provider)
+    assert r["ai_status"] == "unavailable"
+    assert calls["n"] == 1, calls
+
+
+def test_chat_gateway_down_fallback_still_names_swiss_schools(monkeypatch):
+    # Round 10 (pet P0): when the gateway is down the backend still
+    # returns the verified template answer naming the Swiss schools —
+    # the frontend must show it, not discard it for a bare offline line.
+    provider = _mock_provider(monkeypatch, _http500_handler)
+    r = answer("瑞士有哪些好学校？", "zh-CN", provider=provider)
+    assert r["ai_status"] == "unavailable"
+    joined = "\n".join(r["lines"])
+    assert "ETH Zurich" in joined
+    assert "Lausanne" in joined
+    assert "University of Zurich" in joined
+    assert "25" in joined

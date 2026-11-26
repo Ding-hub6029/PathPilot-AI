@@ -23,8 +23,11 @@ Model path (only when a provider is configured):
   in a JSON envelope (``{task: "chat", prompt_version, locale, message,
   history, evidence_catalog}``); its structured JSON output is validated
   by ``ai.grounding.check_model_output`` (id whitelist, numeric
-  cross-check, no probabilities/guarantees, no raw URLs), with one
-  repair retry; on any failure the template answer is returned;
+  cross-check, no probabilities/guarantees, no raw URLs), with NO
+  repair retry (round 10: one model call per turn, 15 s budget — a
+  bad output falls back to the template at once instead of paying
+  for a second call while the user waits); on any failure the
+  template answer is returned;
 - evidence URLs are resolved server-side from cited source ids, never
   taken from model text. The final answer is at most 3 lines,
   conclusion first; unknown stays unknown, with the eligibility-check
@@ -913,13 +916,16 @@ def answer(message: str, locale: str = "en",
         return _template_result(template, sources, loc)
 
     # (d) Key present: model over the retrieved sources only.
-    # Timeouts (round 9 fix): live gateway calls took ~9-12 s each on
-    # 2026-11-26, and the round-7 budgets (30 s first call + 20 s
-    # repair) let one turn stack to ~50 s of silence — the worst
-    # cause of the 10-45 s replies in the live re-test. A single
-    # turn now gets 20 s first attempt + 15 s repair (35 s worst
-    # case, still ~2x the observed call time); anything slower falls
-    # back to the template instead of holding the user. The
+    # Timeouts (round 10 fix): live gateway calls took ~7-10 s each
+    # on 2026-11-26, and the round-9 budgets (20 s first call + 15 s
+    # repair) let one turn stack to ~35 s server-side — past the
+    # frontend's 25 s per-attempt abort, so the browser retried the
+    # whole turn and the user saw 45-60 s of silence, then offline.
+    # A turn now gets ONE model call with a 15 s budget and NO repair
+    # retry: an unparsable or invalid output falls back to the
+    # template at once (the template now reaches the user — see
+    # CompassPet — instead of being discarded). Worst case per turn
+    # is ~15 s + retrieval, inside one frontend attempt. The
     # event-loop blockage itself is fixed at the router (see
     # app/router_chat.py): the sync model call runs in a worker
     # thread, so a slow chat can no longer wedge /health or any
@@ -938,7 +944,7 @@ def answer(message: str, locale: str = "en",
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
     started = time.monotonic()
     try:
-        result = provider.chat(messages, system=chat_system(loc), timeout_s=20.0)
+        result = provider.chat(messages, system=chat_system(loc), timeout_s=15.0)
     except ProviderError as e:
         logger.info("assistant/chat model call failed kind=%s latency_ms=%d",
                     e.kind, int((time.monotonic() - started) * 1000))
@@ -950,32 +956,12 @@ def answer(message: str, locale: str = "en",
         return _template_result(template, sources, loc)
     errors = _validate_chat_payload(parsed, sources, evidence_texts, loc)
     if errors:
+        # Round 10: no repair retry — one bad output costs a second
+        # ~10 s model call and still usually fails; the verified
+        # template answers the user faster and honestly.
         logger.info("assistant/chat model output failed validation errors=%d",
                     len(errors))
-        # One repair retry: send the validation errors back, ask to fix
-        # only those. Anything still invalid falls back to the template.
-        repair = ("Your previous output failed validation. Fix ONLY these "
-                  f"problems and output JSON only: {'; '.join(errors)}\n\n"
-                  f"Previous output:\n{result.text[:4000]}")
-        try:
-            retry_started = time.monotonic()
-            retry = provider.chat(
-                messages + [{"role": "user", "content": repair}],
-                system=chat_system(loc), timeout_s=15.0)
-        except ProviderError as e:
-            logger.info("assistant/chat repair call failed kind=%s latency_ms=%d",
-                        e.kind, int((time.monotonic() - retry_started) * 1000))
-            return _template_result(template, sources, loc)
-        parsed2 = _parse_model_json(retry.text)
-        if parsed2 is None:
-            logger.info("assistant/chat repair output unparsable")
-            return _template_result(template, sources, loc)
-        errors2 = _validate_chat_payload(parsed2, sources, evidence_texts, loc)
-        if errors2:
-            logger.info("assistant/chat repair output failed validation errors=%d",
-                        len(errors2))
-            return _template_result(template, sources, loc)
-        parsed = parsed2
+        return _template_result(template, sources, loc)
     lines = _render_lines(parsed, loc, sources)
     # Defence in depth: a rendered line must never carry a raw URL, a
     # probability/guarantee, or key material — if it does, fall back.

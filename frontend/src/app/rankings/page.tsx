@@ -367,9 +367,14 @@ export default function RankingsPage() {
       {/* Round 9 (R9): status from the shared probe — "checking" while
           the probe is still waking the backend, offline only once it
           has actually failed, so this footer can no longer contradict
-          the results page for the same backend state. */}
+          the results page for the same backend state. Round 10, P2: a
+          settled 'live' line too — without it the footer vanished
+          entirely once the probe settled to live. */}
       {backendStatus === 'checking' && (
         <p className="mt-6 text-sm font-semibold text-navy/60" role="status">{t('r9pages.backendChecking')}</p>
+      )}
+      {backendStatus === 'live' && (
+        <p className="mt-6 text-sm font-semibold text-navy/60" role="status">{t('r9pages.backendLive')}</p>
       )}
       {backendStatus === 'offline' && (
         <p className="mt-6 text-sm text-navy/60">{t('rankings.offlineNote')}</p>

@@ -101,6 +101,7 @@ export default function ProgramsPage() {
       <p className="mt-2 text-sm text-navy/60" role="status">
         {tf('programs.resultsCount', { count: filtered.length })}
         {backendStatus === 'checking' && <span className="ms-2 font-semibold">{t('r9pages.backendChecking')}</span>}
+        {backendStatus === 'live' && <span className="ms-2 font-semibold">{t('r9pages.backendLive')}</span>}
         {backendStatus === 'offline' && <span className="ms-2 font-semibold">{t('programs.offlineNote')}</span>}
       </p>
 

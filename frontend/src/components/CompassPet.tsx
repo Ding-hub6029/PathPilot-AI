@@ -23,14 +23,16 @@ import enMessages from '../../messages/en.json';
  * suggestion both go to POST /api/v1/assistant/chat (with the
  * conversation history for free text, and one constructed message for
  * the suggestion — see lib/chat.ts suggestMessage). A reply counts as
- * an AI answer ONLY when ai_status is "available"; anything else is
- * the template fallback and is never shown as a chat answer — the
- * panel falls back to the labelled offline catalogue instead (see
- * renderTurn: offline turns always lead with pet.offline). Unknown
- * stays unknown, no admission probabilities, no personal data is ever
- * asked for or kept. The panel's open state is remembered in
- * sessionStorage only ('pp-pet-open'); closing it forgets it for the
- * session.
+ * an AI answer ONLY when ai_status is "available". Anything else is
+ * the template fallback: for free-text questions the template's own
+ * verified lines ARE shown, led by the offline line (round 10 —
+ * discarding them left the user with no answer at all while the
+ * backend had already named the schools); the guided suggestion
+ * still uses the labelled offline catalogue (cheapest verified
+ * programme + fee), which carries more than the generic template
+ * lines. When the backend is entirely unreachable the free-text
+ * turn falls back to the built-in directory for the asked country
+ * (top ranked institutions), never a bare offline line.
  *
  * Cold-start resilience (round 7, Fix A; round 8): the backend sleeps
  * after 15 min idle and takes ~50s+ to wake; a first call made while
@@ -137,13 +139,21 @@ type ChatTurn =
   | {
       kind: 'ask';
       message: string;
-      /** Live backend payload + the locale it was answered in. */
+      /** Live backend payload + the locale it was answered in.
+          Round 10: a template reply (ai_status "unavailable") is
+          stored here too, with offline=true — the verified template
+          lines ARE the answer when the model is down, and discarding
+          them used to leave the user with nothing at all. */
       reply: ChatReply | null;
       replyLocale: Locale | null;
       /** True when the live call failed and the offline catalogue is used. */
       offline: boolean;
       /** Offline rank lookup hit (locale-independent lines). */
       offlineRankId: string | null;
+      /** Country the question asked about (ISO code), for the
+          built-in directory fallback when the backend is entirely
+          unreachable and there is no template reply at all. */
+      offlineCountry: string | null;
     }
   | {
       kind: 'noProgrammes';
@@ -241,6 +251,24 @@ const OFFLINE_RANK_ALIASES: Record<string, string> = {
   eth: 'eth-zurich',
 };
 
+/** One institution's rank line, locale-independent (official name,
+ * provider codes and rank numbers only), so it is safe to render
+ * as-is. Shared by the single-institution rank lookup and the
+ * country directory below. */
+function institutionRankLine(instId: string): { lines: string[]; evidenceUrl: string | null } | null {
+  const inst = RANKING_INSTITUTIONS.find((i) => i.id === instId);
+  if (!inst) return null;
+  const parts = (['qs', 'the', 'arwu'] as const).map((provider) => {
+    const e = RANKING_ENTRIES.find((x) => x.institution_id === instId && x.provider === provider);
+    return e && e.rank_display ? `${provider.toUpperCase()} ${e.edition_label} #${e.rank_display}` : `${provider.toUpperCase()} —`;
+  });
+  const profiles = inst.provider_profiles ?? {};
+  return {
+    lines: [`${inst.official_name}: ${parts.join(' · ')}.`],
+    evidenceUrl: profiles.qs ?? profiles.the ?? profiles.arwu ?? null,
+  };
+}
+
 interface OfflineRank {
   lines: string[];
   evidenceUrl: string | null;
@@ -254,18 +282,33 @@ function rankOffline(message: string): OfflineRank | null {
     if (msg.includes(alias)) { instId = id; break; }
   }
   if (!instId) return null;
-  const inst = RANKING_INSTITUTIONS.find((i) => i.id === instId);
-  if (!inst) return null;
-  const parts = (['qs', 'the', 'arwu'] as const).map((provider) => {
-    const e = RANKING_ENTRIES.find((x) => x.institution_id === instId && x.provider === provider);
-    return e && e.rank_display ? `${provider.toUpperCase()} ${e.edition_label} #${e.rank_display}` : `${provider.toUpperCase()} —`;
-  });
-  const profiles = inst.provider_profiles ?? {};
-  return {
-    lines: [`${inst.official_name}: ${parts.join(' · ')}.`],
-    evidenceUrl: profiles.qs ?? profiles.the ?? profiles.arwu ?? null,
-    institutionId: instId,
+  const hit = institutionRankLine(instId);
+  if (!hit) return null;
+  return { lines: hit.lines, evidenceUrl: hit.evidenceUrl, institutionId: instId };
+}
+
+/** Built-in directory for a country (round 10): the top 3 ranked
+ * institutions in that country from the shipped catalogue, best QS
+ * rank first, each with its rank line. Used when the backend is
+ * entirely unreachable — no template reply at all — so a question
+ * like "瑞士有哪些好学校？" still names real schools instead of
+ * answering with a bare offline line. */
+function directoryOffline(country: string): { lines: string[]; firstId: string } | null {
+  const inCountry = RANKING_INSTITUTIONS.filter((i) => i.country === country);
+  if (!inCountry.length) return null;
+  const bestQs = (id: string): number => {
+    const e = RANKING_ENTRIES.find((x) => x.institution_id === id && x.provider === 'qs');
+    const n = e?.rank_display ? parseInt(e.rank_display.replace(/[^0-9]/g, ''), 10) : NaN;
+    return Number.isNaN(n) ? 10 ** 9 : n;
   };
+  const top = [...inCountry].sort((a, b) => bestQs(a.id) - bestQs(b.id) || a.official_name.localeCompare(b.official_name)).slice(0, 3);
+  const lines: string[] = [];
+  for (const inst of top) {
+    const hit = institutionRankLine(inst.id);
+    if (hit) lines.push(...hit.lines);
+  }
+  if (!lines.length) return null;
+  return { lines, firstId: top[0].id };
 }
 
 export type PetMood = 'idle' | 'think' | 'celebrate' | 'empathise' | 'bored';
@@ -354,6 +397,19 @@ export function CompassPet() {
   const retryFiredRef = useRef(false);
   const patientOnRetry = () => { retryFiredRef.current = true; setWaking(true); };
   const beginPatientCall = () => { retryFiredRef.current = false; };
+  /** Patient-fetch options for one chat call (round 10). The backend
+   * answers a turn in ~15 s worst case (one 15 s model call, then
+   * the template), so one attempt gets 40 s — the old 25 s default
+   * aborted a healthy 24-35 s turn and retried the whole thing,
+   * stacking to 45-60 s of silence before offline was declared.
+   * When the backend is already known-offline the call is a short
+   * 12 s probe, not another ~90 s wait: the old
+   * { timeoutMs, attempts } keys never existed on
+   * FetchPatientOptions, so they were silently ignored and every
+   * known-offline message still waited out the full budget. */
+  const chatPatientOpts = (isOffline: boolean) => isOffline
+    ? { budgetMs: 15000, attemptTimeoutMs: 12000, onRetry: patientOnRetry }
+    : { budgetMs: 90000, attemptTimeoutMs: 40000, onRetry: patientOnRetry };
   /** Whether the live model answered recently: true after a model
    * reply (ai_status "available"), false after a failure or a
    * template-only reply, null before the first check. The footer
@@ -571,6 +627,31 @@ export function CompassPet() {
     return suggestMessage(degree, country, countryNameEn, band, ceiling);
   };
 
+  /** Country code a free-text question asks about, from the country
+   * names in the current locale plus the English names (round 10:
+   * the offline directory needs it when the backend is entirely
+   * unreachable). Short names match on word boundaries only, so
+   * "uk" never fires inside another word. */
+  const countryFromMessage = (text: string): string | null => {
+    const lower = text.toLowerCase();
+    for (const code of PET_COUNTRY_CODES) {
+      const names = [
+        t(`country.${code}`),
+        (enMessages as Record<string, string>)[`country.${code}`] ?? '',
+      ].map((n) => n.toLowerCase()).filter(Boolean);
+      const hit = names.some((n) => {
+        if (!n) return false;
+        if (n.length <= 3) {
+          const esc = n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          return new RegExp(`(?<![a-z])${esc}(?![a-z])`).test(lower);
+        }
+        return lower.includes(n);
+      });
+      if (hit) return code;
+    }
+    return null;
+  };
+
   /** Conversation history for /assistant/chat: the live model turns so
    * far (user question + the model's own lines), oldest first, last 6
    * entries. Offline turns are never included — their lines are not
@@ -631,14 +712,27 @@ export function CompassPet() {
           }
           if (x.kind === 'ask') {
             const rank = rankOffline(x.message);
-            return { ...x, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null };
+            return { ...x, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(x.message) };
           }
           return x;
         }));
       };
       req.then((fresh) => {
         if (convRef.current !== conv) return;
-        if (!isModelReply(fresh)) { toOffline(); return; }
+        if (!isModelReply(fresh)) {
+          // Round 10: a template reply in the NEW locale is still a
+          // verified answer — store it as an offline turn (led by
+          // the offline line at render time) instead of dropping it
+          // for a bare offline line. Only a reply with no lines at
+          // all falls through to the catalogue.
+          if (m.kind === 'ask' && fresh.lines?.length) {
+            setOffline(true);
+            setAiLive(false);
+            setMessages((prev) => prev.map((x, j) => (j === i && x.kind === 'ask' ? { ...x, reply: fresh, replyLocale: locale, offline: true } : x)));
+            return;
+          }
+          toOffline(); return;
+        }
         setOffline(false);
         setAiLive(true);
         setMessages((prev) => prev.map((x, j) => {
@@ -765,8 +859,14 @@ export function CompassPet() {
       case 'ask': {
         if (turn.reply && turn.replyLocale === locale) {
           const links = deriveChatLinks(turn.reply.sources);
+          // Round 10: an offline turn whose reply is the verified
+          // template answer leads with the offline line, then the
+          // template's own lines — the school names the backend
+          // retrieved — instead of hiding them and showing a bare
+          // "offline" with nothing after it.
+          const lines = turn.offline ? [offlineLine, ...turn.reply.lines] : turn.reply.lines;
           return {
-            lines: turn.reply.lines,
+            lines,
             evidenceUrl: turn.reply.evidence_url,
             nextSteps: { wizard: '/wizard', program: links.program, institution: links.institution },
           };
@@ -781,6 +881,16 @@ export function CompassPet() {
               lines: [offlineLine, ...rank.lines],
               evidenceUrl: rank.evidenceUrl,
               nextSteps: { wizard: '/wizard', institution: `/institutions/${rank.institutionId}` },
+            };
+          }
+          // Round 10: no rank alias matched, but the question asked
+          // about a country — list that country's top schools from
+          // the built-in directory instead of answering with nothing.
+          const dir = turn.offlineCountry ? directoryOffline(turn.offlineCountry) : null;
+          if (dir) {
+            return {
+              lines: [offlineLine, ...dir.lines],
+              nextSteps: { wizard: '/wizard', institution: `/institutions/${dir.firstId}` },
             };
           }
           return { lines: [offlineLine] };
@@ -810,16 +920,18 @@ export function CompassPet() {
     // the late reply land in the new conversation.
     const conv = convRef.current;
     beginPatientCall();
-    // Round 8: already known-offline means the backend was down
-    // recently — a single short probe (10s) before falling back to
-    // the offline catalogue, not another full ~90s wait per message.
-    const patientOpts = offline
-      ? { timeoutMs: 10000, attempts: 1, onRetry: patientOnRetry }
-      : { onRetry: patientOnRetry };
+    // Round 10: one attempt gets 40 s (the backend answers in ~15 s
+    // worst case now) and a known-offline call is a short 12 s probe
+    // — see chatPatientOpts. The old { timeoutMs, attempts } keys
+    // never existed on FetchPatientOptions, so the "short probe" was
+    // silently a full ~90 s wait.
+    const patientOpts = chatPatientOpts(offline);
+    // NOTE: goOffline does not touch timedOut — the caller sets it:
+    // a template reply is a fast answer (not a timeout), a thrown
+    // call carries the retry verdict.
     const goOffline = () => {
       if (convRef.current !== conv) return;
       setOffline(true);
-      setTimedOut(false);
       setAiLive(false);
       const off = suggestOffline(degree, country, band);
       if (off) doCelebrate();
@@ -837,7 +949,7 @@ export function CompassPet() {
         body: JSON.stringify({ message: suggestMessageFor(degree, country, band), locale: requestLocale }),
       }, patientOpts);
       setWaking(false);
-      if (!isModelReply(r)) { goOffline(); return; }
+      if (!isModelReply(r)) { setTimedOut(false); goOffline(); return; }
       if (convRef.current !== conv) return;
       setOffline(false);
       setTimedOut(false);
@@ -896,9 +1008,14 @@ export function CompassPet() {
   };
 
   /** Free text goes to the real model, with the conversation history
-   * for context. As with the suggestion, a template-only reply is
-   * never shown as a chat answer — the turn falls back to the
-   * labelled offline rank lookup (or the plain offline line). Round 7,
+   * for context. Round 10: a template-only reply IS shown — led by
+   * the offline line, with the template's own verified lines after
+   * it — because the backend's template answer (e.g. the Swiss
+   * schools for "瑞士有哪些好学校？") is a real answer the user
+   * needs, and discarding it used to leave nothing at all. Only
+   * when the call itself fails (backend unreachable) does the turn
+   * fall back to the labelled offline rank lookup, the built-in
+   * country directory, or the plain offline line. Round 7,
    * Fix B: on the first free-text turn the saved wizard preferences
    * travel as context with the message (the displayed message stays
    * the user's verbatim words), so a greeting like "你好" gets a real
@@ -917,20 +1034,22 @@ export function CompassPet() {
     // in the new conversation.
     const conv = convRef.current;
     beginPatientCall();
-    // Round 8: already known-offline means the backend was down
-    // recently — a single short probe (10s) before falling back to
-    // the offline catalogue, not another full ~90s wait per message.
-    const patientOpts = offline
-      ? { timeoutMs: 10000, attempts: 1, onRetry: patientOnRetry }
-      : { onRetry: patientOnRetry };
+    // Round 10: one attempt gets 40 s (the backend answers in ~15 s
+    // worst case now) and a known-offline call is a short 12 s probe
+    // — see chatPatientOpts. The old { timeoutMs, attempts } keys
+    // never existed on FetchPatientOptions, so the "short probe" was
+    // silently a full ~90 s wait.
+    const patientOpts = chatPatientOpts(offline);
+    // NOTE: goOffline does not touch timedOut — the caller sets it:
+    // a template reply is a fast answer (not a timeout), a thrown
+    // call carries the retry verdict.
     const goOffline = () => {
       if (convRef.current !== conv) return;
       setOffline(true);
-      setTimedOut(false);
       setAiLive(false);
       const rank = rankOffline(text);
       if (rank) doCelebrate();
-      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null });
+      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(text) });
     };
     const hasAsked = messages.some((m) => m.kind === 'ask');
     const context = !hasAsked ? savedPrefsContext(profile) : null;
@@ -941,13 +1060,29 @@ export function CompassPet() {
         body: JSON.stringify({ message: sentMessage, locale: requestLocale, history: buildHistory(messages) }),
       }, patientOpts);
       setWaking(false);
-      if (!isModelReply(r)) { goOffline(); return; }
+      if (!isModelReply(r)) {
+        // Round 10: the verified template answer, led by the offline
+        // line at render time — never discarded. A reply with no
+        // lines at all still falls through to the catalogue.
+        if (r.lines?.length) {
+          if (convRef.current !== conv) return;
+          setOffline(true);
+          setTimedOut(false);
+          setAiLive(false);
+          if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
+          push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: true, offlineRankId: null, offlineCountry: null });
+          return;
+        }
+        setTimedOut(false);
+        goOffline();
+        return;
+      }
       if (convRef.current !== conv) return;
       setOffline(false);
       setTimedOut(false);
       setAiLive(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
-      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null });
+      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null, offlineCountry: null });
     } catch {
       setWaking(false);
       if (convRef.current === conv) {

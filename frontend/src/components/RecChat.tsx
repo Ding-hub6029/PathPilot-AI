@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
-import { MatchResult, Program } from '../lib/types';
+import { MatchResult, Program, type FeeItem, type Profile } from '../lib/types';
 import { fetchJson, fetchJsonPatient } from '../lib/api';
 import { isModelReply, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import {
@@ -13,6 +13,7 @@ import { useElapsed } from '../lib/useElapsed';
 import { StatusChip } from './StatusChip';
 import { CompassFace, type PetMood } from './CompassPet';
 import { formatDuration, formatFeeItemWithLabel, formatIntake, pickFeeItem } from '../lib/format';
+import { convertCurrency, FX_AS_OF } from '../lib/fx';
 import { ruleName } from '../lib/ruleText';
 import { displayProgramTitle } from '../lib/programs';
 import enMessages from '../../messages/en.json';
@@ -25,7 +26,9 @@ import enMessages from '../../messages/en.json';
  * The pet opens with its own view, then the recommended programmes sit
  * inside the conversation as cards, each with one line of comment built
  * only from verified data: the eligibility status, the intake, and the
- * fee measured against the user's own budget (same currency only).
+ * fee measured against the user's own budget (same currency only),
+ * with the approximate figure in the budget currency next to a
+ * foreign-currency fee — the same format as the results pages.
  * No quality claims ("很强"), no invented figures, no probabilities.
  *
  * Quick replies: view results / show another batch / edit preferences.
@@ -39,6 +42,19 @@ import enMessages from '../../messages/en.json';
  */
 
 const BATCH_SIZE = 3;
+
+/** Fee line with the approximate figure in the applicant's own currency
+ * (Round 10, P1): the same format as the results pages — "学费：CHF
+ * 4,380 每年（按参考汇率约合 GBP 4,018 · 2026-11-26）". Same-currency
+ * fees and unconvertible currencies show no suffix, never a guess. */
+function feeItemWithApprox(f: FeeItem, profile: Profile, t: (key: string) => string, tf: (key: string, vars: Record<string, string | number>) => string, locale: string): string {
+  const base = formatFeeItemWithLabel(f, t, locale);
+  const budgetCurrency = profile.budgetCurrency ?? '';
+  if (!budgetCurrency || f.currency === budgetCurrency) return base;
+  const converted = convertCurrency(f.amount, f.currency, budgetCurrency);
+  if (converted === null) return base;
+  return `${base} (${tf('r9money.feeConverted', { currency: budgetCurrency, amount: Math.round(converted).toLocaleString(locale) })} · ${FX_AS_OF})`;
+}
 
 export function RecChat({
   recs, recLoading, recWaking, programs, onViewResults, onEditPrefs,
@@ -94,8 +110,11 @@ export function RecChat({
         body: JSON.stringify({ message: turn.question, locale }),
       }).then((fresh) => {
         if (!isModelReply(fresh)) {
+          // Round 10: keep a template re-fetch as an offline turn instead
+          // of dropping the answer.
           setAiOffline(true);
-          setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
+          const hasLines = Array.isArray(fresh.lines) && fresh.lines.length > 0;
+          setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: hasLines ? fresh : null, replyLocale: hasLines ? locale : null, offline: true } : x)));
           return;
         }
         setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh, replyLocale: locale, offline: false } : x)));
@@ -149,7 +168,7 @@ export function RecChat({
     if (cityName || duration) parts.push([cityName, duration].filter(Boolean).join(' · '));
     const feeItem = pickFeeItem(p, profile);
     if (feeItem) {
-      const feeText = formatFeeItemWithLabel(feeItem, t, locale);
+      const feeText = feeItemWithApprox(feeItem, profile, t, tf, locale);
       const budget = typeof profile.budget === 'number' ? profile.budget : null;
       if (budget !== null && feeItem.amount !== null && feeItem.currency === (profile.budgetCurrency ?? '')) {
         parts.push(tf(feeItem.amount > budget ? 'wizard.recChatFeeAbove' : 'wizard.recChatFeeWithin', { fee: feeText }));
@@ -203,11 +222,15 @@ export function RecChat({
       const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6) }),
-      }, { onRetry: () => setWaking(true) });
+      }, { onRetry: () => setWaking(true), attemptTimeoutMs: 40000 });
       setWaking(false);
       if (!isModelReply(r)) {
+        // Round 10: a template reply is a verified answer, not nothing —
+        // store it as an offline turn (rendered with the offline line)
+        // instead of discarding it, the same bug the pet had.
         setAiOffline(true);
-        setAiTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: null, replyLocale: null, offline: true, pending: false } : x)));
+        const hasLines = Array.isArray(r.lines) && r.lines.length > 0;
+        setAiTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: hasLines ? r : null, replyLocale: hasLines ? requestLocale : null, offline: true, pending: false } : x)));
         setMood('empathise');
         return;
       }
@@ -391,7 +414,7 @@ export function RecChat({
                         <StatusChip status={r.eligibilitySummary} label={summaryLabel} />
                       </p>
                       <p className="mt-1 text-sm text-navy/70">
-                        {formatIntake(p, t, locale)} · {p.feeItems.map((f) => formatFeeItemWithLabel(f, t, locale)).join(', ')}
+                        {formatIntake(p, t, locale)} · {p.feeItems.map((f) => feeItemWithApprox(f, profile, t, tf, locale)).join(', ')}
                       </p>
                       <Link href={`/programs/${p.id}`} className="btn-press mt-2 inline-block rounded-full border border-navy/30 px-3 py-1.5 text-sm font-semibold">
                         {t('results.viewDetail')}
@@ -441,6 +464,7 @@ export function RecChat({
                   <p>{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</p>
                 ) : turn.reply && turn.replyLocale === locale ? (
                   <>
+                    {turn.offline && <p className="mb-1 text-xs font-semibold text-navy/60">{t('wizard.recChatOffline')}</p>}
                     {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
                     {turn.reply.evidence_url && (
                       <a href={turn.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
@@ -457,7 +481,7 @@ export function RecChat({
             </div>
           </div>
         ))}
-        {aiBusy && (
+        {aiBusy && !aiTurns.some((x) => x.pending) && (
           <div className="flex justify-start">
             <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</div>
           </div>

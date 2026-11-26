@@ -6,8 +6,10 @@ else KNOWN_MINIMUMS_MET.
 """
 from __future__ import annotations
 
+import json
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
 from app.schemas import Budget, Language, MastersProfile, RuleResult, StudentProfile, UndergradProfile
@@ -20,6 +22,68 @@ from app.schemas import Budget, Language, MastersProfile, RuleResult, StudentPro
 TOEFL_SCALE_CUTOFF = date(2026, 1, 21)
 TOEFL_NEW_SCALE_OVERALL = 4.5
 TOEFL_OLD_SCALE_OVERALL = 92
+
+
+# --- FX reference table (round 10, R1) -------------------------------------
+# Twin of the loader in domain/expansion_eval.py (round 9, R2): the same
+# dated, approximate mid-market rates from data/expansions/fx_rates.json
+# (units per 1 GBP). It lives here too because expansion_eval imports
+# this module, so importing the table from there would be circular.
+# Keep the two loaders in sync. A missing/unreadable file means "no
+# rates": every cross-currency comparison is UNKNOWN, never a mismatch,
+# never a crash. Converted figures are always labelled approximate.
+_FX_PATH = Path(__file__).resolve().parents[2] / "data" / "expansions" / "fx_rates.json"
+
+
+def _load_fx_table() -> tuple[dict[str, Decimal], str | None]:
+    try:
+        with open(_FX_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        rates: dict[str, Decimal] = {}
+        for code, value in (data.get("rates_per_gbp") or {}).items():
+            if isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0:
+                rates[str(code).upper()] = Decimal(str(value))
+        return rates, str(data.get("as_of") or "") or None
+    except Exception:
+        return {}, None
+
+
+_FX_RATES, _FX_AS_OF = _load_fx_table()
+
+
+def _convert_fee(amount: Decimal, from_currency: str, to_currency: str) -> Decimal | None:
+    """Convert a fee amount from one currency to another via GBP.
+
+    Returns None when either currency has no reference rate (the
+    caller must then return UNKNOWN, never a mismatch). Same currency
+    returns the amount unchanged.
+    """
+    from_currency = (from_currency or "").upper()
+    to_currency = (to_currency or "").upper()
+    if from_currency == to_currency:
+        return amount
+    from_rate = _FX_RATES.get(from_currency)
+    to_rate = _FX_RATES.get(to_currency)
+    if from_rate is None or to_rate is None:
+        return None
+    return amount / from_rate * to_rate
+
+
+def _fx_note(from_currency: str, to_currency: str) -> str:
+    """Rate provenance suffix for a converted-fee detail, e.g.
+    " (reference rate 1 GBP = 1.69 SGD, 2026-11-26 — approximate)"."""
+    parts: list[str] = []
+    for ccy in ((from_currency or "").upper(), (to_currency or "").upper()):
+        if ccy and ccy != "GBP":
+            rate = _FX_RATES.get(ccy)
+            if rate is not None:
+                part = f"1 GBP = {rate:g} {ccy}"
+                if part not in parts:
+                    parts.append(part)
+    if not parts:
+        return ""
+    return (f" (reference rate {', '.join(parts)}, "
+            f"{_FX_AS_OF or 'undated'} — approximate)")
 
 
 def _parse_test_date(value: str | None) -> date | None:
@@ -695,11 +759,23 @@ def _fee_for_residency(rule_id: str, budget: Budget | None, residency: str | Non
                        bands: dict[str, Decimal | None],
                        unknown_reasons: dict[str, str],
                        evidence: list[str], label: str) -> RuleResult:
+    # Round 10, R1: the old order bailed on a currency mismatch BEFORE
+    # looking at the residency band, so a GBP budget against an SGD fee
+    # came back UNKNOWN with "does not match" — which the adapter maps
+    # to reasonKey budget-mismatch, rendering "学费：未知" next to
+    # "你的预算与该课程的学费不匹配。" for the same rule. The band is
+    # now resolved first, and a cross-currency fee is compared with the
+    # dated, approximate FX reference table (same table as the generic
+    # expansion evaluator): the converted figure is always labelled
+    # approximate, and a currency with no reference rate is UNKNOWN
+    # ("cannot be converted"), never a false mismatch. Only a period
+    # mismatch still returns the "does not match" wording — periods
+    # genuinely cannot be compared.
     if budget is None or budget.amount is None:
         return _r(rule_id, "UNKNOWN", "No budget supplied.", evidence)
-    if budget.currency != currency or budget.period != period:
+    if budget.period != period:
         return _r(rule_id, "UNKNOWN",
-                  f"Budget currency/period ({budget.currency} {budget.period}) does not match {currency} {period}, so it cannot be compared with the fee.",
+                  f"Budget period ({budget.period}) does not match the fee period ({period}), so it cannot be compared with the fee.",
                   evidence, observed=budget.model_dump())
     key = residency if residency in bands else "missing"
     amount = bands.get(key)
@@ -709,11 +785,36 @@ def _fee_for_residency(rule_id: str, budget: Budget | None, residency: str | Non
                   evidence, observed={"residency": residency})
     amount = Decimal(str(amount))
     got = Decimal(str(budget.amount))
+    threshold: dict[str, Any] = {"amount": float(amount)}
+    if budget.currency != currency:
+        converted = _convert_fee(amount, currency, budget.currency or "")
+        if converted is None:
+            return _r(rule_id, "UNKNOWN",
+                      f"The fee is {currency} {amount:g} {period} and the budget is in {budget.currency}; no reference exchange rate is available for this currency pair, so the fee cannot be converted for comparison.",
+                      evidence,
+                      observed={"amount": _plain_number(budget.amount),
+                                "currency": budget.currency,
+                                "period": budget.period},
+                      threshold=threshold)
+        converted_note = (f"(about {budget.currency} {converted:,.0f}"
+                          f"{_fx_note(currency, budget.currency or '')})")
+        # Carry the converted figure in the threshold payload so
+        # renderers can show it without re-parsing the detail string
+        # (same shape as the generic expansion evaluator).
+        threshold = {**threshold,
+                     "approx_converted": {"amount": round(float(converted)),
+                                          "currency": budget.currency or "",
+                                          "as_of": _FX_AS_OF}}
+        if got >= converted:
+            return _r(rule_id, "MET", f"Budget {budget.currency} {got:g} {period} covers the {currency} {amount:g} {period} tuition fee {converted_note}.",
+                      evidence, observed=got, threshold=threshold)
+        return _r(rule_id, "NOT_MET", f"Budget {budget.currency} {got:g} {period} is below the {currency} {amount:g} {period} tuition fee {converted_note}.",
+                  evidence, observed=got, threshold=threshold)
     if got >= amount:
         return _r(rule_id, "MET", f"Budget {currency} {got:g} {period} meets {label} {amount:g}.",
-                  evidence, observed=got, threshold={"amount": float(amount)})
+                  evidence, observed=got, threshold=threshold)
     return _r(rule_id, "NOT_MET", f"Budget {currency} {got:g} {period} is below {label} {amount:g}.",
-              evidence, observed=got, threshold={"amount": float(amount)})
+              evidence, observed=got, threshold=threshold)
 
 
 def evaluate_imperial_beng(profile: StudentProfile, program: dict) -> list[RuleResult]:
@@ -945,8 +1046,14 @@ def evaluate_nus_bcomp(profile: StudentProfile, program: dict) -> list[RuleResul
     # --- Fee: AY2026/27 bands; without-grant S$39,700 is stated ---
     bands = dict(_SG_UG_FEE_BANDS)
     bands["sg_intl_nogrant"] = Decimal("39700")
+    # Round 10, R1: a generic 'overseas' residency is an international
+    # applicant with no Singapore residency and no tuition grant claimed
+    # — the conservative unsubsidised band. The wizard's sg_* options
+    # are the only way to claim a grant band; 'overseas' claims none,
+    # and overseas fees are assumed unless UK residency is chosen.
+    residency = "sg_intl_nogrant" if ug.residency == "overseas" else ug.residency
     results.append(_fee_for_residency(
-        "nus-bcomp-fee", profile.budget, ug.residency, "SGD", "per_year", bands,
+        "nus-bcomp-fee", profile.budget, residency, "SGD", "per_year", bands,
         dict(_SG_UG_FEE_UNKNOWN), ["f-nus-bcomp-fee-grant", "f-nus-bcomp-fee-nogrant"], "SGD"))
     return results
 
@@ -973,8 +1080,13 @@ def evaluate_ntu_bcomp(profile: StudentProfile, program: dict) -> list[RuleResul
     # --- Fee: AY2026/27 bands; non-subsidised band not labelled for CS ---
     bands = dict(_SG_UG_FEE_BANDS)
     bands["sg_intl_nogrant"] = None
+    # Round 10, R1: same 'overseas' mapping as NUS (international, no
+    # grant claimed -> unsubsidised band). Here the band is None because
+    # the table does not label CS lab/non-lab, so the fee stays UNKNOWN
+    # with the lab-band reason — never a mismatch.
+    residency = "sg_intl_nogrant" if ug.residency == "overseas" else ug.residency
     results.append(_fee_for_residency(
-        "ntu-bcomp-fee", profile.budget, ug.residency, "SGD", "per_year", bands,
+        "ntu-bcomp-fee", profile.budget, residency, "SGD", "per_year", bands,
         dict(_SG_UG_FEE_UNKNOWN), ["f-ntu-bcomp-fee-grant", "f-ntu-bcomp-fee-nogrant"], "SGD"))
     return results
 

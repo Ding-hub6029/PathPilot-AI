@@ -267,6 +267,7 @@ export default function InstitutionDetail({ params }: { params: { id: string } }
           the probe is still waking the backend, offline only once it
           has actually failed. */}
       {backendStatus === 'checking' && <p className="mt-6 text-sm font-semibold text-navy/60" role="status">{t('r9pages.backendChecking')}</p>}
+      {backendStatus === 'live' && <p className="mt-6 text-sm font-semibold text-navy/60" role="status">{t('r9pages.backendLive')}</p>}
       {backendStatus === 'offline' && <p className="mt-6 text-sm text-navy/60">{t('rankings.offlineNote')}</p>}
       {/* Complete source lines for all three providers (Round 8): QS
           carries its exact attribution notice; THE and ARWU carry their

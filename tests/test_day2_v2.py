@@ -222,8 +222,67 @@ def test_ntu_bcomp_igp_unknown_language_and_fee_bands():
     assert _rules(prof_nogrant, "ntu-bcomp-cs-2027")["ntu-bcomp-fee"].status == "UNKNOWN"
 
 
-# --- NTU MSAI --------------------------------------------------------------
+# --- SG multi-band fees, round 10 (R1) --------------------------------------
+def test_sg_bcomp_fees_overseas_gbp_budget_fx():
+    """Audit profile (Gaokao, residency 'overseas', budget GBP 50,000):
+    the generic 'overseas' residency maps to the unsubsidised
+    international band, compared across currencies with the dated FX
+    table — never UNKNOWN + 'budget does not match'."""
+    lang = Language(exam="ielts", overall=7.0, listening=7.0, reading=7.0,
+                    writing=6.5, speaking=7.0)
+    prof = _ug(UndergradProfile(qualification_type="cn_gaokao",
+                                 gaokao_score=680, gaokao_total=750,
+                                 residency="overseas"),
+               lang, Budget(amount=Decimal("50000"), currency="GBP", period="per_year"))
+    # NUS without-grant band S$39,700 ≈ GBP 23,491 (1 GBP = 1.69 SGD,
+    # 2026-11-26) — well under a GBP 50,000 budget.
+    nus = _rules(prof, "nus-bcomp-cs-2027")["nus-bcomp-fee"]
+    assert nus.status == "MET"
+    assert "does not match" not in nus.detail
+    assert nus.threshold["approx_converted"]["amount"] == 23491
+    assert nus.threshold["approx_converted"]["currency"] == "GBP"
+    # NTU: the non-subsidised band is not labelled for CS (lab-based
+    # S$40,600 vs non-lab-based S$36,350), so the fee stays UNKNOWN —
+    # with the lab-band reason, never a mismatch claim.
+    ntu = _rules(prof, "ntu-bcomp-cs-2027")["ntu-bcomp-fee"]
+    assert ntu.status == "UNKNOWN"
+    assert "does not match" not in ntu.detail
+    assert "lab-based" in ntu.detail
+    # A budget below the converted fee is a real NOT_MET, not UNKNOWN.
+    prof_low = _ug(UndergradProfile(qualification_type="cn_gaokao",
+                                     gaokao_score=680, gaokao_total=750,
+                                     residency="overseas"),
+                   lang, Budget(amount=Decimal("10000"), currency="GBP", period="per_year"))
+    assert _rules(prof_low, "nus-bcomp-cs-2027")["nus-bcomp-fee"].status == "NOT_MET"
+    # A budget currency with no reference rate is UNKNOWN ("cannot be
+    # converted"), never a mismatch.
+    prof_thb = _ug(UndergradProfile(qualification_type="cn_gaokao",
+                                     gaokao_score=680, gaokao_total=750,
+                                     residency="overseas"),
+                   lang, Budget(amount=Decimal("800000"), currency="THB", period="per_year"))
+    thb = _rules(prof_thb, "nus-bcomp-cs-2027")["nus-bcomp-fee"]
+    assert thb.status == "UNKNOWN"
+    assert "cannot be converted" in thb.detail
+    assert "does not match" not in thb.detail
 
+
+def test_sg_bcomp_fee_no_rate_reason_key_fx_cannot_convert():
+    """Round 10 (O1): the v2 adapter maps a 'cannot be converted' fee
+    detail to reasonKey 'fx-cannot-convert' (same as the exp- branch),
+    so the frontend renders the localised FX wording, not 'missing-info'."""
+    from app.adapter import rule_to_frontend
+    lang = Language(exam="ielts", overall=7.0, listening=7.0, reading=7.0,
+                    writing=6.5, speaking=7.0)
+    prof_thb = _ug(UndergradProfile(qualification_type="cn_gaokao",
+                                     gaokao_score=680, gaokao_total=750,
+                                     residency="overseas"),
+                   lang, Budget(amount=Decimal("800000"), currency="THB", period="per_year"))
+    thb = _rules(prof_thb, "nus-bcomp-cs-2027")["nus-bcomp-fee"]
+    assert thb.status == "UNKNOWN"
+    assert rule_to_frontend(thb)["reasonKey"] == "fx-cannot-convert"
+
+
+# --- NTU MSAI --------------------------------------------------------------
 def test_ntu_msai_academic_language_gre_fee():
     lang = Language(exam="ielts", overall=7.0)
     budget = Budget(amount=Decimal("70000"), currency="SGD", period="total")

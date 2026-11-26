@@ -10,8 +10,10 @@ Regression tests for the 2026-11-26 live re-test findings:
   a chat evidence line is labelled with its scope (all levels/fields).
 - R6-backend (P1): chat replies took 10-45 s. The synchronous model
   call ran inside an async endpoint and blocked the single uvicorn
-  event loop; a slow chat must not wedge /health. One turn is now
-  capped at 20 s first attempt + 15 s repair.
+  event loop; a slow chat must not wedge /health. Round 10: one turn
+  is now ONE model call with a 15 s budget and no repair retry — a
+  bad output falls back to the template at once, so a turn can no
+  longer stack past the frontend's per-attempt abort into 45-60 s.
 """
 from __future__ import annotations
 
@@ -258,10 +260,12 @@ def test_provider_achat_http500_raises_provider_error(monkeypatch):
     assert exc.value.kind == "provider_http"
 
 
-def test_chat_repair_uses_tightened_budgets(monkeypatch):
-    # First attempt fails validation (cites an unknown evidence id),
-    # so the repair retry runs: the first call must use the 20 s
-    # budget and the repair the 15 s budget (was 30 s + 20 s).
+def test_chat_invalid_output_falls_back_after_one_call(monkeypatch):
+    # Round 10: one model call per turn, NO repair retry. The first
+    # attempt fails validation (cites an unknown evidence id), so the
+    # template fallback runs at once: exactly one call, 15 s budget
+    # (was 20 s first attempt + 15 s repair, which stacked past the
+    # frontend's 25 s per-attempt abort into 45-60 s turns).
     timeouts: list[float | None] = []
     calls = {"n": 0}
 
@@ -272,29 +276,22 @@ def test_chat_repair_uses_tightened_budgets(monkeypatch):
                  max_tokens=None, temperature=0.2):
             timeouts.append(timeout_s)
             calls["n"] += 1
-            if calls["n"] == 1:
-                bad = {"summary": "UCL 学费 GBP 48,600。",
-                       "claims": [{"text": "UCL 学费 GBP 48,600。",
-                                   "kind": "fact", "rule_ids": [],
-                                   "evidence_ids": ["src:made-up"]}],
-                       "unknowns": [], "actions": [], "limitations": []}
-                return ChatResult(text=json.dumps(bad, ensure_ascii=False),
-                                  model="test-model", provider="openai",
-                                  latency_ms=1)
-            good = {"summary": "UCL 计算机科学本科的海外学费为每年 GBP 48,600。",
-                    "claims": [{"text": "UCL 计算机科学本科的海外学费为每年 GBP 48,600。",
-                                "kind": "fact", "rule_ids": [],
-                                "evidence_ids": ["src:ucl-cs-bsc-2026:ucl-bsc"]}],
-                    "unknowns": [], "actions": [], "limitations": []}
-            return ChatResult(text=json.dumps(good, ensure_ascii=False),
+            bad = {"summary": "UCL 学费 GBP 48,600。",
+                   "claims": [{"text": "UCL 学费 GBP 48,600。",
+                               "kind": "fact", "rule_ids": [],
+                               "evidence_ids": ["src:made-up"]}],
+                   "unknowns": [], "actions": [], "limitations": []}
+            return ChatResult(text=json.dumps(bad, ensure_ascii=False),
                               model="test-model", provider="openai",
                               latency_ms=1)
 
     r = answer("UCL本科的学费是多少", "zh-CN",
                provider=_RecordingProvider())
-    assert r["ai_status"] == "available"
+    assert r["ai_status"] == "unavailable"
+    assert calls["n"] == 1, calls
+    assert timeouts == [15.0], timeouts
+    # The template fallback still answers the fee question.
     assert "48,600" in "\n".join(r["lines"])
-    assert timeouts == [20.0, 15.0], timeouts
 
 
 def test_slow_chat_does_not_block_health(monkeypatch):

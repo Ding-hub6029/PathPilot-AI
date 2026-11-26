@@ -1049,10 +1049,31 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       if (!toeflDate) return 'UNKNOWN';
       return toeflScore >= (toeflDate >= '2026-01-21' ? newMin : oldMin) ? 'MET' : 'NOT_MET';
     };
-    const feeStatus = (amount: number): RuleResult['status'] => {
+    // Round 10, R1: the fee is compared in the budget's own currency.
+    // The old version compared raw numbers across currencies, so a GBP
+    // 50,000 budget against an SGD 39,700 fee read as MET by accident
+    // (50,000 >= 39,700 in any currency) — and a GBP budget against an
+    // SGD fee could never be judged properly at all. Cross-currency
+    // comparison uses the dated FX reference table (lib/fx), exactly
+    // like the backend _fee_for_residency and the expansion mirror; a
+    // currency with no reference rate is UNKNOWN, never a mismatch.
+    const feeStatus = (amount: number, currency?: string): RuleResult['status'] => {
       const b = num(profile.budget);
       if (b === null) return 'UNKNOWN';
-      return b >= amount ? 'MET' : 'NOT_MET';
+      const budgetCurrency = profile.budgetCurrency || 'GBP';
+      if (!currency || currency === budgetCurrency) return b >= amount ? 'MET' : 'NOT_MET';
+      const converted = convertCurrency(amount, currency, budgetCurrency);
+      if (converted === null) return 'UNKNOWN';
+      return b >= converted ? 'MET' : 'NOT_MET';
+    };
+    // Approximate converted figure for a fee rule's expected line and
+    // thresholdRaw, in the expansion mirror's format — the same figure
+    // the results pages show. Null when same-currency or unconvertible.
+    const feeApprox = (amount: number, currency: string): { amount: number; currency: string } | null => {
+      const budgetCurrency = profile.budgetCurrency || 'GBP';
+      if (currency === budgetCurrency) return null;
+      const converted = convertCurrency(amount, currency, budgetCurrency);
+      return converted === null ? null : { amount: Math.round(converted), currency: budgetCurrency };
     };
     const pushRule = (ruleId: string, status: RuleResult['status'], observed: string, expected: string, evidenceIds: string[], unknownReason?: string,
       extra?: { observedRaw?: unknown; thresholdRaw?: Record<string, unknown>; reasonKey?: string }) => {
@@ -1100,7 +1121,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       pushRule('imp-beng-tmua', 'UNKNOWN', 'TMUA required; no threshold stated', 'TMUA required (no score threshold stated)', ['imperial-beng-entry'], 'TMUA is required but no score threshold is stated',
         { observedRaw: null, reasonKey: 'no-threshold' });
       const feeAmt = profile.residency === 'uk' ? 10050 : 47800;
-      pushRule('imp-beng-fee', feeStatus(feeAmt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['imperial-beng-fees'], undefined,
+      pushRule('imp-beng-fee', feeStatus(feeAmt, 'GBP'), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['imperial-beng-fees'], undefined,
         { observedRaw: num(profile.budget), thresholdRaw: { amount: feeAmt }, reasonKey: profile.budget == null ? 'missing-info' : undefined });
     }
     if (p.id === 'imperial-msc-computing-2027') {
@@ -1123,7 +1144,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       pushRule('imp-msc-test', 'NOT_APPLICABLE', 'Normally no admissions tests or interviews', 'Normally no admissions tests or interviews', ['imperial-msc-entry'], undefined,
         { observedRaw: null });
       const feeAmt = profile.residency === 'uk' ? 25850 : 48300;
-      pushRule('imp-msc-fee', feeStatus(feeAmt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['imperial-msc-fees'], undefined,
+      pushRule('imp-msc-fee', feeStatus(feeAmt, 'GBP'), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['imperial-msc-fees'], undefined,
         { observedRaw: num(profile.budget), thresholdRaw: { amount: feeAmt }, reasonKey: profile.budget == null ? 'missing-info' : undefined });
     }
     if (p.id === 'ucl-cs-msc-2027') {
@@ -1136,7 +1157,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       pushRule('ucl-msc-language', 'UNKNOWN', 'No English level stated on the course page', 'No English language level stated on the course page', ['ucl-msc-english'], 'The course page does not state which UCL English level applies',
         { observedRaw: null, reasonKey: 'no-english-level' });
       const feeAmt = profile.residency === 'uk' ? 21500 : 44400;
-      pushRule('ucl-msc-fee', feeStatus(feeAmt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['ucl-msc-fees'], undefined,
+      pushRule('ucl-msc-fee', feeStatus(feeAmt, 'GBP'), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}`, `GBP ${feeAmt.toLocaleString()}/year`, ['ucl-msc-fees'], undefined,
         { observedRaw: num(profile.budget), thresholdRaw: { amount: feeAmt }, reasonKey: profile.budget == null ? 'missing-info' : undefined });
     }
     if (p.id === 'nus-bcomp-cs-2027') {
@@ -1152,9 +1173,18 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       if (toeflScore !== null) pushRule('nus-bcomp-toefl', toeflScore <= 6 ? 'UNKNOWN' : toeflScore >= 92 ? 'MET' : 'NOT_MET', `TOEFL iBT ${toeflScore}`, 'TOEFL iBT 92-93', ['nus-bcomp-english'], undefined,
         { observedRaw: { exam: 'toefl', overall: toeflScore, test_date: toeflDate ?? null }, reasonKey: toeflScore <= 6 ? 'toefl-scale-unknown' : undefined });
       const band: Record<string, number | null> = { sg_citizen: 8300, sg_pr: 11600, sg_intl_asean: 18050, sg_intl_other: 21400, sg_intl_nogrant: 39700 };
-      const amt = profile.residency ? band[profile.residency] ?? null : null;
-      pushRule('nus-bcomp-fee', amt === null ? 'UNKNOWN' : feeStatus(amt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}/year`, amt === null ? 'AY2026/27 rates by residency band' : `SGD ${amt.toLocaleString()}/year`, ['nus-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, so the fee cannot be decided' : undefined,
-        { observedRaw: num(profile.budget), thresholdRaw: amt === null ? undefined : { amount: amt }, reasonKey: profile.budget == null ? 'missing-info' : amt === null ? 'fee-residency-unknown' : undefined });
+      // Round 10, R1: generic 'overseas' is an international applicant
+      // with no grant claimed — the unsubsidised band (same mapping as
+      // the backend). Without it the lookup missed and the fee was
+      // UNKNOWN while the live backend called it a budget mismatch.
+      const sgResidency = profile.residency === 'overseas' ? 'sg_intl_nogrant' : profile.residency;
+      const amt = sgResidency ? band[sgResidency] ?? null : null;
+      const feeSt = amt === null ? 'UNKNOWN' : feeStatus(amt, 'SGD');
+      const approx = amt === null ? null : feeApprox(amt, 'SGD');
+      const nusExpected = amt === null ? 'AY2026/27 rates by residency band'
+        : `SGD ${amt.toLocaleString()}/year${approx ? ` (approx. ${approx.currency} ${approx.amount.toLocaleString('en-US')}, rates ${FX_AS_OF})` : ''}`;
+      pushRule('nus-bcomp-fee', feeSt, profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}/year`, nusExpected, ['nus-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, so the fee cannot be decided' : undefined,
+        { observedRaw: num(profile.budget), thresholdRaw: amt === null ? undefined : (approx ? { amount: amt, approx_converted: { ...approx, as_of: FX_AS_OF } } : { amount: amt }), reasonKey: profile.budget == null ? 'missing-info' : amt === null ? 'fee-residency-unknown' : feeSt === 'UNKNOWN' ? 'fx-cannot-convert' : undefined });
     }
     if (p.id === 'ntu-bcomp-cs-2027') {
       pushRule('ntu-bcomp-academic', 'UNKNOWN', 'IGP AAB/C (10th) to AAA/A (90th) — not a threshold', 'No fixed minimum published; Indicative Grade Profile AAB/C to AAA/A', ['ntu-bcomp-entry'], 'NTU publishes no fixed minimum; only the Indicative Grade Profile of admitted students',
@@ -1170,9 +1200,17 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       if (tf !== null) pushRule('ntu-bcomp-toefl', tf, `TOEFL iBT ${toeflScore}`, 'TOEFL total 90 (before 21 Jan 2026) or 4.5 (new scale)', ['ntu-bcomp-english'], undefined,
         { observedRaw: { exam: 'toefl', overall: toeflScore, test_date: toeflDate ?? null }, reasonKey: tf === 'UNKNOWN' ? 'missing-test-date' : undefined });
       const band: Record<string, number | null> = { sg_citizen: 8300, sg_pr: 11600, sg_intl_asean: 18050, sg_intl_other: 21400, sg_intl_nogrant: null };
-      const amt = profile.residency ? band[profile.residency] ?? null : null;
-      pushRule('ntu-bcomp-fee', amt === null ? 'UNKNOWN' : feeStatus(amt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}/year`, amt === null ? 'AY2026/27 rates by residency band' : `SGD ${amt.toLocaleString()}/year`, ['ntu-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, or the non-subsidised band is not labelled for CS' : undefined,
-        { observedRaw: num(profile.budget), thresholdRaw: amt === null ? undefined : { amount: amt }, reasonKey: profile.budget == null ? 'missing-info' : amt === null ? 'fee-residency-unknown' : undefined });
+      // Round 10, R1: same 'overseas' mapping as NUS. Here the band is
+      // null because the table does not label CS lab/non-lab, so the fee
+      // stays UNKNOWN with the lab-band reason — never a mismatch.
+      const sgResidency = profile.residency === 'overseas' ? 'sg_intl_nogrant' : profile.residency;
+      const amt = sgResidency ? band[sgResidency] ?? null : null;
+      const feeSt = amt === null ? 'UNKNOWN' : feeStatus(amt, 'SGD');
+      const approx = amt === null ? null : feeApprox(amt, 'SGD');
+      const ntuExpected = amt === null ? 'AY2026/27 rates by residency band'
+        : `SGD ${amt.toLocaleString()}/year${approx ? ` (approx. ${approx.currency} ${approx.amount.toLocaleString('en-US')}, rates ${FX_AS_OF})` : ''}`;
+      pushRule('ntu-bcomp-fee', feeSt, profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}/year`, ntuExpected, ['ntu-bcomp-fees'], amt === null ? (sgResidency === 'sg_intl_nogrant' ? 'The non-subsidised band is not labelled for CS (lab-based S$40,600 vs non-lab-based S$36,350), so the fee cannot be decided' : 'Residency / tuition-grant status not supplied, so the fee cannot be decided') : undefined,
+        { observedRaw: num(profile.budget), thresholdRaw: amt === null ? undefined : (approx ? { amount: amt, approx_converted: { ...approx, as_of: FX_AS_OF } } : { amount: amt }), reasonKey: profile.budget == null ? 'missing-info' : amt === null ? 'fee-residency-unknown' : feeSt === 'UNKNOWN' ? 'fx-cannot-convert' : undefined });
     }
     if (p.id === 'ntu-msai-2027') {
       const deg = (profile.degree || '').toLowerCase();
@@ -1198,8 +1236,13 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       }
       pushRule('ntu-msai-gre', 'UNKNOWN', 'GRE optional; no rejection rule stated', 'GRE optional; no rejection rule for a missing or low score', ['ntu-msai-entry'], 'GRE scores are listed as Optional; no rejection rule for a missing or low score',
         { observedRaw: { gre_total: num(profile.greTotal), gre_analytical: num(profile.greAw) }, reasonKey: 'no-rejection-rule' });
-      pushRule('ntu-msai-fee', feeStatus(65748.8), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget} total`, 'SGD 65,748.80 total incl. 9% GST', ['ntu-msai-fees'], undefined,
-        { observedRaw: num(profile.budget), thresholdRaw: { amount: 65748.8 }, reasonKey: profile.budget == null ? 'missing-info' : undefined });
+      // Round 10, R1: SGD fee compared in the budget's currency (the
+      // backend _fee_for_residency does the same); an unconvertible
+      // budget currency is UNKNOWN with reasonKey fx-cannot-convert,
+      // never a mismatch.
+      const msaiFeeSt = feeStatus(65748.8, 'SGD');
+      pushRule('ntu-msai-fee', msaiFeeSt, profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget} total`, 'SGD 65,748.80 total incl. 9% GST', ['ntu-msai-fees'], undefined,
+        { observedRaw: num(profile.budget), thresholdRaw: { amount: 65748.8 }, reasonKey: profile.budget == null ? 'missing-info' : msaiFeeSt === 'UNKNOWN' ? 'fx-cannot-convert' : undefined });
     }
     const summary = rules.some((r) => r.status === 'NOT_MET') ? 'NOT_MET' : rules.some((r) => r.status === 'UNKNOWN') ? 'PARTIAL_UNKNOWN' : 'MET';
     const result: MatchResult = { programId: id, eligibilitySummary: summary, ruleResults: rules };
