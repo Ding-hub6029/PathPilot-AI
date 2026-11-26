@@ -317,3 +317,18 @@ Command: `.venv/bin/pytest tests/ -q` → **310 passed, 0 failed** (289 baseline
 Coordinator live (fresh backend :8000 + fresh frontend :3000, killed by PID after): POST `/api/assistant/pref-chat` via proxy with "我想去瑞士，因为那边环境优美" returns the contract shape (`ai_status: "unavailable"` — no local key, expected; `extracted: {}`, `next_question: "countries"`); with known `{countries: ["CH"], climate: "cool"}` + "我喜欢很冷的地方" the sources are ONLY `climate:zurich` + `climate:lausanne` (no Edinburgh), `next_question: "environment"`. Backend down → proxy 500 for `/api/health` and pref-chat (the failure `fetchJsonPatient` retries through); backend back → ok. `/wizard` 200.
 Not verified without a key / real device: the model-led path (b) reason acknowledgement + (c) random-order collection with a real model; interactive click-through (a) city chips, (e) waking-state recovery on a cold backend, (f) pet acknowledging saved prefs — all need the deployed backend + the user's phone (parent's live check after deploy).
 **Push note:** this round IS pushed — see the sync record. Render auto-deploy missed the round-6 push; watch the GitHub→Render webhook after this push and trigger manually if it misses again.
+
+## Day 3 — round 7 fix: pref-chat live failures (parent live check 2026-11-26 ~17:13-17:16: Switzerland sentence returned zero sources + wrong "no verifiable data" claim; CH+cool cold question fell back to "查不到" 3× with correctly scoped sources)
+
+| ID | Task | Artefacts | Status |
+|---|---|---|---|
+| D3-R07-F1 | Diagnose Case 2 live (timings + local validation experiment, no guessing) | live probes via curl (see DECISIONS #153) | pass (root cause: ~9-12 s/call vs 12 s / 8 s budgets; inference-without-marker validation failure + repair timeout) |
+| D3-R07-F2 | Raise model-call timeouts (provider cap 20 s → 60 s; first call 12 s → 30 s; repair 8 s → 20 s) + prompt guidance (recommendation kind, inference markers) | `backend/ai/provider.py`, `backend/ai/pref_chat.py`, `backend/ai/chat.py`, `backend/ai/prompts.py` | pass (pytest 315; build) |
+| D3-R07-F3 | Country-selection retrieval: scoped countries' cities always in the catalogue | `backend/ai/chat.py` (`_retrieve` countries branch) | pass (unit test: Switzerland turn returns climate:zurich + climate:lausanne) |
+| D3-R07-F4 | Source-aware fallback (evidence cities line, 6 locales) in pref-chat + /assistant/chat | `backend/ai/chat.py` (`evidence_cities_line`, `_template_result`), `backend/ai/pref_chat.py` (`_fallback_result`) | pass (mock 500 tests: cities stated, "查不到" gone; no-evidence case still says unknown) |
+| D3-R07-F5 | Failure-class-only logging (kind/latency/error count, never content) | `backend/ai/chat.py`, `backend/ai/pref_chat.py` | pass (in code; Render-log check needs parent's live verification) |
+
+## Test result (real run, 2026-11-26, round 7 fix)
+
+Command: `.venv/bin/pytest tests/ -q` → **315 passed, 0 failed** (310 baseline + 5 new; 1 pre-existing anyio deprecation warning). `npm run build` passes.
+Live probes before the fix (curl against Render, ~17:13-17:16 CST): Case 1 Switzerland sentence → available, extracted {countries:[CH], note:环境优美}, sources [] (wrong "no verifiable data" lines); Case 2 CH+cool cold question → unavailable 3× (one in 1.8 s, fast ProviderError), sources correctly [climate:zurich, climate:lausanne]; /assistant/chat same message → available once, unavailable once (19.0 s). After the fix the live check needs the deployed backend (parent verifies after manual Render deploy): Case 2 must return available with the honest "no cool city in Switzerland" answer, Case 1 must return non-empty Swiss sources, and a forced fallback must state the retrieved cities.

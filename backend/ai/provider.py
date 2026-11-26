@@ -9,8 +9,12 @@ Google Gemini, configured ONLY via environment variables:
 - AI_API_KEY: the provider key. Never hardcoded, never stored in the repo,
   never logged, never echoed in an error message.
 - AI_BASE_URL (optional): override the API base URL.
-- AI_TIMEOUT_MS (optional): total call budget in ms (default 20000, the
-  spec Ch13/Ch17 20 s ceiling for one model call including one repair).
+- AI_TIMEOUT_MS (optional): per-call budget cap in ms (default 60000).
+  The spec Ch13/Ch17 20 s ceiling no longer matches observed gateway
+  latency: live DeepSeek calls via the gateway took ~9-12 s each on
+  2026-11-26, so a 20 s cap would clip the 30 s first-call budget the
+  chat paths need (and the old 8 s repair budget was shorter than one
+  call, so any first-attempt validation failure fell back).
 - AI_MAX_TOKENS (optional): max output tokens per call (default 1200).
 
 When any of provider/model/key is absent (or the provider is unknown),
@@ -35,7 +39,7 @@ DEFAULT_BASE_URLS = {
     "gemini": "https://generativelanguage.googleapis.com/v1beta",
 }
 
-DEFAULT_TIMEOUT_MS = 20_000
+DEFAULT_TIMEOUT_MS = 60_000
 DEFAULT_MAX_TOKENS = 1200
 
 

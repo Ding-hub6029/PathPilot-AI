@@ -125,6 +125,12 @@ def _garbage_handler(request: httpx.Request) -> httpx.Response:
     return _openai_reply("this is not json at all")
 
 
+def _http500_handler(request: httpx.Request) -> httpx.Response:
+    """A failing gateway: every model call returns HTTP 500, so the
+    provider raises ProviderError and the honest fallback runs."""
+    return httpx.Response(500, json={"error": "boom"})
+
+
 # ---------------------------------------------------------------------------
 # No-key fallback: honest template answer
 # ---------------------------------------------------------------------------
@@ -407,6 +413,38 @@ def test_chat_cold_question_no_key_falls_back_to_template(monkeypatch):
     assert body["ai_status"] == "unavailable"
     assert body["model"] is None
     assert body["lines"]  # template unknown, never a faked model answer
+
+
+def test_evidence_cities_line_states_classes_and_counts():
+    # Unit: the deterministic fallback line is built only from the
+    # retrieved climate sources — city + actual class + count.
+    from ai.chat import _climate_evidence, evidence_cities_line
+    sources, _ = _climate_evidence("cool", countries=["CH"])
+    line = evidence_cities_line(sources, "zh-CN")
+    assert line is not None
+    assert "Zurich" in line and "Lausanne" in line
+    assert "四季" in line and "11" in line and "9" in line
+    line_en = evidence_cities_line(sources, "en")
+    assert "four-season" in line_en
+    assert evidence_cities_line([], "zh-CN") is None
+    assert evidence_cities_line([], "en") is None
+
+
+def test_chat_fallback_with_climate_sources_states_cities(monkeypatch):
+    # Live bug 2026-11-26: /assistant/chat fell back to "查不到" for
+    # "我喜欢很冷的地方" while Edinburgh/Durham/Lund evidence was
+    # already retrieved. The template fallback must state what the
+    # evidence shows instead of the generic unknown line.
+    provider = _mock_provider(monkeypatch, _http500_handler)
+    r = answer("我喜欢很冷的地方", "zh-CN", provider=provider)
+    assert r["ai_status"] == "unavailable"
+    assert r["model"] is None
+    joined = "\n".join(r["lines"])
+    assert "Edinburgh" in joined and "Durham" in joined
+    assert "凉爽" in joined and "19" in joined
+    assert "查不到" not in joined
+    assert [s["id"] for s in r["sources"]][:3] == [
+        "climate:edinburgh", "climate:durham", "climate:lund"]
 
 
 def test_chat_suggest_message_retrieves_gb_undergraduate(monkeypatch):

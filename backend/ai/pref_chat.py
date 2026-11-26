@@ -47,17 +47,25 @@ this call except inside the provider request itself.
 from __future__ import annotations
 
 import json
+import logging
+import time
 
-from ai.assistant import (LOCALES, ask as assistant_ask,
+from ai.assistant import (LOCALES, _t, ask as assistant_ask,
                           check_no_forbidden, contains_personal_data)
 from ai.chat import (_clean_history, _detect_climate_class,
                      _detect_country, _evidence_texts, _parse_model_json,
                      _render_lines, _resolve_evidence_url, _retrieve,
-                     _validate_chat_payload)
+                     _validate_chat_payload, evidence_cities_line)
 from ai.grounding import Source
 from ai.prompts import PROMPT_VERSION, pref_chat_system
 from ai.provider import ProviderAdapter, ProviderError
 from app.data import EXPANSION_PROGRAMS, PROGRAMS, RANKINGS
+
+# Failure-class diagnostics only (no message, history, extracted data
+# or key material ever reaches a log line): the 2026-11-26 live
+# failures were diagnosed from timings + local validation, but a
+# recurrence needs the failure class visible in the Render log.
+logger = logging.getLogger(__name__)
 
 # The 8 preferences, in default ask order.
 PREF_ORDER: tuple[str, ...] = (
@@ -351,10 +359,22 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     deterministic next question as the last line, empty extraction,
     deterministic next_question. ``force_no_url`` lets the
     personal-data guard force ``evidence_url`` None (the template's
-    evidence link is meaningless there — chat.py does the same)."""
+    evidence link is meaningless there — chat.py does the same).
+
+    Round 7 fix: when retrieval returned relevant climate evidence,
+    the generic "I don't know" first line is replaced by what the
+    evidence actually shows (cities + actual classes + counts) —
+    the model being unavailable must not erase evidence already in
+    hand. Any other template line is left exactly as written."""
     nxt = first_missing(known)
     done = nxt is None
     lines = list(template["lines"][:2])
+    if not force_no_url:
+        cities = evidence_cities_line(sources, locale)
+        if cities is not None and lines and lines[0] == _t(locale, "unknown"):
+            lines[0] = cities
+        elif cities is not None and not lines:
+            lines = [cities]
     if nxt is not None:
         lines.append(_question_line(nxt, locale))
     return {"lines": lines[:3],
@@ -435,31 +455,49 @@ def pref_answer(message: str, locale: str = "en",
     }
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
     system = pref_chat_system(loc)
+    # Timeouts (round 7 fix): live gateway calls took ~9-12 s each on
+    # 2026-11-26, so the old 12 s / 8 s budgets were marginal — the
+    # 8 s repair budget was shorter than one call, so any
+    # first-attempt validation failure fell back. 30 s first call,
+    # 20 s repair; the frontend's patient fetch allows ~90 s.
+    started = time.monotonic()
     try:
-        result = provider.chat(messages, system=system, timeout_s=12.0)
-    except ProviderError:
+        result = provider.chat(messages, system=system, timeout_s=30.0)
+    except ProviderError as e:
+        logger.info("pref_chat model call failed kind=%s latency_ms=%d",
+                    e.kind, int((time.monotonic() - started) * 1000))
         return fallback()
     parsed = _parse_model_json(result.text)
     if parsed is None:
+        logger.info("pref_chat model output unparsable latency_ms=%d",
+                    int((time.monotonic() - started) * 1000))
         return fallback()
     errors = _validate_chat_payload(parsed, sources, evidence_texts, loc)
     if errors:
+        logger.info("pref_chat model output failed validation errors=%d",
+                    len(errors))
         # One repair retry: send the validation errors back, ask to fix
         # only those. Anything still invalid falls back to the template.
         repair = ("Your previous output failed validation. Fix ONLY these "
                   f"problems and output JSON only: {'; '.join(errors)}\n\n"
                   f"Previous output:\n{result.text[:4000]}")
         try:
+            retry_started = time.monotonic()
             retry = provider.chat(
                 messages + [{"role": "user", "content": repair}],
-                system=system, timeout_s=8.0)
-        except ProviderError:
+                system=system, timeout_s=20.0)
+        except ProviderError as e:
+            logger.info("pref_chat repair call failed kind=%s latency_ms=%d",
+                        e.kind, int((time.monotonic() - retry_started) * 1000))
             return fallback()
         parsed2 = _parse_model_json(retry.text)
         if parsed2 is None:
+            logger.info("pref_chat repair output unparsable")
             return fallback()
         errors2 = _validate_chat_payload(parsed2, sources, evidence_texts, loc)
         if errors2:
+            logger.info("pref_chat repair output failed validation errors=%d",
+                        len(errors2))
             return fallback()
         parsed = parsed2
     # (e) Server-side validation of the model's extraction + next

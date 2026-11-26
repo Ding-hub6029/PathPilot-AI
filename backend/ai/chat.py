@@ -36,7 +36,9 @@ this call except inside the provider request itself.
 from __future__ import annotations
 
 import json
+import logging
 import re
+import time
 
 from ai.assistant import (LOCALES, _DEADLINE_WORDS, _FEE_WORDS,
                           _IELTS_WORDS, _RANK_WORDS, _TM_WORDS, _UG_WORDS,
@@ -53,6 +55,12 @@ from app.data import (CLIMATE, DATA_DIR, EXPANSION_MATCHABLE,
                       EXPANSION_PROGRAMS, PROGRAMS, RANKINGS)
 
 MAX_HISTORY_TURNS = 6
+
+# Failure-class diagnostics only (no message, history or key material
+# ever reaches a log line): the 2026-11-26 live pref-chat failures
+# were diagnosed from timings + local validation, but a recurrence
+# needs the failure class visible in the Render log.
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -182,6 +190,17 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
         if top_programme and top_programme not in pids:
             _add(_enriched_programme_sources(top_programme))
             pids.append(top_programme)
+    if countries:
+        # Round 7 fix (live bug 2026-11-26): a country-selection turn
+        # with no climate wish retrieved NO evidence at all, so the
+        # model claimed "no verifiable data" for a country that has
+        # programmes (Switzerland: Zurich 11, Lausanne 9). The chosen
+        # countries' own cities join the catalogue with their actual
+        # classes, whether or not a class was asked for. Only fires
+        # when the caller scopes countries (the pref-chat flow);
+        # answer() passes none, so the pet is unaffected.
+        for city, n in _country_cities(countries):
+            _add([_climate_source(city, n)])
     # (Round 6, Job A) Suggestion intent: the guided 3-question flow
     # sends one constructed message (degree + country + budget band).
     # With no programme matched, the cheapest verified programme in
@@ -310,6 +329,80 @@ def _climate_source(city: str, count: int) -> Source:
         title=f"{city} climate",
         excerpt=(f"{city}: {_CLIMATE_CLASS_LABEL[entry['climate']]} "
                  f"climate. Verified programmes in {city}: {count}."))
+
+
+# ---------------------------------------------------------------------------
+# Source-aware fallback line (round 7 fix, 2026-11-26)
+#
+# When the model is genuinely unavailable but retrieval returned
+# relevant climate evidence, the template fallback must say what the
+# evidence shows instead of the generic "I don't know". The line is
+# built deterministically from the retrieved climate sources only —
+# never model text — city + actual class + verified programme count,
+# at most 3 cities, in the user's locale.
+# ---------------------------------------------------------------------------
+
+_CLIMATE_LABEL_TO_CLASS = {"cool": "cool", "warm": "warm",
+                          "four-season": "four_seasons", "mild": "mild"}
+_CLIMATE_SOURCE_RE = re.compile(
+    r"^(.+?): (cool|warm|four-season|mild) climate\. "
+    r"Verified programmes in .+?: (\d+)\.$")
+_CLASS_WORDS = {
+    "en": {"cool": "cool", "warm": "warm", "four_seasons": "four-season",
+           "mild": "mild"},
+    "zh-CN": {"cool": "凉爽", "warm": "暖和", "four_seasons": "四季分明",
+              "mild": "温和"},
+    "es": {"cool": "frío", "warm": "cálido",
+           "four_seasons": "de cuatro estaciones", "mild": "suave"},
+    "fr": {"cool": "froid", "warm": "chaud",
+           "four_seasons": "quatre saisons", "mild": "doux"},
+    "pt-BR": {"cool": "frio", "warm": "quente",
+              "four_seasons": "de quatro estações", "mild": "ameno"},
+    "ar": {"cool": "بارد", "warm": "حار", "four_seasons": "أربعة فصول",
+           "mild": "معتدل"},
+}
+_EVIDENCE_CITIES_LINES = {
+    "en": "The verified data lists these cities: {cities}.",
+    "zh-CN": "已核实的数据里有这些城市：{cities}。",
+    "es": "Los datos verificados incluyen estas ciudades: {cities}.",
+    "fr": "Les données vérifiées listent ces villes : {cities}.",
+    "pt-BR": "Os dados verificados listam estas cidades: {cities}.",
+    "ar": "تتضمن البيانات الموثّقة هذه المدن: {cities}.",
+}
+_CITY_ITEM = {
+    "en": "{city} ({cls}, {n} programmes)",
+    "zh-CN": "{city}（{cls}，{n} 个项目）",
+    "es": "{city} ({cls}, {n} programas)",
+    "fr": "{city} ({cls}, {n} programmes)",
+    "pt-BR": "{city} ({cls}, {n} programas)",
+    "ar": "{city} ({cls}، {n})",
+}
+
+
+def evidence_cities_line(sources: list[Source], locale: str) -> str | None:
+    """One deterministic line stating the retrieved climate cities and
+    their actual classes, or None when no climate source was
+    retrieved. Built only from the verified catalogue excerpts."""
+    items: list[str] = []
+    for s in sources:
+        if not s.id.startswith("climate:"):
+            continue
+        m = _CLIMATE_SOURCE_RE.match(s.excerpt or "")
+        if not m:
+            continue
+        city, label, count = m.group(1), m.group(2), m.group(3)
+        cls = _CLIMATE_LABEL_TO_CLASS[label]
+        words = _CLASS_WORDS.get(locale) or _CLASS_WORDS["en"]
+        item_t = _CITY_ITEM.get(locale) or _CITY_ITEM["en"]
+        items.append(item_t.format(city=city, cls=words[cls], n=count))
+        if len(items) >= 3:
+            break
+    if not items:
+        return None
+    line_t = (_EVIDENCE_CITIES_LINES.get(locale)
+              or _EVIDENCE_CITIES_LINES["en"])
+    sep = "、" if locale == "zh-CN" else ", "
+    return line_t.format(cities=sep.join(items))
 
 
 def _climate_evidence(wanted: str, countries: list[str] | None = None
@@ -633,8 +726,18 @@ def _resolve_evidence_url(payload: dict, sources: list[Source]) -> str | None:
     return None
 
 
-def _template_result(template: dict, sources: list[Source]) -> dict:
-    return {"lines": template["lines"],
+def _template_result(template: dict, sources: list[Source],
+                     locale: str = "en") -> dict:
+    """Template answer, with the generic "I don't know" first line
+    replaced by what the retrieved evidence actually shows when
+    climate sources were retrieved (round 7 fix: the model being
+    unavailable must not erase evidence already in hand). Any other
+    template line is left exactly as the template wrote it."""
+    lines = list(template["lines"])
+    cities = evidence_cities_line(sources, locale)
+    if cities is not None and lines and lines[0] == _t(locale, "unknown"):
+        lines[0] = cities
+    return {"lines": lines,
             "evidence_url": template.get("evidence_url"),
             "ai_status": "unavailable", "model": None,
             "sources": [{"id": s.id, "url": s.url, "title": s.title}
@@ -672,9 +775,14 @@ def answer(message: str, locale: str = "en",
 
     # (c) No key: the template assistant is the honest answer.
     if not provider.available:
-        return _template_result(template, sources)
+        return _template_result(template, sources, loc)
 
     # (d) Key present: model over the retrieved sources only.
+    # Timeouts (round 7 fix): live gateway calls took ~9-12 s each on
+    # 2026-11-26, so the old 12 s / 8 s budgets were marginal — the
+    # 8 s repair budget was shorter than one call, so any
+    # first-attempt validation failure fell back. 30 s first call,
+    # 20 s repair; the frontend's patient fetch allows ~90 s.
     evidence_texts = _evidence_texts(sources, pids)
     envelope = {
         "task": "chat",
@@ -687,32 +795,45 @@ def answer(message: str, locale: str = "en",
             for s in sources],
     }
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
+    started = time.monotonic()
     try:
-        result = provider.chat(messages, system=chat_system(loc), timeout_s=12.0)
-    except ProviderError:
-        return _template_result(template, sources)
+        result = provider.chat(messages, system=chat_system(loc), timeout_s=30.0)
+    except ProviderError as e:
+        logger.info("assistant/chat model call failed kind=%s latency_ms=%d",
+                    e.kind, int((time.monotonic() - started) * 1000))
+        return _template_result(template, sources, loc)
     parsed = _parse_model_json(result.text)
     if parsed is None:
-        return _template_result(template, sources)
+        logger.info("assistant/chat model output unparsable latency_ms=%d",
+                    int((time.monotonic() - started) * 1000))
+        return _template_result(template, sources, loc)
     errors = _validate_chat_payload(parsed, sources, evidence_texts, loc)
     if errors:
+        logger.info("assistant/chat model output failed validation errors=%d",
+                    len(errors))
         # One repair retry: send the validation errors back, ask to fix
         # only those. Anything still invalid falls back to the template.
         repair = ("Your previous output failed validation. Fix ONLY these "
                   f"problems and output JSON only: {'; '.join(errors)}\n\n"
                   f"Previous output:\n{result.text[:4000]}")
         try:
+            retry_started = time.monotonic()
             retry = provider.chat(
                 messages + [{"role": "user", "content": repair}],
-                system=chat_system(loc), timeout_s=8.0)
-        except ProviderError:
-            return _template_result(template, sources)
+                system=chat_system(loc), timeout_s=20.0)
+        except ProviderError as e:
+            logger.info("assistant/chat repair call failed kind=%s latency_ms=%d",
+                        e.kind, int((time.monotonic() - retry_started) * 1000))
+            return _template_result(template, sources, loc)
         parsed2 = _parse_model_json(retry.text)
         if parsed2 is None:
-            return _template_result(template, sources)
+            logger.info("assistant/chat repair output unparsable")
+            return _template_result(template, sources, loc)
         errors2 = _validate_chat_payload(parsed2, sources, evidence_texts, loc)
         if errors2:
-            return _template_result(template, sources)
+            logger.info("assistant/chat repair output failed validation errors=%d",
+                        len(errors2))
+            return _template_result(template, sources, loc)
         parsed = parsed2
     lines = _render_lines(parsed, loc, sources)
     # Defence in depth: a rendered line must never carry a raw URL, a
@@ -721,7 +842,7 @@ def answer(message: str, locale: str = "en",
     if ("http://" in joined_lines or "https://" in joined_lines
             or "www." in joined_lines or check_no_forbidden(lines)
             or "sk-" in joined_lines.lower()):
-        return _template_result(template, sources)
+        return _template_result(template, sources, loc)
     return {"lines": lines,
             "evidence_url": _resolve_evidence_url(parsed, sources),
             "ai_status": "available",

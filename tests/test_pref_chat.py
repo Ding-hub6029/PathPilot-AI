@@ -197,6 +197,12 @@ def _garbage_handler(request: httpx.Request) -> httpx.Response:
     return _openai_reply("this is not json at all")
 
 
+def _http500_handler(request: httpx.Request) -> httpx.Response:
+    """A failing gateway: every model call returns HTTP 500, so the
+    provider raises ProviderError and the honest fallback runs."""
+    return httpx.Response(500, json={"error": "boom"})
+
+
 # ---------------------------------------------------------------------------
 # Unit: extraction / known validation (no provider needed)
 # ---------------------------------------------------------------------------
@@ -339,6 +345,51 @@ def test_pref_chat_garbage_model_falls_back(monkeypatch):
     assert r["done"] is False
 
 
+def test_retrieve_country_turn_carries_country_cities():
+    # Live bug 2026-11-26 (Case 1): "我想去瑞士，因为那边环境优美"
+    # retrieved zero sources, so the model claimed no verifiable Swiss
+    # data existed. A country-scoped turn must carry the country's
+    # verified programme cities as evidence, even with no climate wish.
+    from ai.chat import _retrieve
+    _, sources, _ = _retrieve("我想去瑞士，因为那边环境优美", "zh-CN",
+                              countries=["CH"], climate_class=None)
+    assert [s.id for s in sources] == ["climate:zurich",
+                                        "climate:lausanne"]
+    assert all("four-season" in s.excerpt for s in sources)
+
+
+def test_pref_chat_fallback_with_sources_states_cities(monkeypatch):
+    # Live bug 2026-11-26 (Case 2): known CH+cool + "我喜欢很冷的地方"
+    # fell back to "查不到，不知道" even though Zurich/Lausanne
+    # evidence was already retrieved. The fallback must state what
+    # the evidence shows instead of the generic unknown line.
+    provider = _mock_provider(monkeypatch, _http500_handler)
+    r = pref_answer("我喜欢很冷的地方", "zh-CN",
+                    known={"countries": ["CH"], "climate": "cool"},
+                    provider=provider)
+    assert r["ai_status"] == "unavailable"
+    assert r["model"] is None
+    assert r["extracted"] == {}
+    joined = "\n".join(r["lines"])
+    assert "Zurich" in joined and "Lausanne" in joined
+    assert "四季" in joined and "11" in joined and "9" in joined
+    assert "查不到" not in joined
+    assert r["next_question"] == "environment"
+    assert r["lines"][-1] == _question_line("environment", "zh-CN")
+    assert [s["id"] for s in r["sources"]] == ["climate:zurich",
+                                               "climate:lausanne"]
+
+
+def test_pref_chat_fallback_without_sources_still_says_unknown(monkeypatch):
+    # No evidence in hand: the generic unknown line is still the
+    # honest answer (the cities line must not invent anything).
+    provider = _mock_provider(monkeypatch, _http500_handler)
+    r = pref_answer("随便聊聊", "en", known={}, provider=provider)
+    assert r["ai_status"] == "unavailable"
+    assert r["sources"] == []
+    assert "don't know" in "\n".join(r["lines"]).lower()
+
+
 # ---------------------------------------------------------------------------
 # Personal data: refused, never echoed
 # ---------------------------------------------------------------------------
@@ -386,6 +437,12 @@ def test_pref_chat_switzerland_reason_kept(monkeypatch):
     assert captured["envelope"]["prompt_version"] == "ai-prompts-v1"
     assert captured["envelope"]["known"]["countries"] == []
     assert captured["envelope"]["missing"] == list(PREF_ORDER)
+    # Live bug 2026-11-26 (Case 1): the turn retrieved ZERO sources, so
+    # the model claimed no verifiable Swiss data existed. The
+    # country-scoped retrieval must carry Zurich + Lausanne.
+    assert [s["id"] for s in r["sources"]] == ["climate:zurich",
+                                               "climate:lausanne"]
+    assert "没有可核实" not in "\n".join(r["lines"])
 
 
 def test_pref_chat_ch_cool_scoped_climate_no_edinburgh(monkeypatch):
@@ -414,6 +471,10 @@ def test_pref_chat_ch_cool_scoped_climate_no_edinburgh(monkeypatch):
     assert r["extracted"]["climate"] == "cool"
     assert r["next_question"] == "environment"
     assert r["lines"][-1] == _question_line("environment", "zh-CN")
+    # (a) The live Case 2 shape: available, Zurich/Lausanne sources,
+    # no Edinburgh anywhere in the response.
+    assert [s["id"] for s in r["sources"]] == ["climate:zurich",
+                                               "climate:lausanne"]
 
 
 def test_pref_chat_model_next_question_never_repeats_known(monkeypatch):
