@@ -37056,8 +37056,15 @@
     {
      "id": "imperial-mechanical-engineering-meng-2027-academic",
      "category": "academic",
-     "description": "A-levels AAA to A*A*A (or equivalent); the Engineering and Science Admissions Test (ESAT) is required for engineering courses; no specific grade threshold beyond the published offer recorded in this pass.",
-     "threshold": null,
+     "description": "Minimum entry standard A*A*A or A*AAA including A* in Mathematics (official Imperial minimum for 2027 entry); the Engineering and Science Admissions Test (ESAT) is required for engineering courses.",
+     "threshold": {
+      "grades": [
+       "A*",
+       "A",
+       "A"
+      ],
+      "maths_grade": "A*"
+     },
      "source_ids": [
       "imperial-ug-fees-eng"
      ]
@@ -38070,7 +38077,9 @@
      "id": "cambridge-general-engineering-meng-2027-academic",
      "category": "academic",
      "description": "A-levels A*A*A including Mathematics and Physics; the Engineering and Science Admissions Test (ESAT) is required; no specific grade threshold beyond the published offer recorded in this pass.",
-     "threshold": null,
+     "threshold": {
+      "a_level": "A*A*A"
+     },
      "source_ids": [
       "cambridge-ug-fees"
      ]
@@ -38179,7 +38188,9 @@
      "id": "cambridge-general-engineering-manuf-meng-2027-academic",
      "category": "academic",
      "description": "A-levels A*A*A including Mathematics and Physics; the Engineering and Science Admissions Test (ESAT) is required; no specific grade threshold beyond the published offer recorded in this pass.",
-     "threshold": null,
+     "threshold": {
+      "a_level": "A*A*A"
+     },
      "source_ids": [
       "cambridge-ug-fees"
      ]
@@ -38803,7 +38814,9 @@
      "id": "ucl-mechanical-engineering-beng-2027-academic",
      "category": "academic",
      "description": "A-levels A*AA including Mathematics and Physics (A* in one of the required subjects); for the 2027 cycle applicants must also sit the Test of Academic Reasoning for Admissions (TARA); no specific grade threshold beyond the published offer recorded in this pass.",
-     "threshold": null,
+     "threshold": {
+      "a_level": "A*AA"
+     },
      "source_ids": [
       "ucl-mecheng-beng"
      ]
@@ -54496,7 +54509,12 @@
    "city": "Zurich",
    "duration": "3 years (180 credits)",
    "duration_months": 36,
-   "start": "Autumn 2027"
+   "start": "Autumn 2027",
+   "language_of_instruction": {
+    "language": "German",
+    "note": "Main teaching language of the Bachelor's programme; single courses may be taught in English.",
+    "source_url": "https://ethz.ch/en/studies/bachelor/application/bachelor-human-medicine/application-admission/language-requirements.html"
+   }
   },
   {
    "id": "eth-cse-bsc-2027",
@@ -54580,7 +54598,12 @@
    "city": "Zurich",
    "duration": "3 years (180 credits)",
    "duration_months": 36,
-   "start": "Autumn 2027"
+   "start": "Autumn 2027",
+   "language_of_instruction": {
+    "language": "German",
+    "note": "Main teaching language of the Bachelor's programme; single courses may be taught in English.",
+    "source_url": "https://ethz.ch/en/studies/bachelor/application/bachelor-human-medicine/application-admission/language-requirements.html"
+   }
   },
   {
    "id": "epfl-cs-bsc-2027",
@@ -54654,6 +54677,11 @@
      "id": "epfl-apply",
      "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/how-to-apply/",
      "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "epfl-language",
+     "url": "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/",
+     "retrieved_at": "2026-11-26T11:30:00Z"
     }
    ],
    "matchable": true,
@@ -54664,7 +54692,12 @@
    "city": "Lausanne",
    "duration": "3 years",
    "duration_months": 36,
-   "start": "September 2027"
+   "start": "September 2027",
+   "language_of_instruction": {
+    "language": "French",
+    "note": "The EPFL Bachelors are taught in French; level B2 in French is required to follow the programme, C1 highly recommended.",
+    "source_url": "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/"
+   }
   },
   {
    "id": "epfl-ai-bsc-2027",
@@ -54738,6 +54771,11 @@
      "id": "epfl-apply",
      "url": "https://www.epfl.ch/education/admission/admission-2/bachelor-admission-criteria-and-application/how-to-apply/",
      "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "epfl-language",
+     "url": "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/",
+     "retrieved_at": "2026-11-26T11:30:00Z"
     }
    ],
    "matchable": true,
@@ -54748,7 +54786,12 @@
    "city": "Lausanne",
    "duration": "3 years (180 ECTS)",
    "duration_months": 36,
-   "start": "September 2027"
+   "start": "September 2027",
+   "language_of_instruction": {
+    "language": "French",
+    "note": "The EPFL Bachelors are taught in French; level B2 in French is required to follow the programme, C1 highly recommended.",
+    "source_url": "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/"
+   }
   },
   {
    "id": "zurich-informatics-bsc-2027",
@@ -54817,6 +54860,11 @@
      "id": "uzh-deadlines",
      "url": "https://www.uzh.ch/en/studies/application/deadlines.html",
      "retrieved_at": "2026-11-26T10:23:00Z"
+    },
+    {
+     "id": "uzh-degrees",
+     "url": "https://www.degrees.uzh.ch/en/bachelor/50000003/51082599/51085518",
+     "retrieved_at": "2026-11-26T11:30:00Z"
     }
    ],
    "matchable": true,
@@ -54827,7 +54875,12 @@
    "city": "Zurich",
    "duration": "3 years (180 ECTS)",
    "duration_months": 36,
-   "start": "September 2027"
+   "start": "September 2027",
+   "language_of_instruction": {
+    "language": "German",
+    "note": "Main language of instruction is German; many modules are held in German, some exclusively in English.",
+    "source_url": "https://www.degrees.uzh.ch/en/bachelor/50000003/51082599/51085518"
+   }
   }
  ],
  "sources": [
@@ -57890,6 +57943,18 @@
    "url": "https://www.uzh.ch/en/studies/application/deadlines.html",
    "retrieved_at": "2026-11-26T10:23:00Z",
    "title": "Application Deadlines (UZH)"
+  },
+  {
+   "id": "epfl-language",
+   "url": "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/",
+   "retrieved_at": "2026-11-26T11:30:00Z",
+   "title": "Languages taught and international tests (EPFL)"
+  },
+  {
+   "id": "uzh-degrees",
+   "url": "https://www.degrees.uzh.ch/en/bachelor/50000003/51082599/51085518",
+   "retrieved_at": "2026-11-26T11:30:00Z",
+   "title": "Bachelor of Science UZH in Informatics (UZH)"
   }
  ],
  "traceability": [
