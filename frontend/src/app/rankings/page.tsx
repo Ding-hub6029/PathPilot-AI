@@ -8,6 +8,7 @@ import { crestFor, monogramFor } from '../../lib/crests';
 import { useApp } from '../../lib/store';
 import { RankingEntry } from '../../lib/types';
 import { ViewTransitionLink } from '../../components/ViewTransitionLink';
+import { AiEntry } from '../../components/AiEntry';
 import { vtRef } from '../../lib/viewTransition';
 
 /**
@@ -142,6 +143,19 @@ export default function RankingsPage() {
   const entryFor = (providerId: string, institutionId: string) =>
     entries.find((e) => e.provider === providerId && e.institution_id === institutionId);
 
+  // AI visibility layer (W5): one entry per page, asking the grounded
+  // chat about the provider currently shown (QS when all providers
+  // are shown). The question names the provider + edition, never an
+  // institution, so the backend answers with its ranking-overview
+  // intent (top 3 + provider summary) instead of asking which
+  // institution. "universities" is deliberate: the template's
+  // name-token match reads "institutions" as the "Institut" token.
+  const aiProvider = provider === 'all' ? 'qs' : provider;
+  const aiProviderMeta = providers.find((p) => p.id === aiProvider);
+  const rankingsQuestion = aiProviderMeta
+    ? `Explain the ${aiProviderMeta.id.toUpperCase()} ${aiProviderMeta.edition_label} ranking (top 100, world ranks): which universities are at the top, and what does the ranking measure?`
+    : '';
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="line-mask text-2xl font-bold"><span>{t('rankings.title')}</span></h1>
@@ -153,6 +167,10 @@ export default function RankingsPage() {
           <span className="ms-2 font-semibold text-teal-dark">{t('rankings.refreshing')}</span>
         )}
       </p>
+
+      <div className="mt-4">
+        <AiEntry label={t('aivis.rankings')} question={rankingsQuestion} />
+      </div>
 
       <section className="mt-6" aria-labelledby="prov-title">
         <h2 id="prov-title" className="text-xl font-bold">{t('rankings.providers')}</h2>

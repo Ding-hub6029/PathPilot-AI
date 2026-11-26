@@ -219,10 +219,70 @@ function mapLocalAnswer(
   }
 }
 
+/**
+ * P0-4 (re-test task 6): map one just-submitted answer locally, so a
+ * failed model turn can be preserved across the fallback switch
+ * instead of dropped. Same understanding as the guided queue
+ * (mapLocalAnswer + the countries-note rule), plus the two cases the
+ * local mapper has no branch for: salary ("60000 GBP" / "60000" —
+ * the re-test's lost answer) and city free text. Returns null when
+ * nothing maps, and for questions — the caller then prefills the text
+ * into the guided input so one tap re-sends it instead of retyping.
+ * Exported for tests (tests/test_p0_retest6.py, via a node harness).
+ */
+export function mapFailedPrefAnswer(
+  text: string,
+  q: PrefQId | null,
+  t: (k: string) => string,
+  profile: Profile,
+): { patch: Partial<Profile>; verbatim: string } | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  // A question is never mapped as an answer ("瑞士有哪些好学校？"
+  // names a country but asks about it — mapping it would record a
+  // preference the user never stated). The caller prefills it instead.
+  if (looksLikeQuestion(trimmed)) return null;
+  if (q === 'salary') {
+    const m = trimmed.match(/(\d+(?:\.\d+)?)\s*(GBP|SGD|USD)?/i);
+    if (!m) return null;
+    const amount = Number(m[1]);
+    if (!Number.isFinite(amount) || amount <= 0) return null;
+    const currency = (m[2]?.toUpperCase() as 'GBP' | 'SGD' | 'USD' | undefined)
+      ?? (profile.prefSalaryCurrency as 'GBP' | 'SGD' | 'USD' | undefined)
+      ?? 'GBP';
+    return { patch: { prefSalary: amount, prefSalaryCurrency: currency }, verbatim: trimmed };
+  }
+  if (q === 'city') {
+    return { patch: { prefCity: trimmed }, verbatim: trimmed };
+  }
+  if (q === 'countries') {
+    const mapped = mapLocalAnswer('countries', trimmed, t, profile);
+    const patch: Partial<Profile> = { ...(mapped ?? {}) };
+    if (hasExtraWordsBeyondCountries(trimmed, t, enMessages as Record<string, string>)) {
+      patch.prefCountriesNote = trimmed;
+    }
+    if (!Object.keys(patch).length) {
+      // No country code matched: keep the whole sentence as the note
+      // (an unlisted country, or a reason for one) — the words are
+      // preserved instead of dropped.
+      patch.prefCountriesNote = trimmed;
+    }
+    return { patch, verbatim: trimmed };
+  }
+  if (q) {
+    const mapped = mapLocalAnswer(q, trimmed, t, profile);
+    if (mapped) return { patch: mapped, verbatim: trimmed };
+    return null;
+  }
+  // No question context: only a country mention is safe to map.
+  const mapped = mapLocalAnswer('countries', trimmed, t, profile);
+  if (mapped) return { patch: mapped, verbatim: trimmed };
+  return null;
+}
+
 /** One field of a parse confirmation, stored structured (locale key +
  * raw value, plus an existing locale key when the value is an enum) so
- * the bubble renders in the current locale at render time. */
-interface ParseSummaryEntry { key: string; value: string; valueKey?: string; }
+ * the bubble renders in the current locale at render time. */interface ParseSummaryEntry { key: string; value: string; valueKey?: string; }
 
 /**
  * Map a /profile/parse result onto the flat wizard Profile. Only
@@ -392,6 +452,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   /** The user text whose pref-chat call failed (kept so the retry
    * action can re-send it instead of dropping the user's words). */
   const [failedText, setFailedText] = useState<string | null>(null);
+  /** P0-3 (re-test task 6): a country was recorded without a reason
+   * behind it — a chip tap ("瑞士") carries no reason, so without a
+   * follow-up the reason is never volunteered and never recorded.
+   * While set, the chat asks why (one follow-up, skippable) in both
+   * paths; the answer is stored verbatim as prefCountriesNote. */
+  const [awaitingReason, setAwaitingReason] = useState<{ countries: string[] } | null>(null);
   /** Salary input for the model-led chat (local only — the amount is
    * sent as a message and applied only after confirmation). */
   const [modelSalary, setModelSalary] = useState('');
@@ -514,13 +580,42 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const remainingLabel = missingQs.map((q) => t(prefQuestionNameKey(q))).join('、');
 
   /** Switch to the guided queue with the honest offline line. The
-   * guided queue resumes at the first unanswered question. */
-  const enterGuidedMode = () => {
+   * guided queue resumes at the first unanswered question. `base`
+   * is the profile to resume from — the caller passes the merged
+   * profile when it just applied a preserved answer (P0-4), so the
+   * queue resumes PAST the just-answered question instead of
+   * re-asking it from the stale closure profile. */
+  const enterGuidedMode = (base?: Profile) => {
     setMode('guided');
     setAiOffline(true);
     setPendingExtract(null);
     setWaking(false);
-    setQIndex(firstUnanswered(profile));
+    setAwaitingReason(null);
+    setQIndex(firstUnanswered(base ?? profile));
+  };
+
+  /** P0-4 (re-test task 6): a failed turn must not lose the user's
+   * answer (2 of 6 turns failed over and the just-submitted answer —
+   * e.g. salary 60000 — had to be re-entered). The text is mapped
+   * locally against the question it answered and applied at once, so
+   * the guided queue resumes past it; when nothing maps, the text is
+   * prefilled into the guided input so one tap re-sends it instead of
+   * retyping. A question is never mapped as an answer. */
+  const preserveFailedAnswer = (trimmed: string, q: PrefQId | null, turnId: number) => {
+    setTurns((prev) => prev.filter((x) => x.id !== turnId));
+    // mapFailedPrefAnswer returns null for questions and for anything
+    // it cannot map — those are prefilled, never dropped.
+    const preserved = mapFailedPrefAnswer(trimmed, q, t, profile);
+    if (preserved) {
+      if (q) setVerbatim((prev) => ({ ...prev, [q]: preserved.verbatim }));
+      setFailedText(null);
+      updateProfile(preserved.patch);
+      enterGuidedMode({ ...profile, ...preserved.patch });
+      return;
+    }
+    setFailedText(trimmed);
+    setInput(trimmed);
+    enterGuidedMode();
   };
 
   /** One model-led turn: message + known prefs + history to the
@@ -536,6 +631,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const sendToPrefChat = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || thinking) return;
+    // P0-4: the question this turn answers — needed to preserve the
+    // answer locally if the call falls back to guided mode.
+    const questionAtSend: PrefQId | null = nextQ as PrefQId | null;
     setThinking(true);
     setWaking(false);
     setConfirmedNote(null);
@@ -577,9 +675,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
           flashMood('celebrate');
           return;
         }
-        setFailedText(trimmed);
-        setTurns((prev) => prev.filter((x) => x.id !== turnId));
-        enterGuidedMode();
+        // P0-4: preserve the just-submitted answer across the
+        // fallback switch instead of dropping it.
+        preserveFailedAnswer(trimmed, questionAtSend, turnId);
         return;
       }
       setAiOffline(false);
@@ -592,9 +690,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       flashMood('celebrate');
     } catch {
       setWaking(false);
-      setFailedText(trimmed);
-      setTurns((prev) => prev.filter((x) => x.id !== turnId));
-      enterGuidedMode();
+      // P0-4: preserve the just-submitted answer across the fallback
+      // switch instead of dropping it.
+      preserveFailedAnswer(trimmed, questionAtSend, turnId);
     } finally {
       setThinking(false);
     }
@@ -619,15 +717,52 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     if (!pendingExtract) return;
     const summary = extractedSummary(pendingExtract.extracted, t);
     const patch = profilePatchFromExtracted(pendingExtract.extracted, profile);
+    // P0-3: a newly recorded country with no reason behind it asks
+    // why — a chip tap carries no reason, so without this the reason
+    // is never volunteered and never recorded (re-test task 6: the
+    // chat never asked why Switzerland, and "环境优美" appears
+    // nowhere). No ask when the reason was already given (in this
+    // extraction or an earlier note).
+    const addsCountries = (pendingExtract.extracted.countries?.length ?? 0) > 0;
+    const hasNote = !!pendingExtract.extracted.note?.trim() || !!(profile.prefCountriesNote ?? '').trim();
+    const newCountries = pendingExtract.extracted.countries ?? [];
     setPendingExtract(null);
     if (patch) updateProfile(patch);
     setConfirmedNote(summary);
     flashMood('celebrate');
+    if (addsCountries && !hasNote) setAwaitingReason({ countries: newCountries });
   };
 
   const dismissExtract = () => {
     setPendingExtract(null);
     flashMood('empathise');
+  };
+
+  /** P0-3: store the why-answer verbatim as the countries note. The
+   * text IS the reason by construction — it was given in answer to
+   * "why {countries}?" — so it is stored directly, never sent through
+   * the model/parse path (which would misread it as an answer to the
+   * next question). */
+  const saveReason = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    const existing = (profile.prefCountriesNote ?? '').trim();
+    updateProfile({
+      prefCountriesNote: existing && existing !== trimmed && !existing.includes(trimmed)
+        ? `${existing}；${trimmed}`
+        : trimmed,
+    });
+    setConfirmedNote(trimmed);
+    setAwaitingReason(null);
+    setInput('');
+    flashMood('celebrate');
+  };
+
+  /** Skip the why-follow-up (the reason stays unknown — unknown stays
+   * unknown, never invented). */
+  const skipReason = () => {
+    setAwaitingReason(null);
+    setConfirmedNote(null);
   };
 
   /** Skip the current next question in the model-led chat (local
@@ -836,7 +971,22 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       if (hasExtraWordsBeyondCountries(text, t, enMessages as Record<string, string>)) {
         patch.prefCountriesNote = text;
       }
-      if (Object.keys(patch).length) { answerSingle(q, patch); return; }
+      if (Object.keys(patch).length) {
+        // P0-3: countries recorded with no reason behind them — ask
+        // why instead of advancing (the reason is never volunteered
+        // otherwise). Stay on the countries question; the why bubble
+        // renders in the current-question block.
+        const hasNote = !!patch.prefCountriesNote || !!(profile.prefCountriesNote ?? '').trim();
+        if (!hasNote && (patch.prefCountries?.length ?? 0) > 0) {
+          setVerbatim((prev) => ({ ...prev, [q]: text }));
+          updateProfile(patch);
+          setAwaitingReason({ countries: patch.prefCountries ?? [] });
+          setInput('');
+          flashMood('celebrate');
+          return;
+        }
+        answerSingle(q, patch); return;
+      }
       updateProfile({ prefCountriesNote: text });
       flashMood('celebrate');
       setInput('');
@@ -863,6 +1013,18 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     const text = input.trim();
     if (!text || thinking || !currentQ) return;
     const q = currentQ;
+    // P0-3: while the why-follow-up is open, a reason goes straight
+    // to the note and the queue advances past the answered countries
+    // question; a question still goes to the model and the why stays
+    // open for after the answer.
+    if (awaitingReason) {
+      if (!looksLikeQuestion(text)) {
+        setInput('');
+        saveReason(text);
+        setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+        return;
+      }
+    }
     if (looksLikeQuestion(text)) {
       setInput('');
       await askModel(q, text);
@@ -927,6 +1089,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   };
 
   const skip = () => {
+    // P0-3: skipping while the why-follow-up is open skips the reason
+    // (it stays unknown) and moves on.
+    setAwaitingReason(null);
     setInput('');
     setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
   };
@@ -943,6 +1108,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     setPendingExtract(null);
     setConfirmedNote(null);
     setFailedText(null);
+    setAwaitingReason(null);
     setAiOffline(false);
     setMode('model');
     setQIndex(0);
@@ -1071,7 +1237,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * label as the user's message — the model, not the chip, decides
    * what was understood (and the confirmation bubble follows). */
   const renderModelChips = () => {
-    if (!nextQ || thinking || pendingExtract) return null;
+    // P0-3: while the why-follow-up is open the chips wait — one
+    // question at a time, and the reason is the open question.
+    if (!nextQ || thinking || pendingExtract || awaitingReason) return null;
     if (nextQ === 'countries') {
       return (
         <div className="flex flex-wrap gap-2">
@@ -1149,6 +1317,18 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const submitModelText = () => {
     const text = input.trim();
     if (!text || thinking || pendingExtract) return;
+    // P0-3: while the why-follow-up is open, a reason goes straight
+    // to the note; a question still goes to the model and the why
+    // stays open for after the answer.
+    if (awaitingReason) {
+      if (looksLikeQuestion(text)) {
+        setInput('');
+        void sendToPrefChat(text);
+        return;
+      }
+      saveReason(text);
+      return;
+    }
     setInput('');
     void sendToPrefChat(text);
   };
@@ -1252,6 +1432,17 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
 
             {!modelDone && (
               <div className="space-y-3">
+                {/* P0-3: the why-follow-up — asked once a country is
+                    recorded without a reason, in the user's language,
+                    with the country named. The answer is the user's
+                    own words, stored verbatim as the note. */}
+                {awaitingReason && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
+                      <p>{tf('p0.chatWhyCountry', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、') })}</p>
+                    </div>
+                  </div>
+                )}
                 {renderModelChips()}
                 <div className="flex gap-2">
                   <input value={input}
@@ -1269,7 +1460,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                   </button>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <button type="button" onClick={skipNext} disabled={thinking || !!pendingExtract} className="btn-press text-sm font-semibold text-teal-dark underline underline-offset-2 disabled:opacity-40">
+                  {/* P0-3: while the why-follow-up is open, Skip skips
+                      the reason (it stays unknown), not the next
+                      preference question. */}
+                  <button type="button" onClick={awaitingReason ? skipReason : skipNext} disabled={thinking || !!pendingExtract} className="btn-press text-sm font-semibold text-teal-dark underline underline-offset-2 disabled:opacity-40">
                     {t('wizard.chatSkip')}
                   </button>
                 </div>
@@ -1353,6 +1547,16 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                   </div>
                 </div>
 
+                {/* P0-3: the why-follow-up (guided path) — asked once
+                    a country is recorded without a reason. */}
+                {awaitingReason && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
+                      <p>{tf('p0.chatWhyCountry', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、') })}</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Parse confirmation: what the pet understood from the
                     free text — nothing is applied until the user says yes. */}
                 {pendingParse && pendingParse.q === currentQ && (
@@ -1390,8 +1594,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                   </div>
                 )}
 
-                {/* Countries: multi-select chips + free-text note + confirm. */}
-                {currentQ === 'countries' && (
+                {/* Countries: multi-select chips + free-text note + confirm.
+                    Hidden while the why-follow-up is open — one
+                    question at a time. */}
+                {currentQ === 'countries' && !awaitingReason && (
                   <div className="flex flex-wrap gap-2">
                     {PREF_COUNTRY_CODES.map((code) => {
                       const on = (profile.prefCountries ?? []).includes(code);
@@ -1487,7 +1693,18 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 <div className="flex flex-wrap items-center gap-3">
                   {currentQ === 'countries' && (
                     <button type="button"
-                      onClick={() => { flashMood(opinion('countries', profile)?.mood ?? 'celebrate'); setQIndex((i) => Math.min(i + 1, QUESTIONS.length)); }}
+                      onClick={() => {
+                        // P0-3: countries chosen without a reason —
+                        // ask why first; a second tap skips the reason.
+                        const hasNote = !!(profile.prefCountriesNote ?? '').trim();
+                        if (!hasNote && (profile.prefCountries?.length ?? 0) > 0 && !awaitingReason) {
+                          setAwaitingReason({ countries: profile.prefCountries ?? [] });
+                          flashMood('celebrate');
+                          return;
+                        }
+                        setAwaitingReason(null);
+                        flashMood(opinion('countries', profile)?.mood ?? 'celebrate'); setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+                      }}
                       className="btn-press rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">
                       {t('wizard.chatNext')}
                     </button>

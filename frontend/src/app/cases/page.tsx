@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useApp } from '../../lib/store';
 import { SUCCESS_CASES } from '../../lib/cases';
 import { CaseCard } from '../../components/CaseCard';
+import { AiEntry, budgetFromProfile, fallbackQuestion, recommendQuestion, type RecommendLevel } from '../../components/AiEntry';
+import { displayCountryCode } from '../../lib/rankings';
 
 /**
  * All netizen-shared success cases (one card per applicant), filterable
@@ -12,9 +14,21 @@ import { CaseCard } from '../../components/CaseCard';
  * from the data length (tf with SUCCESS_CASES.length), never hardcoded.
  */
 export default function CasesPage() {
-  const { t, tf } = useApp();
+  const { t, tf, profile } = useApp();
   const [filter, setFilter] = useState<'all' | 'undergraduate' | 'taught_masters'>('all');
   const shown = filter === 'all' ? SUCCESS_CASES : SUCCESS_CASES.filter((c) => c.offers.some((o) => o.level === filter));
+  // AI visibility layer (W5): "find cases like me" — the backend
+  // holds no case data and the cases here are netizen-shared and
+  // unverified, so the entry honestly asks for verified programmes
+  // with the same level + country + budget instead (see aivis.casesNote).
+  // Level comes from the filter when set, else the saved profile.
+  const level: RecommendLevel = filter !== 'all'
+    ? filter
+    : (profile.track === 'taught_masters' ? 'taught_masters' : 'undergraduate');
+  const casesCountry = profile.prefCountries?.[0] ?? null;
+  const casesQuestion = casesCountry
+    ? recommendQuestion(level, casesCountry, displayCountryCode(casesCountry, casesCountry, t), budgetFromProfile(profile, level, casesCountry))
+    : fallbackQuestion(profile, level);
   const chip = (key: 'all' | 'undergraduate' | 'taught_masters', label: string) => (
     <button
       type="button"
@@ -36,6 +50,9 @@ export default function CasesPage() {
         {chip('all', t('cases.filterAll'))}
         {chip('undergraduate', t('cases.filterUg'))}
         {chip('taught_masters', t('cases.filterTm'))}
+      </div>
+      <div className="mt-4">
+        <AiEntry label={t('aivis.cases')} question={casesQuestion} note={t('aivis.casesNote')} />
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         {shown.map((c) => (

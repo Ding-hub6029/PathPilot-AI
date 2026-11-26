@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
 import { useElapsed } from '../../lib/useElapsed';
-import { matchProfile, mergePrograms, simulate } from '../../lib/api';
-import { MatchResponse, Profile, Program } from '../../lib/types';
+import { matchProfile, mergePrograms, fetchJson } from '../../lib/api';
+import { MatchResponse, Program } from '../../lib/types';
 import {
   catalogueCountInCountry, cityDisplayName, countryAlternatives, fieldDisplayLabel,
   hasPreferences, missingPrefCountries, prefHints, prefSummary, trackDisplayLabel,
@@ -15,11 +15,13 @@ import { EXPANSION_PROGRAMS } from '../../lib/expansion';
 import { displayProgramInstitutionName } from '../../lib/rankings';
 import { StatusChip } from '../../components/StatusChip';
 import { RuleRow } from '../../components/RuleRow';
+import { WhyNot, CompareView, WhynotServerResult } from '../../components/WhyNot';
 import { CompassFace } from '../../components/CompassPet';
 import { ViewTransitionLink } from '../../components/ViewTransitionLink';
 import { vtRef } from '../../lib/viewTransition';
 import { useBackendStatus } from '../../lib/backendStatus';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
+import { SimulatePanel } from '../../components/SimulatePanel';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
 
 type Filter = 'all' | 'met' | 'notmet' | 'unknown';
@@ -47,9 +49,15 @@ export default function ResultsPage() {
   const [filter, setFilter] = useState<Filter>('all');
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [cityFilter, setCityFilter] = useState<string | null>(null);
-  const [simPatch, setSimPatch] = useState<Partial<Profile>>({});
   const [simData, setSimData] = useState<MatchResponse | null>(null);
-  const [simLoading, setSimLoading] = useState(false);
+  // Why-not: engine-verified cheapest fix + optional citation-checked
+  // model note from POST /api/v1/whynot (one batched call, only for
+  // programmes with a failing rule, only while the backend is live).
+  // The WhyNot template renders from the /match ruleResults already
+  // on the page, so a failed or skipped fetch never loses it.
+  const [whynotById, setWhynotById] = useState<Record<string, WhynotServerResult>>({});
+  // Comparison view: 2–3 programmes, compared rule by rule.
+  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!profile.track || profile.targetProgramIds.length === 0) return;
@@ -70,12 +78,35 @@ export default function ResultsPage() {
     }
   }, [data]);
 
-  const runSim = async () => {
-    if (!Object.keys(simPatch).length) return;
-    setSimLoading(true);
-    try { setSimData(await simulate(profile, simPatch)); } catch { /* keep baseline */ }
-    setSimLoading(false);
-  };
+  // Why-not verification (W2): one batched /whynot call for the
+  // programmes with a failing rule, once the backend is live. Single
+  // attempt (fetchJson, no patient retry): the template already
+  // renders from /match data, so a failed call only loses the
+  // verification badge and the model note, never the explanation.
+  useEffect(() => {
+    if (!data || backendStatus !== 'live') return;
+    const ids = data.results
+      .filter((r) => r.ruleResults.some((x) => x.status === 'NOT_MET'))
+      .map((r) => r.programId);
+    if (ids.length === 0) return;
+    let cancelled = false;
+    fetchJson<{ results: { programId: string; whynot: WhynotServerResult['whynot']; model_note: string | null; ai_status: string }[] }>('/api/whynot', {
+      method: 'POST',
+      body: JSON.stringify({ profile, program_ids: ids, locale }),
+    }).then((body) => {
+      if (cancelled) return;
+      const next: Record<string, WhynotServerResult> = {};
+      for (const r of body.results ?? []) {
+        next[r.programId] = { whynot: r.whynot, model_note: r.model_note, ai_status: r.ai_status };
+      }
+      setWhynotById(next);
+    }).catch(() => { /* template fallback covers it */ });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, backendStatus, locale]);
+
+  // The what-if scenario shown inline on programme cards comes from
+  // SimulatePanel (below); the panel owns the simulation state.
 
   // Programmes behind the current results, for the country / city
   // filters. City comes from the programme's verified city field.
@@ -114,6 +145,18 @@ export default function ResultsPage() {
     }).sort((a, b) => rank(a.eligibilitySummary) - rank(b.eligibilitySummary)
       || (a.preferenceFit === 'conflict' ? 1 : 0) - (b.preferenceFit === 'conflict' ? 1 : 0));
   }, [data, filter, countryFilter, cityFilter, programs]);
+
+  // Comparison selection: at most 3 programmes; a 4th tap is ignored
+  // (the hint under the grid says so) rather than silently swapping.
+  const toggleCompare = (programId: string) => {
+    setCompareIds((prev) => prev.includes(programId)
+      ? prev.filter((id) => id !== programId)
+      : prev.length >= 3 ? prev : [...prev, programId]);
+  };
+  const compareResults = useMemo(
+    () => (data ? data.results.filter((r) => compareIds.includes(r.programId)) : []),
+    [data, compareIds],
+  );
 
   if (!profile.track || profile.targetProgramIds.length === 0) {
     return (
@@ -312,9 +355,24 @@ export default function ResultsPage() {
         </div>
       )}
 
+      {/* Comparison picker (W2): each card has a Compare button; pick
+          2–3 to see them rule by rule, side by side. */}
+      {data && <p className="mt-3 text-sm text-navy/70">{t('whynot.compareHint')}</p>}
+
       <div aria-live="polite" className="mt-6">
         {loading && <p>{waking ? tf('pet.wakingElapsed', { seconds: wakingElapsed }) : t('results.loading')}</p>}
         {error && <p role="alert" className="rounded-lg bg-red-50 p-3 font-semibold text-red-800">{error}</p>}
+        {/* Comparison view (W2): 2–3 picked programmes, rule by rule. */}
+        {compareIds.length >= 2 && (
+          <div className="mb-6">
+            <CompareView results={compareResults} programs={programs} />
+            <button type="button" onClick={() => setCompareIds([])}
+              className="btn-press mt-2 rounded-full border border-navy/25 bg-white px-4 py-2 text-sm font-semibold">{t('whynot.compareClear')}</button>
+          </div>
+        )}
+        {compareIds.length === 1 && (
+          <p className="mb-4 text-sm text-navy/70">{t('whynot.compareNeedMore')}</p>
+        )}
         <div className="grid gap-4 md:grid-cols-2">
           {shown.map((r, i) => {
             const p = programs.find((x) => x.id === r.programId);
@@ -368,6 +426,17 @@ export default function ResultsPage() {
                     <div className="mt-3 space-y-2">
                       {r.ruleResults.map((rule) => <RuleRow key={rule.ruleId} program={p} rule={rule} />)}
                     </div>
+                    {/* Why-not (W2): the exact failing rule(s), the
+                        exact gap in engine numbers, and the cheapest
+                        fix — template from /match data, verified fix
+                        + model note from /whynot when available. */}
+                    <WhyNot
+                      result={r}
+                      program={p}
+                      server={whynotById[r.programId]?.whynot ?? null}
+                      modelNote={whynotById[r.programId]?.model_note ?? null}
+                      aiStatus={whynotById[r.programId]?.ai_status}
+                    />
                     {sim && (
                       <div className="mt-3 rounded-lg bg-teal/10 p-3 text-sm" aria-live="polite">
                         <p className="font-bold">{t('sim.scenario')}</p>
@@ -381,6 +450,16 @@ export default function ResultsPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <ViewTransitionLink href={`/programs/${p.id}`} className="btn-press inline-block rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">{t('results.viewDetail')}</ViewTransitionLink>
                   <Link href="/report" className="btn-press inline-block rounded-full border border-navy/30 bg-white px-4 py-2 text-sm font-semibold">{t('results.viewReport')}</Link>
+                  <button
+                    type="button"
+                    aria-pressed={compareIds.includes(r.programId)}
+                    disabled={!compareIds.includes(r.programId) && compareIds.length >= 3}
+                    title={compareIds.length >= 3 && !compareIds.includes(r.programId) ? t('whynot.compareMax') : undefined}
+                    onClick={() => toggleCompare(r.programId)}
+                    className={`btn-press rounded-full border px-4 py-2 text-sm font-semibold ${compareIds.includes(r.programId) ? 'border-navy bg-navy text-white' : 'border-navy/30 bg-white'}`}
+                  >
+                    {compareIds.includes(r.programId) ? t('whynot.compareRemove') : t('whynot.compareAdd')}
+                  </button>
                 </div>
               </article>
             );
@@ -388,32 +467,15 @@ export default function ResultsPage() {
         </div>
       </div>
 
-      {/* Simulation panel */}
-      <section className="mt-10 rounded-2xl border border-navy/10 bg-white p-6 shadow-sm" aria-labelledby="sim-title">
-        <h2 id="sim-title" className="text-xl font-bold">{t('sim.title')}</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="block"><span className="text-sm font-semibold">{t('wizard.ieltsOverall')}</span>
-            <input type="number" step="0.5" min={0} max={9} value={simPatch.ieltsOverall ?? profile.ieltsOverall ?? ''} onChange={(e) => setSimPatch({ ...simPatch, ieltsOverall: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-          <label className="block"><span className="text-sm font-semibold">{t('wizard.ieltsWriting')}</span>
-            <input type="number" step="0.5" min={0} max={9} value={simPatch.ieltsWriting ?? profile.ieltsWriting ?? ''} onChange={(e) => setSimPatch({ ...simPatch, ieltsWriting: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-          <label className="block"><span className="text-sm font-semibold">{t('wizard.ieltsListening')}</span>
-            <input type="number" step="0.5" min={0} max={9} value={simPatch.ieltsListening ?? profile.ieltsListening ?? ''} onChange={(e) => setSimPatch({ ...simPatch, ieltsListening: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-          <label className="block"><span className="text-sm font-semibold">{t('wizard.ieltsReading')}</span>
-            <input type="number" step="0.5" min={0} max={9} value={simPatch.ieltsReading ?? profile.ieltsReading ?? ''} onChange={(e) => setSimPatch({ ...simPatch, ieltsReading: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-          <label className="block"><span className="text-sm font-semibold">{t('wizard.ieltsSpeaking')}</span>
-            <input type="number" step="0.5" min={0} max={9} value={simPatch.ieltsSpeaking ?? profile.ieltsSpeaking ?? ''} onChange={(e) => setSimPatch({ ...simPatch, ieltsSpeaking: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-          <label className="block"><span className="text-sm font-semibold">{t('sim.budget')}{profile.budgetCurrency ? ` (${profile.budgetCurrency})` : ''}</span>
-            <input type="number" step="1" min={0} value={simPatch.budget ?? profile.budget ?? ''} onChange={(e) => setSimPatch({ ...simPatch, budget: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button type="button" onClick={runSim} disabled={simLoading} className="btn-press rounded-full bg-teal px-5 py-2 font-semibold text-white disabled:opacity-50">{simLoading ? t('common.loading') : t('sim.apply')}</button>
-          <button type="button" onClick={() => { setSimPatch({}); setSimData(null); }} className="btn-press rounded-full border border-navy/30 px-5 py-2 font-semibold">{t('sim.reset')}</button>
-        </div>
-        <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
-          <div className="rounded-lg bg-paper p-4"><p className="font-bold">{t('sim.baseline')}</p><p className="mt-1 text-navy/70">IELTS {profile.ieltsOverall ?? '–'} · {t('sim.budget')}: {profile.budget ?? '–'} {profile.budgetCurrency}</p></div>
-          <div className="rounded-lg bg-teal/10 p-4"><p className="font-bold">{t('sim.scenario')}</p><p className="mt-1 text-navy/70">IELTS {simPatch.ieltsOverall ?? profile.ieltsOverall ?? '–'} · {t('wizard.ieltsWriting')}: {simPatch.ieltsWriting ?? profile.ieltsWriting ?? '–'} · {t('sim.budget')}: {simPatch.budget ?? profile.budget ?? '–'} {profile.budgetCurrency ?? ''}</p></div>
-        </div>
-      </section>
+      {/* Multi-change what-if simulation (Day 3): the panel owns the
+          simulation state; the selected scenario's MatchResponse is
+          lifted here so the programme cards above can show it inline. */}
+      <SimulatePanel
+        profile={profile}
+        programIds={data ? data.results.map((r) => r.programId) : profile.targetProgramIds}
+        programs={programs}
+        onScenario={setSimData}
+      />
 
       <p className="mt-6 rounded-lg bg-white/70 p-3 text-sm text-navy/80" role="note">{t('home.disclaimer')}</p>
     </div>

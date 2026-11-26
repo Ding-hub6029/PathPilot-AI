@@ -726,7 +726,7 @@
     },
     "/api/v1/assistant/chat": {
       "post": {
-        "description": "Free-text question to \u5c0f\u7f57\u76d8.\n\nRequest: ``{message (1..500 chars), locale=\"en\",\nhistory: [{role, content}] (max 10 turns, each content max 500)}``.\nResponse: ``{lines (at most 3, conclusion first), evidence_url,\nai_status, model, sources: [{id, url, title}]}``.",
+        "description": "Free-text question to \u5c0f\u7f57\u76d8.\n\nRequest: ``{message (1..500 chars), locale=\"en\",\nhistory: [{role, content}] (max 10 turns, each content max 500),\nmode: \"normal\"|\"devil\", profile: {...}}`` \u2014 mode \"devil\" (round 11)\nchallenges the stated preferences in ``profile`` with\nengine-computed conflicts; see ``ai.chat`` for the grounding and\nfallback rules.\nResponse: ``{lines (at most 3, conclusion first), evidence_url,\nai_status, model, sources: [{id, url, title}]}`` \u2014 devil replies\nadditionally carry ``mode: \"devil\"`` and ``conflicts: [kinds]``.",
         "operationId": "assistant_chat_endpoint_api_v1_assistant_chat_post",
         "responses": {
           "200": {
@@ -1663,7 +1663,7 @@
     },
     "/api/v1/simulate": {
       "post": {
-        "description": "Baseline vs patch, same rules and data version.\n\nFrontend contract: {\"baseline_profile\": <flat>, \"patch\": <flat partial>,\n\"program_ids\": [...]} -> {\"baseline\": <MatchResponse>,\n\"scenario\": <MatchResponse>, \"delta\": [{program_id, rule_id,\nbaseline_status, scenario_status}]}.\nSpec/test contract: {\"profile\": <nested>, \"program_id\": str,\n\"patch\": <nested dict>} -> {\"program_id\", \"baseline\", \"patched\"}.\nPatch is a deep-merge onto the profile dict. Changing language overall\nmust NOT change the component scores (they are separate fields).",
+        "description": "Baseline vs patch, same rules and data version.\n\nFrontend contract: {\"baseline_profile\": <flat>, \"patch\": <flat partial>,\n\"program_ids\": [...]} -> {\"baseline\": <MatchResponse>,\n\"scenario\": <MatchResponse>, \"delta\": [{program_id, rule_id,\nbaseline_status, scenario_status}]}.\nMulti-scenario (Day 3): {\"baseline_profile\", \"scenarios\":\n[{name, patch}], \"program_ids\", \"locale\", \"explain\"} ->\n{\"baseline\", \"scenarios\": [{name, patch, scenario, delta,\nprogramme_flips, flipped_program_ids, rule_flip_count}],\n\"scenario\", \"delta\", \"leverage\", \"explanation\"} \u2014 \"scenario\"/\"delta\"\nare the first scenario, kept for backward compatibility.\n\"leverage\" ranks the candidate single-field changes the engine\nactually evaluates (see ai/simulate_explain.leverage_candidates):\n{\"top\": <candidate with most flips, or None>, \"all\": [...]} where a\ncandidate is {id, patch, change, flips, flipped_program_ids,\nrule_flips, flipped_rules}. Ranking is by programme flips first,\nthen rule flips (NOT_MET -> MET); ties keep candidate order.\nA \"programme flip\" means the programme leaves NOT_MET \u2014 to MET or\nto PARTIAL_UNKNOWN (all known minimums met, some rule still\nUNKNOWN). The strict NOT_MET -> MET count is kept alongside as\n\"flips_to_met\": it is structurally 0 for many programmes (e.g. UCL\nTARA and every Gaokao academic rule stay UNKNOWN, so a fully-MET\nsummary is unreachable), and reporting only the strict count would\nhide every real improvement. \"top\" is None when no candidate flips\nany rule.\n\"explanation\" is {text, structured, ai_status, source} where source\nis \"model\" only when a citation-checked model output was used, else\n\"template\" (deterministic, from engine numbers). A model call is\nmade only when \"explain\" is true; otherwise the template is\nreturned and no model is called. The numbers in the text are the\nengine-computed ones; the model words carry no numbers of their own.\nSpec/test contract: {\"profile\": <nested>, \"program_id\": str,\n\"patch\": <nested dict>} -> {\"program_id\", \"baseline\", \"patched\"}.\nPatch is a deep-merge onto the profile dict. Changing language overall\nmust NOT change the component scores (they are separate fields).\n\nEvaluations here use explain=False: a MatchResponse carries no\nper-programme explanation, and a model call per programme per\nscenario would block the event loop for minutes on a 369-programme\nbatch. The single-programme /explain endpoint still explains on\ndemand.",
         "operationId": "simulate_api_v1_simulate_post",
         "responses": {
           "200": {
@@ -1676,6 +1676,26 @@
           }
         },
         "summary": "Simulate"
+      }
+    },
+    "/api/v1/whynot": {
+      "post": {
+        "description": "Server-side recompute of why-not explanations (spec W2).\n\nBody: {\"profile\": <nested StudentProfile | flat wizard profile>,\n\"program_ids\": [...], \"locale\": \"en\"}. A client-supplied\nEvaluation ({\"evaluation\": ...}) is rejected with 422\nEXPLAIN_REQUIRES_PROFILE, like /explain.",
+        "operationId": "whynot_api_v1_whynot_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Whynot",
+        "tags": [
+          "whynot"
+        ]
       }
     }
   }

@@ -234,7 +234,13 @@ export default function HomePage() {
         </div>
         <p className="mt-3 text-sm text-navy/60">{t('home.sampleNote')}</p>
         <p className="mt-3 flex flex-wrap gap-3">
-          <Link href="/programs" className="btn-press inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.browsePrograms')}</Link>
+          {/* P0 (re-test task 6): click timing for the browser re-test
+              — this plain Link timed out 3 times across two sessions
+              in the re-test while the direct /programs URL opened
+              instantly. The link itself is correct; pair this log
+              with the [p0-nav] route-committed log in RouteTransition
+              to measure the click-to-commit gap live. */}
+          <Link href="/programs" onClick={() => { if (typeof console !== 'undefined' && typeof console.debug === 'function') console.debug('[p0-nav] browse-programs click -> /programs'); }} className="btn-press inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.browsePrograms')}</Link>
           <Link href="/rankings" className="btn-press inline-block rounded-full border border-navy/30 bg-white px-5 py-2.5 font-semibold">{t('home.browseRankings')}</Link>
         </p>
       </section>

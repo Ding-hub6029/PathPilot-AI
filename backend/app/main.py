@@ -43,6 +43,7 @@ from app.data import (CLIMATE, DATA_VERSION, EXPANSION_INSTITUTION_CITIES,
 from app.router_chat import router as router_chat
 from app.router_eval import router as router_eval
 from app.router_plans import router as router_plans
+from app.router_whynot import router as router_whynot
 from app.schemas import (AssistantAskRequest, AssistantSuggestRequest,
                          ErrorBody, ErrorResponse, Evaluation, ExplainRequest,
                          MatchRequest, SimulateRequest, StudentProfile)
@@ -60,6 +61,7 @@ app = FastAPI(title="PathPilot AI — Day 2 backend", version="0.2.0")
 app.include_router(router_chat)
 app.include_router(router_plans)
 app.include_router(router_eval)
+app.include_router(router_whynot)
 
 app.add_middleware(
     CORSMiddleware,
@@ -82,7 +84,8 @@ RATE_LIMIT_EXPLAIN_PER_MIN = 10
 # general bucket; /ai/status is a cheap read and stays general too.
 RATE_LIMIT_AI_PER_MIN = 10
 AI_PATH_PREFIXES = ("/api/v1/assistant/chat", "/api/v1/profile/parse",
-                    "/api/v1/improvement-plan", "/api/v1/ai/evaluation")
+                    "/api/v1/improvement-plan", "/api/v1/ai/evaluation",
+                    "/api/v1/whynot")
 _RATE_WINDOW_S = 60.0
 _rate_buckets: dict[str, list[float]] = {}
 
@@ -923,10 +926,42 @@ async def simulate(request: Request):
     "program_ids": [...]} -> {"baseline": <MatchResponse>,
     "scenario": <MatchResponse>, "delta": [{program_id, rule_id,
     baseline_status, scenario_status}]}.
+    Multi-scenario (Day 3): {"baseline_profile", "scenarios":
+    [{name, patch}], "program_ids", "locale", "explain"} ->
+    {"baseline", "scenarios": [{name, patch, scenario, delta,
+    programme_flips, flipped_program_ids, rule_flip_count}],
+    "scenario", "delta", "leverage", "explanation"} — "scenario"/"delta"
+    are the first scenario, kept for backward compatibility.
+    "leverage" ranks the candidate single-field changes the engine
+    actually evaluates (see ai/simulate_explain.leverage_candidates):
+    {"top": <candidate with most flips, or None>, "all": [...]} where a
+    candidate is {id, patch, change, flips, flipped_program_ids,
+    rule_flips, flipped_rules}. Ranking is by programme flips first,
+    then rule flips (NOT_MET -> MET); ties keep candidate order.
+    A "programme flip" means the programme leaves NOT_MET — to MET or
+    to PARTIAL_UNKNOWN (all known minimums met, some rule still
+    UNKNOWN). The strict NOT_MET -> MET count is kept alongside as
+    "flips_to_met": it is structurally 0 for many programmes (e.g. UCL
+    TARA and every Gaokao academic rule stay UNKNOWN, so a fully-MET
+    summary is unreachable), and reporting only the strict count would
+    hide every real improvement. "top" is None when no candidate flips
+    any rule.
+    "explanation" is {text, structured, ai_status, source} where source
+    is "model" only when a citation-checked model output was used, else
+    "template" (deterministic, from engine numbers). A model call is
+    made only when "explain" is true; otherwise the template is
+    returned and no model is called. The numbers in the text are the
+    engine-computed ones; the model words carry no numbers of their own.
     Spec/test contract: {"profile": <nested>, "program_id": str,
     "patch": <nested dict>} -> {"program_id", "baseline", "patched"}.
     Patch is a deep-merge onto the profile dict. Changing language overall
     must NOT change the component scores (they are separate fields).
+
+    Evaluations here use explain=False: a MatchResponse carries no
+    per-programme explanation, and a model call per programme per
+    scenario would block the event loop for minutes on a 369-programme
+    batch. The single-programme /explain endpoint still explains on
+    demand.
     """
     body = await request.json()
     rid = request.state.request_id
@@ -942,42 +977,156 @@ async def simulate(request: Request):
             return _err(rid, "TRACK_MISMATCH", problem, 422,
                         field_errors=[{"field": "application_track", "message": problem}])
         ids = body.get("program_ids") or []
-        patched_dict = copy.deepcopy(base.model_dump())
-        if "application_track" in raw_patch:
-            _deep_merge(patched_dict, raw_patch)
-            patched = StudentProfile(**patched_dict)
-        else:
-            merged_flat = copy.deepcopy(raw_base)
-            _deep_merge(merged_flat, raw_patch)
-            patched = flat_to_student(merged_flat)
-        base_results, scen_results, delta = [], [], []
+        scenarios_spec = body.get("scenarios")
+        if scenarios_spec is None:
+            scenarios_spec = [{"name": None, "patch": raw_patch}]
+        if not isinstance(scenarios_spec, list) or not scenarios_spec:
+            return _err(rid, "VALIDATION_ERROR",
+                        "scenarios must be a non-empty list of {name, patch}.", 422)
+        for spec in scenarios_spec:
+            if not isinstance(spec, dict) or not isinstance(spec.get("patch") or {}, dict):
+                return _err(rid, "VALIDATION_ERROR",
+                            "each scenario must be {name, patch} with a patch object.", 422)
+        # Resolve every programme up front so an unknown id 404s before
+        # any evaluation runs.
+        programs = []
         for pid in ids:
             program = _get_programme_or_404(pid)
             if program is None:
                 return _err(rid, "PROGRAM_NOT_FOUND", f"No program with id '{pid}'.", 404)
-            mismatch = track_mismatch(base, program)
-            if mismatch:
-                base_results.append({"programId": pid, "eligibilitySummary": "TRACK_MISMATCH",
-                                     "ruleResults": [], "trackMismatch": True})
-                scen_results.append({"programId": pid, "eligibilitySummary": "TRACK_MISMATCH",
-                                     "ruleResults": [], "trackMismatch": True})
-                continue
-            b_ev, s_ev = _evaluate(base, program), _evaluate(patched, program)
-            base_results.append({"programId": pid, "eligibilitySummary": summary_for(b_ev.overall_status),
-                                 "ruleResults": [rule_to_frontend(r) for r in b_ev.results]})
-            scen_results.append({"programId": pid, "eligibilitySummary": summary_for(s_ev.overall_status),
-                                 "ruleResults": [rule_to_frontend(r) for r in s_ev.results]})
-            for br, sr in zip(b_ev.results, s_ev.results):
-                if br.status != sr.status:
-                    delta.append({"program_id": pid, "rule_id": br.rule_id,
-                                  "baseline_status": br.status, "scenario_status": sr.status})
-        _attach_preference_fit(base_results, raw_base)
-        merged = copy.deepcopy(raw_base)
-        _deep_merge(merged, raw_patch)
-        _attach_preference_fit(scen_results, merged)
-        return {"baseline": match_response(f"eval-base-{rid[:8]}", base_results),
+            programs.append((pid, program))
+
+        def _patched_profile(patch: dict) -> StudentProfile:
+            if "application_track" in patch:
+                patched_dict = copy.deepcopy(base.model_dump())
+                _deep_merge(patched_dict, patch)
+                return StudentProfile(**patched_dict)
+            merged_flat = copy.deepcopy(raw_base)
+            _deep_merge(merged_flat, patch)
+            return flat_to_student(merged_flat)
+
+        def _run(profile: StudentProfile, raw_flat: dict):
+            """(frontend results, evaluations) for every programme."""
+            results, evs = [], []
+            for pid, program in programs:
+                mismatch = track_mismatch(profile, program)
+                if mismatch:
+                    results.append({"programId": pid, "eligibilitySummary": "TRACK_MISMATCH",
+                                    "ruleResults": [], "trackMismatch": True})
+                    evs.append(None)
+                    continue
+                ev = _evaluate(profile, program, explain=False)
+                evs.append(ev)
+                results.append({"programId": pid, "eligibilitySummary": summary_for(ev.overall_status),
+                                "ruleResults": [rule_to_frontend(r) for r in ev.results]})
+            _attach_preference_fit(results, raw_flat)
+            return results, evs
+
+        def _delta_and_flips(base_evs, scen_evs):
+            """Rule-level delta + programme flips.
+
+            A programme "flips" when it leaves NOT_MET: to MET, or to
+            PARTIAL_UNKNOWN (every known minimum met, an UNKNOWN rule
+            remains — the common case, since e.g. UCL TARA and Gaokao
+            academic rules are UNKNOWN by construction). The strict
+            NOT_MET -> MET count is returned alongside.
+            """
+            delta, programme_flips, rule_flips, strict_met = [], [], 0, 0
+            for (pid, _), b_ev, s_ev in zip(programs, base_evs, scen_evs):
+                if b_ev is None or s_ev is None:
+                    continue
+                b_sum = summary_for(b_ev.overall_status)
+                s_sum = summary_for(s_ev.overall_status)
+                if b_sum == "NOT_MET" and s_sum in ("MET", "PARTIAL_UNKNOWN"):
+                    programme_flips.append({"program_id": pid,
+                                           "baseline_summary": "NOT_MET",
+                                           "scenario_summary": s_sum})
+                    if s_sum == "MET":
+                        strict_met += 1
+                for br, sr in zip(b_ev.results, s_ev.results):
+                    if br.status != sr.status:
+                        delta.append({"program_id": pid, "rule_id": br.rule_id,
+                                      "baseline_status": br.status,
+                                      "scenario_status": sr.status})
+                        if br.status == "NOT_MET" and sr.status == "MET":
+                            rule_flips += 1
+            return delta, programme_flips, rule_flips, strict_met
+
+        base_results, base_evs = _run(base, raw_base)
+        scenario_entries = []
+        for spec in scenarios_spec:
+            try:
+                patched = _patched_profile(spec.get("patch") or {})
+            except Exception as exc:
+                return _err(rid, "VALIDATION_ERROR", str(exc), 422)
+            merged_flat = copy.deepcopy(raw_base)
+            _deep_merge(merged_flat, spec.get("patch") or {})
+            scen_results, scen_evs = _run(patched, merged_flat)
+            delta, programme_flips, rule_flips, strict_met = _delta_and_flips(base_evs, scen_evs)
+            scenario_entries.append({
+                "name": spec.get("name"),
+                "patch": spec.get("patch") or {},
                 "scenario": match_response(f"eval-scen-{rid[:8]}", scen_results),
-                "delta": delta}
+                "delta": delta,
+                "programme_flips": programme_flips,
+                "flipped_program_ids": [f["program_id"] for f in programme_flips],
+                "flipped_to_met_ids": [f["program_id"] for f in programme_flips
+                                       if f["scenario_summary"] == "MET"],
+                "rule_flip_count": rule_flips})
+        # Leverage diagnosis: one evaluation per candidate change.
+        from ai.simulate_explain import explain_simulation, leverage_candidates
+        leverage_all = []
+        for cand in leverage_candidates(raw_base):
+            try:
+                cand_profile = _patched_profile(cand["patch"])
+            except Exception:
+                continue
+            _cand_results, cand_evs = _run(cand_profile, {**raw_base, **cand["patch"]})
+            _d, programme_flips, rule_flips, strict_met = _delta_and_flips(base_evs, cand_evs)
+            flipped_rules = [d for d in _d if d["baseline_status"] == "NOT_MET"
+                             and d["scenario_status"] == "MET"][:200]
+            leverage_all.append({**cand,
+                                 "flips": len(programme_flips),
+                                 "flipped_program_ids": [f["program_id"] for f in programme_flips],
+                                 "flips_to_met": strict_met,
+                                 "rule_flips": rule_flips,
+                                 "flipped_rules": flipped_rules})
+        cand_order = [c["id"] for c in leverage_candidates(raw_base)]
+        ranked = sorted(leverage_all,
+                        key=lambda c: (-c["flips"], -c["rule_flips"],
+                                       cand_order.index(c["id"])))
+        top = ranked[0] if ranked and (ranked[0]["flips"] or ranked[0]["rule_flips"]) else None
+        leverage = {"top": top, "all": leverage_all}
+        baseline_unknown_academic = any(
+            ev is not None and any(r.rule_id.endswith("-academic") and r.status == "UNKNOWN"
+                                   for r in ev.results)
+            for ev in base_evs)
+        locale = body.get("locale") or "en"
+        # Model-backed simulate shares the 10/min/IP AI budget (spec Ch15):
+        # the path middleware cannot see the request body, so the explain
+        # branch checks the AI bucket itself. Template-only calls stay on
+        # the general bucket.
+        provider = None
+        if body.get("explain") is True:
+            client_ip = request.client.host if request.client else "unknown"
+            if _rate_limited(client_ip, "ai", RATE_LIMIT_AI_PER_MIN):
+                return _err(rid, "RATE_LIMITED",
+                            "AI call budget exceeded; try again shortly.", 429)
+            provider = ProviderAdapter()
+        structured, text, ai_status = explain_simulation(
+            scenarios=scenario_entries, leverage=leverage,
+            baseline_unknown_academic=baseline_unknown_academic,
+            locale=locale, provider=provider)
+        first = scenario_entries[0]
+        return {"baseline": match_response(f"eval-base-{rid[:8]}", base_results),
+                "scenarios": scenario_entries,
+                "scenario": first["scenario"],
+                "delta": first["delta"],
+                "leverage": leverage,
+                "explanation": {"text": text, "structured": structured,
+                                "ai_status": ai_status,
+                                "source": "model" if ai_status == "available" else "template",
+                                "top_change": (top or {}).get("id")}}
     try:
         req = SimulateRequest(**body)
     except Exception as exc:

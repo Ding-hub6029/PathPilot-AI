@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
@@ -35,22 +35,54 @@ function NumField({ label, value, onChange, step = '0.1', min, max }: { label: s
 export default function WizardPage() {
   const { t, locale, profile, setProfile, updateProfile } = useApp();
   const router = useRouter();
+  const [step, setStep] = useState(0);
+  // P0 (re-test task 6): the live programme refresh is deferred until
+  // the preferences step. Steps 0-5 run no network at all: the local
+  // mirror is complete (all 881 expansion programmes), so the
+  // wizard's candidates never depended on the live call — but the
+  // patient fetch (up to a 90s retry budget against a sleeping
+  // backend) used to be in flight through the whole wizard, including
+  // the window where the step-4 Next button was observed hanging.
   // Round 6: candidates come from the merged list (live v2 + the full
   // expansion mirror), so recommendations cover the 588 matchable
   // expansion programmes, not just the original 8.
-  const { programs: livePrograms } = usePrograms();
+  const { programs: livePrograms } = usePrograms({ enabled: step >= 6 });
   const programs = useMemo(() => mergePrograms(livePrograms), [livePrograms]);
-  const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   /**
-   * Round 11, F1: step changes run as a React transition, so the Next /
-   * Back button can disable + spin while the new step commits instead
-   * of looking dead. It also stops a fast double-click from queueing
-   * two setStep calls and skipping a step (both calls used to land,
-   * because nothing disabled the button between them).
+   * P0 (re-test task 6) — the step advance is URGENT, not a
+   * transition. Round 11 wrapped it in useTransition, and the
+   * re-test showed the same hang: first click no response (30s),
+   * second click no response (60s), third click advances at once.
+   * Measured evidence (local node harness + curl, 2026-11-26):
+   * allPrograms() 67ms, mergePrograms 2ms, evaluateLocal over the
+   * full 369-programme UG set 89ms, backend /match 4ms local /
+   * 0.8s live warm, Vercel pages + RSC payloads <1s warm — nothing
+   * on this path takes seconds, so a deferred transition buys
+   * nothing and is the only mechanism that can swallow clicks for
+   * tens of seconds: while a transition is pending the button is
+   * disabled, and a click landing on a disabled button is lost.
+   * setStep now commits synchronously; `advancing` only guards
+   * double-clicks and is cleared the moment the new step commits
+   * (plus a 500ms safety timeout, so the button can never stick
+   * disabled). Click/commit timings are logged ([p0-wizard]) for
+   * the browser re-test to read.
    */
-  const [isAdvancing, startAdvance] = useTransition();
+  const [advancing, setAdvancing] = useState(false);
+  const advanceStartedRef = useRef(0);
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    if (advancing) {
+      if (typeof console !== 'undefined' && typeof console.debug === 'function') {
+        console.debug(`[p0-wizard] step committed step=${step} in ${Date.now() - advanceStartedRef.current}ms`);
+      }
+      setAdvancing(false);
+      if (advanceTimerRef.current) { clearTimeout(advanceTimerRef.current); advanceTimerRef.current = undefined; }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Recommendation state (last step): evaluated matches for the chosen
   // field, ordered by eligibility. Read-only — the user never has to
@@ -86,13 +118,29 @@ export default function WizardPage() {
   }, [profile, step, error]);
 
   const next = () => {
+    if (advancing) return;
     if (!canNext()) { setError(t('wizard.required')); return; }
     setError('');
-    startAdvance(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)));
+    advanceStartedRef.current = Date.now();
+    if (typeof console !== 'undefined' && typeof console.debug === 'function') {
+      console.debug(`[p0-wizard] next click step=${step}`);
+    }
+    setAdvancing(true);
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    advanceTimerRef.current = setTimeout(() => setAdvancing(false), 500);
   };
 
   const back = () => {
-    startAdvance(() => setStep((s) => Math.max(0, s - 1)));
+    if (advancing) return;
+    advanceStartedRef.current = Date.now();
+    if (typeof console !== 'undefined' && typeof console.debug === 'function') {
+      console.debug(`[p0-wizard] back click step=${step}`);
+    }
+    setAdvancing(true);
+    setStep((s) => Math.max(0, s - 1));
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    advanceTimerRef.current = setTimeout(() => setAdvancing(false), 500);
   };
 
   const finish = () => {
@@ -103,6 +151,9 @@ export default function WizardPage() {
       ? recs.map((r) => r.programId)
       : programs.filter((p) => p.degreeLevel === profile.track && p.matchable !== false && profile.field && programMatchesField(p, profile.field)).map((p) => p.id);
     updateProfile({ targetProgramIds: ids });
+    if (typeof console !== 'undefined' && typeof console.debug === 'function') {
+      console.debug(`[p0-nav] wizard finish click -> /results ids=${ids.length}`);
+    }
     router.push('/results');
   };
 
@@ -215,9 +266,13 @@ export default function WizardPage() {
     // click landing mid-remount hit a detached node and was lost.
     // The page now stays mounted across steps; only the step content
     // below remounts (key={step} on its wrapper), and the nav buttons
-    // never move. The step advance itself was always synchronous —
-    // next() does no validation, fetch or storage for step 3 — the
-    // hang was the remount + refetch churn around it.
+    // never move. P0 (re-test task 6): that fix is live and the hang
+    // persisted unchanged, so the remount was NOT the cause. The
+    // advance also ran inside useTransition, which defers the update
+    // and holds the button disabled while pending — the step advance
+    // is now an urgent setStep (see `advancing` above), and the live
+    // refresh is deferred until step 6, so no patient fetch runs
+    // during steps 0-5 at all.
     <div className="page-enter mx-auto max-w-3xl px-4 py-8">
       <h1 className="line-mask text-2xl font-bold"><span>{t('wizard.title')}</span></h1>
 
@@ -473,7 +528,7 @@ export default function WizardPage() {
         {error && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-800">{error}</p>}
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <button type="button" onClick={back} disabled={step === 0 || isAdvancing} className="btn-press rounded-full border border-navy/30 px-5 py-2 font-semibold disabled:opacity-40">{t('wizard.back')}</button>
+          <button type="button" onClick={back} disabled={step === 0 || advancing} className="btn-press rounded-full border border-navy/30 px-5 py-2 font-semibold disabled:opacity-40">{t('wizard.back')}</button>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={loadSample} className="btn-press rounded-full border border-teal px-4 py-2 text-sm font-semibold text-teal-dark">{t('wizard.sampleProfile')}</button>
             {/* Chat steps (6 preferences, 7 recommend) drive their own
@@ -481,8 +536,8 @@ export default function WizardPage() {
                 duplicate Next / Finish button down here. */}
             {step < 6 && (
               step < STEPS.length - 1
-                ? <button type="button" onClick={next} disabled={isAdvancing} className="btn-press inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2 font-semibold text-white disabled:opacity-60">
-                    {isAdvancing && (
+                ? <button type="button" onClick={next} disabled={advancing} className="btn-press inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2 font-semibold text-white disabled:opacity-60">
+                    {advancing && (
                       <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity=".25" strokeWidth="4" />
                         <path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />

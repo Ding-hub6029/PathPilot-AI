@@ -36,6 +36,11 @@ export function ViewTransitionLink({
 
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    // P0 (re-test task 6): click timing for the browser re-test —
+    // pair with the [p0-nav] route-committed log in RouteTransition.
+    if (typeof console !== 'undefined' && typeof console.debug === 'function') {
+      console.debug(`[p0-nav] vt-link click ${href}`);
+    }
     const doc = document as Document & {
       startViewTransition?: (cb: () => Promise<void> | void) => void;
     };
@@ -47,12 +52,18 @@ export function ViewTransitionLink({
     }
     e.preventDefault();
     suppressNextRouteEnter();
-    doc.startViewTransition(async () => {
-      router.push(href);
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    // P0: a throw inside startViewTransition must never swallow the
+    // navigation — fall back to a plain router.push.
+    try {
+      doc.startViewTransition(async () => {
+        router.push(href);
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        });
       });
-    });
+    } catch {
+      router.push(href);
+    }
   };
 
   return (

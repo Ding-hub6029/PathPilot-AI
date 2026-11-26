@@ -39,7 +39,7 @@ from ai.grounding import (
 )
 from ai.prompts import PROMPT_VERSION, plan_system
 from ai.provider import ProviderAdapter, ProviderError
-from app.data import DATA_VERSION, PROGRAMS
+from app.data import DATA_VERSION, EXPANSION_MATCHABLE, EXPANSION_PROGRAMS, PROGRAMS
 from app.schemas import (
     Budget,
     Evaluation,
@@ -49,6 +49,7 @@ from app.schemas import (
     UndergradProfile,
 )
 from domain.eligibility import evaluate, overall_status
+from domain.expansion_eval import evaluate_expansion
 
 TASK_STATUSES = ("todo", "in_progress", "done", "to_verify")
 
@@ -110,6 +111,39 @@ class IllegalTransition(PlanError):
 class InvalidPatch(PlanError):
     def __init__(self, message: str) -> None:
         super().__init__(message, code="VALIDATION_ERROR", status=422)
+
+
+class ProgramNotEvaluable(PlanError):
+    """Display-only expansion programme: it has no evaluable rule
+    (fee / language / academic threshold) in the verified sources, so
+    no plan can be generated from it. Unknown stays unknown — a plan
+    must never be invented from nothing."""
+
+    def __init__(self, program_id: str) -> None:
+        super().__init__(
+            f"Program '{program_id}' is display-only: no evaluable rule "
+            f"is published for it in the verified sources, so no "
+            f"improvement plan can be generated.",
+            code="PROGRAM_NOT_EVALUABLE", status=422)
+
+
+def resolve_program(program_id: str) -> dict | None:
+    """One programme resolution for plans: the 8 v2 programmes first,
+    then matchable expansion programmes. Display-only expansion
+    programmes and unknown ids are None (callers distinguish them
+    with program_is_display_only)."""
+    if program_id in PROGRAMS:
+        return PROGRAMS[program_id]
+    return EXPANSION_MATCHABLE.get(program_id)
+
+
+def program_is_display_only(program_id: str) -> bool:
+    """True when the id exists in the expansion catalogue but is not
+    matchable (no evaluable rule / no wizard track). Matchable
+    expansion programmes are NOT display-only."""
+    return (program_id not in PROGRAMS
+            and program_id in EXPANSION_PROGRAMS
+            and program_id not in EXPANSION_MATCHABLE)
 
 
 def clear_plans() -> None:
@@ -1044,11 +1078,22 @@ def evaluate_programs(profile: StudentProfile,
                       program_ids: list[str]) -> list[Evaluation]:
     """Recompute evaluations the same way the app does (engine only,
     ai_status always 'unavailable' here — plans never claim a model
-    verdict)."""
+    verdict). v2 programmes use their hand-written evaluator; matchable
+    expansion programmes use the generic expansion evaluator. A
+    display-only programme raises ProgramNotEvaluable and an unknown id
+    raises a PROGRAM_NOT_FOUND PlanError — never a silent empty plan."""
     evaluations = []
     for pid in program_ids:
-        program = PROGRAMS[pid]
-        results = evaluate(profile, program)
+        program = resolve_program(pid)
+        if program is None:
+            if program_is_display_only(pid):
+                raise ProgramNotEvaluable(pid)
+            raise PlanError(f"No program with id '{pid}'.",
+                            code="PROGRAM_NOT_FOUND", status=404)
+        if pid in PROGRAMS:
+            results = evaluate(profile, program)
+        else:
+            results = evaluate_expansion(profile, program)
         evaluations.append(Evaluation(
             program_id=pid, data_version=DATA_VERSION,
             overall_status=overall_status(results), results=results,
@@ -1214,7 +1259,7 @@ def reassess(plan_id: str, profile_patch: dict) -> dict:
         profile = StudentProfile(**merged)
     except Exception as exc:
         raise InvalidPatch(f"Patched profile is invalid: {exc}")
-    programs = [PROGRAMS[pid] for pid in plan["program_ids"]]
+    programs = [resolve_program(pid) for pid in plan["program_ids"]]
     evaluations = evaluate_programs(profile, plan["program_ids"])
     new_snapshot = _evaluation_snapshot(evaluations)
     old_by_key = {(e["program_id"], r["rule_id"]): r["status"]

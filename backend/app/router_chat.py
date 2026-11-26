@@ -69,6 +69,16 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=500)
     locale: str = "en"
     history: list[HistoryTurn] = Field(default_factory=list, max_length=10)
+    # Devil's advocate (round 11): "devil" challenges the stated
+    # preferences in ``profile`` with engine-computed conflicts; any
+    # other value is a 422. ``profile`` is a plain dict validated
+    # leniently in ai.chat (invalid values are dropped, never a 422):
+    # {countries: [ISO codes], climate: warm|cool|four_seasons|mild,
+    #  level: undergraduate|taught_masters,
+    #  budget_amount: number, budget_currency: GBP|...,
+    #  budget_period: per_year|total, city: str}.
+    mode: Literal["normal", "devil"] = "normal"
+    profile: dict | None = None
 
     @field_validator("message")
     @classmethod
@@ -181,9 +191,14 @@ async def assistant_chat_endpoint(request: Request):
     """Free-text question to 小罗盘.
 
     Request: ``{message (1..500 chars), locale="en",
-    history: [{role, content}] (max 10 turns, each content max 500)}``.
+    history: [{role, content}] (max 10 turns, each content max 500),
+    mode: "normal"|"devil", profile: {...}}`` — mode "devil" (round 11)
+    challenges the stated preferences in ``profile`` with
+    engine-computed conflicts; see ``ai.chat`` for the grounding and
+    fallback rules.
     Response: ``{lines (at most 3, conclusion first), evidence_url,
-    ai_status, model, sources: [{id, url, title}]}``.
+    ai_status, model, sources: [{id, url, title}]}`` — devil replies
+    additionally carry ``mode: "devil"`` and ``conflicts: [kinds]``.
     """
     req, err = await _parse_body(request, ChatRequest)
     if err is not None:
@@ -198,7 +213,7 @@ async def assistant_chat_endpoint(request: Request):
     return await asyncio.to_thread(
         chat_answer, req.message, req.locale,
         [turn.model_dump() for turn in req.history],
-        provider=get_provider())
+        provider=get_provider(), mode=req.mode, profile=req.profile)
 
 
 @router.post("/assistant/pref-chat")

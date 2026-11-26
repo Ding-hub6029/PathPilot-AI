@@ -471,8 +471,19 @@ def _derive_reason_key(rule_id: str, status: str, detail: str) -> str | None:
     if rule_id.startswith("exp-"):
         if "no valid test date" in d or "without a date" in d:
             return "missing-test-date"
-        if "per credit" in d:
-            return "missing-info"
+        # P0-2 (re-test task 6): fee UNKNOWNs whose cause is the fee
+        # itself, not information the user withheld. A programme with
+        # no stated fee amount (Alberta CS AI BSc, ANU Advanced
+        # Computing Hons) or a per-credit fee (HKPolyU IT MSc et al.)
+        # used to fall through to 'missing-info', so the card read
+        # "未提供这项检查所需的信息" even with a GBP 50,000 budget
+        # supplied. The frontend mirror (lib/api.ts expFeeRule) maps
+        # the same two cases to the same keys. "No budget supplied"
+        # still falls through to 'missing-info' below — correctly.
+        if rule_id == "exp-fee" and "No tuition fee amount is stated" in d:
+            return "fee-not-published"
+        if rule_id == "exp-fee" and "per credit" in d:
+            return "fee-per-credit"
         if "does not match" in d:
             return "budget-mismatch"
         if "cannot be converted" in d:

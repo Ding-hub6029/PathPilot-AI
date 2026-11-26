@@ -5,6 +5,8 @@ import { useApp } from '../../../lib/store';
 import { findProgram, matchProfile } from '../../../lib/api';
 import { MatchResponse } from '../../../lib/types';
 import { RuleRow } from '../../../components/RuleRow';
+import { PlanPanel } from '../../../components/PlanPanel';
+import { AiEntry } from '../../../components/AiEntry';
 import { RankingCards } from '../../../components/RankingCards';
 import { PROGRAM_RULES, ruleExpected } from '../../../lib/ruleText';
 import { formatDuration, formatFeeItems, formatIntake } from '../../../lib/format';
@@ -33,6 +35,23 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
   const minimumRuleIds = PROGRAM_RULES[program.id] ?? [];
   const rankingInstitutionId = institutionIdForProgram(program.institution);
 
+  // AI visibility layer (W5): "why does this fit me — or not?"
+  // The question carries the explicit programme-id marker (the
+  // backend's programme-id intent) plus the saved profile's Gaokao /
+  // IELTS / budget when present — each clause omitted when the
+  // profile does not hold it, never invented.
+  const profileParts: string[] = [];
+  if (typeof profile.gaokaoScore === 'number' && typeof profile.gaokaoTotal === 'number') {
+    profileParts.push(`Gaokao ${profile.gaokaoScore} out of ${profile.gaokaoTotal}`);
+  }
+  if (typeof profile.ieltsOverall === 'number') {
+    profileParts.push(`IELTS ${profile.ieltsOverall} overall`);
+  }
+  if (typeof profile.budget === 'number') {
+    profileParts.push(`budget ${profile.budgetCurrency || 'GBP'} ${profile.budget.toLocaleString('en-US')} per year`);
+  }
+  const programQuestion = `Programme id ${program.id}. ${profileParts.length ? `I have ${profileParts.join(', ')}.` : ''} What is the fee and IELTS requirement for this programme, and is it a good fit for me?`;
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <Link href="/" className="btn-press inline-block rounded-full border border-navy/25 bg-white px-4 py-2 text-sm font-semibold">← {t('program.back')}</Link>
@@ -47,6 +66,12 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
         <div><p className="text-sm font-semibold text-navy/60">{t('program.fee')}</p><p className="font-bold">{formatFeeItems(program, t, locale)}</p></div>
         <div><p className="text-sm font-semibold text-navy/60">{t('program.duration')}</p><p className="font-bold">{formatDuration(program, t)}</p></div>
         <div><p className="text-sm font-semibold text-navy/60">{t('program.intake')}</p><p className="font-bold">{formatIntake(program, t)}</p></div>
+      </div>
+
+      {/* AI visibility layer (W5): the grounded chat explains why
+          this programme fits the saved profile — or does not. */}
+      <div className="mt-4">
+        <AiEntry label={t('aivis.programme')} question={programQuestion} programId={program.id} />
       </div>
 
       <section className="mt-8" aria-labelledby="req-title">
@@ -74,6 +99,15 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
             <Link href="/wizard" className="btn-press mt-5 inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.ctaWizard')}</Link>
           </div>
         )}
+      </section>
+
+      {/* Improvement plan (Day 3, FR13/FR14; W3 expansion fix): the
+          first frontend surface for plans. Works for v2 and matchable
+          expansion programmes; display-only programmes get an honest
+          note inside the panel instead of a generated plan. */}
+      <section className="mt-8" aria-labelledby="plan-title">
+        <h2 id="plan-title" className="text-xl font-bold">{t('plan.title')}</h2>
+        <PlanPanel programId={program.id} matchable={program.matchable} />
       </section>
 
       {rankingInstitutionId && (

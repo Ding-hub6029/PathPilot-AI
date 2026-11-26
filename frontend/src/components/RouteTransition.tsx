@@ -60,6 +60,15 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
   const [sweepDone, setSweepDone] = useState(false);
   useEffect(() => {
     setSweepDone(false);
+    // P0 (re-test task 6): log every committed route change with a
+    // timestamp, so a browser re-test can measure click-to-commit for
+    // a navigation (pair with the [p0-nav] click logs on the link /
+    // button that started it). The overlay is pointer-events-none and
+    // the commit itself renders from the local mirror — a slow
+    // navigation shows up here as a late log line, not a missing one.
+    if (typeof console !== 'undefined' && typeof console.debug === 'function') {
+      console.debug(`[p0-nav] route committed ${pathname}`);
+    }
     const timer = setTimeout(() => setSweepDone(true), 800);
     return () => clearTimeout(timer);
   }, [pathname]);

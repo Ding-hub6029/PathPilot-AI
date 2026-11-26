@@ -8,6 +8,7 @@ import { formatDuration, formatFeeItems, formatIntake } from '../../lib/format';
 import { useApp } from '../../lib/store';
 import { Program } from '../../lib/types';
 import { ViewTransitionLink } from '../../components/ViewTransitionLink';
+import { AiEntry, budgetFromProfile, fallbackQuestion, recommendQuestion, type RecommendLevel } from '../../components/AiEntry';
 
 /**
  * Programme browse page (Round 8). The old /programs route was a 404 —
@@ -35,7 +36,7 @@ const LEVEL_KEYS: Record<string, string> = {
 const INSTITUTION_IDS = new Set(RANKING_INSTITUTIONS.map((i) => i.id));
 
 export default function ProgramsPage() {
-  const { t, tf, locale } = useApp();
+  const { t, tf, locale, profile } = useApp();
   // Round 9 (R9): the offline note reads the one shared backend
   // status — the old `live` flag started false and showed
   // "实时后端尚未连接" on first paint even while the backend was up.
@@ -48,7 +49,11 @@ export default function ProgramsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchPrograms({ limit: 20 })
+    // P0 (re-test task 6): abort the background refresh on unmount —
+    // the old effect only set a flag, so a patient fetch kept retrying
+    // for up to 90s against a sleeping backend after navigation.
+    const controller = new AbortController();
+    fetchPrograms({ limit: 20, signal: controller.signal })
       .then((res) => {
         if (cancelled) return;
         // The live list is only the v2 page; mergePrograms keeps every
@@ -56,7 +61,7 @@ export default function ProgramsPage() {
         if (res.live) setPrograms(mergePrograms(res.programs));
       })
       .catch(() => undefined);
-    return () => { cancelled = true; };
+    return () => { cancelled = true; controller.abort(); };
   }, []);
 
   // Country filter options come from the data itself, never a hard-coded
@@ -93,6 +98,20 @@ export default function ProgramsPage() {
   }, [programs, country, level, query]);
 
   const visible = filtered.slice(0, shown);
+
+  // AI visibility layer (W5): recommend from what is shown — the
+  // country/level filters when set (foundation / joint honours have
+  // no recommendation track, so the level falls back to the saved
+  // profile), else the saved profile's country, else the climate
+  // fallback (never an invented country). The entry re-asks when the
+  // filters move while its panel is open.
+  const browseCountry = country !== 'all' ? country : (profile.prefCountries?.[0] ?? null);
+  const browseLevel: RecommendLevel = (level === 'undergraduate' || level === 'taught_masters')
+    ? level
+    : (profile.track === 'taught_masters' ? 'taught_masters' : 'undergraduate');
+  const browseQuestion = browseCountry
+    ? recommendQuestion(browseLevel, browseCountry, displayCountryCode(browseCountry, browseCountry, t), budgetFromProfile(profile, browseLevel, browseCountry))
+    : fallbackQuestion(profile, browseLevel);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -146,6 +165,10 @@ export default function ProgramsPage() {
       {filtered.length === 0 && (
         <p role="status" className="mt-4 rounded-lg bg-white p-3 text-sm font-semibold">{t('programs.noResults')}</p>
       )}
+
+      <div className="mt-4">
+        <AiEntry label={t('aivis.browse')} question={browseQuestion} />
+      </div>
 
       <ol className="mt-4 flex flex-col gap-3">
         {visible.map((p) => {

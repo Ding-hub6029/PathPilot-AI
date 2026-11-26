@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
+import type { Profile } from '../lib/types';
 import { fetchJson, fetchJsonPatient, allPrograms, findProgram } from '../lib/api';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, isModelReply, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
@@ -139,6 +140,11 @@ type ChatTurn =
   | {
       kind: 'ask';
       message: string;
+      /** Devil's-advocate turn (round 11): sent with mode=devil, so
+          the reply challenges the saved preferences with verified
+          facts instead of answering straight. Rendered with the
+          devil boundary line + distinct style, never as a verdict. */
+      devil: boolean;
       /** Live backend payload + the locale it was answered in.
           Round 10: a template reply (ai_status "unavailable") is
           stored here too, with offline=true — the verified template
@@ -370,10 +376,39 @@ export function CompassFace({
   );
 }
 
+/** Devil's-advocate profile for /assistant/chat mode=devil (round
+ * 11): the saved wizard preferences the backend challenges with
+ * verified facts — countries, climate, level, budget, city. The
+ * budget period mirrors the pet's own band table (BAND_CEILING):
+ * per-year, except taught masters in SG, whose verified fees are
+ * programme totals. Null when nothing is known (the backend then
+ * derives what it can from the message itself). */
+function devilProfileFor(p: Profile): Record<string, unknown> | null {
+  const body: Record<string, unknown> = {};
+  const countries = [...(p.prefCountries ?? [])];
+  if (countries.length) body.countries = countries;
+  if (['warm', 'cool', 'four_seasons', 'mild'].includes(p.prefClimate ?? '')) {
+    body.climate = p.prefClimate;
+  }
+  const level = p.track === 'undergraduate' || p.track === 'taught_masters' ? p.track : undefined;
+  if (level) body.level = level;
+  if (typeof p.budget === 'number') {
+    body.budget_amount = p.budget;
+    body.budget_currency = p.budgetCurrency || 'GBP';
+    body.budget_period = level === 'taught_masters' && countries.length === 1 && countries[0] === 'SG' ? 'total' : 'per_year';
+  }
+  if ((p.prefCity ?? '').trim()) body.city = p.prefCity!.trim();
+  return Object.keys(body).length ? body : null;
+}
+
 export function CompassPet() {
   const { t, tf, locale, profile } = useApp();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+  /** Devil's advocate (round 11): when on, free-text turns are sent
+   * with mode=devil + the saved preferences, and the reply renders
+   * with the devil boundary line + distinct style. */
+  const [devilMode, setDevilMode] = useState(false);
   const [answers, setAnswers] = useState<{ degree?: Degree; country?: Country; budget?: Band }>({});
   const [messages, setMessages] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState('');
@@ -686,6 +721,10 @@ export function CompassPet() {
       if (inFlightRef.current.has(i)) return;
       inFlightRef.current.add(i);
       const conv = convRef.current;
+      // A devil's-advocate turn is re-fetched in devil mode too, with
+      // the saved preferences — otherwise the fresh reply would be a
+      // straight answer wearing the devil boundary.
+      const devilProf = m.kind === 'ask' && m.devil ? devilProfileFor(profile) : null;
       const req = m.kind === 'suggest'
         ? fetchJson<ChatReply>('/api/assistant/chat', {
             method: 'POST',
@@ -693,7 +732,10 @@ export function CompassPet() {
           })
         : fetchJson<ChatReply>('/api/assistant/chat', {
             method: 'POST',
-            body: JSON.stringify({ message: m.message, locale, history: buildHistory(messages, i) }),
+            body: JSON.stringify({
+              message: m.message, locale, history: buildHistory(messages, i),
+              ...(devilProf ? { mode: 'devil', profile: devilProf } : {}),
+            }),
           });
       const toOffline = () => {
         if (convRef.current !== conv) return;
@@ -783,6 +825,10 @@ export function CompassPet() {
     lines: string[];
     evidenceUrl?: string | null;
     nextSteps?: { wizard?: string; program?: string | null; institution?: string | null };
+    /** Devil's-advocate reply: rendered with the devil boundary line
+        + distinct style, never as a verdict. Only set when a devil
+        reply is actually shown in the current locale. */
+    devil?: boolean;
   } => {
     // Round 8: an offline turn whose call timed out after the patient
     // budget says so plainly, instead of a bare "offline".
@@ -869,6 +915,7 @@ export function CompassPet() {
             lines,
             evidenceUrl: turn.reply.evidence_url,
             nextSteps: { wizard: '/wizard', program: links.program, institution: links.institution },
+            devil: turn.devil,
           };
         }
         if (turn.reply) return { lines: [t('pet.thinking')] };
@@ -1049,15 +1096,23 @@ export function CompassPet() {
       setAiLive(false);
       const rank = rankOffline(text);
       if (rank) doCelebrate();
-      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(text) });
+      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, devil: devilMode, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(text) });
     };
     const hasAsked = messages.some((m) => m.kind === 'ask');
     const context = !hasAsked ? savedPrefsContext(profile) : null;
     const sentMessage = context ? `${text}\n${context}` : text;
+    // Devil's advocate (round 11): the saved preferences travel as a
+    // structured profile with mode=devil, so the backend challenges
+    // them with engine-computed conflicts; without a profile the
+    // backend derives what it can from the message itself.
+    const devilProf = devilMode ? devilProfileFor(profile) : null;
     try {
       const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
         method: 'POST',
-        body: JSON.stringify({ message: sentMessage, locale: requestLocale, history: buildHistory(messages) }),
+        body: JSON.stringify({
+          message: sentMessage, locale: requestLocale, history: buildHistory(messages),
+          ...(devilProf ? { mode: 'devil', profile: devilProf } : {}),
+        }),
       }, patientOpts);
       setWaking(false);
       if (!isModelReply(r)) {
@@ -1070,7 +1125,7 @@ export function CompassPet() {
           setTimedOut(false);
           setAiLive(false);
           if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
-          push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: true, offlineRankId: null, offlineCountry: null });
+          push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: true, devil: devilMode, offlineRankId: null, offlineCountry: null });
           return;
         }
         setTimedOut(false);
@@ -1082,7 +1137,7 @@ export function CompassPet() {
       setTimedOut(false);
       setAiLive(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
-      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null, offlineCountry: null });
+      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, devil: devilMode, offlineRankId: null, offlineCountry: null });
     } catch {
       setWaking(false);
       if (convRef.current === conv) {
@@ -1159,7 +1214,13 @@ export function CompassPet() {
               const isUser = m.kind === 'choice' || m.kind === 'freeText';
               return (
                 <div key={i} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${isUser ? 'bg-teal text-white' : 'bg-white text-navy shadow-sm ring-1 ring-navy/5'}`}>
+                  <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${isUser ? 'bg-teal text-white' : rendered.devil ? 'bg-amber/10 text-navy shadow-sm ring-2 ring-amber' : 'bg-white text-navy shadow-sm ring-1 ring-navy/5'}`}>
+                    {rendered.devil && (
+                      <>
+                        <p className="text-[11px] font-bold leading-tight text-navy/70">{t('devil.boundary')}</p>
+                        <div className="my-1.5 border-t border-amber" aria-hidden="true" />
+                      </>
+                    )}
                     {rendered.lines.filter(Boolean).map((line, j) => (
                       <p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>
                     ))}
@@ -1214,6 +1275,20 @@ export function CompassPet() {
             <div ref={bottomRef} />
           </div>
           <div className="border-t border-navy/10 bg-white p-2">
+            {/* Devil's advocate toggle (round 11): a second AI voice
+                that challenges the saved preferences with verified
+                facts. The reply renders with the devil boundary line
+                above, never as a verdict. */}
+            <div className="mb-2 flex items-center justify-start px-1">
+              <button
+                type="button"
+                onClick={() => setDevilMode((d) => !d)}
+                aria-pressed={devilMode}
+                className={`btn-press rounded-full px-3 py-1.5 text-xs font-semibold ${devilMode ? 'bg-amber/15 text-navy ring-1 ring-amber' : 'text-navy/70 ring-1 ring-navy/20 hover:bg-paper'}`}
+              >
+                {devilMode ? t('devil.toggleActive') : t('devil.toggle')}
+              </button>
+            </div>
             <div className="flex gap-2">
               <input
                 ref={inputRef}

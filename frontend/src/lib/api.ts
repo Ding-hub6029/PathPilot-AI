@@ -407,12 +407,21 @@ function expFeeRule(profile: Profile, ep: ExpansionProgram): RuleResult {
     }
   }
   if (amount === null) {
+    // P0-2 (re-test task 6): the fee is UNKNOWN because the official
+    // page states no amount — NOT because the user withheld anything.
+    // The old default reasonKey 'missing-info' rendered "未提供这项
+    // 检查所需的信息" on cards like Alberta / ANU even with a GBP
+    // 50,000 budget supplied. The backend adapter maps the same case
+    // to 'fee-not-published'; this mirror must agree.
     return expRule('exp-fee', 'UNKNOWN', 'Not provided', expected, evidence,
-      'No tuition fee amount is stated on the official programme page, so the fee cannot be compared with the budget.', { thresholdRaw });
+      'No tuition fee amount is stated on the official programme page, so the fee cannot be compared with the budget.', { thresholdRaw, reasonKey: 'fee-not-published' });
   }
   if (period === 'per_credit') {
+    // P0-2: same mis-mapping class — a per-credit fee cannot be
+    // compared without a credit count, which is not user information
+    // withheld; it is a property of the fee itself.
     return expRule('exp-fee', 'UNKNOWN', `Tuition is ${currency} ${amount.toLocaleString('en-US')} per credit`, expected, evidence,
-      'Tuition is charged per credit; the profile has no credit count, so a per-credit fee cannot be compared with the budget.', { thresholdRaw });
+      'Tuition is charged per credit; the profile has no credit count, so a per-credit fee cannot be compared with the budget.', { thresholdRaw, reasonKey: 'fee-per-credit' });
   }
   if (budget === null) {
     return expRule('exp-fee', 'UNKNOWN', 'Not provided', expected, evidence, 'No budget supplied.', { thresholdRaw });
@@ -1299,6 +1308,14 @@ export interface FetchPatientOptions {
   attemptTimeoutMs?: number;
   /** Called before each retry (attempt number, 1-based). */
   onRetry?: (attempt: number) => void;
+  /** P0 (re-test task 6): an outer AbortSignal (e.g. a component
+   * unmount). When it fires the in-flight attempt is aborted at once
+   * and the retry loop stops instead of retrying for up to 90s after
+   * the page that started it is gone — the old behaviour left a
+   * sleeping-backend retry loop running behind every navigation, so
+   * the browser kept 90s of /api traffic alive after the user had
+   * already left the page. An outer abort is final, never retried. */
+  signal?: AbortSignal;
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -1313,8 +1330,18 @@ export async function fetchJsonPatient<T>(
   const started = Date.now();
   let attempt = 0;
   for (;;) {
+    // P0: an outer abort (unmount) ends the loop at once — never
+    // start another attempt after the caller has gone away.
+    if (options?.signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
     attempt += 1;
     const controller = new AbortController();
+    // P0: wire the outer signal to this attempt's controller, so an
+    // unmount aborts the request in flight instead of letting the
+    // per-attempt timer run it out.
+    const onOuterAbort = () => controller.abort();
+    if (options?.signal) options.signal.addEventListener('abort', onOuterAbort);
     // Round 8: an attempt must never run past the remaining budget —
     // the old code let a 25s attempt start at 79s and fail at ~104s,
     // so "offline" was declared ~15s after the promised ~90s.
@@ -1345,6 +1372,8 @@ export async function fetchJsonPatient<T>(
       // retryable one past budget) is final — do not re-enter the
       // retry path for it.
       if (status !== undefined) throw err;
+      // P0: an outer abort is final — never retry after unmount.
+      if (options?.signal?.aborted) throw err;
       // Network error / abort: retry while budget remains.
       if (Date.now() - started + 2000 < budgetMs) {
         options?.onRetry?.(attempt);
@@ -1354,6 +1383,7 @@ export async function fetchJsonPatient<T>(
       throw err;
     } finally {
       clearTimeout(timer);
+      if (options?.signal) options.signal.removeEventListener('abort', onOuterAbort);
     }
   }
 }
@@ -1383,7 +1413,7 @@ export async function matchProfile(profile: Profile, opts?: MatchOptions): Promi
   }
 }
 
-export async function fetchPrograms(opts?: { limit?: number; cursor?: string; onRetry?: (attempt: number) => void }): Promise<{ programs: Program[]; live: boolean; nextCursor?: string }> {
+export async function fetchPrograms(opts?: { limit?: number; cursor?: string; onRetry?: (attempt: number) => void; signal?: AbortSignal }): Promise<{ programs: Program[]; live: boolean; nextCursor?: string }> {
   try {
     const params = new URLSearchParams();
     if (opts?.limit) params.set('limit', String(opts.limit));
@@ -1392,7 +1422,7 @@ export async function fetchPrograms(opts?: { limit?: number; cursor?: string; on
     // Round 8: patient fetch — a plain fetch failed fast while the
     // free backend was only waking, so the homepage and results page
     // claimed "live backend not connected" while it was up.
-    const data = await fetchJsonPatient<{ items?: unknown[]; programs?: unknown[]; data_version?: string; next_cursor?: string | null }>(`/api/programs${qs ? `?${qs}` : ''}`, undefined, { onRetry: opts?.onRetry });
+    const data = await fetchJsonPatient<{ items?: unknown[]; programs?: unknown[]; data_version?: string; next_cursor?: string | null }>(`/api/programs${qs ? `?${qs}` : ''}`, undefined, { onRetry: opts?.onRetry, signal: opts?.signal });
     const raw = Array.isArray(data.items) ? data.items : Array.isArray(data.programs) ? data.programs : [];
     const items = raw.map((r) => normalizeApiProgram(r, data.data_version)).filter((p): p is Program => p !== null);
     // Empty catalogue from the API is not usable — fall back to the local

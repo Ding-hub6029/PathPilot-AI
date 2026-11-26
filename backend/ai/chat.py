@@ -19,6 +19,15 @@ Model path (only when a provider is configured):
   the message states a climate wish, and the cheapest verified
   programme in the stated track/country when the message asks for a
   recommendation (the guided 3-question flow's constructed message);
+  plus — since the AI-visibility layer (W5) — a ranking-overview
+  intent (one provider's top 100: top-3 institutions + a citable
+  provider summary) when the message asks about a provider's ranking
+  without naming an institution, and a programme-id intent (the
+  explicit "Programme id <id>" marker) for the exact programme a
+  page entry asks about. The template fallback states the
+  ranking-overview top 3 / the exact programme's verified fee / the
+  suggestion pick's fee deterministically when the template itself
+  has no better answer, instead of the generic unknown;
 - the model sees ONLY those retrieved sources, as an evidence catalogue
   in a JSON envelope (``{task: "chat", prompt_version, locale, message,
   history, evidence_catalog}``); its structured JSON output is validated
@@ -45,16 +54,17 @@ import time
 
 from ai.assistant import (LOCALES, _DEADLINE_WORDS, _FEE_WORDS,
                           _IELTS_WORDS, _RANK_WORDS, _TM_WORDS, _UG_WORDS,
-                          _match_programmes, _norm, _qs_rank, _t,
+                          _match_programmes, _money, _norm, _qs_rank, _t,
                           ask as assistant_ask, check_no_forbidden,
                           contains_personal_data, country_display_name,
-                          country_programmes, program_display_name,
-                          program_evidence_url, program_fee_range)
+                          country_programmes, fee_text,
+                          program_display_name, program_evidence_url,
+                          program_fee_range)
 from ai.grounding import (FORBIDDEN_PATTERNS, Source,
                           check_model_output, gaokao_sources,
                           programme_fact_texts, programme_sources,
                           ranking_sources, resolve_url)
-from ai.prompts import PROMPT_VERSION, chat_system
+from ai.prompts import PROMPT_VERSION, chat_system, devil_advocate_system
 from ai.provider import ProviderAdapter, ProviderError
 from app.data import (CLIMATE, DATA_DIR, EXPANSION_MATCHABLE,
                       EXPANSION_PROGRAMS, PROGRAMS, RANKINGS,
@@ -252,6 +262,32 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
         if picked is not None:
             _add(_enriched_programme_sources(picked))
             pids.append(picked)
+    # (AI visibility layer, W5) Programme-id intent: a page entry
+    # sends the explicit marker "Programme id <id>" so the exact
+    # programme's verified sources join the catalogue even when the
+    # template's alias match is ambiguous — an expansion programme
+    # shares its institution alias with every sibling programme.
+    # That institution's ranks join too, for the model to cite —
+    # whether or not the programme was already matched above.
+    id_pid = _detect_programme_id(message or "")
+    if id_pid:
+        if id_pid not in pids:
+            _add(_enriched_programme_sources(id_pid))
+            pids.append(id_pid)
+        own = _verified_programme(id_pid) or {}
+        iid = own.get("institution_id") or V2_PROGRAM_INSTITUTION.get(id_pid)
+        if iid:
+            _add(ranking_sources(iid))
+    # (AI visibility layer, W5) Ranking-overview intent: a question
+    # about one provider's top 100 with no single institution named
+    # ("Explain the QS 2027 ranking") has no rank lookup to answer
+    # it, so the provider's top-3 institutions + a citable provider
+    # summary join the catalogue. A specific-institution question
+    # keeps its rank lookup (template institution_id / pids set).
+    if not pids and not template.get("institution_id"):
+        provider = _detect_ranking_provider(message or "")
+        if provider:
+            _add(_ranking_overview_sources(provider))
     return template, sources, pids
 
 
@@ -538,6 +574,282 @@ def country_evidence_line(sources: list[Source], locale: str) -> str | None:
         line_t = _COUNTRY_LINES.get(locale) or _COUNTRY_LINES["en"]
         return line_t.format(country=country, names=names, n=n)
     return None
+
+
+# ---------------------------------------------------------------------------
+# AI-visibility intents (W5): the page entries in AiEntry send questions
+# the old retrieval could not answer, so they get deterministic
+# evidence + a deterministic template line each (the same precedent as
+# the climate / country lines above: the model being unavailable must
+# not erase evidence already in hand, and the line is built only from
+# the verified catalogue, never model text).
+#
+# - ranking overview: "Explain the QS 2027 ranking" names no
+#   institution, so the rank lookup has nothing to look up. The
+#   provider's top-3 institutions (by verified rank number) plus one
+#   citable provider summary source join the catalogue.
+# - programme id: a programme-detail entry sends the explicit marker
+#   "Programme id <id>" (the same precedent as the "country code XX"
+#   marker) so the exact programme's sources join even when the
+#   template's alias match is ambiguous — an expansion programme
+#   shares its institution alias with every sibling programme.
+# - suggestion: a recommendation question already retrieves the
+#   cheapest verified pick (see _suggest_pick), but the template
+#   answered it with the generic unknown. Its line states the pick
+#   and its verified fee, with a within/above-budget verdict ONLY
+#   when the fee and the budget share currency + period — a
+#   cross-currency comparison never judges affordability.
+# ---------------------------------------------------------------------------
+
+_RANKING_PROVIDER_RES: tuple[tuple[str, "re.Pattern[str]"], ...] = (
+    ("qs", re.compile(r"\bqs\b")),
+    ("arwu", re.compile(r"\barwu\b|软科")),
+    # "the" alone is an ordinary English word: only the full name, the
+    # Chinese name, or "THE <year>" counts as the provider.
+    ("the", re.compile(r"times higher education|the world university|泰晤士|\bthe\s+\d{4}\b")),
+)
+
+
+def _detect_ranking_provider(message: str) -> str | None:
+    """Ranking provider a message asks about (qs/the/arwu), or None.
+    A rank word must be present, so "the 2027 entry" without any rank
+    word never becomes a ranking question."""
+    msg = _norm(message or "")
+    if not any(w in msg for w in _RANK_WORDS):
+        return None
+    for provider, pat in _RANKING_PROVIDER_RES:
+        if pat.search(msg):
+            return provider
+    return None
+
+
+def _ranking_overview_sources(provider: str) -> list[Source]:
+    """One citable summary source for a provider's top 100 (world
+    ranks) — provider name + edition + the top 3 by verified rank
+    number — plus the ranking sources of those top-3 institutions, so
+    the model can cite individual ranks and the UI can link onward.
+    [] when the provider is unknown or has no verified entry."""
+    meta = next((p for p in RANKINGS.get("providers", [])
+                 if p.get("id") == provider), None)
+    if meta is None:
+        return []
+    ranked: list[tuple[int, dict]] = []
+    for e in RANKINGS.get("entries", []):
+        if e.get("provider") != provider:
+            continue
+        if e.get("verification_status") != "verified":
+            continue
+        try:
+            num = int(str(e.get("rank_display", "")).lstrip("=").strip())
+        except ValueError:
+            continue
+        ranked.append((num, e))
+    ranked.sort(key=lambda ne: (ne[0], ne[1].get("institution_id", "")))
+    top = ranked[:3]
+    if not top:
+        return []
+    insts = {i.get("id"): i for i in RANKINGS.get("institutions", [])}
+    items = "; ".join(
+        f"#{e.get('rank_display')} "
+        f"{(insts.get(e.get('institution_id')) or {}).get('official_name', e.get('institution_id'))}"
+        for _num, e in top)
+    name = meta.get("name", provider.upper())
+    edition = meta.get("edition_label", "")
+    sources = [Source(
+        id=f"ranking-overview:{provider}",
+        url=meta.get("entry_url"),
+        title=f"{name} {edition} top 100",
+        excerpt=(f"{name} {edition} top 100 (world ranks). "
+                 f"Top 3: {items}."))]
+    for _num, e in top:
+        sources.extend(ranking_sources(e.get("institution_id")))
+    return sources
+
+
+_RANKING_OVERVIEW_RE = re.compile(
+    r"^(.+) top 100 \(world ranks\)\. Top 3: (.+)\.$")
+_RANKING_OVERVIEW_LINES = {
+    "en": "{provider} {edition} top 3 (world ranks, top 100): {items}.",
+    "zh-CN": "{provider} {edition}前 3 名（世界排名，前 100 名）：{items}。",
+    "es": "Top 3 de {provider} {edition} (rankings mundiales, top 100): {items}.",
+    "fr": "Top 3 {provider} {edition} (classements mondiaux, top 100) : {items}.",
+    "pt-BR": "Top 3 de {provider} {edition} (rankings mundiais, top 100): {items}.",
+    "ar": "أفضل 3 في {provider} {edition} (التصنيفات العالمية، أفضل 100): {items}.",
+}
+
+
+def ranking_overview_line(sources: list[Source], locale: str) -> str | None:
+    """One deterministic line stating a provider's top 3 from the
+    retrieved overview source — provider + edition + "Name (#rank)"
+    items — or None when no overview source was retrieved. Built only
+    from the verified catalogue excerpt, never model text."""
+    for s in sources:
+        if not s.id.startswith("ranking-overview:"):
+            continue
+        m = _RANKING_OVERVIEW_RE.match(s.excerpt or "")
+        if not m:
+            continue
+        head, items_raw = m.group(1), m.group(2)
+        parts = head.rsplit(" ", 1)
+        if len(parts) == 2 and re.fullmatch(r"\d{4}", parts[1]):
+            provider_name, edition = parts
+        else:
+            provider_name, edition = head, ""
+        items: list[str] = []
+        for raw in items_raw.split("; "):
+            mm = re.match(r"^#(\S+)\s+(.+)$", raw)
+            if mm:
+                items.append(f"{mm.group(2)} (#{mm.group(1)})")
+        if not items:
+            continue
+        sep = "、" if locale == "zh-CN" else ", "
+        line_t = (_RANKING_OVERVIEW_LINES.get(locale)
+                  or _RANKING_OVERVIEW_LINES["en"])
+        return line_t.format(provider=provider_name, edition=edition,
+                             items=sep.join(items))
+    return None
+
+
+_PROGRAMME_ID_RE = re.compile(r"programme id ([a-z0-9][a-z0-9\-]*)")
+
+
+def _detect_programme_id(message: str) -> str | None:
+    """Verified programme id from the explicit "Programme id <id>"
+    marker, or None when the marker is absent or the id is not in the
+    verified catalogue (v2 + matchable expansion)."""
+    m = _PROGRAMME_ID_RE.search(_norm(message or ""))
+    if not m:
+        return None
+    pid = m.group(1)
+    if pid in PROGRAMS or pid in EXPANSION_MATCHABLE:
+        return pid
+    return None
+
+
+def _verified_programme(program_id: str) -> dict | None:
+    """Verified programme dict (v2 or matchable expansion), or None."""
+    return PROGRAMS.get(program_id) or EXPANSION_MATCHABLE.get(program_id)
+
+
+_PROGRAMME_FEE_LINES = {
+    "en": "{name}: fee {fee}.",
+    "zh-CN": "{name}：学费{fee}。",
+    "es": "{name}: matrícula {fee}.",
+    "fr": "{name} : frais {fee}.",
+    "pt-BR": "{name}: mensalidade {fee}.",
+    "ar": "{name}: الرسوم {fee}.",
+}
+_PROGRAMME_FEE_UNKNOWN_LINES = {
+    "en": "{name}: no fee is published in the verified data.",
+    "zh-CN": "{name}：已核实的数据里没有公布学费。",
+    "es": "{name}: no hay matrícula publicada en los datos verificados.",
+    "fr": "{name} : aucun frais publié dans les données vérifiées.",
+    "pt-BR": "{name}: nenhuma mensalidade publicada nos dados verificados.",
+    "ar": "{name}: لا توجد رسوم منشورة في البيانات الموثّقة.",
+}
+
+
+def _programme_fact_line(program_id: str, locale: str) -> str | None:
+    """One deterministic line for one verified programme: its official
+    display name + verified fee, or the honest fee-unknown line when
+    the catalogue publishes no fee. Never a guess."""
+    prog = _verified_programme(program_id)
+    if prog is None:
+        return None
+    name = program_display_name(prog)
+    fr = program_fee_range(prog)
+    if fr is None:
+        line_t = (_PROGRAMME_FEE_UNKNOWN_LINES.get(locale)
+                  or _PROGRAMME_FEE_UNKNOWN_LINES["en"])
+        return line_t.format(name=name)
+    line_t = (_PROGRAMME_FEE_LINES.get(locale)
+              or _PROGRAMME_FEE_LINES["en"])
+    return line_t.format(name=name, fee=fee_text(fr, locale))
+
+
+_SUGGEST_PERIOD_WORDS = {
+    "en": {"per_year": "per year", "total": "in total"},
+    "zh-CN": {"per_year": "每年", "total": "总计"},
+    "es": {"per_year": "al año", "total": "en total"},
+    "fr": {"per_year": "par an", "total": "au total"},
+    "pt-BR": {"per_year": "por ano", "total": "no total"},
+    "ar": {"per_year": "سنويًا", "total": "إجمالًا"},
+}
+_SUGGEST_LINES = {
+    "en": "Verified suggestion — {level} in {country}: {name}, fee {fee}.",
+    "zh-CN": "已核实推荐——{country}{level}：{name}，学费{fee}。",
+    "es": "Sugerencia verificada: {level} en {country}: {name}, matrícula {fee}.",
+    "fr": "Suggestion vérifiée : {level} en {country} : {name}, frais {fee}.",
+    "pt-BR": "Sugestão verificada: {level} em {country}: {name}, mensalidade {fee}.",
+    "ar": "اقتراح موثّق — {level} في {country}: {name}، الرسوم {fee}.",
+}
+_SUGGEST_WITHIN_LINES = {
+    "en": "Verified suggestion — {level} in {country}: {name}, fee {fee}, within your {currency} {amount} {period} budget.",
+    "zh-CN": "已核实推荐——{country}{level}：{name}，学费{fee}，在你{currency} {amount}{period}的预算内。",
+    "es": "Sugerencia verificada: {level} en {country}: {name}, matrícula {fee}, dentro de tu presupuesto de {currency} {amount} {period}.",
+    "fr": "Suggestion vérifiée : {level} en {country} : {name}, frais {fee}, dans votre budget de {currency} {amount} {period}.",
+    "pt-BR": "Sugestão verificada: {level} em {country}: {name}, mensalidade {fee}, dentro do seu orçamento de {currency} {amount} {period}.",
+    "ar": "اقتراح موثّق — {level} في {country}: {name}، الرسوم {fee}، ضمن ميزانيتك البالغة {currency} {amount} {period}.",
+}
+_SUGGEST_ABOVE_LINES = {
+    "en": "Verified suggestion — {level} in {country}: {name}, fee {fee}, above your {currency} {amount} {period} budget.",
+    "zh-CN": "已核实推荐——{country}{level}：{name}，学费{fee}，高于你{currency} {amount}{period}的预算。",
+    "es": "Sugerencia verificada: {level} en {country}: {name}, matrícula {fee}, por encima de tu presupuesto de {currency} {amount} {period}.",
+    "fr": "Suggestion vérifiée : {level} en {country} : {name}, frais {fee}, au-dessus de votre budget de {currency} {amount} {period}.",
+    "pt-BR": "Sugestão verificada: {level} em {country}: {name}, mensalidade {fee}, acima do seu orçamento de {currency} {amount} {period}.",
+    "ar": "اقتراح موثّق — {level} في {country}: {name}، الرسوم {fee}، أعلى من ميزانيتك البالغة {currency} {amount} {period}.",
+}
+
+
+def _suggestion_line(program_id: str, message: str, locale: str) -> str | None:
+    """One deterministic line for a suggestion pick: the verified
+    programme + its fee, with a within/above-budget verdict ONLY when
+    fee and budget share currency + period (same rule as
+    fee_fit: a range straddling the ceiling, or a cross-currency
+    budget, gets no verdict — the fee alone). None when the level or
+    country cannot be read from the message."""
+    prog = _verified_programme(program_id)
+    if prog is None:
+        return None
+    level = _detect_level(message)
+    country = _detect_country(message)
+    if level is None or country is None:
+        return None
+    name = program_display_name(prog)
+    fr = program_fee_range(prog)
+    if fr is None:
+        return _programme_fact_line(program_id, locale)
+    level_name = _t(locale, f"level_{level}")
+    country_name = country_display_name(country, locale)
+    fee = fee_text(fr, locale)
+    ceiling = _parse_ceiling(message)
+    verdict: str | None = None
+    if ceiling is not None:
+        currency, amount, period = ceiling
+        if fr[2] == currency and fr[3] == period:
+            if fr[1] <= amount:
+                verdict = "within"
+            elif fr[0] > amount:
+                verdict = "above"
+    words = (_SUGGEST_PERIOD_WORDS.get(locale)
+             or _SUGGEST_PERIOD_WORDS["en"])
+    if verdict == "within" and ceiling is not None:
+        line_t = (_SUGGEST_WITHIN_LINES.get(locale)
+                  or _SUGGEST_WITHIN_LINES["en"])
+        return line_t.format(level=level_name, country=country_name,
+                             name=name, fee=fee, currency=ceiling[0],
+                             amount=_money(ceiling[1]),
+                             period=words[ceiling[2]])
+    if verdict == "above" and ceiling is not None:
+        line_t = (_SUGGEST_ABOVE_LINES.get(locale)
+                  or _SUGGEST_ABOVE_LINES["en"])
+        return line_t.format(level=level_name, country=country_name,
+                             name=name, fee=fee, currency=ceiling[0],
+                             amount=_money(ceiling[1]),
+                             period=words[ceiling[2]])
+    line_t = _SUGGEST_LINES.get(locale) or _SUGGEST_LINES["en"]
+    return line_t.format(level=level_name, country=country_name,
+                         name=name, fee=fee)
 
 
 def _climate_evidence(wanted: str, countries: list[str] | None = None
@@ -862,22 +1174,394 @@ def _resolve_evidence_url(payload: dict, sources: list[Source]) -> str | None:
 
 
 def _template_result(template: dict, sources: list[Source],
-                     locale: str = "en") -> dict:
+                     locale: str = "en", *, programme_id: str | None = None,
+                     message: str = "") -> dict:
     """Template answer, with the generic "I don't know" first line
     replaced by what the retrieved evidence actually shows when
     climate sources were retrieved (round 7 fix: the model being
     unavailable must not erase evidence already in hand). Any other
-    template line is left exactly as the template wrote it."""
+    template line is left exactly as the template wrote it.
+
+    AI-visibility layer (W5): the same replacement covers the new
+    intents, most specific first — the exact programme's fee line
+    (when the template did not already answer that same programme),
+    the ranking-overview top-3 line (replacing the unknown, the
+    "tell me which institution" line, or the ambiguous-institutions
+    line — the overview question deliberately names none of them),
+    the suggestion pick's line — then the climate / country
+    lines as before. Only the first line is ever replaced.
+    """
     lines = list(template["lines"])
-    cities = evidence_cities_line(sources, locale)
-    country = country_evidence_line(sources, locale)
-    if cities is not None and lines and lines[0] == _t(locale, "unknown"):
-        lines[0] = cities
-    elif country is not None and lines and lines[0] == _t(locale, "unknown"):
-        lines[0] = country
+    prog_line = (_programme_fact_line(programme_id, locale)
+                 if programme_id else None)
+    rank_line = ranking_overview_line(sources, locale)
+    sugg_line: str | None = None
+    if message:
+        sugg_pid = _suggest_pick(message)
+        if sugg_pid:
+            sugg_line = _suggestion_line(sugg_pid, message, locale)
+    unknown_first = bool(lines) and lines[0] == _t(locale, "unknown")
+    evidence_url = template.get("evidence_url")
+    replaced = False
+    if (prog_line is not None and lines
+            and template.get("program_id") != programme_id):
+        lines[0] = prog_line
+        replaced = True
+    elif rank_line is not None and lines:
+        # The overview sources only join when the template named no
+        # single institution (see _retrieve), so the template's first
+        # line here is the unknown, the "tell me which institution"
+        # line, or the ambiguous-institutions line — the top-3 line
+        # answers all three better.
+        lines[0] = rank_line
+        replaced = True
+    elif sugg_line is not None and unknown_first:
+        lines[0] = sugg_line
+        replaced = True
+    else:
+        cities = evidence_cities_line(sources, locale)
+        country = country_evidence_line(sources, locale)
+        if cities is not None and unknown_first:
+            lines[0] = cities
+        elif country is not None and unknown_first:
+            lines[0] = country
+    if replaced and evidence_url is None:
+        # The replaced line states verified facts, so it needs a real
+        # official link: the first retrieved source that has one (the
+        # provider table for a ranking overview, the programme's own
+        # official page otherwise).
+        evidence_url = next((s.url for s in sources if s.url), None)
     return {"lines": lines,
-            "evidence_url": template.get("evidence_url"),
+            "evidence_url": evidence_url,
             "ai_status": "unavailable", "model": None,
+            "sources": [{"id": s.id, "url": s.url, "title": s.title}
+                        for s in sources]}
+
+
+# ---------------------------------------------------------------------------
+# Devil's advocate (round 11): a second AI voice that challenges the
+# user's stated preferences with verified facts.
+#
+# The conflicts are ENGINE-COMPUTED from the verified catalogue only —
+# never invented, never model text. Three kinds:
+# - climate: the wanted climate class has no city in a chosen country
+#   (that country's listed cities carry their actual classes — the
+#   PrefChat prototype: Switzerland's Zurich and Lausanne are
+#   four-season, not cool);
+# - no_programmes: no matchable programme in the chosen track/country;
+# - budget: the cheapest verified programme in the track/country whose
+#   fee is in the SAME currency + period as the budget costs more than
+#   the budget. A cross-currency budget is never a mismatch: the FX
+#   table (data/expansions/fx_rates.json) says a converted comparison
+#   is approximate and can never judge a mismatch, so it stays unknown.
+# A country with no climate-table city is likewise never a climate
+# conflict. When no conflict is found the devil says so honestly.
+# ---------------------------------------------------------------------------
+
+_DEVIL_CLIMATES = ("warm", "cool", "four_seasons", "mild")
+_DEVIL_LEVELS = ("undergraduate", "taught_masters")
+
+_DEVIL_T: dict[str, dict[str, str]] = {
+    "en": {
+        "prefix": "Another angle: ",
+        "climate": "{prefix}you want a {wanted} climate, but in {country} the verified data lists {cities} — no {wanted}-class city there.",
+        "no_programmes": "{prefix}the verified catalogue lists no {level} programme in {country} yet, so that combination has no verified route.",
+        "budget": "{prefix}the cheapest verified {level} programme in {country} costs {fee} — above your {currency} {amount} {period} budget.",
+        "no_conflict": "I checked your preferences against the verified data and found no clash — nothing here contradicts itself.",
+        "period_per_year": "per year",
+        "period_total": "in total",
+    },
+    "zh-CN": {
+        "prefix": "换个角度看：",
+        "climate": "{prefix}你想要{wanted}气候，但已核实的数据里，{country}列出的城市是{cities}，其中没有{wanted}气候的城市。",
+        "no_programmes": "{prefix}已核实的目录里，{country}还没有{level}专业，这个组合没有已核实的路线。",
+        "budget": "{prefix}{country}最便宜的已核实{level}专业学费是{fee}，高于你{currency} {amount}{period}的预算。",
+        "no_conflict": "我按已核实的数据核对了你的偏好，没有发现冲突。",
+        "period_per_year": "每年",
+        "period_total": "总计",
+    },
+    "es": {
+        "prefix": "Otra mirada: ",
+        "climate": "{prefix}quieres un clima {wanted}, pero en {country} los datos verificados listan {cities} — ninguna ciudad de clase {wanted}.",
+        "no_programmes": "{prefix}el catálogo verificado aún no lista ningún programa de {level} en {country}; esa combinación no tiene ruta verificada.",
+        "budget": "{prefix}el programa verificado de {level} más barato en {country} cuesta {fee}, por encima de tu presupuesto de {currency} {amount} {period}.",
+        "no_conflict": "Revisé tus preferencias con los datos verificados y no encontré contradicciones.",
+        "period_per_year": "al año",
+        "period_total": "en total",
+    },
+    "fr": {
+        "prefix": "Autre angle : ",
+        "climate": "{prefix}vous voulez un climat {wanted}, mais en {country} les données vérifiées listent {cities} — aucune ville de classe {wanted}.",
+        "no_programmes": "{prefix}le catalogue vérifié ne liste encore aucun programme de {level} en {country} ; cette combinaison n'a pas de route vérifiée.",
+        "budget": "{prefix}le programme vérifié de {level} le moins cher en {country} coûte {fee}, au-dessus de votre budget de {currency} {amount} {period}.",
+        "no_conflict": "J'ai vérifié vos préférences avec les données vérifiées : aucune contradiction.",
+        "period_per_year": "par an",
+        "period_total": "au total",
+    },
+    "pt-BR": {
+        "prefix": "Outro ângulo: ",
+        "climate": "{prefix}você quer um clima {wanted}, mas em {country} os dados verificados listam {cities} — nenhuma cidade de classe {wanted}.",
+        "no_programmes": "{prefix}o catálogo verificado ainda não lista nenhum programa de {level} em {country}; essa combinação não tem rota verificada.",
+        "budget": "{prefix}o programa verificado de {level} mais barato em {country} custa {fee}, acima do seu orçamento de {currency} {amount} {period}.",
+        "no_conflict": "Conferi suas preferências com os dados verificados e não encontrei contradições.",
+        "period_per_year": "por ano",
+        "period_total": "no total",
+    },
+    "ar": {
+        "prefix": "من زاوية أخرى: ",
+        "climate": "{prefix}تريد مناخًا {wanted}، لكن البيانات الموثّقة في {country} تدرج {cities} — ولا مدينة من فئة {wanted}.",
+        "no_programmes": "{prefix}لا يدرج الكتالوج الموثّق أي برنامج {level} في {country} بعد؛ هذا المزيج بلا مسار موثّق.",
+        "budget": "{prefix}أرخص برنامج {level} موثّق في {country} تكلفته {fee} — أعلى من ميزانيتك البالغة {currency} {amount} {period}.",
+        "no_conflict": "راجعت تفضيلاتك مع البيانات الموثّقة ولم أجد أي تعارض.",
+        "period_per_year": "سنويًا",
+        "period_total": "إجمالًا",
+    },
+}
+
+
+_DEVIL_COUNTRY_CODES: frozenset | None = None
+
+
+def _devil_country_codes() -> frozenset:
+    """ISO codes the verified data actually covers (rankings
+    institutions + programmes): a two-letter code that appears
+    nowhere in the data is dropped, never judged."""
+    global _DEVIL_COUNTRY_CODES
+    if _DEVIL_COUNTRY_CODES is None:
+        codes = {i.get("country") for i in RANKINGS.get("institutions", [])}
+        codes |= {p.get("country")
+                  for p in list(PROGRAMS.values())
+                  + list(EXPANSION_PROGRAMS.values())}
+        _DEVIL_COUNTRY_CODES = frozenset(
+            c for c in codes if isinstance(c, str) and len(c) == 2)
+    return _DEVIL_COUNTRY_CODES
+
+
+def _clean_devil_profile(profile) -> dict:
+    """Lenient normalisation of the optional devil profile (the router
+    passes it through as a plain dict): invalid values are dropped,
+    never a 422 — the devil then falls back to what the message itself
+    states. ``budget`` is (currency, amount, period) when all three
+    are usable, else absent."""
+    if not isinstance(profile, dict):
+        return {}
+    out: dict = {}
+    countries = profile.get("countries")
+    if isinstance(countries, list):
+        cleaned: list[str] = []
+        for c in countries:
+            if isinstance(c, str) and len(c.strip()) == 2 and c.strip().isalpha():
+                code = c.strip().upper()
+                if code not in cleaned and code in _devil_country_codes():
+                    cleaned.append(code)
+        if cleaned:
+            out["countries"] = cleaned[:5]
+    climate = profile.get("climate")
+    if isinstance(climate, str) and climate in _DEVIL_CLIMATES:
+        out["climate"] = climate
+    level = profile.get("level")
+    if isinstance(level, str) and level in _DEVIL_LEVELS:
+        out["level"] = level
+    amount = profile.get("budget_amount")
+    currency = profile.get("budget_currency")
+    period = profile.get("budget_period")
+    if (isinstance(amount, (int, float)) and not isinstance(amount, bool)
+            and amount > 0 and isinstance(currency, str)
+            and len(currency.strip()) == 3 and currency.strip().isalpha()
+            and period in ("per_year", "total")):
+        out["budget"] = (currency.strip().upper(), float(amount), period)
+    city = profile.get("city")
+    if isinstance(city, str) and city.strip():
+        out["city"] = city.strip()[:100]
+    return out
+
+
+def _devil_effective(profile, message: str):
+    """(countries, wanted climate, level, budget) the devil judges:
+    the profile first, the message itself as fallback. ``profile`` is
+    the raw dict (cleaned here, so callers never clean twice);
+    ``budget`` is (currency, amount, period) or None."""
+    clean_profile = _clean_devil_profile(profile)
+    countries = clean_profile.get("countries")
+    if not countries:
+        detected = _detect_country(message or "")
+        countries = [detected] if detected else []
+    wanted = clean_profile.get("climate") or _detect_climate_class(message or "")
+    level = clean_profile.get("level") or _detect_level(message or "")
+    budget = clean_profile.get("budget") or _parse_ceiling(message or "")
+    return countries, wanted, level, budget
+
+
+def _devil_cheapest(level: str, country: str, currency: str, period: str):
+    """(programme, fee_range) for the cheapest verified programme in
+    the track/country whose fee is in the given currency + period, or
+    None when no comparable fee exists. Same currency + period only —
+    a cross-currency comparison can never judge a mismatch."""
+    pool = [p for p in list(PROGRAMS.values())
+            + list(EXPANSION_MATCHABLE.values())
+            if p.get("degree_level") == level and p.get("country") == country]
+    same = [(program_fee_range(p), p) for p in pool]
+    same = [(fr, p) for fr, p in same
+            if fr and fr[2] == currency and fr[3] == period]
+    if not same:
+        return None
+    fr, p = min(same, key=lambda x: (x[0][0], x[1]["id"]))
+    return p, fr
+
+
+def _devil_catalogue_source(country: str, level: str) -> Source:
+    """One citable source for a no-programmes conflict: the claim is
+    about an absence in the verified catalogue, so the catalogue
+    search itself — total size + zero hits in the track/country — is
+    the evidence. It carries no URL (there is no official page for
+    an absence); the UI resolves the evidence link from the other
+    retrieved sources."""
+    total = len(PROGRAMS) + len(EXPANSION_PROGRAMS)
+    name = country_display_name(country, "en")
+    level_name = _t("en", f"level_{level}")
+    return Source(
+        id=f"catalogue:{country.lower()}",
+        url=None,
+        title="Verified programme catalogue",
+        excerpt=(f"Verified catalogue search ({total} programmes, v2 + "
+                 f"expansion): 0 {level_name} programmes in {name}."))
+
+
+def devil_conflicts(profile, message: str) -> list[dict]:
+    """Engine-computed preference conflicts, each with the evidence ids
+    that support it and the Source objects behind them (``sources``).
+    ``profile`` is the raw dict (cleaned here). Deterministic; at most
+    one conflict per kind per country, in the order climate,
+    no-programmes, budget."""
+    countries, wanted, level, budget = _devil_effective(profile, message or "")
+    conflicts: list[dict] = []
+    for country in countries:
+        if wanted:
+            cities = _country_cities([country])
+            if cities and not any(
+                    CLIMATE.get(city, {}).get("climate") == wanted
+                    for city, _n in cities):
+                listed = [(city, CLIMATE[city]["climate"], n)
+                          for city, n in cities[:3]]
+                conflicts.append({
+                    "kind": "climate", "country": country, "wanted": wanted,
+                    "cities": listed,
+                    "evidence_ids": [_climate_source(city, n).id
+                                     for city, n in cities[:3]],
+                    "sources": [_climate_source(city, n)
+                                for city, n in cities[:3]],
+                })
+        if level:
+            pool = [p for p in list(PROGRAMS.values())
+                    + list(EXPANSION_MATCHABLE.values())
+                    if p.get("degree_level") == level
+                    and p.get("country") == country]
+            if not pool:
+                src = _devil_catalogue_source(country, level)
+                conflicts.append({
+                    "kind": "no_programmes", "country": country,
+                    "level": level, "evidence_ids": [src.id],
+                    "sources": [src],
+                })
+        if level and budget:
+            currency, amount, period = budget
+            cheapest = _devil_cheapest(level, country, currency, period)
+            if cheapest is not None:
+                picked, fr = cheapest
+                if fr[0] > amount:
+                    enriched = _enriched_programme_sources(picked["id"])
+                    conflicts.append({
+                        "kind": "budget", "country": country, "level": level,
+                        "programme_id": picked["id"], "fee_range": fr,
+                        "budget": (currency, amount, period),
+                        "evidence_ids": [s.id for s in enriched],
+                        "sources": enriched,
+                    })
+    return conflicts
+
+
+def devil_conflict_line(conflict: dict, locale: str = "en") -> str:
+    """One localised devil line for one engine-computed conflict:
+    the challenge, in the user's locale, with the verified numbers
+    (city classes + counts, fee) taken from the conflict itself."""
+    loc = locale if locale in _DEVIL_T else "en"
+    t = _DEVIL_T[loc]
+    kind = conflict["kind"]
+    if kind == "climate":
+        words = _CLASS_WORDS.get(loc) or _CLASS_WORDS["en"]
+        wanted = words[conflict["wanted"]]
+        item_t = _CITY_ITEM.get(loc) or _CITY_ITEM["en"]
+        sep = "、" if loc == "zh-CN" else ", "
+        cities = sep.join(item_t.format(city=c, cls=words[cls], n=n)
+                          for c, cls, n in conflict["cities"][:3])
+        return t["climate"].format(
+            prefix=t["prefix"], wanted=wanted,
+            country=country_display_name(conflict["country"], loc),
+            cities=cities)
+    if kind == "no_programmes":
+        return t["no_programmes"].format(
+            prefix=t["prefix"],
+            level=_t(loc, f"level_{conflict['level']}"),
+            country=country_display_name(conflict["country"], loc))
+    if kind == "budget":
+        currency, amount, period = conflict["budget"]
+        period_word = (t["period_per_year"] if period == "per_year"
+                       else t["period_total"])
+        return t["budget"].format(
+            prefix=t["prefix"],
+            level=_t(loc, f"level_{conflict['level']}"),
+            country=country_display_name(conflict["country"], loc),
+            fee=fee_text(conflict["fee_range"], loc),
+            currency=currency, amount=_money(amount), period=period_word)
+    return ""
+
+
+def _ensure_devil_sources(conflicts: list[dict],
+                          sources: list[Source]) -> list[Source]:
+    """Every evidence id a conflict cites must be present in the
+    returned catalogue (the model path validates citations against
+    it); append any that retrieval did not already bring."""
+    seen = {s.id for s in sources}
+    out = list(sources)
+    for conflict in conflicts:
+        for s in conflict.get("sources") or []:
+            if s.id not in seen:
+                seen.add(s.id)
+                out.append(s)
+    return out
+
+
+def _devil_template_result(conflicts: list[dict], sources: list[Source],
+                           locale: str = "en") -> dict:
+    """Deterministic template fallback for devil mode: the conflict
+    lines (at most 3, conclusion first) or the honest no-clash line
+    when nothing conflicts, plus the eligibility-check offer when
+    there is room. Never a model answer, never an invented clash."""
+    if conflicts:
+        lines = [devil_conflict_line(c, locale) for c in conflicts[:3]]
+    else:
+        loc = locale if locale in _DEVIL_T else "en"
+        lines = [_DEVIL_T[loc]["no_conflict"]]
+    if len(lines) < 3:
+        lines.append(_t(locale, "next"))
+    evidence_url: str | None = None
+    for conflict in conflicts:
+        for eid in conflict["evidence_ids"]:
+            evidence_url = resolve_url(eid, sources)
+            if evidence_url:
+                break
+        if evidence_url:
+            break
+    if evidence_url is None:
+        for s in sources:
+            if s.url:
+                evidence_url = s.url
+                break
+    return {"lines": lines[:3],
+            "evidence_url": evidence_url,
+            "ai_status": "unavailable", "model": None,
+            "mode": "devil",
+            "conflicts": [c["kind"] for c in conflicts],
             "sources": [{"id": s.id, "url": s.url, "title": s.title}
                         for s in sources]}
 
@@ -888,7 +1572,8 @@ def _template_result(template: dict, sources: list[Source],
 
 def answer(message: str, locale: str = "en",
            history: list[dict] | None = None,
-           provider: ProviderAdapter | None = None) -> dict:
+           provider: ProviderAdapter | None = None,
+           mode: str = "normal", profile: dict | None = None) -> dict:
     """Answer one free-text question for 小罗盘.
 
     Returns ``{lines, evidence_url, ai_status, model, sources}``:
@@ -897,23 +1582,65 @@ def answer(message: str, locale: str = "en",
     link); ``ai_status`` is ``"available"`` only when a validated model
     output was actually used; ``model`` is ``"provider/model"`` or None;
     ``sources`` is the retrieved evidence catalogue.
+
+    Devil's advocate (``mode="devil"``): the same retrieval + grounding,
+    but the answer challenges the user's stated preferences (from
+    ``profile`` — countries, climate, level, budget — else from the
+    message) with the engine-computed conflicts in ``devil_conflicts``.
+    The model path additionally requires at least one claim/action to
+    cite a conflict's evidence; the no-key / model-failure path is the
+    deterministic template (``_devil_template_result``). Devil replies
+    carry ``"mode": "devil"`` and ``"conflicts": [kinds]``; normal
+    replies are unchanged.
     """
     loc = locale if locale in LOCALES else "en"
     msg = message or ""
+    is_devil = (mode == "devil")
 
     # (a) Personal-data guard first — the value is never echoed.
     if contains_personal_data(msg):
         template = assistant_ask(msg, loc)
-        return {"lines": template["lines"], "evidence_url": None,
-                "ai_status": "unavailable", "model": None, "sources": []}
+        result = {"lines": template["lines"], "evidence_url": None,
+                  "ai_status": "unavailable", "model": None, "sources": []}
+        if is_devil:
+            result["mode"] = "devil"
+            result["conflicts"] = []
+        return result
 
     provider = provider or ProviderAdapter()
-    template, sources, pids = _retrieve(msg, loc, country_programmes=True)
+    if is_devil:
+        # Retrieval scoped to the challenged preferences: the wanted
+        # climate class within the chosen countries, so the catalogue
+        # carries those countries' own cities with their actual classes
+        # (Zurich/Lausanne four-season for a cool wish in Switzerland).
+        countries, wanted, _level, _budget = _devil_effective(profile, msg)
+        template, sources, pids = _retrieve(
+            msg, loc, countries=countries or None, climate_class=wanted,
+            country_programmes=True)
+        conflicts = devil_conflicts(profile, msg)
+        sources = _ensure_devil_sources(conflicts, sources)
+        if not conflicts:
+            # No engine-computed conflict: nothing for the model to
+            # challenge. Skip the model call entirely — the prompt
+            # alone cannot stop it inventing a challenge — and answer
+            # from the template, which says honestly that nothing
+            # clashes.
+            return _devil_template_result(conflicts, sources, loc)
+    else:
+        template, sources, pids = _retrieve(msg, loc, country_programmes=True)
+        conflicts = []
     sources_out = [{"id": s.id, "url": s.url, "title": s.title} for s in sources]
+
+    def fallback() -> dict:
+        if is_devil:
+            return _devil_template_result(conflicts, sources, loc)
+        return _template_result(template, sources, loc,
+                                programme_id=_detect_programme_id(msg),
+                                message=msg)
 
     # (c) No key: the template assistant is the honest answer.
     if not provider.available:
-        return _template_result(template, sources, loc)
+        return fallback()
 
     # (d) Key present: model over the retrieved sources only.
     # Timeouts (round 10 fix): live gateway calls took ~7-10 s each
@@ -932,7 +1659,7 @@ def answer(message: str, locale: str = "en",
     # other endpoint.
     evidence_texts = _evidence_texts(sources, pids)
     envelope = {
-        "task": "chat",
+        "task": "devil-chat" if is_devil else "chat",
         "prompt_version": PROMPT_VERSION,
         "locale": loc,
         "message": msg,
@@ -941,19 +1668,29 @@ def answer(message: str, locale: str = "en",
             {"id": s.id, "url": s.url, "title": s.title, "excerpt": s.excerpt}
             for s in sources],
     }
+    if is_devil:
+        # The engine-computed conflicts are the ONLY challenges the
+        # model may raise, each with its supporting evidence ids.
+        envelope["devil_conflicts"] = [
+            {"kind": c["kind"], "evidence_ids": c["evidence_ids"],
+             "detail": devil_conflict_line(c, "en")} for c in conflicts]
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
     started = time.monotonic()
     try:
-        result = provider.chat(messages, system=chat_system(loc), timeout_s=15.0)
+        result = provider.chat(
+            messages,
+            system=(devil_advocate_system(loc) if is_devil
+                    else chat_system(loc)),
+            timeout_s=15.0)
     except ProviderError as e:
         logger.info("assistant/chat model call failed kind=%s latency_ms=%d",
                     e.kind, int((time.monotonic() - started) * 1000))
-        return _template_result(template, sources, loc)
+        return fallback()
     parsed = _parse_model_json(result.text)
     if parsed is None:
         logger.info("assistant/chat model output unparsable latency_ms=%d",
                     int((time.monotonic() - started) * 1000))
-        return _template_result(template, sources, loc)
+        return fallback()
     errors = _validate_chat_payload(parsed, sources, evidence_texts, loc)
     if errors:
         # Round 10: no repair retry — one bad output costs a second
@@ -961,7 +1698,21 @@ def answer(message: str, locale: str = "en",
         # template answers the user faster and honestly.
         logger.info("assistant/chat model output failed validation errors=%d",
                     len(errors))
-        return _template_result(template, sources, loc)
+        return fallback()
+    if is_devil and conflicts:
+        # A devil's answer must actually challenge a computed conflict
+        # with its evidence — a grounded but unchallenging reply is
+        # not a devil's-advocate answer, so the template challenges
+        # instead.
+        conflict_ids = {eid for c in conflicts for eid in c["evidence_ids"]}
+        cited: set[str] = set()
+        for section in (parsed.get("claims") or [], parsed.get("actions") or []):
+            for item in section:
+                if isinstance(item, dict):
+                    cited.update(item.get("evidence_ids") or [])
+        if not (cited & conflict_ids):
+            logger.info("assistant/chat devil output cited no conflict evidence")
+            return fallback()
     lines = _render_lines(parsed, loc, sources)
     # Defence in depth: a rendered line must never carry a raw URL, a
     # probability/guarantee, or key material — if it does, fall back.
@@ -969,9 +1720,13 @@ def answer(message: str, locale: str = "en",
     if ("http://" in joined_lines or "https://" in joined_lines
             or "www." in joined_lines or check_no_forbidden(lines)
             or "sk-" in joined_lines.lower()):
-        return _template_result(template, sources, loc)
-    return {"lines": lines,
-            "evidence_url": _resolve_evidence_url(parsed, sources),
-            "ai_status": "available",
-            "model": f"{result.provider}/{result.model}",
-            "sources": sources_out}
+        return fallback()
+    result = {"lines": lines,
+              "evidence_url": _resolve_evidence_url(parsed, sources),
+              "ai_status": "available",
+              "model": f"{result.provider}/{result.model}",
+              "sources": sources_out}
+    if is_devil:
+        result["mode"] = "devil"
+        result["conflicts"] = [c["kind"] for c in conflicts]
+    return result

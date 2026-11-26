@@ -25,17 +25,20 @@ from ai.plans import (
     InvalidPatch,
     PlanError,
     PlanNotFound,
+    ProgramNotEvaluable,
     TaskNotFound,
     create_plan,
     evaluate_programs,
     get_plan,
+    program_is_display_only,
     reassess,
+    resolve_program,
     update_task_status,
 )
 from ai.prompts import PROMPT_VERSION
 from ai.provider import ProviderAdapter
 from app.adapter import flat_to_student
-from app.data import DATA_VERSION, PROGRAMS
+from app.data import DATA_VERSION
 from app.errors import error_response
 from app.schemas import StudentProfile
 from domain.eligibility import track_mismatch
@@ -155,7 +158,13 @@ async def create_improvement_plan(request: Request):
                                              "message": problem}])
     programs: list[dict] = []
     for pid in req.program_ids:
-        program = PROGRAMS.get(pid)
+        # Resolution: v2 PROGRAMS first, then matchable expansion
+        # programmes (ai.plans.resolve_program). Display-only expansion
+        # programmes are an honest 422, never a plan invented from
+        # nothing; genuinely unknown ids stay 404.
+        if program_is_display_only(pid):
+            return _err(request, ProgramNotEvaluable(pid))
+        program = resolve_program(pid)
         if program is None:
             return error_response(rid, "PROGRAM_NOT_FOUND",
                                   f"No program with id '{pid}'.", 404)

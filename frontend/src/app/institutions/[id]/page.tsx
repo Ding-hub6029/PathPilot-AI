@@ -4,6 +4,7 @@ import { useApp } from '../../../lib/store';
 import { useBackendStatus } from '../../../lib/backendStatus';
 import { RANKING_INSTITUTIONS, RANKING_PROVIDERS, displayCountryCode, displayCountryName, displayInstitutionName, displayProgramInstitutionName } from '../../../lib/rankings';
 import { RankingCards } from '../../../components/RankingCards';
+import { AiEntry } from '../../../components/AiEntry';
 import { LanguageOfInstructionLine } from '../../../components/RuleRow';
 import { PROGRAMS, displayProgramName } from '../../../lib/programs';
 import { EXPANSION_PROGRAMS } from '../../../lib/expansion';
@@ -207,6 +208,18 @@ export default function InstitutionDetail({ params }: { params: { id: string } }
           <RankingCards institutionId={institution.id} />
         </div>
       </section>
+
+      {/* AI visibility layer (W5): the grounded chat explains this
+          institution's ranks. The question names the institution, so
+          the template rank lookup answers it; the model reads the
+          same verified rank sources. */}
+      <div className="mt-4">
+        <AiEntry
+          label={t('aivis.institution')}
+          question={`What is the rank of ${institution.official_name} in QS, THE and ARWU?`}
+          institutionId={institution.id}
+        />
+      </div>
 
       {institution.ielts_reference && !hasVerifiedLanguage && (
         <section className="mt-8" aria-labelledby="inst-ielts-title">
