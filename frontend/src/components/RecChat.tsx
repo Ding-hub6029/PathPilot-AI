@@ -12,7 +12,7 @@ import {
 import { useElapsed } from '../lib/useElapsed';
 import { StatusChip } from './StatusChip';
 import { CompassFace, type PetMood } from './CompassPet';
-import { formatDuration, formatFeeItemWithLabel, formatIntake, pickFeeItem } from '../lib/format';
+import { formatDuration, formatFeeItem, formatFeeItemWithLabel, formatIntake, pickFeeItem } from '../lib/format';
 import { convertCurrency, FX_AS_OF } from '../lib/fx';
 import { ruleName } from '../lib/ruleText';
 import { displayProgramTitle } from '../lib/programs';
@@ -46,9 +46,14 @@ const BATCH_SIZE = 3;
 /** Fee line with the approximate figure in the applicant's own currency
  * (Round 10, P1): the same format as the results pages — "学费：CHF
  * 4,380 每年（按参考汇率约合 GBP 4,018 · 2026-11-26）". Same-currency
- * fees and unconvertible currencies show no suffix, never a guess. */
-function feeItemWithApprox(f: FeeItem, profile: Profile, t: (key: string) => string, tf: (key: string, vars: Record<string, string | number>) => string, locale: string): string {
-  const base = formatFeeItemWithLabel(f, t, locale);
+ * fees and unconvertible currencies show no suffix, never a guess.
+ * `withLabel` (default true) keeps the "学费：" label for the card's
+ * fee row; the pet comment (comment()) passes false, because its
+ * sentence templates (wizard.recChatFee / FeeAbove / FeeWithin)
+ * already say "学费" — the labelled form there rendered the doubled
+ * "学费 学费：CHF 4,380 每年…" (round 11, F5). */
+function feeItemWithApprox(f: FeeItem, profile: Profile, t: (key: string) => string, tf: (key: string, vars: Record<string, string | number>) => string, locale: string, withLabel = true): string {
+  const base = withLabel ? formatFeeItemWithLabel(f, t, locale) : formatFeeItem(f, t, locale);
   const budgetCurrency = profile.budgetCurrency ?? '';
   if (!budgetCurrency || f.currency === budgetCurrency) return base;
   const converted = convertCurrency(f.amount, f.currency, budgetCurrency);
@@ -168,7 +173,9 @@ export function RecChat({
     if (cityName || duration) parts.push([cityName, duration].filter(Boolean).join(' · '));
     const feeItem = pickFeeItem(p, profile);
     if (feeItem) {
-      const feeText = feeItemWithApprox(feeItem, profile, t, tf, locale);
+      // Round 11, F5: label-free here — the recChatFee* templates
+      // already say "学费", so the labelled form doubled it.
+      const feeText = feeItemWithApprox(feeItem, profile, t, tf, locale, false);
       const budget = typeof profile.budget === 'number' ? profile.budget : null;
       if (budget !== null && feeItem.amount !== null && feeItem.currency === (profile.budgetCurrency ?? '')) {
         parts.push(tf(feeItem.amount > budget ? 'wizard.recChatFeeAbove' : 'wizard.recChatFeeWithin', { fee: feeText }));

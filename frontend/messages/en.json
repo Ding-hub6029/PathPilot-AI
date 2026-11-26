@@ -180,6 +180,7 @@
  "reason.budget-mismatch": "Your budget does not match the fee for this programme.",
  "reason.contextual-offer": "A contextual offer may apply; the standard offer alone does not settle this.",
  "reason.degree-unverified": "Your degree subject could not be verified from the profile as entered.",
+ "reason.fee-band-unlabelled": "The official fee table does not label whether this programme is in the lab-based or non-lab-based fee band, so the fee cannot be decided.",
  "reason.fee-residency-unknown": "The fee depends on your residency / tuition-grant status, which was not provided.",
  "reason.fx-cannot-convert": "Cannot be converted for comparison",
  "reason.gaokao-no-equivalence": "No official Gaokao equivalence is published for this programme, so the academic requirement cannot be judged from a Gaokao score.",

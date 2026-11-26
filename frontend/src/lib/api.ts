@@ -1202,7 +1202,10 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       const band: Record<string, number | null> = { sg_citizen: 8300, sg_pr: 11600, sg_intl_asean: 18050, sg_intl_other: 21400, sg_intl_nogrant: null };
       // Round 10, R1: same 'overseas' mapping as NUS. Here the band is
       // null because the table does not label CS lab/non-lab, so the fee
-      // stays UNKNOWN with the lab-band reason — never a mismatch.
+      // stays UNKNOWN with the lab-band reason — never a mismatch, and
+      // (round 11, F4) never the 'residency not provided' wording:
+      // reasonKey is 'fee-band-unlabelled' for the unlabelled band,
+      // 'fee-residency-unknown' only when residency itself is missing.
       const sgResidency = profile.residency === 'overseas' ? 'sg_intl_nogrant' : profile.residency;
       const amt = sgResidency ? band[sgResidency] ?? null : null;
       const feeSt = amt === null ? 'UNKNOWN' : feeStatus(amt, 'SGD');
@@ -1210,7 +1213,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       const ntuExpected = amt === null ? 'AY2026/27 rates by residency band'
         : `SGD ${amt.toLocaleString()}/year${approx ? ` (approx. ${approx.currency} ${approx.amount.toLocaleString('en-US')}, rates ${FX_AS_OF})` : ''}`;
       pushRule('ntu-bcomp-fee', feeSt, profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}/year`, ntuExpected, ['ntu-bcomp-fees'], amt === null ? (sgResidency === 'sg_intl_nogrant' ? 'The non-subsidised band is not labelled for CS (lab-based S$40,600 vs non-lab-based S$36,350), so the fee cannot be decided' : 'Residency / tuition-grant status not supplied, so the fee cannot be decided') : undefined,
-        { observedRaw: num(profile.budget), thresholdRaw: amt === null ? undefined : (approx ? { amount: amt, approx_converted: { ...approx, as_of: FX_AS_OF } } : { amount: amt }), reasonKey: profile.budget == null ? 'missing-info' : amt === null ? 'fee-residency-unknown' : feeSt === 'UNKNOWN' ? 'fx-cannot-convert' : undefined });
+        { observedRaw: num(profile.budget), thresholdRaw: amt === null ? undefined : (approx ? { amount: amt, approx_converted: { ...approx, as_of: FX_AS_OF } } : { amount: amt }), reasonKey: profile.budget == null ? 'missing-info' : amt === null ? (sgResidency === 'sg_intl_nogrant' ? 'fee-band-unlabelled' : 'fee-residency-unknown') : feeSt === 'UNKNOWN' ? 'fx-cannot-convert' : undefined });
     }
     if (p.id === 'ntu-msai-2027') {
       const deg = (profile.degree || '').toLowerCase();

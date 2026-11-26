@@ -282,6 +282,33 @@ def test_sg_bcomp_fee_no_rate_reason_key_fx_cannot_convert():
     assert rule_to_frontend(thb)["reasonKey"] == "fx-cannot-convert"
 
 
+def test_ntu_bcomp_fee_reason_key_band_unlabelled():
+    """Round 11, F4: for the audit profile (residency 'overseas') the
+    NTU fee is UNKNOWN because the official table does not label the
+    CS lab/non-lab band — the reason key must say so, never
+    'fee-residency-unknown' (which claims the residency was not
+    provided). A profile with no residency at all still maps to
+    'fee-residency-unknown'."""
+    from app.adapter import rule_to_frontend
+    lang = Language(exam="ielts", overall=7.0, listening=7.0, reading=7.0,
+                    writing=6.5, speaking=7.0)
+    prof = _ug(UndergradProfile(qualification_type="cn_gaokao",
+                                 gaokao_score=680, gaokao_total=750,
+                                 residency="overseas"),
+               lang, Budget(amount=Decimal("50000"), currency="GBP", period="per_year"))
+    ntu = _rules(prof, "ntu-bcomp-cs-2027")["ntu-bcomp-fee"]
+    assert ntu.status == "UNKNOWN"
+    assert "lab-based" in ntu.detail
+    assert rule_to_frontend(ntu)["reasonKey"] == "fee-band-unlabelled"
+    # No residency supplied: the old key is still correct there.
+    prof_nores = _ug(UndergradProfile(qualification_type="cn_gaokao",
+                                       gaokao_score=680, gaokao_total=750),
+                     lang, Budget(amount=Decimal("50000"), currency="GBP", period="per_year"))
+    nores = _rules(prof_nores, "ntu-bcomp-cs-2027")["ntu-bcomp-fee"]
+    assert nores.status == "UNKNOWN"
+    assert rule_to_frontend(nores)["reasonKey"] == "fee-residency-unknown"
+
+
 # --- NTU MSAI --------------------------------------------------------------
 def test_ntu_msai_academic_language_gre_fee():
     lang = Language(exam="ielts", overall=7.0)

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
@@ -43,6 +43,14 @@ export default function WizardPage() {
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+  /**
+   * Round 11, F1: step changes run as a React transition, so the Next /
+   * Back button can disable + spin while the new step commits instead
+   * of looking dead. It also stops a fast double-click from queueing
+   * two setStep calls and skipping a step (both calls used to land,
+   * because nothing disabled the button between them).
+   */
+  const [isAdvancing, startAdvance] = useTransition();
 
   // Recommendation state (last step): evaluated matches for the chosen
   // field, ordered by eligibility. Read-only — the user never has to
@@ -80,7 +88,11 @@ export default function WizardPage() {
   const next = () => {
     if (!canNext()) { setError(t('wizard.required')); return; }
     setError('');
-    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+    startAdvance(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)));
+  };
+
+  const back = () => {
+    startAdvance(() => setStep((s) => Math.max(0, s - 1)));
   };
 
   const finish = () => {
@@ -195,7 +207,18 @@ export default function WizardPage() {
   ];
 
   return (
-    <div className="page-enter mx-auto max-w-3xl px-4 py-8" key={step}>
+    // Round 11, F1: the root div used to carry key={step}, so EVERY
+    // step change unmounted and rebuilt the whole wizard — including
+    // the usePrograms() effect, which re-fired the patient
+    // fetchPrograms() (up to a 90s retry budget against a sleeping
+    // backend) on every single step, and the Next button itself, so a
+    // click landing mid-remount hit a detached node and was lost.
+    // The page now stays mounted across steps; only the step content
+    // below remounts (key={step} on its wrapper), and the nav buttons
+    // never move. The step advance itself was always synchronous —
+    // next() does no validation, fetch or storage for step 3 — the
+    // hang was the remount + refetch churn around it.
+    <div className="page-enter mx-auto max-w-3xl px-4 py-8">
       <h1 className="line-mask text-2xl font-bold"><span>{t('wizard.title')}</span></h1>
 
       {/* Animated progress route line with compass needle */}
@@ -212,7 +235,12 @@ export default function WizardPage() {
         </ol>
       </div>
 
-      <div className="anim-fade-up mt-6 rounded-2xl border border-navy/10 bg-white p-6 card-surface" aria-live="polite">
+      <div className="mt-6 rounded-2xl border border-navy/10 bg-white p-6 card-surface" aria-live="polite">
+        {/* Only the step content remounts per step (entrance animation
+            replays); the error line and nav buttons below stay mounted,
+            so the Next button is never destroyed by the step change it
+            just triggered (round 11, F1). */}
+        <div key={step} className="anim-fade-up">
         {step === 0 && (
           <div>
             <h2 className="text-lg font-bold">{t('wizard.curriculumTitle')}</h2>
@@ -440,11 +468,12 @@ export default function WizardPage() {
             </div>
           </div>
         )}
+        </div>
 
         {error && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-800">{error}</p>}
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <button type="button" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="btn-press rounded-full border border-navy/30 px-5 py-2 font-semibold disabled:opacity-40">{t('wizard.back')}</button>
+          <button type="button" onClick={back} disabled={step === 0 || isAdvancing} className="btn-press rounded-full border border-navy/30 px-5 py-2 font-semibold disabled:opacity-40">{t('wizard.back')}</button>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={loadSample} className="btn-press rounded-full border border-teal px-4 py-2 text-sm font-semibold text-teal-dark">{t('wizard.sampleProfile')}</button>
             {/* Chat steps (6 preferences, 7 recommend) drive their own
@@ -452,7 +481,15 @@ export default function WizardPage() {
                 duplicate Next / Finish button down here. */}
             {step < 6 && (
               step < STEPS.length - 1
-                ? <button type="button" onClick={next} className="btn-press rounded-full bg-navy px-5 py-2 font-semibold text-white">{t('wizard.next')}</button>
+                ? <button type="button" onClick={next} disabled={isAdvancing} className="btn-press inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2 font-semibold text-white disabled:opacity-60">
+                    {isAdvancing && (
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity=".25" strokeWidth="4" />
+                        <path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                      </svg>
+                    )}
+                    {t('wizard.next')}
+                  </button>
                 : <button type="button" onClick={finish} className="btn-press rounded-full bg-amber px-5 py-2 font-semibold text-navy">{t('wizard.finish')}</button>
             )}
           </div>

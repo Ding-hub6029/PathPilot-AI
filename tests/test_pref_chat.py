@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 
 import httpx
 import pytest
@@ -579,6 +580,33 @@ def test_pref_chat_endpoint_mock_model(monkeypatch):
     assert "环境优美" in "\n".join(body["lines"])
     assert body["next_question"] == "climate"
     assert body["done"] is False
+
+
+def test_pref_chat_endpoint_http500_fails_fast(monkeypatch):
+    # Round 11, F3: a gateway that fails FAST with HTTP 500 must not
+    # cost the turn the full 15 s model budget — the provider raises
+    # at once and the endpoint returns the template fallback (with
+    # the deterministic extraction, so the user's words are still
+    # recorded) instead of waiting the budget out. The 5 s bound is
+    # generous: locally this answers in ~0.3 s, and the live
+    # re-test's 6-17 s turns were the gateway itself taking 11-15 s
+    # to fail, not this path. Guards against a retry/sleep ever being
+    # added to the provider's error path.
+    provider = _mock_provider(monkeypatch, _http500_handler)
+    monkeypatch.setattr(router_chat, "get_provider", lambda: provider)
+    started = time.monotonic()
+    r = client.post("/api/v1/assistant/pref-chat",
+                    json={"message": "我想去瑞士，因为那边环境优美",
+                          "locale": "zh-CN",
+                          "known": {"countries": ["CH"], "climate": "cool"}})
+    elapsed = time.monotonic() - started
+    assert r.status_code == 200
+    body = r.json()
+    assert body["ai_status"] == "unavailable"
+    assert body["model"] is None
+    assert body["extracted"].get("note") == "那边环境优美"
+    assert body["next_question"] == "environment"
+    assert elapsed < 5.0, f"fast gateway error took {elapsed:.2f}s"
 
 
 def test_pref_chat_endpoint_validation_errors(monkeypatch):

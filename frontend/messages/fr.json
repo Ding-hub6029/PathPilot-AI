@@ -180,6 +180,7 @@
  "reason.budget-mismatch": "Votre budget ne correspond pas aux frais de ce programme.",
  "reason.contextual-offer": "Une offre contextuelle peut s'appliquer ; l'offre standard seule ne permet pas de trancher.",
  "reason.degree-unverified": "La spécialité de votre diplôme n'a pas pu être vérifiée à partir du profil tel qu'il a été saisi.",
+ "reason.fee-band-unlabelled": "Le barème officiel des frais n'indique pas si ce programme relève de la tranche avec laboratoire ou sans laboratoire ; les frais ne peuvent donc pas être déterminés.",
  "reason.fee-residency-unknown": "Les frais dépendent de votre statut de résidence / de bourse, qui n'a pas été fourni.",
  "reason.fx-cannot-convert": "Impossible à convertir pour la comparaison",
  "reason.gaokao-no-equivalence": "Aucune équivalence officielle du Gaokao n'est publiée pour ce programme, le critère académique ne peut donc pas être jugé à partir d'un score Gaokao.",

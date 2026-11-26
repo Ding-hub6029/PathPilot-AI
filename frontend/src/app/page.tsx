@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../lib/store';
 import { usePrograms } from '../lib/usePrograms';
+import { useBackendStatus } from '../lib/backendStatus';
 import { sampleUndergrad, sampleMasters } from '../lib/types';
 import { formatProgramLine } from '../lib/format';
 import { displayProgramName } from '../lib/programs';
@@ -22,7 +23,11 @@ import { SCHOOL_REVIEWS } from '../lib/reviews';
 
 export default function HomePage() {
   const { t, tf, locale, setProfile } = useApp();
-  const { programs, live: programsLive, loading: programsLoading } = usePrograms();
+  const { programs, loading: programsLoading } = usePrograms();
+  // Round 11, F7: the homepage showed no backend status at all while
+  // rankings / browse / results all show the settled line from this
+  // one shared hook (round 9, R9) — same pattern, same strings.
+  const backendStatus = useBackendStatus();
   const router = useRouter();
 
   // No opening veil: the hero used to be covered by a solid navy veil on
@@ -172,10 +177,18 @@ export default function HomePage() {
             the list is actually empty. The old
             `{programsLoading && ...}` kept "正在加载课程…" on screen for
             up to the 90s patient fetch while the list was already
-            visible — the offline note below still waits for loading to
-            settle, so no offline claim is made early. */}
+            visible. The status line below shows "checking…" until the
+            shared probe settles, so no offline claim is made early. */}
         {programsLoading && programs.length === 0 && <p className="mt-2 text-sm text-navy/60">{t('programs.loading')}</p>}
-        {!programsLoading && !programsLive && <p className="mt-2 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('programs.offlineNote')}</p>}
+        {/* Round 11, F7: backend status from the one shared hook, same
+            line as rankings / browse / results — the old line derived
+            it from this page's own fetch, which is exactly what round 9
+            (R9) removed everywhere else. */}
+        <p className="mt-2 text-sm text-navy/60" role="status">
+          {backendStatus === 'checking' && <span className="font-semibold">{t('r9pages.backendChecking')}</span>}
+          {backendStatus === 'live' && <span className="font-semibold">{t('r9pages.backendLive')}</span>}
+          {backendStatus === 'offline' && <span className="font-semibold">{t('programs.offlineNote')}</span>}
+        </p>
         <div className="grid-12 mt-4">
           {programs.map((p, i) => {
             // Verification ring: real official-source count, capped at 5 for

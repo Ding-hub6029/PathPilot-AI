@@ -180,6 +180,7 @@
  "reason.budget-mismatch": "Tu presupuesto no coincide con la matrícula de este programa.",
  "reason.contextual-offer": "Es posible que se aplique una oferta contextual; la oferta estándar por sí sola no lo resuelve.",
  "reason.degree-unverified": "No se pudo verificar la especialidad de tu título a partir del perfil tal como se introdujo.",
+ "reason.fee-band-unlabelled": "La tabla oficial de tasas no indica si este programa pertenece a la banda de tasas de laboratorio o no, por lo que no se puede determinar la tasa.",
  "reason.fee-residency-unknown": "La matrícula depende de tu residencia / estado de beca de matrícula, que no se proporcionó.",
  "reason.fx-cannot-convert": "No se puede convertir para comparar",
  "reason.gaokao-no-equivalence": "No se publica ninguna equivalencia oficial del Gaokao para este programa, por lo que el requisito académico no puede juzgarse a partir de la puntuación del Gaokao.",

@@ -180,6 +180,7 @@
  "reason.budget-mismatch": "Seu orçamento não corresponde à mensalidade deste programa.",
  "reason.contextual-offer": "Uma oferta contextual pode se aplicar; a oferta padrão por si só não resolve a questão.",
  "reason.degree-unverified": "A área do seu diploma não pôde ser verificada a partir do perfil conforme informado.",
+ "reason.fee-band-unlabelled": "A tabela oficial de mensalidades não indica se este programa está na faixa com laboratório ou sem laboratório, por isso a mensalidade não pode ser determinada.",
  "reason.fee-residency-unknown": "A mensalidade depende da sua residência / situação de bolsa, que não foi informada.",
  "reason.fx-cannot-convert": "Não é possível converter para comparação",
  "reason.gaokao-no-equivalence": "Nenhuma equivalência oficial do Gaokao é publicada para este programa, por isso o requisito acadêmico não pode ser avaliado a partir da pontuação do Gaokao.",

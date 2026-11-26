@@ -37,6 +37,10 @@ interface AppState {
   setProfile: (p: Profile) => void;
   updateProfile: (patch: Partial<Profile>) => void;
   clearData: () => void;
+  /** Bumps every time clearData runs, so components holding local
+   * banner/modal state (e.g. WelcomeBanner) can close themselves at
+   * once instead of waiting for a manual close. */
+  bannerClearNonce: number;
 }
 
 const Ctx = createContext<AppState | null>(null);
@@ -45,6 +49,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
   const [profile, setProfileState] = useState<Profile>(emptyProfile);
   const [hydrated, setHydrated] = useState(false);
+  const [bannerClearNonce, setBannerClearNonce] = useState(0);
 
   useEffect(() => {
     try {
@@ -73,6 +78,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = (patch: Partial<Profile>) => setProfileState((prev) => ({ ...prev, ...patch }));
   const clearData = () => {
     setProfileState(emptyProfile);
+    // Round 11, F6: the WelcomeBanner keeps its own open/closed state
+    // and never heard about clearData, so it kept showing
+    // "欢迎回来！你的资格检查已完成" until manually closed. Bump the
+    // nonce so it closes itself at once.
+    setBannerClearNonce((n) => n + 1);
     try { localStorage.removeItem('pp-profile'); localStorage.removeItem('pp-check-done'); } catch { /* ignore */ }
   };
   const t = (key: string) => MESSAGES[locale][key] ?? MESSAGES.en[key] ?? key;
@@ -84,9 +94,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return s;
   };
 
-  const value = useMemo(() => ({ locale, setLocale, t, tf, profile, setProfile, updateProfile, clearData }),
+  const value = useMemo(() => ({ locale, setLocale, t, tf, profile, setProfile, updateProfile, clearData, bannerClearNonce }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [locale, profile]);
+    [locale, profile, bannerClearNonce]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

@@ -29,11 +29,21 @@ import { useApp } from '../lib/store';
  * the same session never paints the banner and then hides it.
  */
 export function WelcomeBanner() {
-  const { t } = useApp();
+  const { t, bannerClearNonce } = useApp();
   // 'unknown' = not mounted yet (render nothing); 'open' / 'closed' =
   // decided from sessionStorage after mount.
   const [state, setState] = useState<'unknown' | 'open' | 'closed'>('unknown');
   const [checked, setChecked] = useState(false);
+
+  // Round 11, F6: "清除我的数据" must clear this banner at once. The
+  // banner's open/closed state is local and the store's clearData never
+  // reached it, so it kept showing "欢迎回来！你的资格检查已完成"
+  // until manually closed. The store bumps bannerClearNonce on every
+  // clear; close immediately (the sessionStorage flag stays set, so the
+  // banner stays gone for the rest of the session).
+  useEffect(() => {
+    if (bannerClearNonce > 0) setState('closed');
+  }, [bannerClearNonce]);
 
   useEffect(() => {
     try {

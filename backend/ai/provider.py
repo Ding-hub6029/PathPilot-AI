@@ -106,14 +106,23 @@ class ProviderAdapter:
                 "supported_providers": list(SUPPORTED_PROVIDERS)}
 
     # -- low-level HTTP -----------------------------------------------------
+    # trust_env=False (round 11, F3): the provider connects directly to
+    # the configured AI_BASE_URL and never through an environment proxy
+    # — no proxy variable is part of the documented config surface, and
+    # httpx's env-proxy parsing raises InvalidURL (not an HTTPError) on
+    # unparseable proxy values (e.g. bracketed IPv6 literals in
+    # NO_PROXY), which used to escape the ProviderError contract below
+    # and 500 the whole chat endpoint instead of failing fast to the
+    # template fallback. It also keeps the API key off any unexpected
+    # egress proxy.
     def _client(self, timeout_s: float) -> httpx.Client:
-        kwargs: dict = {"timeout": timeout_s}
+        kwargs: dict = {"timeout": timeout_s, "trust_env": False}
         if self._transport is not None:
             kwargs["transport"] = self._transport
         return httpx.Client(**kwargs)
 
     def _async_client(self, timeout_s: float) -> httpx.AsyncClient:
-        kwargs: dict = {"timeout": timeout_s}
+        kwargs: dict = {"timeout": timeout_s, "trust_env": False}
         if self._transport is not None:
             kwargs["transport"] = self._transport
         return httpx.AsyncClient(**kwargs)
@@ -157,6 +166,13 @@ class ProviderAdapter:
         except httpx.HTTPError:
             raise ProviderError("Could not reach the AI provider.",
                                 retryable=True, kind="transport_error")
+        except ValueError:
+            # httpx.InvalidURL (a ValueError, not an HTTPError): a
+            # malformed AI_BASE_URL, raised while building the client
+            # or the request. A bad provider URL is a provider error,
+            # not a 500 — callers fall back to the template.
+            raise ProviderError("AI provider URL is not usable.",
+                                retryable=False, kind="bad_url")
         latency_ms = int((time.monotonic() - started) * 1000)
         if not text or not text.strip():
             raise ProviderError("AI provider returned an empty reply.",
@@ -213,6 +229,11 @@ class ProviderAdapter:
         except httpx.HTTPError:
             raise ProviderError("Could not reach the AI provider.",
                                 retryable=True, kind="transport_error")
+        except ValueError:
+            # Same malformed-URL mapping as chat(): a bad provider
+            # URL is a provider error, not a 500.
+            raise ProviderError("AI provider URL is not usable.",
+                                retryable=False, kind="bad_url")
         latency_ms = int((time.monotonic() - started) * 1000)
         if not text or not text.strip():
             raise ProviderError("AI provider returned an empty reply.",

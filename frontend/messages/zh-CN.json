@@ -180,6 +180,7 @@
  "reason.budget-mismatch": "你的预算与该课程的学费不匹配。",
  "reason.contextual-offer": "可能适用特殊录取优惠（contextual offer），仅凭标准录取要求无法判断。",
  "reason.degree-unverified": "根据你填写的资料，无法核实你的学位专业。",
+ "reason.fee-band-unlabelled": "官方学费表未标注该课程属于实验类还是非实验类收费档，因此无法确定学费。",
  "reason.fee-residency-unknown": "学费取决于你的居留身份/学费津贴状态，未提供该信息。",
  "reason.fx-cannot-convert": "无法换算比较",
  "reason.gaokao-no-equivalence": "该课程未公布高考的官方对等标准，因此无法根据高考成绩判断学术要求。",

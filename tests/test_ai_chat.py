@@ -14,6 +14,7 @@ Pinned rules (see backend/ai/chat.py):
 from __future__ import annotations
 
 import json
+import time
 
 import httpx
 import pytest
@@ -445,6 +446,82 @@ def test_chat_fallback_with_climate_sources_states_cities(monkeypatch):
     assert "查不到" not in joined
     assert [s["id"] for s in r["sources"]][:3] == [
         "climate:edinburgh", "climate:durham", "climate:lund"]
+
+
+def test_chat_endpoint_http500_fails_fast(monkeypatch):
+    # Round 11, F3 (same rule as the pref-chat endpoint): a gateway
+    # that fails FAST with HTTP 500 must return the template fallback
+    # at once, not after the 15 s model budget. The 5 s bound is
+    # generous: locally this answers in ~0.1 s.
+    provider = _mock_provider(monkeypatch, _http500_handler)
+    monkeypatch.setattr(router_chat, "get_provider", lambda: provider)
+    started = time.monotonic()
+    r = client.post("/api/v1/assistant/chat",
+                    json={"message": "瑞士有哪些好学校？",
+                          "locale": "zh-CN", "history": []})
+    elapsed = time.monotonic() - started
+    assert r.status_code == 200
+    body = r.json()
+    assert body["ai_status"] == "unavailable"
+    assert body["model"] is None
+    assert "ETH" in "\n".join(body["lines"]) or "苏黎世" in "\n".join(body["lines"])
+    assert elapsed < 5.0, f"fast gateway error took {elapsed:.2f}s"
+
+
+def test_provider_fast_500_over_real_socket_with_hostile_proxy_env(monkeypatch):
+    # Round 11, F3: building the httpx client must not depend on
+    # environment proxy variables — httpx's env-proxy parser raises
+    # InvalidURL (not an HTTPError) on unparseable values such as the
+    # bracketed IPv6 literals in NO_PROXY ("[::1]"), which used to
+    # escape the ProviderError contract and 500 the chat endpoints
+    # instead of failing fast to the template fallback. A real socket
+    # (no MockTransport — an explicit transport skips env-proxy
+    # parsing entirely) exercises client construction; the gateway
+    # answers 500 at once, so the error must surface as ProviderError
+    # in well under the 15 s budget.
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    class _Fast500(BaseHTTPRequestHandler):
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length") or 0)
+            self.rfile.read(length)
+            body = b'{"error": "boom"}'
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Fast500)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        monkeypatch.setenv("AI_PROVIDER", "deepseek")
+        monkeypatch.setenv("AI_MODEL", "test-model")
+        monkeypatch.setenv("AI_API_KEY", "fake-test-key")
+        monkeypatch.setenv(
+            "AI_BASE_URL",
+            f"http://127.0.0.1:{server.server_address[1]}/v1")
+        # Hostile proxy env, as in the agent sandbox: bracketed IPv6
+        # in NO_PROXY used to crash httpx client construction.
+        monkeypatch.setenv("NO_PROXY", "[::1],localhost,127.0.0.1")
+        monkeypatch.setenv("HTTP_PROXY", "http://proxy.invalid:3128")
+        monkeypatch.setenv("HTTPS_PROXY", "http://proxy.invalid:3128")
+        from ai.provider import ProviderError
+        provider = ProviderAdapter()
+        assert provider.available
+        started = time.monotonic()
+        with pytest.raises(ProviderError) as exc:
+            provider.chat([{"role": "user", "content": "hi"}], timeout_s=15.0)
+        elapsed = time.monotonic() - started
+        assert exc.value.kind == "provider_http"
+        assert elapsed < 5.0, f"fast gateway error took {elapsed:.2f}s"
+    finally:
+        server.shutdown()
+        server.server_close()
 
 
 def test_chat_suggest_message_retrieves_gb_undergraduate(monkeypatch):

@@ -460,6 +460,13 @@ def _derive_reason_key(rule_id: str, status: str, detail: str) -> str | None:
     if status != "UNKNOWN":
         return None
     d = detail or ""
+    # Round 11, F4: the NTU non-subsidised band is UNKNOWN because the
+    # official fee table does not label the programme lab/non-lab — NOT
+    # because residency was missing. It must map to its own reason key,
+    # never 'fee-residency-unknown' (which says the residency was not
+    # provided). Only the NTU detail contains "not labelled".
+    if "not labelled" in d:
+        return "fee-band-unlabelled"
     # Generic expansion rules (round 6): same cause vocabulary as v2.
     if rule_id.startswith("exp-"):
         if "no valid test date" in d or "without a date" in d:
