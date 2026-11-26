@@ -890,7 +890,17 @@ def _model_tasks(gap_assessment: dict, evaluations: list[Evaluation],
                  catalogue: list) -> tuple[list[dict] | None, bool]:
     """Model path. Returns (tasks, model_used). tasks is None only when
     the provider call itself failed; otherwise per-gap template
-    replacement keeps every gap covered."""
+    replacement keeps every gap covered.
+
+    Round 13 fail-fast: ONE attempt with a 15 s budget, no repair
+    retry. The old 12 s attempt + 12 s repair stacked to ~24 s of
+    synchronous blocking, sitting exactly on the frontend's 25 s
+    attempt-abort boundary — and the repair could only return after
+    the caller had given up. A provider failure returns (None, False)
+    so the caller falls back to templates; a validation failure
+    returns the template tasks directly (model_used=False), keeping
+    the caller's "did not pass validation" wording.
+    """
     program_ids = [p["id"] for p in programs]
     programs_by_id = {p["id"]: p for p in programs}
     gap_by_id = {g["gap_id"]: g for g in gap_assessment.get("gaps", [])}
@@ -921,7 +931,7 @@ def _model_tasks(gap_assessment: dict, evaluations: list[Evaluation],
     def _attempt(msgs: list[dict]):
         try:
             result = provider.chat(msgs, system=plan_system(locale),
-                                   timeout_s=12.0)
+                                   timeout_s=15.0)
         except ProviderError:
             return None, None
         parsed = _parse_model_json(result.text)
@@ -936,15 +946,10 @@ def _model_tasks(gap_assessment: dict, evaluations: list[Evaluation],
     if raw_tasks is None:
         if errors is None:
             return None, False  # provider call failed -> templates
-        # One repair retry on a validation failure.
-        repair = ("Your previous output failed validation. Fix ONLY these "
-                  f"problems and output JSON only: {'; '.join(errors)}\n\n"
-                  f"Previous output:\n{json.dumps({'tasks': []})}")
-        raw_tasks, errors2 = _attempt(
-            messages + [{"role": "user", "content": repair}])
-        if raw_tasks is None:
-            return _template_tasks(gap_assessment, programs_by_id, deadline,
-                                   weekly_hours, budget, catalogue), False
+        # Validation failure: no repair retry (Round 13) — the
+        # template tasks cover every gap instead.
+        return _template_tasks(gap_assessment, programs_by_id, deadline,
+                               weekly_hours, budget, catalogue), False
 
     seen_ids: set[str] = set()
     kept: list[dict] = []

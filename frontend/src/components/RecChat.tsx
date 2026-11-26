@@ -520,9 +520,16 @@ export function RecChat({
         {!recLoading && recs !== null && recs.length > 0 && (
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={onViewResults} className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">
+              {/* Round 13: this used to be a <button onClick={onViewResults}>
+                  whose router.push('/results') never landed in the
+                  re-test (click stayed on /wizard, only scrolled to
+                  top) — the top nav "结果" Link worked, so this is a
+                  real Link to /results now, with the id sync kept as
+                  its onClick. The try/catch means a failure in the
+                  sync can never swallow the navigation itself. */}
+              <Link href="/results" onClick={() => { try { onViewResults(); } catch { /* the Link still navigates */ } }} className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">
                 {t('wizard.finish')}
-              </button>
+              </Link>
               {filtered.length > BATCH_SIZE && (
                 <button type="button" onClick={() => { setBatch((b) => (b + 1) % batches); setMood('celebrate'); }}
                   className="btn-press rounded-full border border-navy/30 bg-white px-4 py-2 text-sm font-semibold">

@@ -14,6 +14,7 @@ shared error shape (app.errors.error_response), and the plans module
 """
 from __future__ import annotations
 
+import asyncio
 import uuid
 from typing import Any
 
@@ -177,9 +178,27 @@ async def create_improvement_plan(request: Request):
     budget = (req.budget.model_dump() if req.budget is not None else None)
     try:
         evaluations = evaluate_programs(profile, req.program_ids)
-        plan = create_plan(profile, evaluations, programs, req.deadline,
-                           req.weekly_hours, budget, req.locale,
-                           get_provider())
+        # Round 13 fail-fast: create_plan's model call is synchronous
+        # (one 15 s attempt, no repair — ai.plans._model_tasks), so it
+        # runs in a worker thread; the event loop stays free for
+        # /health and every other request while the model thinks. The
+        # hard 15 s cap (asyncio.wait_for) covers providers whose own
+        # timeout is not honoured: on timeout the plan is rebuilt
+        # with no provider, i.e. the deterministic template tasks
+        # (the gap assessment is engine-only, already computed).
+        # A provider failure inside create_plan already falls back to
+        # template tasks and never raises.
+        try:
+            plan = await asyncio.wait_for(
+                asyncio.to_thread(
+                    create_plan, profile, evaluations, programs,
+                    req.deadline, req.weekly_hours, budget, req.locale,
+                    get_provider()),
+                timeout=15.0)
+        except asyncio.TimeoutError:
+            plan = await asyncio.to_thread(
+                create_plan, profile, evaluations, programs,
+                req.deadline, req.weekly_hours, budget, req.locale, None)
     except PlanError as exc:
         return _err(request, exc)
     except ValueError as exc:  # e.g. bad deadline

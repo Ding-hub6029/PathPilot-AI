@@ -207,7 +207,16 @@ def _parse_model_json(text: str) -> dict | None:
 def _model_explain_simulation(*, scenarios, leverage,
                               baseline_unknown_academic, locale,
                               provider) -> dict | None:
-    """One model attempt + one repair attempt; validated output or None."""
+    """One model attempt, no repair; validated output or None.
+
+    Round 13 fail-fast: a single attempt with a 15 s budget. The old
+    30 s first attempt + 20 s repair could block for up to 50 s, and
+    the frontend aborts a simulate attempt at 25 s (40 s in the
+    Round 13 frontend fail-fast) — a repair retry can only ever
+    return after the caller has given up, so it is dropped entirely.
+    A validation failure or a provider failure both fall back to the
+    deterministic template (the caller never sees an exception).
+    """
     involved: list[str] = []
     for scen in scenarios:
         involved.extend(scen.get("flipped_program_ids") or [])
@@ -280,17 +289,13 @@ def _model_explain_simulation(*, scenarios, leverage,
         return {"_check_error": check.error_text(),
                 "_raw": result.text[:4000]}
 
-    first = _attempt(messages, 30.0)
+    first = _attempt(messages, 15.0)
     if first is not None and "_check_error" not in first:
         return first
-    if first is None:
-        return None
-    repair = ("Your previous output failed validation. Fix ONLY these "
-              f"problems and output JSON only: {first['_check_error']}\n\n"
-              f"Previous output:\n{first['_raw']}")
-    second = _attempt(messages + [{"role": "user", "content": repair}], 20.0)
-    if second is not None and "_check_error" not in second:
-        return second
+    # No repair retry (Round 13): a failed first attempt — timeout,
+    # transport error, bad JSON or a citation-check failure — falls
+    # back to the template immediately. The caller budgeted 15 s for
+    # the model; a second attempt cannot fit it.
     return None
 
 
@@ -313,10 +318,16 @@ def explain_simulation(*, scenarios: list[dict], leverage: dict | None,
         return template, template_simulate_text(template), "unavailable"
     if not provider.available:
         return template, template_simulate_text(template), "unavailable"
-    structured = _model_explain_simulation(
-        scenarios=scenarios, leverage=leverage,
-        baseline_unknown_academic=baseline_unknown_academic,
-        locale=locale, provider=provider)
+    try:
+        structured = _model_explain_simulation(
+            scenarios=scenarios, leverage=leverage,
+            baseline_unknown_academic=baseline_unknown_academic,
+            locale=locale, provider=provider)
+    except Exception:
+        # Round 13: a model failure must never raise/500 — any
+        # unexpected error in the model path falls back to the
+        # template (the engine numbers are already computed).
+        return template, template_simulate_text(template), "unavailable"
     if structured is None:
         return template, template_simulate_text(template), "unavailable"
     sources = []

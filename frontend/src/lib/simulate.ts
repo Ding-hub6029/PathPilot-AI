@@ -4,7 +4,7 @@
 // (ai/simulate_explain.py): only changes the engine actually evaluates.
 // No Gaokao candidate exists on either side: no university publishes a
 // Gaokao equivalence, so the academic rule stays UNKNOWN whatever the score.
-import { fetchJsonPatient } from './api';
+import { fetchJsonPatient, type FetchPatientOptions } from './api';
 import { DATA_VERSION, MatchResponse, Profile, RULES_VERSION } from './types';
 
 export interface SimulateChange {
@@ -80,6 +80,30 @@ export function leverageCandidates(profile: Profile): SimulateCandidate[] {
   return out;
 }
 
+/** Default selection for the multi-simulate toggles (Round 13).
+ * The two budget options are mutually exclusive — both raise the same
+ * budget field, so checking both would apply two different patches to
+ * one field. The default keeps the larger step (+£10,000) and drops
+ * +£5,000; the IELTS options are independent of each other and of the
+ * budget, so they stay checked. */
+export function defaultSimulateSelection(candidates: SimulateCandidate[]): string[] {
+  const ids = candidates.map((c) => c.id);
+  if (ids.includes('budget-plus-10000')) return ids.filter((id) => id !== 'budget-plus-5000');
+  return ids;
+}
+
+const BUDGET_OPTION_IDS = ['budget-plus-10000', 'budget-plus-5000'];
+
+/** Toggle one candidate, enforcing budget mutual exclusion: checking
+ * one budget option unchecks the other; unchecking never affects the
+ * other option. Non-budget toggles are independent. */
+export function toggleSimulateSelection(prev: string[], id: string): string[] {
+  if (prev.includes(id)) return prev.filter((x) => x !== id);
+  if (!BUDGET_OPTION_IDS.includes(id)) return [...prev, id];
+  const other = id === 'budget-plus-10000' ? 'budget-plus-5000' : 'budget-plus-10000';
+  return [...prev.filter((x) => x !== other), id];
+}
+
 /** Run several scenarios at once. The backend evaluates every scenario
  * plus the leverage candidates against the same verified rules; the
  * response carries the per-scenario deltas, the leverage ranking and
@@ -90,7 +114,7 @@ export async function simulateMulti(
   profile: Profile,
   programIds: string[],
   scenarios: { name: string; patch: Partial<Profile> }[],
-  opts?: { explain?: boolean; locale?: string },
+  opts?: { explain?: boolean; locale?: string; patientOptions?: FetchPatientOptions },
 ): Promise<MultiSimulateResponse> {
   return fetchJsonPatient<MultiSimulateResponse>('/api/simulate', {
     method: 'POST',
@@ -102,7 +126,11 @@ export async function simulateMulti(
       explain: opts?.explain ?? true,
       versions: { data_version: DATA_VERSION, rules_version: RULES_VERSION },
     }),
-  });
+  },
+  // Round 13: 40s per attempt (same as the round-10 chat fix) so a
+  // single slow-but-healthy backend attempt is not aborted mid-flight
+  // at the 25s default; the overall budget stays 90s.
+  { attemptTimeoutMs: 40_000, budgetMs: 90_000, ...opts?.patientOptions });
 }
 
 /** Locale key for a candidate id (frontend/messages/*.json, sim.*). */

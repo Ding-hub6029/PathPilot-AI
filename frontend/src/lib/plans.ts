@@ -103,6 +103,14 @@ export function planErrorStatus(err: unknown): number | null {
   return typeof status === 'number' ? status : null;
 }
 
+/** True when a fetch failure is the backend's AI-budget rate limit
+ * (HTTP 429, error code RATE_LIMITED). Callers show the distinct
+ * "too frequent, wait a minute" message for this instead of the
+ * generic error — a 429 is a wait-and-retry, not a broken run. */
+export function isRateLimitedError(err: unknown): boolean {
+  return planErrorStatus(err) === 429 || planErrorCode(err) === 'RATE_LIMITED';
+}
+
 export async function createPlan(
   profile: Profile,
   programId: string,
@@ -125,7 +133,10 @@ export async function createPlan(
         locale,
       }),
     },
-    options,
+    // Round 13: 40s per attempt (same as the round-10 chat fix) so a
+    // single slow-but-healthy backend attempt is not aborted mid-flight
+    // at the 25s default; the overall budget stays 90s.
+    { attemptTimeoutMs: 40_000, budgetMs: 90_000, ...options },
   );
 }
 
@@ -205,6 +216,7 @@ export async function reassessPlan(
         profile_patch: buildProfilePatch(profile),
       }),
     },
-    options,
+    // Round 13: same 40s attempt / 90s budget as createPlan.
+    { attemptTimeoutMs: 40_000, budgetMs: 90_000, ...options },
   );
 }

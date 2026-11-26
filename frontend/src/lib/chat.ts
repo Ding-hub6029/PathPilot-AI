@@ -332,6 +332,23 @@ export function profilePatchFromExtracted(
   return Object.keys(patch).length ? patch : null;
 }
 
+/** Whether the why-follow-up fires for newly recorded countries
+ * (Round 13). The follow-up asks what the reason MEANS to the user —
+ * so a reason that arrived in the SAME turn as the countries ("瑞士，
+ * 环境优美") does NOT suppress it: the chat confirmed the phrase but
+ * never explored it, and the re-test showed the chat going straight
+ * to climate. Only a reason recorded in an EARLIER turn suppresses
+ * it (the user already elaborated once — asking again would nag).
+ * One rule, used by every path that records countries (model-led
+ * confirm, template-fallback confirm, guided free text, guided
+ * chips, parse confirm, and the gateway-down failure preserve). */
+export function shouldAskCountryWhy(
+  newCountries: string[],
+  priorNote: string | undefined,
+): boolean {
+  return newCountries.length > 0 && !(priorNote ?? '').trim();
+}
+
 /** Short label for one preference question (locale key suffix). */
 export function prefQuestionNameKey(q: Exclude<PrefNextQuestion, null>): string {
   return `wizard.chatPrefName${q[0].toUpperCase()}${q.slice(1)}`;

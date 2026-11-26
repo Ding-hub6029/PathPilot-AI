@@ -4,9 +4,11 @@ import { useApp } from '../lib/store';
 import { MatchResponse, Profile, Program } from '../lib/types';
 import { displayProgramName } from '../lib/programs';
 import {
-  candidateLabelKey, leverageCandidates, simulateMulti,
+  candidateLabelKey, defaultSimulateSelection, leverageCandidates, simulateMulti,
+  toggleSimulateSelection,
   type MultiSimulateResponse,
 } from '../lib/simulate';
+import { isRateLimitedError } from '../lib/plans';
 
 /**
  * Multi-change what-if simulation panel (Day 3).
@@ -34,11 +36,15 @@ export function SimulatePanel({
 }) {
   const { t, tf, locale } = useApp();
   const candidates = useMemo(() => leverageCandidates(profile), [profile]);
-  const [selected, setSelected] = useState<string[]>(() => candidates.map((c) => c.id));
+  // Round 13: the default never checks both budget options — they are
+  // mutually exclusive patches to the same budget field (the larger
+  // +£10,000 step is kept, +£5,000 dropped).
+  const [selected, setSelected] = useState<string[]>(() => defaultSimulateSelection(candidates));
   const [result, setResult] = useState<MultiSimulateResponse | null>(null);
   const [activeScenario, setActiveScenario] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
 
   // Candidates the profile cannot offer (e.g. no IELTS on file): shown
   // disabled with a reason, never silently hidden — the user sees what
@@ -46,7 +52,16 @@ export function SimulatePanel({
   const allIds = ['ielts-overall-plus-0.5', 'ielts-writing-plus-0.5', 'budget-plus-10000', 'budget-plus-5000'];
 
   const toggle = (id: string) => {
-    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    // Round 13: checking one budget option unchecks the other.
+    setSelected((prev) => toggleSimulateSelection(prev, id));
+  };
+
+  const applyResult = (res: MultiSimulateResponse) => {
+    setResult(res);
+    setActiveScenario(0);
+    if (res.scenarios.length > 0) {
+      onScenario({ ...res.scenarios[0].scenario, live: true });
+    }
   };
 
   const run = async () => {
@@ -54,14 +69,34 @@ export function SimulatePanel({
       .filter((c) => selected.includes(c.id))
       .map((c) => ({ name: t(candidateLabelKey(c.id)), patch: c.patch }));
     if (!scenarios.length || !programIds.length) return;
-    setLoading(true); setError(false);
+    setLoading(true); setError(false); setRateLimited(false);
     try {
       const res = await simulateMulti(profile, programIds, scenarios, { explain: true, locale });
-      setResult(res);
-      setActiveScenario(0);
-      onScenario({ ...res.scenarios[0].scenario, live: true });
-    } catch {
-      setError(true);
+      applyResult(res);
+    } catch (err) {
+      // Round 13 fail-fast: the model explanation is the slow part
+      // (explain:true took 10–33s in the audit vs 0.88s without it),
+      // while the engine numbers are deterministic and cheap. When the
+      // explained call fails — timeout, 429 on the AI bucket, or a
+      // slow backend — retry once WITHOUT the model call: explain:false
+      // returns the same flips/leverage/scenario deltas with the
+      // template explanation and never touches the AI budget, so the
+      // numbers still render instead of a 90s spinner ending in a
+      // total failure. The retry is short-budgeted (30s): the audit
+      // template call answered in under a second when the backend was
+      // up, so a longer wait here only delays the honest error.
+      try {
+        const res = await simulateMulti(profile, programIds, scenarios, {
+          explain: false, locale, patientOptions: { attemptTimeoutMs: 40_000, budgetMs: 30_000 },
+        });
+        applyResult(res);
+      } catch (fallbackErr) {
+        if (isRateLimitedError(err) || isRateLimitedError(fallbackErr)) {
+          setRateLimited(true);
+        } else {
+          setError(true);
+        }
+      }
     }
     setLoading(false);
   };
@@ -111,11 +146,12 @@ export function SimulatePanel({
               className="btn-press rounded-full bg-teal px-5 py-2 font-semibold text-white disabled:opacity-50">
               {loading ? t('sim.loading') : t('sim.applyMulti')}
             </button>
-            <button type="button" onClick={() => { setResult(null); setSelected(candidates.map((c) => c.id)); onScenario(null); }}
+            <button type="button" onClick={() => { setResult(null); setSelected(defaultSimulateSelection(candidates)); onScenario(null); }}
               className="btn-press rounded-full border border-navy/30 px-5 py-2 font-semibold">{t('sim.reset')}</button>
           </div>
           {selected.length === 0 && <p className="mt-2 text-sm text-navy/70">{t('sim.selectHint')}</p>}
           {error && <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-800">{t('sim.error')}</p>}
+          {rateLimited && <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-800">{t('sim.rateLimited')}</p>}
         </>
       )}
 
@@ -174,13 +210,19 @@ export function SimulatePanel({
             </div>
           </div>
 
-          {/* Explanation: model/template words beside the engine numbers. */}
+          {/* Explanation: model/template words beside the engine numbers.
+              The numbers above render from the response whatever the
+              explanation is — template, model, or absent (a response
+              that arrives without an explanation still shows its
+              verified numbers, labelled as the rules summary). */}
           <div>
             <h3 className="text-lg font-bold">{t('sim.explanationTitle')}</h3>
             <p className="mt-1 text-sm font-semibold text-navy/70">
-              {result.explanation.source === 'model' ? t('sim.aiReading') : t('sim.templateReading')}
+              {result.explanation?.source === 'model' ? t('sim.aiReading') : t('sim.templateReading')}
             </p>
-            <p className="mt-2 whitespace-pre-line rounded-xl bg-paper p-4 text-sm text-navy/85">{result.explanation.text}</p>
+            {result.explanation?.text ? (
+              <p className="mt-2 whitespace-pre-line rounded-xl bg-paper p-4 text-sm text-navy/85">{result.explanation.text}</p>
+            ) : null}
             <p className="mt-2 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="note">{t('sim.boundary')}</p>
           </div>
         </div>

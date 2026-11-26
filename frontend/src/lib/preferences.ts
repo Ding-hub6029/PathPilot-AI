@@ -76,42 +76,72 @@ export function hasPreferences(profile: Profile): boolean {
  * twice — the results-page summary had the same tautology as the
  * PrefChat confirmation bubble. */
 export function prefSummary(profile: Profile, t: (k: string) => string): string {
-  const parts: string[] = [];
-  if (profile.prefClimate) parts.push(climateLabel(profile.prefClimate, t));
-  if (profile.prefCountries?.length) parts.push(profile.prefCountries.map((c) => t(`country.${c}`)).join(', '));
-  if (profile.prefCountriesNote) parts.push(profile.prefCountriesNote);
-  if (profile.prefEnvironment) parts.push(environmentLabel(profile.prefEnvironment, t));
-  if (profile.prefCity) parts.push(cityDisplayName(profile.prefCity, t));
-  if (profile.prefAfterGrad) parts.push(afterGradLabel(profile.prefAfterGrad, t));
-  if (profile.prefSalary !== '' && profile.prefSalary !== undefined) parts.push(`${profile.prefSalary} ${profile.prefSalaryCurrency ?? ''}`.trim());
-  if (profile.prefPressure) parts.push(pressureLabel(profile.prefPressure, t));
-  if (profile.prefTeaching) parts.push(teachingLabel(profile.prefTeaching, t));
+  // One entry per preference, tagged when it came from the free-text
+  // countries note: only note atoms may lose a single segment (below).
+  const parts: { text: string; fromNote: boolean }[] = [];
+  if (profile.prefClimate) parts.push({ text: climateLabel(profile.prefClimate, t), fromNote: false });
+  if (profile.prefCountries?.length) parts.push({ text: profile.prefCountries.map((c) => t(`country.${c}`)).join(', '), fromNote: false });
+  if (profile.prefCountriesNote) parts.push({ text: profile.prefCountriesNote, fromNote: true });
+  if (profile.prefEnvironment) parts.push({ text: environmentLabel(profile.prefEnvironment, t), fromNote: false });
+  if (profile.prefCity) parts.push({ text: cityDisplayName(profile.prefCity, t), fromNote: false });
+  if (profile.prefAfterGrad) parts.push({ text: afterGradLabel(profile.prefAfterGrad, t), fromNote: false });
+  if (profile.prefSalary !== '' && profile.prefSalary !== undefined) parts.push({ text: `${profile.prefSalary} ${profile.prefSalaryCurrency ?? ''}`.trim(), fromNote: false });
+  if (profile.prefPressure) parts.push({ text: pressureLabel(profile.prefPressure, t), fromNote: false });
+  if (profile.prefTeaching) parts.push({ text: teachingLabel(profile.prefTeaching, t), fromNote: false });
   const norm = (s: string) => s.toLowerCase().replace(/[·、，,；;。.\s]/g, '');
+  // Round 13: the Round 10 whole-part containment dedupe regressed
+  // because a part can itself hold TWO values. The countries note is
+  // built by joining reasons with '；' (saveReason in PrefChat,
+  // profilePatchFromExtracted in chat.ts), so one part can read
+  // "环境优美；校园氛围" while the environment label reads
+  // "大学城·校园氛围": neither whole string contains the other, so
+  // the old check passed both through and "校园氛围" showed twice.
+  // Split every part into atoms on the joining separators first
+  // ('；' ';' '、' '，' — never '·' or ',', which live inside the
+  // campus label and the multi-country list), then dedupe atoms.
+  const atoms = parts.flatMap((p) =>
+    p.text.split(/[；;、，]+/).map((s) => s.trim()).filter(Boolean)
+      .map((text) => ({ text, fromNote: p.fromNote })),
+  );
   // Round 10, R2: exact-match dedupe was not enough — a free-text value
   // can repeat an enum label in fewer words (e.g. city/note "大学城"
   // next to the campus label "大学城·校园氛围"), and the summary then
   // showed the same preference twice ("…大学城·校园氛围 · 大学城").
-  // A part whose normalised form is contained in another part's (or
+  // An atom whose normalised form is contained in another atom's (or
   // contains it) is the same preference in fewer/more words: keep the
   // longer, more informative wording, drop the shorter. The 2-character
   // floor keeps a single character shared by chance from ever dropping
   // a real preference. Exact duplicates still keep the first.
-  const deduped: string[] = [];
-  for (const p of parts.filter(Boolean)) {
-    const n = norm(p);
+  const deduped: { text: string; fromNote: boolean }[] = [];
+  for (const a of atoms) {
+    const n = norm(a.text);
     if (!n) continue;
-    if (deduped.some((k) => norm(k) === n)) continue;
+    if (deduped.some((k) => norm(k.text) === n)) continue;
     const sub = deduped.findIndex((k) => {
-      const kn = norm(k);
+      const kn = norm(k.text);
       return n.length >= 2 && kn.length >= 2 && (kn.includes(n) || n.includes(kn));
     });
     if (sub >= 0) {
-      if (n.length > norm(deduped[sub]).length) deduped[sub] = p;
+      if (n.length > norm(deduped[sub].text).length) deduped[sub] = a;
       continue;
     }
-    deduped.push(p);
+    deduped.push(a);
   }
-  return deduped.join(' · ');
+  // Round 13: a note atom joined with '·' ("环境优美·校园氛围") is
+  // not split above — the '·' also lives inside the campus label, so
+  // splitting it everywhere would shred the label. Only a NOTE atom
+  // may lose a '·'-segment that duplicates another surviving atom:
+  // the label itself is never rewritten, it only ever wins.
+  const final = deduped.map((a) => {
+    if (!a.fromNote || !a.text.includes('·')) return a.text;
+    const kept = a.text.split('·').map((s) => s.trim()).filter(Boolean).filter((seg) => {
+      const sn = norm(seg);
+      if (sn.length < 2) return true;
+      return !deduped.some((k) => k !== a && norm(k.text).includes(sn));
+    });
+    return kept.join('·');
+  }).filter(Boolean);
+  return final.join(' · ');
 }
 
 /** Localised city name for chips and filters: `city.<slug>` when the

@@ -5,16 +5,28 @@ why-not explanation per programme, recomputed server-side from the
 profile (a client-supplied Evaluation is never accepted — same rule
 as /explain).
 
-Each result carries the /match ruleResults plus ``whynot`` from
+Round 13 fail-fast: the batched endpoint is TEMPLATE-ONLY. Each result
+carries the /match ruleResults plus ``whynot`` from
 ai.explain.compute_whynot (failing rules with exact engine gaps,
 academic-unknown / Gaokao flags, and the cheapest fix — verified by
-re-running the engine on the patched profile, never invented) and,
-when a model is configured, ``model_note``: a short reading produced
-through the existing /explain citation-checked path
-(ai.explain.whynot_with_model / explain_structured_with_status).
-No key configured, or a model output that fails citation validation,
-degrades to template-only with ai_status="unavailable" and
-model_note=null — never invented text.
+re-running the engine on the patched profile, never invented) and
+always ``model_note=None`` / ``ai_status="unavailable"``. The
+per-programme model polish that used to run here
+(whynot_with_model -> explain_structured_with_status -> one sync
+provider.chat of up to 30 s + 20 s repair PER programme, inline in
+the async handler) blocked the single uvicorn event loop for ~11 s
+per programme — 80 programmes ≈ 15 min of total backend
+unresponsiveness per results-page load, which wedged /simulate,
+/improvement-plan and chat behind it too. The deterministic template
+already carries the verified why-not (same fix /match got in
+Round 8), so the batch never touches the model at all.
+
+The single-programme model-polish helper ai.explain.whnnot_with_model
+is KEPT (and still unit-tested) as the on-demand path for one
+programme: if it is ever wired to an endpoint, that endpoint must
+run it in a worker thread with a <=15 s budget, never in a
+per-programme loop. ``get_provider`` is kept for that future path
+(and so tests can prove the batch never constructs a provider).
 
 This router is standalone: main.py only mounts it, so the router
 never imports app.main (no circular import). The coordinator
@@ -27,7 +39,7 @@ import uuid
 
 from fastapi import APIRouter, Request
 
-from ai.explain import whynot_with_model
+from ai.explain import compute_whynot
 from ai.provider import ProviderAdapter
 from app.adapter import (RULES_VERSION, flat_to_student, match_response,
                          rule_to_frontend, summary_for)
@@ -41,7 +53,14 @@ router = APIRouter(prefix="/api/v1", tags=["whynot"])
 
 
 def get_provider() -> ProviderAdapter:
-    """The configured provider. Monkeypatchable in tests."""
+    """The configured provider. Monkeypatchable in tests.
+
+    Round 13: the batched /whynot handler no longer calls this — the
+    batch is template-only and must never touch the model (see module
+    docstring). Kept for the future single-programme on-demand path
+    (ai.explain.whnnot_with_model) and so tests can prove the batch
+    never constructs a provider.
+    """
     return ProviderAdapter()
 
 
@@ -112,7 +131,10 @@ async def whynot(request: Request):
     budget_currency = None
     if profile.budget is not None and profile.budget.currency:
         budget_currency = profile.budget.currency
-    provider = get_provider()
+    # Round 13 fail-fast: template-only batch — no provider is
+    # constructed and no model call is made, however many ids arrive.
+    # The template carries the verified why-not; a model note, if ever
+    # wanted, belongs on a single-programme on-demand path, not here.
     results = []
     for pid in ids:
         program = _programme_or_none(pid)
@@ -132,24 +154,16 @@ async def whynot(request: Request):
         ev = Evaluation(program_id=pid, data_version=DATA_VERSION,
                         overall_status=overall_status(rule_results),
                         results=rule_results)
-        if provider.available:
-            whynot, model_note, ai_status = whynot_with_model(
-                ev, locale, provider, profile=profile,
-                budget_currency=budget_currency,
-                fee_currency=_fee_currency(program))
-        else:
-            from ai.explain import compute_whynot
-            whynot = compute_whynot(
-                ev, profile=profile, budget_currency=budget_currency,
-                fee_currency=_fee_currency(program))
-            model_note, ai_status = None, "unavailable"
+        whynot = compute_whynot(
+            ev, profile=profile, budget_currency=budget_currency,
+            fee_currency=_fee_currency(program))
         results.append({"programId": pid,
                         "eligibilitySummary": summary_for(ev.overall_status),
                         "ruleResults": [rule_to_frontend(r) for r in ev.results],
                         "trackMismatch": False,
                         "whynot": whynot,
-                        "model_note": model_note,
-                        "ai_status": ai_status})
+                        "model_note": None,
+                        "ai_status": "unavailable"})
     resp = match_response(f"whynot-{rid[:8]}", results)
     resp["locale"] = locale
     return resp

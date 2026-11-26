@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../../../lib/store';
-import { findProgram, matchProfile } from '../../../lib/api';
+import { findProgram, matchProfile, resolveProgramId } from '../../../lib/api';
 import { MatchResponse } from '../../../lib/types';
 import { RuleRow } from '../../../components/RuleRow';
 import { PlanPanel } from '../../../components/PlanPanel';
@@ -16,17 +17,32 @@ import { vtRef } from '../../../lib/viewTransition';
 
 export default function ProgramDetail({ params }: { params: { id: string } }) {
   const { t, tf, locale, profile } = useApp();
+  const router = useRouter();
   const f = { t, tf, locale };
   // Round 6: resolve from the merged local list (v2 + expansion mirror),
   // so expansion programme pages render instead of the error state.
+  // Round 13: an alias slug (e.g. eth-zurich-bsc-computer-science)
+  // resolves to its canonical programme; the URL is then replaced
+  // with the canonical id so the old link ends on the real page.
+  const canonicalId = resolveProgramId(params.id);
   const [data, setData] = useState<MatchResponse | null>(null);
   const program = findProgram(params.id);
 
   useEffect(() => {
+    if (canonicalId !== params.id) router.replace(`/programs/${canonicalId}`);
+  }, [params.id, canonicalId, router]);
+
+  // Round 13: the match used to depend only on params.id, so on a
+  // direct visit / refresh it ran BEFORE the store hydrated the saved
+  // profile from localStorage (child effects run before the provider's
+  // hydration effect) — profile.track was '' so the effect returned
+  // early, and never re-ran. It now depends on the profile too, so
+  // the check runs once the saved profile is in.
+  useEffect(() => {
     if (!program || !profile.track) return;
     matchProfile({ ...profile, targetProgramIds: [program.id] }).then(setData).catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id]);
+  }, [params.id, profile]);
 
   if (!program) {
     return <div className="mx-auto max-w-3xl px-4 py-12"><p>{t('common.error')}</p><Link href="/" className="text-teal-dark underline">{t('program.back')}</Link></div>;
@@ -49,6 +65,26 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
   }
   if (typeof profile.budget === 'number') {
     profileParts.push(`budget ${profile.budgetCurrency || 'GBP'} ${profile.budget.toLocaleString('en-US')} per year`);
+  }
+  // Round 13: whether a saved profile exists at all (the same
+  // localStorage pp-profile the wizard/pet use, hydrated into the
+  // store). With one, the section below shows the user's situation
+  // against the minimums; the "开始资格检查" call-to-action is only
+  // for visitors with no profile at all.
+  const hasSavedProfile = !!profile.track
+    || typeof profile.gaokaoScore === 'number'
+    || typeof profile.ieltsOverall === 'number'
+    || typeof profile.budget === 'number'
+    || !!profile.degree;
+  const situationLines: string[] = [];
+  if (typeof profile.gaokaoScore === 'number' && typeof profile.gaokaoTotal === 'number') {
+    situationLines.push(`${t('wizard.gaokaoScore')}: ${profile.gaokaoScore} / ${profile.gaokaoTotal}`);
+  }
+  if (typeof profile.ieltsOverall === 'number') {
+    situationLines.push(`${t('wizard.ieltsOverall')}: ${profile.ieltsOverall}`);
+  }
+  if (typeof profile.budget === 'number') {
+    situationLines.push(`${t('wizard.budgetLabel')}: ${profile.budgetCurrency || 'GBP'} ${profile.budget.toLocaleString('en-US')}`);
   }
   const programQuestion = `Programme id ${program.id}. ${profileParts.length ? `I have ${profileParts.join(', ')}.` : ''} What is the fee and IELTS requirement for this programme, and is it a good fit for me?`;
 
@@ -88,7 +124,24 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
         )}
         {!result && (
           <div className="mt-4 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-navy/70">{t('program.minimumsNote')}</p>
+            {hasSavedProfile ? (
+              <>
+                {/* Your situation from the saved profile, against the
+                    minimums below — the live rule check is still
+                    loading or unavailable, so this is the saved
+                    profile's own numbers, never a verdict. */}
+                <p className="text-sm font-bold">{t('results.yourSituation')}</p>
+                {situationLines.length > 0 ? (
+                  <ul className="mt-2 space-y-1 text-sm">
+                    {situationLines.map((line) => (<li key={line}>{line}</li>))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-navy/70">{t('program.minimumsNote')}</p>
+                )}
+              </>
+            ) : (
+              <p className="text-sm font-semibold text-navy/70">{t('program.minimumsNote')}</p>
+            )}
             <ul className="mt-3 space-y-2">
               {minimumRuleIds.map((ruleId) => (
                 <li key={ruleId} className="border-t border-navy/5 pt-2 text-sm">
@@ -96,7 +149,11 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
                 </li>
               ))}
             </ul>
-            <Link href="/wizard" className="btn-press mt-5 inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.ctaWizard')}</Link>
+            {hasSavedProfile ? (
+              <Link href="/results" className="btn-press mt-5 inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('wizard.finish')}</Link>
+            ) : (
+              <Link href="/wizard" className="btn-press mt-5 inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.ctaWizard')}</Link>
+            )}
           </div>
         )}
       </section>

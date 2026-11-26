@@ -13,6 +13,7 @@ import {
   isModelReply, looksLikeQuestion,
   countKnownPrefs, effectiveNextPref, extractedSummary, firstMissingPref, isModelPrefReply,
   isPrefKnown, knownFromProfile, mergeKnownWithExtracted, prefQuestionNameKey, profilePatchFromExtracted,
+  shouldAskCountryWhy,
   PREF_QUESTIONS,
   type ChatHistoryTurn, type ChatReply, type ParseReply,
   type PrefChatReply, type PrefExtracted, type PrefKnown, type PrefNextQuestion,
@@ -456,8 +457,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * behind it — a chip tap ("瑞士") carries no reason, so without a
    * follow-up the reason is never volunteered and never recorded.
    * While set, the chat asks why (one follow-up, skippable) in both
-   * paths; the answer is stored verbatim as prefCountriesNote. */
-  const [awaitingReason, setAwaitingReason] = useState<{ countries: string[] } | null>(null);
+   * paths; the answer is stored verbatim as prefCountriesNote.
+   * Round 13: `note` carries a reason that arrived WITH the
+   * countries in the same turn ("环境优美") — the bubble then asks
+   * what that reason means to the user instead of asking why from
+   * scratch. */
+  const [awaitingReason, setAwaitingReason] = useState<{ countries: string[]; note?: string } | null>(null);
   /** Salary input for the model-led chat (local only — the amount is
    * sent as a message and applied only after confirmation). */
   const [modelSalary, setModelSalary] = useState('');
@@ -611,6 +616,18 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       setFailedText(null);
       updateProfile(preserved.patch);
       enterGuidedMode({ ...profile, ...preserved.patch });
+      // Round 13: the gateway-down failure used to drop the
+      // why-follow-up entirely — enterGuidedMode clears it and the
+      // guided queue resumes PAST the already-answered countries
+      // question, so the chat went straight to climate with no
+      // reason ever asked. Re-arm it here when the preserved answer
+      // added countries and no reason was on file before this turn
+      // (same rule as the model path).
+      const knownCountries = profile.prefCountries ?? [];
+      const newCountries = (preserved.patch.prefCountries ?? []).filter((c) => !knownCountries.includes(c));
+      if (shouldAskCountryWhy(newCountries, profile.prefCountriesNote)) {
+        setAwaitingReason({ countries: newCountries, note: preserved.patch.prefCountriesNote?.trim() || undefined });
+      }
       return;
     }
     setFailedText(trimmed);
@@ -717,20 +734,25 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     if (!pendingExtract) return;
     const summary = extractedSummary(pendingExtract.extracted, t);
     const patch = profilePatchFromExtracted(pendingExtract.extracted, profile);
-    // P0-3: a newly recorded country with no reason behind it asks
-    // why — a chip tap carries no reason, so without this the reason
-    // is never volunteered and never recorded (re-test task 6: the
-    // chat never asked why Switzerland, and "环境优美" appears
-    // nowhere). No ask when the reason was already given (in this
-    // extraction or an earlier note).
-    const addsCountries = (pendingExtract.extracted.countries?.length ?? 0) > 0;
-    const hasNote = !!pendingExtract.extracted.note?.trim() || !!(profile.prefCountriesNote ?? '').trim();
-    const newCountries = pendingExtract.extracted.countries ?? [];
+    // P0-3: a newly recorded country asks why — a chip tap carries
+    // no reason, so without this the reason is never volunteered and
+    // never recorded (re-test task 6: the chat never asked why
+    // Switzerland, and "环境优美" appears nowhere). Round 13: a
+    // reason that arrived in THIS extraction ("环境优美" next to
+    // "瑞士") no longer suppresses the ask — the chat confirmed the
+    // phrase but never asked what it means, and went straight to
+    // climate. Only a reason from an EARLIER turn suppresses it
+    // (shouldAskCountryWhy). The same rule serves the model-up path
+    // and the gateway-down template-fallback path: both confirm here.
+    const knownCountries = profile.prefCountries ?? [];
+    const newCountries = (pendingExtract.extracted.countries ?? []).filter((c) => !knownCountries.includes(c));
     setPendingExtract(null);
     if (patch) updateProfile(patch);
     setConfirmedNote(summary);
     flashMood('celebrate');
-    if (addsCountries && !hasNote) setAwaitingReason({ countries: newCountries });
+    if (shouldAskCountryWhy(newCountries, profile.prefCountriesNote)) {
+      setAwaitingReason({ countries: newCountries, note: pendingExtract.extracted.note?.trim() || undefined });
+    }
   };
 
   const dismissExtract = () => {
@@ -975,12 +997,16 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         // P0-3: countries recorded with no reason behind them — ask
         // why instead of advancing (the reason is never volunteered
         // otherwise). Stay on the countries question; the why bubble
-        // renders in the current-question block.
-        const hasNote = !!patch.prefCountriesNote || !!(profile.prefCountriesNote ?? '').trim();
-        if (!hasNote && (patch.prefCountries?.length ?? 0) > 0) {
+        // renders in the current-question block. Round 13: same rule
+        // as the model path — a reason in THIS answer does not
+        // suppress the ask (it is carried as the note, so the bubble
+        // asks what it means); only a reason from an earlier turn does.
+        const knownCountries = profile.prefCountries ?? [];
+        const newCountries = (patch.prefCountries ?? []).filter((c) => !knownCountries.includes(c));
+        if (shouldAskCountryWhy(newCountries, profile.prefCountriesNote)) {
           setVerbatim((prev) => ({ ...prev, [q]: text }));
           updateProfile(patch);
-          setAwaitingReason({ countries: patch.prefCountries ?? [] });
+          setAwaitingReason({ countries: newCountries, note: patch.prefCountriesNote?.trim() || undefined });
           setInput('');
           flashMood('celebrate');
           return;
@@ -1069,6 +1095,15 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     const { q, text, patch } = pendingParse;
     setPendingParse(null);
     updateProfile(patch);
+    // Round 13: a parse-confirmed countries answer asks why too —
+    // same rule as the other paths (new countries, no reason on file
+    // before this turn). The why bubble renders with the next
+    // question and its answer is stored verbatim as the note.
+    const knownCountries = profile.prefCountries ?? [];
+    const newCountries = (patch.prefCountries ?? []).filter((c) => !knownCountries.includes(c));
+    if (shouldAskCountryWhy(newCountries, profile.prefCountriesNote)) {
+      setAwaitingReason({ countries: newCountries, note: patch.prefCountriesNote?.trim() || undefined });
+    }
     const local = mapLocalAnswer(q, text, t, { ...profile, ...patch });
     if (local) { answerSingle(q, local); return; }
     flashMood('celebrate');
@@ -1435,11 +1470,16 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 {/* P0-3: the why-follow-up — asked once a country is
                     recorded without a reason, in the user's language,
                     with the country named. The answer is the user's
-                    own words, stored verbatim as the note. */}
+                    own words, stored verbatim as the note. Round 13:
+                    when the reason arrived with the countries ("环境
+                    优美"), the bubble asks what that reason means
+                    instead of asking why from scratch. */}
                 {awaitingReason && (
                   <div className="flex justify-start">
                     <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
-                      <p>{tf('p0.chatWhyCountry', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、') })}</p>
+                      <p>{awaitingReason.note
+                        ? tf('p0.chatWhyReason', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、'), note: awaitingReason.note })
+                        : tf('p0.chatWhyCountry', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、') })}</p>
                     </div>
                   </div>
                 )}
@@ -1548,11 +1588,15 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 </div>
 
                 {/* P0-3: the why-follow-up (guided path) — asked once
-                    a country is recorded without a reason. */}
+                    a country is recorded without a reason. Round 13:
+                    when the reason arrived with the countries, the
+                    bubble asks what it means (p0.chatWhyReason). */}
                 {awaitingReason && (
                   <div className="flex justify-start">
                     <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
-                      <p>{tf('p0.chatWhyCountry', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、') })}</p>
+                      <p>{awaitingReason.note
+                        ? tf('p0.chatWhyReason', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、'), note: awaitingReason.note })
+                        : tf('p0.chatWhyCountry', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、') })}</p>
                     </div>
                   </div>
                 )}

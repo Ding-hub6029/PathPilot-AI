@@ -5,6 +5,7 @@ import { useApp } from '../lib/store';
 import {
   createPlan,
   getPlan,
+  isRateLimitedError,
   planErrorCode,
   reassessPlan,
   updateTaskStatus,
@@ -36,11 +37,13 @@ export function PlanPanel({ programId, matchable }: { programId: string; matchab
   const [plan, setPlan] = useState<Plan | null>(null);
   const [phase, setPhase] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [rateLimited, setRateLimited] = useState(false);
   const [waking, setWaking] = useState(false);
   const [busyTask, setBusyTask] = useState<string | null>(null);
   const [reassessing, setReassessing] = useState(false);
   const [lastReassess, setLastReassess] = useState<ReassessResult | null>(null);
   const [reassessError, setReassessError] = useState(false);
+  const [reassessRateLimited, setReassessRateLimited] = useState(false);
 
   const hasProfile = Boolean(profile.track);
   const displayOnly = matchable === false;
@@ -65,16 +68,32 @@ export function PlanPanel({ programId, matchable }: { programId: string; matchab
   async function generate() {
     setPhase('loading');
     setErrorCode(null);
+    setRateLimited(false);
     setWaking(false);
     setLastReassess(null);
     try {
+      // Round 13: 40s per attempt (same as the round-10 chat fix), 90s
+      // overall budget — a slow-but-healthy backend attempt is not
+      // aborted mid-flight at the 25s default.
       const created = await createPlan(profile, programId, locale, {
         onRetry: () => setWaking(true),
+        attemptTimeoutMs: 40_000,
+        budgetMs: 90_000,
       });
       setPlan(created);
       setPhase('ready');
     } catch (err) {
-      setErrorCode(planErrorCode(err));
+      // Round 13: a 429 (AI budget exceeded) is a wait-a-minute, not a
+      // broken plan — show the distinct message. A plan that does
+      // arrive renders its template tasks with the template label
+      // (see the ready branch below: ai_status 'unavailable' is not
+      // an error state), so this branch is only for no response.
+      if (isRateLimitedError(err)) {
+        setErrorCode('RATE_LIMITED');
+        setRateLimited(true);
+      } else {
+        setErrorCode(planErrorCode(err));
+      }
       setPhase('error');
     }
   }
@@ -112,17 +131,24 @@ export function PlanPanel({ programId, matchable }: { programId: string; matchab
     if (!plan) return;
     setReassessing(true);
     setReassessError(false);
+    setReassessRateLimited(false);
     setWaking(false);
     try {
       const result = await reassessPlan(plan.plan_id, profile, {
         onRetry: () => setWaking(true),
+        attemptTimeoutMs: 40_000,
+        budgetMs: 90_000,
       });
       setLastReassess(result);
       // The reassessment may have rebuilt the task list (new gaps,
       // preserved statuses); refetch the stored plan to show it.
       setPlan(await getPlan(plan.plan_id));
-    } catch {
-      setReassessError(true);
+    } catch (err) {
+      if (isRateLimitedError(err)) {
+        setReassessRateLimited(true);
+      } else {
+        setReassessError(true);
+      }
     } finally {
       setReassessing(false);
     }
@@ -155,9 +181,9 @@ export function PlanPanel({ programId, matchable }: { programId: string; matchab
       {phase === 'error' && (
         <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800" role="alert">
           <p className="font-semibold">
-            {errorCode === 'PROGRAM_NOT_EVALUABLE' ? t('plan.notEvaluable') : errorCode === 'TASK_UPDATE_FAILED' ? t('plan.error') : t('plan.error')}
+            {rateLimited ? t('plan.rateLimited') : errorCode === 'PROGRAM_NOT_EVALUABLE' ? t('plan.notEvaluable') : errorCode === 'TASK_UPDATE_FAILED' ? t('plan.error') : t('plan.error')}
           </p>
-          {errorCode && errorCode !== 'PROGRAM_NOT_EVALUABLE' && errorCode !== 'TASK_UPDATE_FAILED' && (
+          {errorCode && errorCode !== 'PROGRAM_NOT_EVALUABLE' && errorCode !== 'TASK_UPDATE_FAILED' && errorCode !== 'RATE_LIMITED' && (
             <p className="mt-1 text-xs">({errorCode})</p>
           )}
           <button type="button" onClick={generate} className="btn-press mt-3 rounded-full bg-amber px-4 py-2 font-semibold text-navy">{t('plan.generate')}</button>
@@ -261,6 +287,7 @@ export function PlanPanel({ programId, matchable }: { programId: string; matchab
               {reassessing ? (waking ? t('plan.waking') : t('plan.reassessing')) : t('plan.reassess')}
             </button>
             {reassessError && <p className="mt-2 text-sm font-semibold text-red-800" role="alert">{t('plan.error')}</p>}
+            {reassessRateLimited && <p className="mt-2 text-sm font-semibold text-red-800" role="alert">{t('plan.rateLimited')}</p>}
             {lastReassess && (
               <div className="mt-3 rounded-xl border border-navy/10 bg-white p-4 shadow-sm">
                 <p className="font-semibold">

@@ -803,12 +803,31 @@ export function allPrograms(): Program[] {
 }
 
 const _programIndex = new Map<string, Program>();
-/** Find one programme by id (v2 or expansion). */
+/** Old / alternate programme URL slugs that still resolve, instead of
+ * erroring. Round 13: /programs/eth-zurich-bsc-computer-science
+ * appears NOWHERE in the repo (no in-repo link, case, review or
+ * destination uses it — it is a plausible guessed/old slug for the
+ * ETH CS BSc), so it is aliased here rather than chased to a source
+ * that does not exist. Add a line per slug; the target must be a real
+ * programme id. */
+export const PROGRAM_ID_ALIASES: Record<string, string> = {
+  'eth-zurich-bsc-computer-science': 'eth-cs-bsc-2027',
+};
+
+/** A URL slug to its canonical programme id (the slug itself when it
+ * is already canonical). */
+export function resolveProgramId(id: string): string {
+  return PROGRAM_ID_ALIASES[id] ?? id;
+}
+
+/** Find one programme by id (v2 or expansion). Alias slugs resolve
+ * to their canonical programme, so an old link renders the programme
+ * instead of the error page. */
 export function findProgram(id: string): Program | undefined {
   if (!_programIndex.size) {
     for (const p of allPrograms()) _programIndex.set(p.id, p);
   }
-  return _programIndex.get(id);
+  return _programIndex.get(resolveProgramId(id));
 }
 
 /** Merge a live programme list with the local mirror: live entries win

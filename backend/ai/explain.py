@@ -733,6 +733,13 @@ def whynot_with_model(evaluation: Evaluation, locale: str = "en",
                       ) -> tuple[dict, str | None, str]:
     """(whynot, model_note_or_None, ai_status).
 
+    Single-programme on-demand model polish ONLY (Round 13: the
+    batched POST /api/v1/whynot endpoint no longer calls this — it is
+    template-only, because one sync model call per programme in a
+    batch blocked the event loop for minutes). If this is ever wired
+    to an endpoint, that endpoint must run it in a worker thread with
+    a <=15 s budget, never in a per-programme loop.
+
     The template whynot is always present. Model polish goes through
     the existing /explain citation-checked path
     (explain_structured_with_status): the model only ever sees the

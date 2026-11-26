@@ -19,6 +19,7 @@ Day 2 changes (see DECISIONS.md #43-#50):
 """
 from __future__ import annotations
 
+import asyncio
 import base64
 import copy
 import time
@@ -95,6 +96,25 @@ def reset_rate_limits() -> None:
     _rate_buckets.clear()
 
 
+def _client_ip(request: Request) -> str:
+    """Client IP for rate limiting, behind the Vercel proxy (Round 13).
+
+    Vercel sends X-Forwarded-For with the browser client first, so
+    the AI bucket is per-user instead of per-egress-IP: without this
+    every browser user shared one 10/min AI bucket keyed on
+    request.client.host (the Vercel egress IP). Falls back to the
+    direct peer when no forwarded header is present (local dev,
+    direct curl). Only the first entry is trusted — later entries
+    are proxies the client can append arbitrarily.
+    """
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        first = xff.split(",")[0].strip()
+        if first and first.lower() != "unknown":
+            return first
+    return request.client.host if request.client else "unknown"
+
+
 def _rate_limited(client_ip: str, bucket: str, limit: int) -> bool:
     now = time.monotonic()
     key = f"{client_ip}:{bucket}"
@@ -131,7 +151,7 @@ async def _request_id_and_limits(request: Request, call_next):
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
     path = request.url.path
-    client_ip = request.client.host if request.client else "unknown"
+    client_ip = _client_ip(request)
     if path not in ("/api/v1/health", "/api/v1/ready"):
         if path == "/api/v1/explain":
             bucket, limit = "explain", RATE_LIMIT_EXPLAIN_PER_MIN
@@ -1108,15 +1128,35 @@ async def simulate(request: Request):
         # the general bucket.
         provider = None
         if body.get("explain") is True:
-            client_ip = request.client.host if request.client else "unknown"
-            if _rate_limited(client_ip, "ai", RATE_LIMIT_AI_PER_MIN):
+            # Same per-user key as the middleware (Round 13): the
+            # manual check must use _client_ip, not request.client.host.
+            if _rate_limited(_client_ip(request), "ai", RATE_LIMIT_AI_PER_MIN):
                 return _err(rid, "RATE_LIMITED",
                             "AI call budget exceeded; try again shortly.", 429)
             provider = ProviderAdapter()
-        structured, text, ai_status = explain_simulation(
-            scenarios=scenario_entries, leverage=leverage,
-            baseline_unknown_academic=baseline_unknown_academic,
-            locale=locale, provider=provider)
+        # Round 13 fail-fast: explain_simulation's model call is
+        # synchronous (up to 15 s single attempt, no repair), so it
+        # runs in a worker thread — the event loop stays free for
+        # /health and every other request while the model thinks.
+        # The hard 15 s cap (asyncio.wait_for) covers providers whose
+        # own timeout is not honoured: on timeout the template
+        # explanation (engine numbers, already computed) is returned
+        # instead of making the frontend's 25 s attempt wait it out.
+        # A model failure inside explain_simulation already falls back
+        # to the template and never raises.
+        try:
+            structured, text, ai_status = await asyncio.wait_for(
+                asyncio.to_thread(
+                    explain_simulation,
+                    scenarios=scenario_entries, leverage=leverage,
+                    baseline_unknown_academic=baseline_unknown_academic,
+                    locale=locale, provider=provider),
+                timeout=15.0)
+        except asyncio.TimeoutError:
+            structured, text, ai_status = explain_simulation(
+                scenarios=scenario_entries, leverage=leverage,
+                baseline_unknown_academic=baseline_unknown_academic,
+                locale=locale, provider=None)
         first = scenario_entries[0]
         return {"baseline": match_response(f"eval-base-{rid[:8]}", base_results),
                 "scenarios": scenario_entries,
