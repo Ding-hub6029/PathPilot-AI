@@ -5,14 +5,16 @@ import { SUCCESS_CASES } from '../../lib/cases';
 import { CaseCard } from '../../components/CaseCard';
 
 /**
- * All 55 netizen-shared success cases, filterable by level. Same rules as
- * the homepage cards: only what the poster shared, missing fields render
- * nothing, every card labelled not officially verified, source link out.
+ * All netizen-shared success cases (one card per applicant), filterable
+ * by level. Same rules as the homepage cards: only what the poster
+ * shared, missing fields render nothing, every card labelled not
+ * officially verified, source link out. The count in the subtitle comes
+ * from the data length (tf with SUCCESS_CASES.length), never hardcoded.
  */
 export default function CasesPage() {
-  const { t } = useApp();
+  const { t, tf } = useApp();
   const [filter, setFilter] = useState<'all' | 'undergraduate' | 'taught_masters'>('all');
-  const shown = filter === 'all' ? SUCCESS_CASES : SUCCESS_CASES.filter((c) => c.offerLevel === filter);
+  const shown = filter === 'all' ? SUCCESS_CASES : SUCCESS_CASES.filter((c) => c.offers.some((o) => o.level === filter));
   const chip = (key: 'all' | 'undergraduate' | 'taught_masters', label: string) => (
     <button
       type="button"
@@ -26,7 +28,7 @@ export default function CasesPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="line-mask text-2xl font-bold"><span>{t('cases.title')}</span></h1>
-      <p className="mt-1 text-sm text-navy/70">{t('cases.sub')}</p>
+      <p className="mt-1 text-sm text-navy/70">{tf('cases.sub', { count: SUCCESS_CASES.length })}</p>
       <p className="mt-2">
         <span className="inline-block rounded-full bg-amber/25 px-3 py-1 text-xs font-semibold text-navy">{t('cases.unverifiedLabel')}</span>
       </p>

@@ -7,6 +7,7 @@ import { sampleUndergrad, sampleMasters } from '../lib/types';
 import { formatProgramLine } from '../lib/format';
 import { displayProgramName } from '../lib/programs';
 import { displayProgramInstitutionName } from '../lib/rankings';
+import { RANKING_PROVIDERS } from '../lib/rankings';
 import { WelcomeBanner } from '../components/WelcomeBanner';
 import { TimelinePanel } from '../components/TimelinePanel';
 import { CaseCard } from '../components/CaseCard';
@@ -20,7 +21,7 @@ import { NEWS_ITEMS, POLICY_ITEMS } from '../lib/news';
 import { SCHOOL_REVIEWS } from '../lib/reviews';
 
 export default function HomePage() {
-  const { t, locale, setProfile } = useApp();
+  const { t, tf, locale, setProfile } = useApp();
   const { programs, live: programsLive, loading: programsLoading } = usePrograms();
   const router = useRouter();
 
@@ -54,8 +55,7 @@ export default function HomePage() {
             <button type="button" onClick={() => trySample('ug')} className="btn-press rounded-full border border-white/50 px-5 py-2.5 font-semibold">{t('home.ctaSample')}</button>
           </div>
           <p className="anim-fade-up stagger-4 mt-5 rounded-lg bg-white/10 p-3 text-sm text-white/90" role="note">{t('home.disclaimer')}</p>
-          <p className="anim-fade-up stagger-4 mt-4 flex items-center justify-between gap-2">
-            <span className="microcopy text-white/50" dir="ltr">NAVY · TEAL · AMBER</span>
+          <p className="anim-fade-up stagger-4 mt-4">
             <span className="microcopy text-white/50">{t('home.heroKicker')}</span>
           </p>
         </div>
@@ -89,7 +89,8 @@ export default function HomePage() {
 
       {/* Success cases first (user 2026-11-25): the homepage top shows
           real applicant-shared cases, not programme names — now as a
-          3D fan carousel over all 55 cases (no stars: no rating data). */}
+          3D fan carousel over all cases, one card per applicant (no
+          stars: no rating data). */}
       <FanCarousel
         titleId="home-cases-title"
         title={t('home.casesTitle')}
@@ -100,7 +101,7 @@ export default function HomePage() {
         nextLabel={t('home.carouselNext')}
       />
       <p className="mt-4">
-        <Link href="/cases" className="btn-press inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.casesViewAll')}</Link>
+        <Link href="/cases" className="btn-press inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{tf('home.casesViewAll', { count: SUCCESS_CASES.length })}</Link>
       </p>
 
       {/* Latest news & policy from verified official pages and feeds —
@@ -208,9 +209,40 @@ export default function HomePage() {
           })}
         </div>
         <p className="mt-3 text-sm text-navy/60">{t('home.sampleNote')}</p>
-        <p className="mt-3">
+        <p className="mt-3 flex flex-wrap gap-3">
+          <Link href="/programs" className="btn-press inline-block rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.browsePrograms')}</Link>
           <Link href="/rankings" className="btn-press inline-block rounded-full border border-navy/30 bg-white px-5 py-2.5 font-semibold">{t('home.browseRankings')}</Link>
         </p>
+      </section>
+
+      {/* Ranking sources: complete lines for all three providers. QS
+          carries its exact attribution notice; THE and ARWU carry their
+          not-licensed warnings — the warnings are kept, never dropped. */}
+      <section className="section-rule mt-10" aria-labelledby="home-src-title">
+        <h2 id="home-src-title" className="line-mask text-2xl font-bold"><span>{t('home.sourcesTitle')}</span></h2>
+        <ul className="mt-4 space-y-2">
+          {RANKING_PROVIDERS.map((p) => (
+            <li key={p.id} className="rounded-2xl border border-navy/10 bg-white p-4 text-sm shadow-sm">
+              <p className="font-bold">{p.name} · <span dir="ltr">{p.edition_label}</span></p>
+              <p className="mt-1">
+                <a href={p.entry_url} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{t('rankings.officialTable')}</a>
+                {p.methodology_url && (
+                  <>
+                    {' · '}
+                    <a href={p.methodology_url} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{t('rankings.methodology')}</a>
+                  </>
+                )}
+              </p>
+              {p.id === 'qs' && p.attribution && (
+                <p className="mt-2 text-xs text-navy/60" lang="en" dir="ltr">{p.attribution}</p>
+              )}
+              {(p.id === 'the' || p.id === 'arwu') && (
+                <p className="mt-2 text-xs font-semibold text-amber-dark">{t(`rankings.rights.${p.id}`)}</p>
+              )}
+              <p className="mt-1 text-xs text-navy/60">{p.rights_note}</p>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
     </>

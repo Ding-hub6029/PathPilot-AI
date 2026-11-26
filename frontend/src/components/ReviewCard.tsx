@@ -13,6 +13,13 @@ import { SchoolReview } from '../lib/types';
  * The quote is shown in the collector's Chinese translation in the
  * zh-CN locale (reference only); every other locale shows the verbatim
  * English original.
+ *
+ * Round 8: the "not officially verified" pill is ~45 chars in English,
+ * i.e. right at the 300px content width of a 340px carousel card, so it
+ * used to run past the card edge and read as truncated. It now wraps
+ * cleanly inside the pill (never clipped) at a slightly smaller size,
+ * and the footer is a wrapping flex row whose "view original post" link
+ * is nowrap — wrapping happens between segments, never inside the link.
  */
 export function ReviewCard({ r }: { r: SchoolReview }) {
   const { t, locale } = useApp();
@@ -29,14 +36,14 @@ export function ReviewCard({ r }: { r: SchoolReview }) {
       )}
       <p className="mt-2 text-sm leading-relaxed text-white/85" lang={showZh ? 'zh-CN' : (r.quoteLang ?? 'en')} dir="auto">“{text}”</p>
       <p className="mt-3">
-        <span className="inline-block rounded-full bg-amber/20 px-3 py-1 text-xs font-semibold text-amber">{t('cases.unverifiedLabel')}</span>
+        <span className="inline-block max-w-full whitespace-normal break-words rounded-full bg-amber/20 px-3 py-1 text-[11px] font-semibold leading-snug text-amber">{t('cases.unverifiedLabel')}</span>
       </p>
-      <p className="mt-3 text-xs text-white/60">
-        {[r.authorDisplay, r.source, r.postedDate].filter(Boolean).join(' · ')}
+      <p className="mt-3 flex flex-wrap items-baseline gap-x-1 text-xs text-white/60">
+        <span>{[r.authorDisplay, r.source, r.postedDate].filter(Boolean).join(' · ')}</span>
         {r.sourceUrl && (
           <>
-            {' · '}
-            <a href={r.sourceUrl} target="_blank" rel="noreferrer" className="font-semibold text-teal-200 underline">{t('cases.viewSource')}</a>
+            <span aria-hidden="true">·</span>
+            <a href={r.sourceUrl} target="_blank" rel="noreferrer" className="whitespace-nowrap font-semibold text-teal-200 underline">{t('cases.viewSource')}</a>
           </>
         )}
       </p>

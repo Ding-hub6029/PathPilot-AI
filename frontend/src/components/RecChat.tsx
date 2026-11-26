@@ -1,14 +1,18 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
 import { MatchResult, Program } from '../lib/types';
 import { fetchJson, fetchJsonPatient } from '../lib/api';
 import { isModelReply, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
-import { climateLabel } from '../lib/preferences';
+import {
+  catalogueCountInCountry, cityDisplayName, climateLabel, countryAlternatives,
+  fieldDisplayLabel, missingPrefCountries, trackDisplayLabel,
+} from '../lib/preferences';
 import { StatusChip } from './StatusChip';
 import { CompassFace, type PetMood } from './CompassPet';
-import { formatFeeItem, formatIntake } from '../lib/format';
+import { formatDuration, formatFeeItemWithLabel, formatIntake, pickFeeItem } from '../lib/format';
+import { ruleName } from '../lib/ruleText';
 import { displayProgramTitle } from '../lib/programs';
 import enMessages from '../../messages/en.json';
 
@@ -36,10 +40,14 @@ import enMessages from '../../messages/en.json';
 const BATCH_SIZE = 3;
 
 export function RecChat({
-  recs, recLoading, programs, onViewResults, onEditPrefs,
+  recs, recLoading, recWaking, programs, onViewResults, onEditPrefs,
 }: {
   recs: MatchResult[] | null;
   recLoading: boolean;
+  /** The recommend match is still waking the backend (set by the
+   * wizard page's onRetry): show the waking line, not a bare
+   * loading spinner. */
+  recWaking?: boolean;
   programs: Program[];
   onViewResults: () => void;
   onEditPrefs: () => void;
@@ -54,8 +62,12 @@ export function RecChat({
    * below stays local — it really re-filters). A template-only reply
    * is never shown as an answer: the turn is stored as offline. */
   const [aiTurns, setAiTurns] = useState<{
-    question: string; reply: ChatReply | null; replyLocale: Locale | null; offline: boolean;
+    id: number; question: string; reply: ChatReply | null; replyLocale: Locale | null; offline: boolean; pending: boolean;
   }[]>([]);
+  /** Monotonic turn ids, so an optimistic turn (and a retry of it) can
+   * be updated in place when its reply lands (round 8). */
+  const turnIdRef = useRef(0);
+  const nextTurnId = () => { turnIdRef.current += 1; return turnIdRef.current; };
   const [aiBusy, setAiBusy] = useState(false);
   const [aiOffline, setAiOffline] = useState(false);
   /** The backend is being woken (a retry is in flight after the first
@@ -99,31 +111,52 @@ export function RecChat({
   const batches = Math.max(1, Math.ceil(filtered.length / BATCH_SIZE));
   const shown = filtered.slice(batch * BATCH_SIZE, batch * BATCH_SIZE + BATCH_SIZE);
 
-  /** One line of pet comment per programme — status + fee vs the user's
-   * own budget, all from verified data. Currency is compared only when
-   * it matches the budget currency; otherwise the fee is just stated. */
+  /** Round 8 (Switzerland honesty): a chosen country with no
+   * programme in the recommendation set is explained, never silently
+   * zero — with the closest verified alternatives from the full
+   * catalogue (same track first, then same field). Programmes that
+   * arrive later (Worker E) flow through automatically, because the
+   * notice is computed from the live lists, not hardcoded. */
+  const recPrograms = (recs ?? []).map((r) => programs.find((x) => x.id === r.programId)).filter((p): p is Program => !!p);
+  const missingCountries = missingPrefCountries(profile, recPrograms);
+
+  /** One line of pet comment per programme — built only from verified
+   * data, and different for every card: status, city + localised
+   * duration, the residency-aware labelled fee against the user's own
+   * budget (same currency only — an unknown fee is never called
+   * within/above budget), the intake against the planned year, and
+   * the rule names when something is not met. No quality claims
+   * ("很强"), no invented figures, no probabilities. */
   const comment = (r: MatchResult, p: Program): string => {
     const statusKey = r.eligibilitySummary === 'MET' ? 'wizard.recChatMet'
       : r.eligibilitySummary === 'PARTIAL_UNKNOWN' ? 'wizard.recChatPartial' : 'wizard.recChatNotMet';
     const parts = [t(statusKey)];
-    const budget = typeof profile.budget === 'number' ? profile.budget : null;
-    const fee = budget !== null
-      ? p.feeItems.find((f) => f.currency === (profile.budgetCurrency ?? '')) ?? p.feeItems[0]
-      : p.feeItems[0];
-    if (fee) {
-      const feeText = formatFeeItem(fee, t, locale);
-      if (budget !== null && fee.currency === (profile.budgetCurrency ?? '')) {
-        parts.push(tf(fee.amount > budget ? 'wizard.recChatFeeAbove' : 'wizard.recChatFeeWithin', { fee: feeText }));
+    const cityName = p.city ? cityDisplayName(p.city, t) : '';
+    const duration = formatDuration(p, t);
+    if (cityName || duration) parts.push([cityName, duration].filter(Boolean).join(' · '));
+    const feeItem = pickFeeItem(p, profile);
+    if (feeItem) {
+      const feeText = formatFeeItemWithLabel(feeItem, t, locale);
+      const budget = typeof profile.budget === 'number' ? profile.budget : null;
+      if (budget !== null && feeItem.amount !== null && feeItem.currency === (profile.budgetCurrency ?? '')) {
+        parts.push(tf(feeItem.amount > budget ? 'wizard.recChatFeeAbove' : 'wizard.recChatFeeWithin', { fee: feeText }));
       } else {
         parts.push(tf('wizard.recChatFee', { fee: feeText }));
       }
     }
-    parts.push(tf('wizard.recChatIntake', { intake: formatIntake(p, t) }));
+    const intakeLabel = formatIntake(p, t, locale);
+    if (profile.intakeYear && p.intakeYear && p.intakeYear !== profile.intakeYear) {
+      parts.push(tf('wizard.recChatIntakePlanned', { intake: intakeLabel, year: profile.intakeYear }));
+    } else {
+      parts.push(tf('wizard.recChatIntake', { intake: intakeLabel }));
+    }
+    const blockers = (r.ruleResults ?? []).filter((rule) => rule.status === 'NOT_MET').map((rule) => ruleName(rule.ruleId, t));
+    if (blockers.length) parts.push(blockers.join('、'));
     // Round 6: when the climate preference conflicts with this city's
     // climate, say so honestly — the programme stays in the list, just
     // ranked lower by the wizard sort.
     if (r.preferenceFit === 'conflict' && p.city) {
-      parts.push(tf('wizard.recChatClimateConflict', { city: p.city, climate: climateLabel(profile.prefClimate, t) }));
+      parts.push(tf('wizard.recChatClimateConflict', { city: cityDisplayName(p.city, t), climate: climateLabel(profile.prefClimate, t) }));
     }
     return parts.join(' ');
   };
@@ -132,12 +165,21 @@ export function RecChat({
    * history. The full sentence is sent — never just the country/city
    * keyword — so the reply can acknowledge the user's reason. A
    * template-only reply is never shown as an answer: the turn is
-   * stored as offline instead. */
-  const askModel = async (text: string) => {
+   * stored as offline instead. Round 8: the turn is pushed
+   * optimistically first, so the user's question shows at once; a
+   * retry re-sends by updating the same turn (`existingId`), not by
+   * appending a duplicate. */
+  const askModel = async (text: string, existingId?: number) => {
     setAiBusy(true);
     setWaking(false);
     setMood('think');
     const requestLocale = locale;
+    const turnId = existingId ?? nextTurnId();
+    if (existingId === undefined) {
+      setAiTurns((prev) => [...prev, { id: turnId, question: text, reply: null, replyLocale: null, offline: false, pending: true }]);
+    } else {
+      setAiTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, pending: true, offline: false } : x)));
+    }
     const history: ChatHistoryTurn[] = [];
     for (const turn of aiTurns) {
       if (!turn.reply || !isModelReply(turn.reply)) continue;
@@ -152,17 +194,17 @@ export function RecChat({
       setWaking(false);
       if (!isModelReply(r)) {
         setAiOffline(true);
-        setAiTurns((prev) => [...prev, { question: text, reply: null, replyLocale: null, offline: true }]);
+        setAiTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: null, replyLocale: null, offline: true, pending: false } : x)));
         setMood('empathise');
         return;
       }
       setAiOffline(false);
-      setAiTurns((prev) => [...prev, { question: text, reply: r, replyLocale: requestLocale, offline: false }]);
+      setAiTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: false, pending: false } : x)));
       setMood('celebrate');
     } catch {
       setWaking(false);
       setAiOffline(true);
-      setAiTurns((prev) => [...prev, { question: text, reply: null, replyLocale: null, offline: true }]);
+      setAiTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: null, replyLocale: null, offline: true, pending: false } : x)));
       setMood('empathise');
     } finally {
       setAiBusy(false);
@@ -206,7 +248,7 @@ export function RecChat({
       if (lower.includes(city.toLowerCase())) {
         setFilter({ city });
         setBatch(0);
-        setReply({ key: 'wizard.recChatFilteredCity', vars: { city } });
+        setReply({ key: 'wizard.recChatFilteredCity', vars: { city: cityDisplayName(city, t) } });
         setMood('celebrate');
         await askModel(text);
         return;
@@ -217,10 +259,18 @@ export function RecChat({
   };
 
   /** Retry the AI chat after an offline turn: re-sends the last
-   * free-text message so the user's words are not dropped. */
+   * offline turn's own question, updating that turn in place (no
+   * duplicate bubble); falls back to the last free-text message when
+   * there is no offline turn to retry. */
   const retryAi = () => {
-    if (!lastQuestion || aiBusy) return;
+    if (aiBusy) return;
+    const lastOffline = [...aiTurns].reverse().find((x) => x.offline);
     setAiOffline(false);
+    if (lastOffline) {
+      void askModel(lastOffline.question, lastOffline.id);
+      return;
+    }
+    if (!lastQuestion) return;
     void askModel(lastQuestion);
   };
 
@@ -247,9 +297,49 @@ export function RecChat({
 
         {recLoading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{t('wizard.recommendLoading')}</div>
+            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{recWaking ? t('pet.waking') : t('wizard.recommendLoading')}</div>
           </div>
         )}
+
+        {/* Round 8 (Switzerland honesty): a chosen country with no
+            programme in the recommendations is explained with the
+            closest verified alternatives — never a silent zero, and
+            the non-Swiss cards below are not presented as if they
+            matched the Switzerland preference. */}
+        {!recLoading && recs !== null && missingCountries.length > 0 && missingCountries.map((code) => {
+          const alts = countryAlternatives(code, profile, programs);
+          const catalogueCount = catalogueCountInCountry(code, programs);
+          const level = trackDisplayLabel(profile.track, t);
+          const field = fieldDisplayLabel(profile.field, t);
+          const altList = [...alts.sameTrack, ...alts.sameField];
+          return (
+            <div key={`missing-${code}`} className="flex justify-start">
+              <div className="max-w-[90%] rounded-2xl bg-amber/15 px-4 py-3 shadow-sm ring-1 ring-amber/40 anim-fade-up">
+                <p className="font-bold">{tf('results.noCountryTitle', { country: t(`country.${code}`) })}</p>
+                <p className="mt-1 text-sm text-navy/75">{tf('results.noCountryNote', { country: t(`country.${code}`), level, field })}</p>
+                {catalogueCount > 0 ? (
+                  <>
+                    <p className="mt-2 text-sm">{tf('results.noCountryCatalogue', { count: catalogueCount, country: t(`country.${code}`), level })}</p>
+                    <ul className="mt-1 space-y-1">
+                      {altList.map((p) => {
+                        const levelLabel = trackDisplayLabel(p.degreeLevel, t);
+                        return (
+                          <li key={p.id}>
+                            <Link href={`/programs/${p.id}`} className="text-sm font-semibold text-teal underline">
+                              {displayProgramTitle(p, locale)}{levelLabel ? ` · ${levelLabel}` : ''}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </>
+                ) : (
+                  <p className="mt-2 text-sm text-navy/75">{t('results.noCountryNone')}</p>
+                )}
+              </div>
+            </div>
+          );
+        })}
 
         {!recLoading && recs !== null && recs.length === 0 && (
           <div className="flex justify-start">
@@ -267,7 +357,7 @@ export function RecChat({
               <div className="flex justify-start">
                 <button type="button" onClick={() => { setFilter(null); setBatch(0); setReply(null); }}
                   className="btn-press rounded-full bg-amber/25 px-3 py-1.5 text-sm font-semibold text-navy">
-                  ✕ {filter.country ? t(`country.${filter.country}`) : filter.city} · {t('wizard.recChatClearFilter')}
+                  ✕ {filter.country ? t(`country.${filter.country}`) : filter.city ? cityDisplayName(filter.city, t) : ''} · {t('wizard.recChatClearFilter')}
                 </button>
               </div>
             )}
@@ -288,7 +378,7 @@ export function RecChat({
                         <StatusChip status={r.eligibilitySummary} label={summaryLabel} />
                       </p>
                       <p className="mt-1 text-sm text-navy/70">
-                        {formatIntake(p, t)} · {p.feeItems.map((f) => formatFeeItem(f, t, locale)).join(', ')}
+                        {formatIntake(p, t, locale)} · {p.feeItems.map((f) => formatFeeItemWithLabel(f, t, locale)).join(', ')}
                       </p>
                       <Link href={`/programs/${p.id}`} className="btn-press mt-2 inline-block rounded-full border border-navy/30 px-3 py-1.5 text-sm font-semibold">
                         {t('results.viewDetail')}
@@ -303,6 +393,9 @@ export function RecChat({
                 {tf('wizard.recChatBatch', { n: batch + 1, total: batches })}
               </p>
             )}
+            <p className="text-center text-sm text-navy/60">
+              {tf(filter ? 'wizard.recChatCountFiltered' : 'wizard.recChatCount', { shown: shown.length, total: filtered.length })}
+            </p>
           </div>
         )}
 
@@ -327,7 +420,9 @@ export function RecChat({
             </div>
             <div className="flex justify-start">
               <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
-                {turn.reply && turn.replyLocale === locale ? (
+                {turn.pending ? (
+                  <p>{t('pet.thinking')}</p>
+                ) : turn.reply && turn.replyLocale === locale ? (
                   <>
                     {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
                     {turn.reply.evidence_url && (

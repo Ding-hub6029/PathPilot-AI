@@ -1,5 +1,6 @@
 import { ClimateClass, Profile, Program } from './types';
 import { CLIMATE_CITIES } from './climate';
+import { programMatchesField } from './fields';
 
 /** Countries offered as quick-reply chips for the preferences step. */
 export const PREF_COUNTRY_CODES = ['GB', 'US', 'SG', 'AU', 'CA', 'JP', 'KR', 'DE', 'FR', 'NL', 'CH', 'HK'] as const;
@@ -9,6 +10,32 @@ export const PREF_COUNTRY_CODES = ['GB', 'US', 'SG', 'AU', 'CA', 'JP', 'KR', 'DE
 export function climateLabel(v: string | undefined, t: (k: string) => string): string {
   return v === 'warm' ? t('wizard.prefClimateWarm') : v === 'cool' ? t('wizard.prefClimateCool')
     : v === 'four_seasons' ? t('wizard.prefClimateFourSeasons') : v === 'mild' ? t('wizard.prefClimateMild') : (v ?? '');
+}
+
+const FIELD_LABEL_KEYS: Record<string, string> = {
+  business: 'wizard.fieldBusiness',
+  computing: 'wizard.fieldComputing',
+  engineering: 'wizard.fieldEngineering',
+  science: 'wizard.fieldScience',
+  medicine: 'wizard.fieldMedicine',
+  humanities: 'wizard.fieldHumanities',
+  arts: 'wizard.fieldArts',
+};
+
+/** Localised field label ("Computing"); the raw value when the field
+ * is not one of the known directions, '' when none is chosen. */
+export function fieldDisplayLabel(field: string | null | undefined, t: (key: string) => string): string {
+  if (!field) return '';
+  const key = FIELD_LABEL_KEYS[field];
+  return key ? t(key) : field;
+}
+
+/** Localised track label ("Undergraduate" / "Taught masters"); ''
+ * when no track is chosen yet. */
+export function trackDisplayLabel(track: string | null | undefined, t: (key: string) => string): string {
+  if (track === 'undergraduate') return t('wizard.trackUndergrad');
+  if (track === 'taught_masters') return t('wizard.trackMasters');
+  return '';
 }
 export function environmentLabel(v: string | undefined, t: (k: string) => string): string {
   return v === 'big_city' ? t('wizard.prefEnvironmentBigCity') : v === 'small_city' ? t('wizard.prefEnvironmentSmallCity')
@@ -42,19 +69,47 @@ export function hasPreferences(profile: Profile): boolean {
 }
 
 /** One-line summary of the saved preferences, in the user's own words.
- * Only the user's stated preferences — never a course attribute. */
+ * Only the user's stated preferences — never a course attribute.
+ * Round 8: a part that repeats an earlier part (a free-text note that
+ * says the same as a chosen enum, e.g. note "大学城·校园氛围" next to
+ * the campus label "大学城校园氛围") is dropped instead of rendered
+ * twice — the results-page summary had the same tautology as the
+ * PrefChat confirmation bubble. */
 export function prefSummary(profile: Profile, t: (k: string) => string): string {
   const parts: string[] = [];
   if (profile.prefClimate) parts.push(climateLabel(profile.prefClimate, t));
   if (profile.prefCountries?.length) parts.push(profile.prefCountries.map((c) => t(`country.${c}`)).join(', '));
   if (profile.prefCountriesNote) parts.push(profile.prefCountriesNote);
   if (profile.prefEnvironment) parts.push(environmentLabel(profile.prefEnvironment, t));
-  if (profile.prefCity) parts.push(profile.prefCity);
+  if (profile.prefCity) parts.push(cityDisplayName(profile.prefCity, t));
   if (profile.prefAfterGrad) parts.push(afterGradLabel(profile.prefAfterGrad, t));
   if (profile.prefSalary !== '' && profile.prefSalary !== undefined) parts.push(`${profile.prefSalary} ${profile.prefSalaryCurrency ?? ''}`.trim());
   if (profile.prefPressure) parts.push(pressureLabel(profile.prefPressure, t));
   if (profile.prefTeaching) parts.push(teachingLabel(profile.prefTeaching, t));
-  return parts.filter(Boolean).join(' · ');
+  const norm = (s: string) => s.toLowerCase().replace(/[·、，,；;。.\s]/g, '');
+  const seen = new Set<string>();
+  return parts.filter(Boolean).filter((p) => {
+    const n = norm(p);
+    if (seen.has(n)) return false;
+    seen.add(n);
+    return true;
+  }).join(' · ');
+}
+
+/** Localised city name for chips and filters: `city.<slug>` when the
+ * locale file has one (zh-CN carries the standard exonyms; other
+ * locales fall back through t() to the English name, which is the
+ * correct display name there). Never a raw key, never an invented
+ * name — an untranslated city renders in English. */
+export function cityKey(city: string): string {
+  const slug = city.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return `city.${slug}`;
+}
+
+export function cityDisplayName(city: string, t: (k: string) => string): string {
+  if (!city) return city;
+  const v = t(cityKey(city));
+  return v === cityKey(city) ? city : v;
 }
 
 /**
@@ -68,7 +123,7 @@ export function prefHints(profile: Profile, p: Program, t: (k: string) => string
   const hints: string[] = [];
   if ((profile.prefCountries ?? []).includes(p.country)) hints.push(t(`country.${p.country}`));
   const want = (profile.prefCity ?? '').trim().toLowerCase();
-  if (want && p.city && p.city.toLowerCase().includes(want)) hints.push(p.city);
+  if (want && p.city && p.city.toLowerCase().includes(want)) hints.push(cityDisplayName(p.city, t));
   return hints;
 }
 
@@ -117,13 +172,19 @@ export function climateFit(
 /** The city with the most programmes of a wanted climate class (v2 +
  * expansion), for the pet's climate opinion. Ties break alphabetically
  * so the answer is deterministic. Returns null when no programme's city
- * has that class. */
+ * has that class. Round 8: `track` scopes the count to the applicant's
+ * own level — an undergraduate must not be told Zurich has 11
+ * programmes when all 11 are taught-master's (the count in the opinion
+ * is labelled with the level, and must agree with what the results
+ * page will show for that track). */
 export function bestCityForClimate(
   pref: ClimateClass,
   programs: Program[],
+  track?: string,
 ): { city: string; count: number } | null {
   const counts = new Map<string, number>();
   for (const p of programs) {
+    if (track && p.degreeLevel !== track) continue;
     if (cityClimate(p.city) !== pref || !p.city) continue;
     // Normalise campus-suffixed cities to the table city ("London
     // Bloomsbury" counts as London).
@@ -179,14 +240,16 @@ export function citiesInCountries(
 /** The city with the most programmes of a wanted climate class WITHIN
  * the given countries. Null when no programme city in those countries
  * has that class — the caller must say so honestly instead of pivoting
- * to another country. */
+ * to another country. `track` scopes the count as in
+ * bestCityForClimate. */
 export function bestCityForClimateIn(
   pref: ClimateClass,
   countries: string[],
   programs: Program[],
+  track?: string,
 ): { city: string; count: number } | null {
   if (!countries.length) return null;
-  return bestCityForClimate(pref, programs.filter((p) => countries.includes(p.country)));
+  return bestCityForClimate(pref, programs.filter((p) => countries.includes(p.country)), track);
 }
 
 /** True when free text says more than the country names it contains
@@ -225,4 +288,61 @@ export function countryCitiesWithClimate(
     climate: cityClimate(city),
     count,
   }));
+}
+
+// --- Switzerland honesty (round 8) ----------------------------------------
+// A chosen country with no programme in the filtered set is a silent
+// zero unless the page says so. These helpers are shared by the results
+// page and RecChat: which preferred countries are missing from the
+// evaluated set, and the closest verified alternatives in the full
+// catalogue (same track first, then the same field on another track —
+// e.g. for a Swiss undergraduate in computing: EPFL engineering UG,
+// then Swiss taught-master's CS). Worker E is collecting Swiss UG CS
+// programmes in parallel; when they land they flow through the same
+// helpers and the zero disappears on its own.
+
+/** Preferred country codes with no programme in the evaluated results. */
+export function missingPrefCountries(
+  profile: Profile,
+  resultPrograms: Program[],
+): string[] {
+  const have = new Set(resultPrograms.map((p) => p.country));
+  return (profile.prefCountries ?? []).filter((c) => !have.has(c));
+}
+
+/** Closest verified alternatives in one country: up to 3 on the same
+ * track (any field) and up to 3 in the same field on another track.
+ * Only matchable programmes (display-only ones cannot be checked).
+ * Deterministic order: same track by institution then id, same field
+ * by institution then id. */
+export function countryAlternatives(
+  country: string,
+  profile: Profile,
+  programs: Program[],
+): { sameTrack: Program[]; sameField: Program[] } {
+  const inCountry = programs.filter(
+    (p) => p.country === country && p.matchable !== false,
+  );
+  const byInstitution = (a: Program, b: Program) =>
+    a.institution.localeCompare(b.institution) || a.id.localeCompare(b.id);
+  const sameTrack = inCountry
+    .filter((p) => !profile.track || p.degreeLevel === profile.track)
+    .sort(byInstitution)
+    .slice(0, 3);
+  const sameTrackIds = new Set(sameTrack.map((p) => p.id));
+  const field = profile.field;
+  const sameField = field
+    ? inCountry
+      .filter((p) => !sameTrackIds.has(p.id) && programMatchesField(p, field))
+      .sort(byInstitution)
+      .slice(0, 3)
+    : [];
+  return { sameTrack, sameField };
+}
+
+/** How many verified programmes the full catalogue holds in a country
+ * (any track or field) — the honest denominator for a "no programme
+ * in these results" note. */
+export function catalogueCountInCountry(country: string, programs: Program[]): number {
+  return programs.filter((p) => p.country === country).length;
 }

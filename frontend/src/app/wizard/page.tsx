@@ -48,6 +48,9 @@ export default function WizardPage() {
   // pick from them to proceed.
   const [recs, setRecs] = useState<MatchResult[] | null>(null);
   const [recLoading, setRecLoading] = useState(false);
+  /** Round 8: the step-7 match is retrying while the backend wakes —
+   * RecChat shows the waking line instead of a bare spinner. */
+  const [recWaking, setRecWaking] = useState(false);
 
   const stepLabel = (i: number) =>
     i === 0 ? t('wizard.stepCurriculum') : i === 1 ? t('wizard.trackTitle') : i === 2 ? t('wizard.stepField') : i === 3 ? t('wizard.stepAcademic') : i === 4 ? t('wizard.stepLanguage') : i === 5 ? t('wizard.stepBudget') : i === 6 ? t('wizard.stepPreferences') : t('wizard.stepRecommend');
@@ -146,12 +149,13 @@ export default function WizardPage() {
     const candidates = programs.filter((p) => p.degreeLevel === profile.track && p.matchable !== false && profile.field && programMatchesField(p, profile.field));
     if (candidates.length === 0) { setRecs([]); updateProfile({ targetProgramIds: [] }); return; }
     setRecLoading(true);
+    setRecWaking(false);
     const ids = candidates.map((p) => p.id);
     const rank = (s: string) => s === 'MET' ? 0 : s === 'PARTIAL_UNKNOWN' ? 1 : s === 'NOT_MET' ? 2 : 3;
     const sortRecs = (rs: MatchResult[]) => [...rs].sort((a, b) =>
       rank(a.eligibilitySummary) - rank(b.eligibilitySummary)
       || (a.preferenceFit === 'conflict' ? 1 : 0) - (b.preferenceFit === 'conflict' ? 1 : 0));
-    matchProfile({ ...profile, targetProgramIds: ids })
+    matchProfile({ ...profile, targetProgramIds: ids }, { onRetry: () => setRecWaking(true) })
       .then((res) => {
         const sorted = sortRecs(res.results);
         setRecs(sorted);
@@ -163,7 +167,7 @@ export default function WizardPage() {
         setRecs(sorted);
         updateProfile({ targetProgramIds: sorted.map((r) => r.programId) });
       })
-      .finally(() => setRecLoading(false));
+      .finally(() => { setRecLoading(false); setRecWaking(false); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
@@ -415,6 +419,7 @@ export default function WizardPage() {
             <RecChat
               recs={recs}
               recLoading={recLoading}
+              recWaking={recWaking}
               programs={programs}
               onViewResults={finish}
               onEditPrefs={() => setStep(6)}

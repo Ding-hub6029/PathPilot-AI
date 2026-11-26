@@ -4,7 +4,7 @@ import { useApp, type Locale } from '../lib/store';
 import { Profile, emptyProfile } from '../lib/types';
 import {
   PREF_COUNTRY_CODES,
-  bestCityForClimate, bestCityForClimateIn, citiesInCountries, climateLabel, countryCitiesWithClimate,
+  bestCityForClimate, bestCityForClimateIn, citiesInCountries, cityDisplayName, climateLabel, countryCitiesWithClimate,
   environmentLabel, afterGradLabel, hasExtraWordsBeyondCountries, pressureLabel, teachingLabel,
   normaliseClimatePref, prefSummary,
 } from '../lib/preferences';
@@ -12,7 +12,7 @@ import { allPrograms, fetchJson, fetchJsonPatient } from '../lib/api';
 import {
   isModelReply, looksLikeQuestion,
   countKnownPrefs, effectiveNextPref, extractedSummary, firstMissingPref, isModelPrefReply,
-  isPrefKnown, knownFromProfile, prefQuestionNameKey, profilePatchFromExtracted,
+  isPrefKnown, knownFromProfile, mergeKnownWithExtracted, prefQuestionNameKey, profilePatchFromExtracted,
   PREF_QUESTIONS,
   type ChatHistoryTurn, type ChatReply, type ParseReply,
   type PrefChatReply, type PrefExtracted, type PrefKnown, type PrefNextQuestion,
@@ -316,12 +316,17 @@ function mapParseToProfile(
 /** One model-led turn: the user's verbatim message + the pref-chat
  * reply the model gave for it (plus the locale it was answered in).
  * A turn answered in another locale shows the thinking line until its
- * re-fetch lands; an offline turn says so plainly. */
+ * re-fetch lands; an offline turn says so plainly. Round 8: the turn
+ * is pushed OPTIMISTICALLY (pending) the moment the user taps a chip
+ * or sends — the user's own message must show at once, not after the
+ * ~30s model wait. `id` lets the reply update that exact turn. */
 interface PrefTurn {
+  id: number;
   question: string;
   reply: PrefChatReply | null;
   replyLocale: Locale | null;
   offline: boolean;
+  pending: boolean;
 }
 
 export function PrefChat({ onDone }: { onDone: () => void }) {
@@ -344,8 +349,8 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * rebuilds the chat from the Profile, so they do not survive a
    * reload. */
   const [modelTurns, setModelTurns] = useState<{
-    q: PrefQId; question: string;
-    reply: ChatReply | null; replyLocale: Locale | null; offline: boolean;
+    id: number; q: PrefQId; question: string;
+    reply: ChatReply | null; replyLocale: Locale | null; offline: boolean; pending: boolean;
   }[]>([]);
   /** A parse that understood academic/language facts and waits for the
    * user to confirm — nothing here is applied until they say yes. */
@@ -388,6 +393,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const [modelSalaryCur, setModelSalaryCur] = useState<'GBP' | 'SGD' | 'USD'>('GBP');
   const bottomRef = useRef<HTMLDivElement>(null);
   const moodTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  /** Monotonic turn ids, so an optimistic turn can be updated in
+   * place when its reply lands (round 8). */
+  const turnIdRef = useRef(0);
+  const nextTurnId = () => { turnIdRef.current += 1; return turnIdRef.current; };
 
   // Resume: the store hydrates the Profile from localStorage after
   // mount, but the raw stored profile is readable right away — resume
@@ -472,8 +481,15 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
 
   // --- Derived model-led state ---------------------------------------------
   const known: PrefKnown = knownFromProfile(profile);
-  const answeredCount = countKnownPrefs(known);
-  const missingQs = PREF_QUESTIONS.filter((q) => !isPrefKnown(q, known));
+  /** Round 8: progress counts what the model already understood — a
+   * pending extraction counts at once, not only after the user taps
+   * confirm. The next question still comes from the confirmed set, so
+   * nothing is treated as answered before confirmation. */
+  const knownForProgress: PrefKnown = pendingExtract
+    ? mergeKnownWithExtracted(known, pendingExtract.extracted)
+    : known;
+  const answeredCount = countKnownPrefs(knownForProgress);
+  const missingQs = PREF_QUESTIONS.filter((q) => !isPrefKnown(q, knownForProgress));
   /** The next question to offer chips for: the server's answer when
    * it is still unanswered, else the first missing preference — and
    * never a skipped one. Null when nothing is left to ask. */
@@ -494,7 +510,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
 
   /** One model-led turn: message + known prefs + history to the
    * pref-chat endpoint. A template-only reply or any failure falls
-   * back to the guided queue — never a faked AI answer. */
+   * back to the guided queue — never a faked AI answer. Round 8: the
+   * turn is pushed optimistically first, so the user's message shows
+   * at once; on failure it is removed again (the guided queue does
+   * not render model turns — the retry there re-sends the words). */
   const sendToPrefChat = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || thinking) return;
@@ -503,6 +522,8 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     setConfirmedNote(null);
     const requestLocale = locale;
     const requestKnown = knownFromProfile(profile);
+    const turnId = nextTurnId();
+    setTurns((prev) => [...prev, { id: turnId, question: trimmed, reply: null, replyLocale: null, offline: false, pending: true }]);
     const history: ChatHistoryTurn[] = [];
     for (const turn of turns) {
       if (!turn.reply || !isModelPrefReply(turn.reply)) continue;
@@ -517,12 +538,13 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       setWaking(false);
       if (!isModelPrefReply(r)) {
         setFailedText(trimmed);
+        setTurns((prev) => prev.filter((x) => x.id !== turnId));
         enterGuidedMode();
         return;
       }
       setAiOffline(false);
       setFailedText(null);
-      setTurns((prev) => [...prev, { question: trimmed, reply: r, replyLocale: requestLocale, offline: false }]);
+      setTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: false, pending: false } : x)));
       if (r.next_question !== undefined) setServerNext(r.next_question);
       if (r.extracted && Object.keys(r.extracted).length > 0) {
         setPendingExtract({ extracted: r.extracted, rawText: trimmed });
@@ -531,6 +553,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     } catch {
       setWaking(false);
       setFailedText(trimmed);
+      setTurns((prev) => prev.filter((x) => x.id !== turnId));
       enterGuidedMode();
     } finally {
       setThinking(false);
@@ -581,10 +604,14 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const answerText = (q: PrefQId): string => {
     switch (q) {
       case 'countries': {
-        const parts = [
-          ...(profile.prefCountries ?? []).map((c) => t(`country.${c}`)),
-          profile.prefCountriesNote ?? '',
-        ].filter(Boolean);
+        // Round 8: the free-text note is dropped when it says exactly
+        // the same as a chosen country — "瑞士" next to "瑞士" is a
+        // tautology; a note that adds words ("瑞士，因为那边环境优美")
+        // is kept.
+        const norm = (s: string) => s.replace(/[·、，,；;。.]/g, '').replace(/\s+/g, '').toLowerCase();
+        const countryLabels = (profile.prefCountries ?? []).map((c) => t(`country.${c}`));
+        const note = profile.prefCountriesNote ?? '';
+        const parts = [...countryLabels, ...(note && !countryLabels.some((l) => norm(l) === norm(note)) ? [note] : [])].filter(Boolean);
         return parts.join('、');
       }
       case 'climate': return climateLabel(profile.prefClimate, t);
@@ -629,33 +656,48 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       case 'climate': {
         // Round 7: scoped to the chosen countries. No country chosen
         // yet is the ONLY case where the global best city may be named.
+        // Round 8: the count is scoped to the user's track too — an
+        // undergraduate must not be told Zurich has 11 programmes
+        // when all 11 are taught-master's. The count says which level
+        // it counts, and the city name is localised.
         const pref = normaliseClimatePref(p.prefClimate);
         if (!pref) return { key: 'wizard.chatOpThanks', mood: 'celebrate' };
         const climateName = climateLabel(pref, t);
         const codes = p.prefCountries ?? [];
+        const track = p.track;
+        const levelKey = track === 'undergraduate' ? 'wizard.trackUndergrad' : track === 'taught_masters' ? 'wizard.trackMasters' : null;
         if (codes.length) {
-          const best = bestCityForClimateIn(pref, codes, allPrograms());
+          const best = bestCityForClimateIn(pref, codes, allPrograms(), track);
           if (best) {
-            return { key: 'wizard.chatOpClimateCity', vars: { city: best.city, climate: climateName, count: best.count }, mood: 'celebrate' };
+            const vars = { city: cityDisplayName(best.city, t), climate: climateName, count: best.count, ...(levelKey ? { level: t(levelKey) } : {}) };
+            return { key: levelKey ? 'wizard.chatOpClimateCityLevel' : 'wizard.chatOpClimateCity', vars, mood: 'celebrate' };
           }
           const cities = countryCitiesWithClimate(codes, allPrograms());
-          const desc = cities.map(({ city, climate }) => (climate ? `${city}（${climateLabel(climate, t)}）` : city)).join('、');
+          const desc = cities.map(({ city, climate }) => (climate ? `${cityDisplayName(city, t)}（${climateLabel(climate, t)}）` : cityDisplayName(city, t))).join('、');
           if (desc) {
             return { key: 'wizard.chatOpClimateNoMatch', vars: { want: climateName, cities: desc }, mood: 'empathise' };
           }
           return { key: 'wizard.chatOpThanks', mood: 'celebrate' };
         }
-        const best = bestCityForClimate(pref, allPrograms());
+        const best = bestCityForClimate(pref, allPrograms(), track);
         if (best) {
-          return { key: 'wizard.chatOpClimateCity', vars: { city: best.city, climate: climateName, count: best.count }, mood: 'celebrate' };
+          const vars = { city: cityDisplayName(best.city, t), climate: climateName, count: best.count, ...(levelKey ? { level: t(levelKey) } : {}) };
+          return { key: levelKey ? 'wizard.chatOpClimateCityLevel' : 'wizard.chatOpClimateCity', vars, mood: 'celebrate' };
         }
         return { key: 'wizard.chatOpThanks', mood: 'celebrate' };
       }
       case 'city': {
+        // Round 8: the count is scoped to the user's track, says
+        // which level it counts, and the city name is localised.
         const want = (p.prefCity ?? '').trim().toLowerCase();
         if (!want) return null;
-        const count = allPrograms().filter((x) => (x.city ?? '').toLowerCase() === want).length;
-        if (count > 0) return { key: 'wizard.chatOpCity', vars: { city: p.prefCity ?? '', count }, mood: 'celebrate' };
+        const track = p.track;
+        const scoped = allPrograms().filter((x) => (x.city ?? '').toLowerCase() === want && (!track || x.degreeLevel === track));
+        if (scoped.length > 0) {
+          const levelKey = track === 'undergraduate' ? 'wizard.trackUndergrad' : track === 'taught_masters' ? 'wizard.trackMasters' : null;
+          const vars = { city: cityDisplayName(p.prefCity ?? '', t), count: scoped.length, ...(levelKey ? { level: t(levelKey) } : {}) };
+          return { key: levelKey ? 'wizard.chatOpCityLevel' : 'wizard.chatOpCity', vars, mood: 'celebrate' };
+        }
         return { key: 'wizard.chatOpThanks', mood: 'celebrate' };
       }
       case 'afterGrad':
@@ -692,11 +734,15 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
 
   /** A free-text question goes to the real model (grounded, with the
    * earlier model turns as history). A template-only reply is never
-   * shown as an answer — the turn is stored as offline instead. */
+   * shown as an answer — the turn is stored as offline instead.
+   * Round 8: the turn is pushed optimistically first, so the user's
+   * question shows at once instead of after the model wait. */
   const askModel = async (q: PrefQId, text: string) => {
     setThinking(true);
     setWaking(false);
     const requestLocale = locale;
+    const turnId = nextTurnId();
+    setModelTurns((prev) => [...prev, { id: turnId, q, question: text, reply: null, replyLocale: null, offline: false, pending: true }]);
     const history: ChatHistoryTurn[] = [];
     for (const turn of modelTurns) {
       if (!turn.reply || !isModelReply(turn.reply)) continue;
@@ -711,15 +757,15 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       setWaking(false);
       if (!isModelReply(r)) {
         setAiOffline(true);
-        setModelTurns((prev) => [...prev, { q, question: text, reply: null, replyLocale: null, offline: true }]);
+        setModelTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: null, replyLocale: null, offline: true, pending: false } : x)));
         return;
       }
       setAiOffline(false);
-      setModelTurns((prev) => [...prev, { q, question: text, reply: r, replyLocale: requestLocale, offline: false }]);
+      setModelTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: false, pending: false } : x)));
     } catch {
       setWaking(false);
       setAiOffline(true);
-      setModelTurns((prev) => [...prev, { q, question: text, reply: null, replyLocale: null, offline: true }]);
+      setModelTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: null, replyLocale: null, offline: true, pending: false } : x)));
     } finally {
       setThinking(false);
     }
@@ -881,7 +927,8 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   /** The model Q&A bubbles for one question: the user's question
    * verbatim, then the model's lines + evidence link (only when
    * answered in the current locale), the thinking line while a
-   * re-fetch is pending, or the honest offline line. */
+   * re-fetch is pending or the answer is still on its way, or the
+   * honest offline line. */
   const renderModelTurns = (q: PrefQId) => modelTurns.filter((turn) => turn.q === q).map((turn, i) => (
     <div key={`${q}-ai-${i}`} className="space-y-3">
       <div className="flex justify-end">
@@ -891,7 +938,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       </div>
       <div className="flex justify-start">
         <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
-          {turn.reply && turn.replyLocale === locale ? (
+          {turn.pending ? (
+            <p>{t('pet.thinking')}</p>
+          ) : turn.reply && turn.replyLocale === locale ? (
             <>
               {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
               {turn.reply.evidence_url && (
@@ -912,8 +961,8 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
 
   /** One model-led turn: the user's verbatim message, then the model's
    * lines + evidence link (only when answered in the current locale),
-   * the thinking line while a re-fetch is pending, or the honest
-   * offline line. */
+   * the thinking line while a re-fetch is pending or the answer is
+   * still on its way, or the honest offline line. */
   const renderPrefTurns = () => turns.map((turn, i) => (
     <div key={`pref-${i}`} className="space-y-3">
       <div className="flex justify-end">
@@ -923,7 +972,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       </div>
       <div className="flex justify-start">
         <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
-          {turn.reply && turn.replyLocale === locale ? (
+          {turn.pending ? (
+            <p>{t('pet.thinking')}</p>
+          ) : turn.reply && turn.replyLocale === locale ? (
             <>
               {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
               {turn.reply.evidence_url && (
@@ -983,7 +1034,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
             <button key={city} type="button"
               onClick={() => void sendToPrefChat(city)}
               className="btn-press anim-chip rounded-full border-2 border-navy/15 bg-white px-3 py-1.5 text-sm font-semibold">
-              {city}
+              {cityDisplayName(city, t)}
             </button>
           ))}
         </div>
@@ -1283,7 +1334,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                         <button key={city} type="button"
                           onClick={() => answerSingle(currentQ, { prefCity: city })}
                           className="btn-press anim-chip rounded-full border-2 border-navy/15 bg-white px-3 py-1.5 text-sm font-semibold">
-                          {city}
+                          {cityDisplayName(city, t)}
                         </button>
                       ))}
                     </div>

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
 import { fetchJson, fetchJsonPatient, allPrograms, findProgram } from '../lib/api';
+import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, isModelReply, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
 import { PROGRAMS, displayProgramTitle } from '../lib/programs';
@@ -31,14 +32,18 @@ import enMessages from '../../messages/en.json';
  * sessionStorage only ('pp-pet-open'); closing it forgets it for the
  * session.
  *
- * Cold-start resilience (round 7, Fix A): the backend sleeps after 15
- * min idle and takes ~50s+ to wake; a first call made while it wakes
- * used to fail fast and strand the pet offline for the session. The
- * status check and every model call now go through fetchJsonPatient
- * (lib/api.ts): up to ~90s of retries before offline is declared, a
- * "waking the backend" line while a retry is in flight, and an
- * explicit retry action in the footer so the user can re-check after
- * waking instead of being stuck offline.
+ * Cold-start resilience (round 7, Fix A; round 8): the backend sleeps
+ * after 15 min idle and takes ~50s+ to wake; a first call made while
+ * it wakes used to fail fast and strand the pet offline for the
+ * session. The status check and every model call now go through
+ * fetchJsonPatient (lib/api.ts): up to ~90s of retries before offline
+ * is declared, a "waking the backend" line with the elapsed seconds
+ * while a retry is in flight, and an explicit retry action in the
+ * footer that stays available (disabled only while a check is
+ * running) so the user can re-check after waking instead of being
+ * stuck offline. A call that fails after retries says it timed out
+ * (pet.offlineTimeout), not a bare "offline"; a restart clears any
+ * stuck busy state so the quick replies come back.
  *
  * Saved profile (round 7, Fix B): the pet reads the wizard profile
  * (useApp profile, persisted as pp-profile). When preferences already
@@ -334,6 +339,17 @@ export function CompassPet() {
   /** The backend is being woken (a retry is in flight after the first
    * attempt failed): show the waking line, not the offline line. */
   const [waking, setWaking] = useState(false);
+  /** Seconds spent waking, for the visible progress line. */
+  const wakingElapsed = useElapsed(waking);
+  /** The last offline verdict came after the patient budget was spent
+   * (a retry fired, then the call still failed): the footer and the
+   * offline turns say "timed out after ~90s", not a bare "offline". */
+  const [timedOut, setTimedOut] = useState(false);
+  /** Whether any retry fired during the current patient call — set by
+   * patientOnRetry, read when the call fails. */
+  const retryFiredRef = useRef(false);
+  const patientOnRetry = () => { retryFiredRef.current = true; setWaking(true); };
+  const beginPatientCall = () => { retryFiredRef.current = false; };
   /** Whether the live model answered recently: true after a model
    * reply (ai_status "available"), false after a failure or a
    * template-only reply, null before the first check. The footer
@@ -431,6 +447,14 @@ export function CompassPet() {
   const greet = () => {
     convRef.current += 1;
     inFlightRef.current.clear();
+    // Round 8: a restart clears any stuck busy/waking state — a
+    // restart while a call was in flight used to leave the quick
+    // replies hidden (chips render only when !busy) with no way back.
+    // The offline flag itself stays: it describes the backend, not
+    // this conversation, and the footer retry still re-checks it.
+    setBusy(false);
+    setWaking(false);
+    setTimedOut(false);
     // Round 7, Fix B: the guided flow skips what the wizard already
     // learned, and the opening turn acknowledges the saved preferences
     // instead of claiming there are none. Degree comes from
@@ -494,9 +518,10 @@ export function CompassPet() {
   useEffect(() => {
     if (!open || aiLive !== null) return;
     setWaking(false);
-    fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: () => setWaking(true) })
-      .then((s) => { setWaking(false); setAiLive(s.ai_status === 'available'); if (s.ai_status !== 'available') setOffline(true); })
-      .catch(() => { setWaking(false); setAiLive(false); setOffline(true); });
+    beginPatientCall();
+    fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: patientOnRetry })
+      .then((s) => { setWaking(false); setTimedOut(false); setAiLive(s.ai_status === 'available'); if (s.ai_status !== 'available') setOffline(true); })
+      .catch(() => { setWaking(false); setTimedOut(retryFiredRef.current); setAiLive(false); setOffline(true); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -506,14 +531,16 @@ export function CompassPet() {
    * again; a failed check keeps it offline. */
   const retryStatus = () => {
     setWaking(true);
-    fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: () => setWaking(true) })
+    beginPatientCall();
+    fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: patientOnRetry })
       .then((s) => {
         setWaking(false);
+        setTimedOut(false);
         const live = s.ai_status === 'available';
         setAiLive(live);
         setOffline(!live);
       })
-      .catch(() => { setWaking(false); setAiLive(false); setOffline(true); });
+      .catch(() => { setWaking(false); setTimedOut(retryFiredRef.current); setAiLive(false); setOffline(true); });
   };
 
   useEffect(() => {
@@ -659,6 +686,9 @@ export function CompassPet() {
     evidenceUrl?: string | null;
     nextSteps?: { wizard?: string; program?: string | null; institution?: string | null };
   } => {
+    // Round 8: an offline turn whose call timed out after the patient
+    // budget says so plainly, instead of a bare "offline".
+    const offlineLine = timedOut ? t('pet.offlineTimeout') : t('pet.offline');
     switch (turn.kind) {
       case 'prompt':
         return { lines: [t(turn.key)] };
@@ -705,10 +735,10 @@ export function CompassPet() {
         }
         if (turn.reply) return { lines: [t('pet.thinking')] };
         if (turn.offline) {
-          if (!turn.offlineProgramId) return { lines: [t('pet.offline')] };
+          if (!turn.offlineProgramId) return { lines: [offlineLine] };
           const program = findProgram(turn.offlineProgramId);
           const lines = [
-            t('pet.offline'),
+            offlineLine,
             program ? displayProgramTitle(program, locale) : turn.offlineProgramId,
           ];
           if (turn.offlineFee && (turn.offlineFee.period === 'per year' || turn.offlineFee.period === 'total')) {
@@ -744,12 +774,12 @@ export function CompassPet() {
           const rank = rankOffline(turn.message);
           if (rank) {
             return {
-              lines: [t('pet.offline'), ...rank.lines],
+              lines: [offlineLine, ...rank.lines],
               evidenceUrl: rank.evidenceUrl,
               nextSteps: { wizard: '/wizard', institution: `/institutions/${rank.institutionId}` },
             };
           }
-          return { lines: [t('pet.offline')] };
+          return { lines: [offlineLine] };
         }
         return { lines: [t('pet.thinking')] };
       }
@@ -771,8 +801,21 @@ export function CompassPet() {
     }
     setBusy(true);
     const requestLocale = locale;
+    // Round 8: the conversation this call belongs to — a restart
+    // (greet bumps convRef) while the call is in flight must not let
+    // the late reply land in the new conversation.
+    const conv = convRef.current;
+    beginPatientCall();
+    // Round 8: already known-offline means the backend was down
+    // recently — a single short probe (10s) before falling back to
+    // the offline catalogue, not another full ~90s wait per message.
+    const patientOpts = offline
+      ? { timeoutMs: 10000, attempts: 1, onRetry: patientOnRetry }
+      : { onRetry: patientOnRetry };
     const goOffline = () => {
+      if (convRef.current !== conv) return;
       setOffline(true);
+      setTimedOut(false);
       setAiLive(false);
       const off = suggestOffline(degree, country, band);
       if (off) doCelebrate();
@@ -788,10 +831,12 @@ export function CompassPet() {
       const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({ message: suggestMessageFor(degree, country, band), locale: requestLocale }),
-      }, { onRetry: () => setWaking(true) });
+      }, patientOpts);
       setWaking(false);
       if (!isModelReply(r)) { goOffline(); return; }
+      if (convRef.current !== conv) return;
       setOffline(false);
+      setTimedOut(false);
       setAiLive(true);
       if (deriveChatLinks(r.sources).program) doCelebrate();
       push({
@@ -801,10 +846,15 @@ export function CompassPet() {
       });
     } catch {
       setWaking(false);
-      goOffline();
+      if (convRef.current === conv) {
+        setTimedOut(retryFiredRef.current);
+        goOffline();
+      }
     } finally {
-      setWaking(false);
-      setBusy(false);
+      if (convRef.current === conv) {
+        setWaking(false);
+        setBusy(false);
+      }
     }
   };
 
@@ -858,8 +908,21 @@ export function CompassPet() {
     setBusy(true);
     setWaking(false);
     const requestLocale = locale;
+    // Round 8: the conversation this call belongs to — a restart
+    // while the call is in flight must not let the late reply land
+    // in the new conversation.
+    const conv = convRef.current;
+    beginPatientCall();
+    // Round 8: already known-offline means the backend was down
+    // recently — a single short probe (10s) before falling back to
+    // the offline catalogue, not another full ~90s wait per message.
+    const patientOpts = offline
+      ? { timeoutMs: 10000, attempts: 1, onRetry: patientOnRetry }
+      : { onRetry: patientOnRetry };
     const goOffline = () => {
+      if (convRef.current !== conv) return;
       setOffline(true);
+      setTimedOut(false);
       setAiLive(false);
       const rank = rankOffline(text);
       if (rank) doCelebrate();
@@ -872,19 +935,26 @@ export function CompassPet() {
       const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({ message: sentMessage, locale: requestLocale, history: buildHistory(messages) }),
-      }, { onRetry: () => setWaking(true) });
+      }, patientOpts);
       setWaking(false);
       if (!isModelReply(r)) { goOffline(); return; }
+      if (convRef.current !== conv) return;
       setOffline(false);
+      setTimedOut(false);
       setAiLive(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
       push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null });
     } catch {
       setWaking(false);
-      goOffline();
+      if (convRef.current === conv) {
+        setTimedOut(retryFiredRef.current);
+        goOffline();
+      }
     } finally {
-      setWaking(false);
-      setBusy(false);
+      if (convRef.current === conv) {
+        setWaking(false);
+        setBusy(false);
+      }
     }
   };
 
@@ -982,7 +1052,7 @@ export function CompassPet() {
             })}
             {busy && (
               <div className="flex justify-start">
-                <div className="rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? t('pet.waking') : t('pet.thinking')}</div>
+                <div className="rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: wakingElapsed }) : t('pet.thinking')}</div>
               </div>
             )}
             {chips.length > 0 && !busy && (
@@ -1017,15 +1087,18 @@ export function CompassPet() {
             <div className="mt-1.5 flex items-center justify-center gap-2 px-1 text-[11px] leading-tight text-navy/50">
               <span>
                 {waking
-                  ? t('pet.waking')
+                  ? tf('pet.wakingElapsed', { seconds: wakingElapsed })
                   : offline || aiLive === false
-                    ? t('pet.offline')
+                    ? timedOut ? t('pet.offlineTimeout') : t('pet.offline')
                     : aiLive === true
                       ? t('pet.aiLive')
                       : t('pet.aiChecking')}
               </span>
-              {(offline || aiLive === false) && !waking && (
-                <button type="button" onClick={retryStatus} className="btn-press shrink-0 rounded-full bg-amber px-2.5 py-1 text-[11px] font-bold text-navy">
+              {/* Round 8: the retry stays available after sending a
+                  message (it used to disappear while waking) — it is
+                  only disabled while a check is already running. */}
+              {(offline || aiLive === false) && (
+                <button type="button" onClick={retryStatus} disabled={waking || busy} className="btn-press shrink-0 rounded-full bg-amber px-2.5 py-1 text-[11px] font-bold text-navy disabled:opacity-40">
                   {t('pet.retry')}
                 </button>
               )}

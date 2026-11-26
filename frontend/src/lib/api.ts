@@ -136,6 +136,12 @@ function expNum(v: unknown): number | null {
   return typeof v === 'number' && !Number.isNaN(v) ? v : null;
 }
 
+/** Python `f"{n:g}"` for the expected-label mirror: integers print
+ * without a decimal point, other numbers print shortest-round-trip. */
+function fmtNumG(n: number): string {
+  return String(n);
+}
+
 function expRule(ruleId: string, status: RuleResult['status'], observed: string, expected: string, evidenceIds: string[], unknownReason?: string,
   extra?: { observedRaw?: unknown; thresholdRaw?: Record<string, unknown> | null; reasonKey?: string }): RuleResult {
   return {
@@ -318,7 +324,13 @@ function expFeeRule(profile: Profile, ep: ExpansionProgram): RuleResult {
   const period = fees.period || '';
   const evidence = ep.requirements.filter((r) => r.category === 'fee').flatMap((r) => r.sourceIds);
   const thresholdRaw = amount !== null ? { amount, currency, period } : null;
-  const expected = 'Tuition fee as stated on the official programme page';
+  // Round 8 (P5 display fix, mirroring backend _exp_expected): show
+  // the real fee when one is stated ("Tuition fee GBP 66580
+  // per_year"); the generic label only when there genuinely is no
+  // amount — and then the rule is UNKNOWN below, never NOT_MET.
+  const expected = amount !== null
+    ? ['Tuition fee', currency, fmtNumG(amount), period].filter(Boolean).join(' ')
+    : 'Tuition fee as stated on the official programme page';
   const budget = num(profile.budget);
   const budgetCurrency = profile.budgetCurrency || (profile.track === 'undergraduate' ? 'GBP' : 'SGD');
   const budgetPeriod = profile.track === 'undergraduate' ? 'per_year' : 'total';
@@ -346,13 +358,49 @@ function expFeeRule(profile: Profile, ep: ExpansionProgram): RuleResult {
     undefined, { observedRaw: budget, thresholdRaw });
 }
 
+/** English `expected` for the components rule, mirroring backend
+ * _exp_expected: the real component minimums when stated ("IELTS
+ * minimum 7 in each component"); the generic label only when no
+ * component minimum exists — and then the rule is UNKNOWN (or
+ * NOT_APPLICABLE), never NOT_MET. Multiple alternative sets are
+ * joined with " or ". */
+function expComponentExpected(sets: Record<string, number>[]): string {
+  const generic = 'IELTS component minimums as stated on the official programme page';
+  if (!sets.length) return generic;
+  const renderSet = (s: Record<string, number>): string | null => {
+    if ('__three__' in s && '__remaining__' in s) {
+      return `IELTS ${fmtNumG(s.__three__)} in at least three components, ${fmtNumG(s.__remaining__)} in the remaining component`;
+    }
+    const vals = Object.values(s);
+    if (!vals.length) return null;
+    if (new Set(vals).size === 1) return `IELTS minimum ${fmtNumG(vals[0])} in each component`;
+    return `IELTS component minimums: ${Object.entries(s).map(([k, v]) => `${k} ${fmtNumG(v)}`).join(', ')}`;
+  };
+  const rendered = sets.map(renderSet).filter((x): x is string => x !== null);
+  return rendered.length ? rendered.join(' or ') : generic;
+}
+
 function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: ExpLangThresholds): RuleResult[] {
   const results: RuleResult[] = [];
   const evidence = ep.requirements.filter((r) => r.category === 'language').flatMap((r) => r.sourceIds);
   const ieltsScore = num(profile.ieltsOverall);
   const toeflScore = num(profile.toefl);
   const testDate = profile.testDate || undefined;
-  const expected = 'IELTS / TOEFL minimum as stated on the official programme page';
+  // Round 8 (P5 display fix, mirroring backend _exp_expected): the
+  // real numeric minimum(s) when stated ("IELTS overall 7.5"); the
+  // generic label only when the programme states no IELTS/TOEFL
+  // overall minimum — and then the rule is UNKNOWN below, never
+  // NOT_MET (a NOT_MET here always has a threshold behind it).
+  const expectedParts: string[] = [];
+  if (thresholds.ieltsOveralls.length) {
+    expectedParts.push(`IELTS overall ${fmtNumG(Math.min(...thresholds.ieltsOveralls))}`);
+  }
+  if (thresholds.toeflOveralls.length) {
+    expectedParts.push(`TOEFL iBT ${fmtNumG(Math.min(...thresholds.toeflOveralls))}`);
+  }
+  const expected = expectedParts.length
+    ? expectedParts.join(' or ')
+    : 'IELTS / TOEFL minimum as stated on the official programme page';
   let met = false;
   let assessableFailed = false;
   let relevantSupplied = false;
@@ -407,7 +455,7 @@ function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: Ex
   }
   // --- Components: IELTS components only. ---
   const sets = thresholds.componentSets;
-  const expectedComp = 'IELTS component minimums as stated on the official programme page';
+  const expectedComp = expComponentExpected(sets);
   const comps = [num(profile.ieltsListening), num(profile.ieltsReading), num(profile.ieltsWriting), num(profile.ieltsSpeaking)];
   const compNames = ['listening', 'reading', 'writing', 'speaking'];
   if (!sets.length) {
@@ -457,7 +505,15 @@ function expLanguageRules(profile: Profile, ep: ExpansionProgram, thresholds: Ex
 
 function expAcademicRule(profile: Profile, ep: ExpansionProgram, alevels: ExpAlevelReq[]): RuleResult {
   const evidence = ep.requirements.filter((r) => r.category === 'academic').flatMap((r) => r.sourceIds);
-  const expected = 'A-level threshold as stated on the official programme page';
+  // Round 8 (P5 display fix, mirroring backend _exp_expected): the
+  // real A-level grade string when a threshold is stated ("A-level
+  // A*AA"); the generic label only when none is — and then the rule
+  // is UNKNOWN below, never NOT_MET.
+  const gradeLetter = (rank: number): string =>
+    ({ 5: 'A*', 4: 'A', 3: 'B', 2: 'C', 1: 'D', 0: 'E' } as Record<number, string>)[rank] ?? '?';
+  const expected = alevels.length
+    ? `A-level ${[...new Set(alevels.map((r) => r.minimum.map(gradeLetter).join('')))].join(' / ')}`
+    : 'A-level threshold as stated on the official programme page';
   if (profile.track === 'taught_masters') {
     return expRule('exp-academic', 'UNKNOWN', 'Not provided', expected, evidence,
       'A-level thresholds apply to undergraduate entry; this is a taught-masters programme, so no A-level rule can be assessed here.');
@@ -510,7 +566,25 @@ export function evaluateExpansionLocal(profile: Profile, ep: ExpansionProgram): 
   if (hasAcademicReq) {
     results.push(expAcademicRule(profile, ep, alevels));
   }
-  return results;
+  // Round 8 placeholder rule — same as the backend generic evaluator
+  // (backend/domain/expansion_eval.py, _placeholder_guard): a
+  // requirement with no parseable numeric threshold ("... as stated on
+  // the official programme page") can never yield NOT_MET; it yields
+  // UNKNOWN. A NOT_MET here without a numeric threshold behind it is
+  // downgraded, so a placeholder is never counted as an obstacle.
+  return results.map((r) => {
+    if (r.status !== 'NOT_MET') return r;
+    const hasThreshold = r.ruleId === 'exp-fee' ? expNum(ep.fees.amount) !== null
+      : r.ruleId === 'exp-language' ? thresholds.ieltsOveralls.length > 0 || thresholds.toeflOveralls.length > 0
+      : r.ruleId === 'exp-language-components' ? thresholds.componentSets.length > 0
+      : r.ruleId === 'exp-academic' ? alevels.length > 0 : true;
+    if (hasThreshold) return r;
+    return {
+      ...r, status: 'UNKNOWN',
+      unknownReason: 'No parseable numeric threshold is stated for this requirement, so it cannot be judged failed.',
+      reasonCode: 'MISSING_OR_UNVERIFIED', reasonKey: 'no-threshold',
+    };
+  });
 }
 
 /** Convert one expansion mirror programme to the frontend Program shape. */
@@ -699,11 +773,11 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
         thresholdRaw: { each: 'C/4' },
         reasonKey: gcseStatus === 'NOT_APPLICABLE' ? 'gcse-not-applicable' : gcseStatus === 'UNKNOWN' ? 'missing-info' : undefined,
       });
-      // TARA is required for the 2026 cycle with no stated threshold, so the
+      // TARA is required for the 2027/28 admission with no stated threshold, so the
       // offline evaluator can never confirm it — same as the backend.
       rules.push({
         ruleId: 'ucl-tara', status: 'UNKNOWN',
-        observed: 'TARA required for 2026 cycle; no threshold stated',
+        observed: 'TARA required for 2027/28 admission; no threshold stated',
         expected: 'TARA required (no score threshold stated)', evidenceIds: ['ucl-cs-entry'],
         reasonCode: 'MISSING_SCORE',
         unknownReason: 'TARA is required but no score threshold is stated on the page',
@@ -712,13 +786,13 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       });
       const b = num(profile.budget);
       rules.push({
-        ruleId: 'ucl-fee', status: b === null ? 'UNKNOWN' : b >= 46700 ? 'MET' : 'NOT_MET',
+        ruleId: 'ucl-fee', status: b === null ? 'UNKNOWN' : b >= 48600 ? 'MET' : 'NOT_MET',
         observed: b === null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${b}/year`,
-        expected: 'GBP 46,700/year', evidenceIds: ['ucl-cs-fees'],
-        reasonCode: b === null ? 'MISSING_BUDGET' : b >= 46700 ? 'BUDGET_COVERS' : 'BUDGET_BELOW',
+        expected: 'GBP 48,600/year', evidenceIds: ['ucl-cs-fees'],
+        reasonCode: b === null ? 'MISSING_BUDGET' : b >= 48600 ? 'BUDGET_COVERS' : 'BUDGET_BELOW',
         unknownReason: b === null ? 'Budget not provided' : undefined,
         observedRaw: b,
-        thresholdRaw: { gbp_per_year: 46700 },
+        thresholdRaw: { gbp_per_year: 48600 },
         reasonKey: b === null ? 'missing-info' : undefined,
       });
     }
@@ -791,7 +865,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       const b = num(profile.budget);
       rules.push({
         ruleId: 'nus-fee', status: b === null ? 'UNKNOWN' : b >= 69215 ? 'MET' : 'NOT_MET',
-        observed: b === null ? 'Not provided' : `Budget SGD ${b} total`,
+        observed: b === null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${b} total`,
         expected: 'SGD 69,215 total incl. 9% GST', evidenceIds: ['nus-mcomp-fees'],
         reasonCode: b === null ? 'MISSING_BUDGET' : b >= 69215 ? 'BUDGET_COVERS' : 'BUDGET_BELOW',
         unknownReason: b === null ? 'Budget not provided' : undefined,
@@ -916,7 +990,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
         { observedRaw: { exam: 'toefl', overall: toeflScore, test_date: toeflDate ?? null }, reasonKey: toeflScore <= 6 ? 'toefl-scale-unknown' : undefined });
       const band: Record<string, number | null> = { sg_citizen: 8300, sg_pr: 11600, sg_intl_asean: 18050, sg_intl_other: 21400, sg_intl_nogrant: 39700 };
       const amt = profile.residency ? band[profile.residency] ?? null : null;
-      pushRule('nus-bcomp-fee', amt === null ? 'UNKNOWN' : feeStatus(amt), profile.budget == null ? 'Not provided' : `Budget SGD ${profile.budget}/year`, amt === null ? 'AY2026/27 rates by residency band' : `SGD ${amt.toLocaleString()}/year`, ['nus-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, so the fee cannot be decided' : undefined,
+      pushRule('nus-bcomp-fee', amt === null ? 'UNKNOWN' : feeStatus(amt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}/year`, amt === null ? 'AY2026/27 rates by residency band' : `SGD ${amt.toLocaleString()}/year`, ['nus-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, so the fee cannot be decided' : undefined,
         { observedRaw: num(profile.budget), thresholdRaw: amt === null ? undefined : { amount: amt }, reasonKey: profile.budget == null ? 'missing-info' : amt === null ? 'fee-residency-unknown' : undefined });
     }
     if (p.id === 'ntu-bcomp-cs-2027') {
@@ -934,7 +1008,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
         { observedRaw: { exam: 'toefl', overall: toeflScore, test_date: toeflDate ?? null }, reasonKey: tf === 'UNKNOWN' ? 'missing-test-date' : undefined });
       const band: Record<string, number | null> = { sg_citizen: 8300, sg_pr: 11600, sg_intl_asean: 18050, sg_intl_other: 21400, sg_intl_nogrant: null };
       const amt = profile.residency ? band[profile.residency] ?? null : null;
-      pushRule('ntu-bcomp-fee', amt === null ? 'UNKNOWN' : feeStatus(amt), profile.budget == null ? 'Not provided' : `Budget SGD ${profile.budget}/year`, amt === null ? 'AY2026/27 rates by residency band' : `SGD ${amt.toLocaleString()}/year`, ['ntu-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, or the non-subsidised band is not labelled for CS' : undefined,
+      pushRule('ntu-bcomp-fee', amt === null ? 'UNKNOWN' : feeStatus(amt), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget}/year`, amt === null ? 'AY2026/27 rates by residency band' : `SGD ${amt.toLocaleString()}/year`, ['ntu-bcomp-fees'], amt === null ? 'Residency / tuition-grant status not supplied, or the non-subsidised band is not labelled for CS' : undefined,
         { observedRaw: num(profile.budget), thresholdRaw: amt === null ? undefined : { amount: amt }, reasonKey: profile.budget == null ? 'missing-info' : amt === null ? 'fee-residency-unknown' : undefined });
     }
     if (p.id === 'ntu-msai-2027') {
@@ -961,7 +1035,7 @@ export function evaluateLocal(profile: Profile, programIds: string[]): MatchResp
       }
       pushRule('ntu-msai-gre', 'UNKNOWN', 'GRE optional; no rejection rule stated', 'GRE optional; no rejection rule for a missing or low score', ['ntu-msai-entry'], 'GRE scores are listed as Optional; no rejection rule for a missing or low score',
         { observedRaw: { gre_total: num(profile.greTotal), gre_analytical: num(profile.greAw) }, reasonKey: 'no-rejection-rule' });
-      pushRule('ntu-msai-fee', feeStatus(65748.8), profile.budget == null ? 'Not provided' : `Budget SGD ${profile.budget} total`, 'SGD 65,748.80 total incl. 9% GST', ['ntu-msai-fees'], undefined,
+      pushRule('ntu-msai-fee', feeStatus(65748.8), profile.budget == null ? 'Not provided' : `Budget ${profile.budgetCurrency || 'GBP'} ${profile.budget} total`, 'SGD 65,748.80 total incl. 9% GST', ['ntu-msai-fees'], undefined,
         { observedRaw: num(profile.budget), thresholdRaw: { amount: 65748.8 }, reasonKey: profile.budget == null ? 'missing-info' : undefined });
     }
     const summary = rules.some((r) => r.status === 'NOT_MET') ? 'NOT_MET' : rules.some((r) => r.status === 'UNKNOWN') ? 'PARTIAL_UNKNOWN' : 'MET';
@@ -1032,7 +1106,11 @@ export async function fetchJsonPatient<T>(
   for (;;) {
     attempt += 1;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), attemptTimeoutMs);
+    // Round 8: an attempt must never run past the remaining budget —
+    // the old code let a 25s attempt start at 79s and fail at ~104s,
+    // so "offline" was declared ~15s after the promised ~90s.
+    const remaining = budgetMs - (Date.now() - started);
+    const timer = setTimeout(() => controller.abort(), Math.max(1000, Math.min(attemptTimeoutMs, remaining)));
     try {
       const res = await fetch(path, {
         ...init,
@@ -1071,27 +1149,41 @@ export async function fetchJsonPatient<T>(
   }
 }
 
-export async function matchProfile(profile: Profile): Promise<MatchResponse> {
+/** Options for matchProfile: onRetry fires before each patient retry,
+ * so the caller can show a "waking the backend" state instead of an
+ * offline claim while the free Render instance wakes. */
+export interface MatchOptions {
+  onRetry?: (attempt: number) => void;
+}
+
+/** Live match first, offline mirror only after the patient budget is
+ * spent. The old plain fetch failed fast while the backend was only
+ * waking, so the results page declared offline while the backend was
+ * up and the chat worked. */
+export async function matchProfile(profile: Profile, opts?: MatchOptions): Promise<MatchResponse> {
   const programIds = profile.targetProgramIds.length ? profile.targetProgramIds
     : allPrograms().filter((p) => p.degreeLevel === profile.track && p.matchable !== false).map((p) => p.id);
   try {
-    const live = await fetchJson<MatchResponse>('/api/match', {
+    const live = await fetchJsonPatient<MatchResponse>('/api/match', {
       method: 'POST',
       body: JSON.stringify({ profile, program_ids: programIds, data_version: DATA_VERSION }),
-    });
+    }, { onRetry: opts?.onRetry });
     return { ...live, live: true };
   } catch {
     return evaluateLocal(profile, programIds);
   }
 }
 
-export async function fetchPrograms(opts?: { limit?: number; cursor?: string }): Promise<{ programs: Program[]; live: boolean; nextCursor?: string }> {
+export async function fetchPrograms(opts?: { limit?: number; cursor?: string; onRetry?: (attempt: number) => void }): Promise<{ programs: Program[]; live: boolean; nextCursor?: string }> {
   try {
     const params = new URLSearchParams();
     if (opts?.limit) params.set('limit', String(opts.limit));
     if (opts?.cursor) params.set('cursor', opts.cursor);
     const qs = params.toString();
-    const data = await fetchJson<{ items?: unknown[]; programs?: unknown[]; data_version?: string; next_cursor?: string | null }>(`/api/programs${qs ? `?${qs}` : ''}`);
+    // Round 8: patient fetch — a plain fetch failed fast while the
+    // free backend was only waking, so the homepage and results page
+    // claimed "live backend not connected" while it was up.
+    const data = await fetchJsonPatient<{ items?: unknown[]; programs?: unknown[]; data_version?: string; next_cursor?: string | null }>(`/api/programs${qs ? `?${qs}` : ''}`, undefined, { onRetry: opts?.onRetry });
     const raw = Array.isArray(data.items) ? data.items : Array.isArray(data.programs) ? data.programs : [];
     const items = raw.map((r) => normalizeApiProgram(r, data.data_version)).filter((p): p is Program => p !== null);
     // Empty catalogue from the API is not usable — fall back to the local
@@ -1229,7 +1321,9 @@ export async function simulate(profile: Profile, patch: Partial<Profile>): Promi
   const programIds = profile.targetProgramIds.length ? profile.targetProgramIds
     : allPrograms().filter((p) => p.degreeLevel === profile.track && p.matchable !== false).map((p) => p.id);
   try {
-    const live = await fetchJson<{ baseline: MatchResponse; scenario: MatchResponse; delta: unknown }>('/api/simulate', {
+    // Round 8: patient fetch, same as matchProfile — a waking backend
+    // must not silently drop the what-if scenario to the offline mirror.
+    const live = await fetchJsonPatient<{ baseline: MatchResponse; scenario: MatchResponse; delta: unknown }>('/api/simulate', {
       method: 'POST',
       body: JSON.stringify({ baseline_profile: profile, patch, program_ids: programIds, versions: { data_version: DATA_VERSION, rules_version: RULES_VERSION } }),
     });
@@ -1252,8 +1346,16 @@ export interface RankingsResult {
 }
 
 export async function fetchRankings(): Promise<RankingsResult> {
+  // Round 8: a stalled backend must never block the rankings page — the
+  // page renders instantly from the local mirror and this call is only a
+  // background refresh, so the whole live attempt gets one 30s budget
+  // (a sleeping free-tier backend takes ~50s+ to wake) and then falls
+  // back to the mirror with live: false.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30_000);
   try {
-    const prov = await fetchJson<{ providers: RankingProvider[] }>('/api/rankings/providers');
+    const signal = controller.signal;
+    const prov = await fetchJson<{ providers: RankingProvider[] }>('/api/rankings/providers', { signal });
     const providers = Array.isArray(prov.providers) && prov.providers.length ? prov.providers : RANKING_PROVIDERS;
     // The backend caps limit at 20, so page through the cursor until the
     // list ends (300 entries = 15 pages). The loop is bounded so a
@@ -1262,7 +1364,7 @@ export async function fetchRankings(): Promise<RankingsResult> {
     let cursor: string | undefined;
     for (let page = 0; page < 50; page++) {
       const qs = new URLSearchParams({ limit: '20', ...(cursor ? { cursor } : {}) }).toString();
-      const chunk = await fetchJson<{ items: RankingEntry[]; next_cursor?: string | null }>(`/api/rankings?${qs}`);
+      const chunk = await fetchJson<{ items: RankingEntry[]; next_cursor?: string | null }>(`/api/rankings?${qs}`, { signal });
       entries.push(...(chunk.items ?? []));
       cursor = chunk.next_cursor ?? undefined;
       if (!cursor) break;
@@ -1271,12 +1373,18 @@ export async function fetchRankings(): Promise<RankingsResult> {
     return { providers, institutions: RANKING_INSTITUTIONS, entries: list, live: true };
   } catch {
     return { providers: RANKING_PROVIDERS, institutions: RANKING_INSTITUTIONS, entries: RANKING_ENTRIES, live: false };
+  } finally {
+    clearTimeout(timer);
   }
 }
 
 export async function fetchInstitutionRankings(institutionId: string): Promise<{ institution: RankingInstitution | undefined; entries: RankingEntry[]; live: boolean }> {
+  // Round 8: same bounded-attempt rule as fetchRankings — the
+  // institution page renders from the local mirror while this refreshes.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20_000);
   try {
-    const data = await fetchJson<{ institution: RankingInstitution; rankings: RankingEntry[] }>(`/api/institutions/${encodeURIComponent(institutionId)}/rankings`);
+    const data = await fetchJson<{ institution: RankingInstitution; rankings: RankingEntry[] }>(`/api/institutions/${encodeURIComponent(institutionId)}/rankings`, { signal: controller.signal });
     return { institution: data.institution, entries: data.rankings, live: true };
   } catch {
     return {
@@ -1284,5 +1392,7 @@ export async function fetchInstitutionRankings(institutionId: string): Promise<{
       entries: RANKING_ENTRIES.filter((e) => e.institution_id === institutionId),
       live: false,
     };
+  } finally {
+    clearTimeout(timer);
   }
 }

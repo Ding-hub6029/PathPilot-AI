@@ -342,6 +342,12 @@ export function prefQuestionNameKey(q: Exclude<PrefNextQuestion, null>): string 
  * the confirmation bubble — enum values in the current locale, the
  * user's own words (city, note) verbatim and quoted. Nothing is
  * invented: a field the server did not extract is simply absent.
+ *
+ * Round 8: a note that says the same thing as an already-listed value
+ * is dropped instead of repeated — the model often extracts both the
+ * enum and the user's own words for it ("大学城·校园氛围" as
+ * environment=campus AND note="大学城·校园氛围"), which used to
+ * render as the tautology "大学城·校园氛围 · “大学城·校园氛围”".
  */
 export function extractedSummary(
   extracted: PrefExtracted,
@@ -380,9 +386,41 @@ export function extractedSummary(
     };
     parts.push(t(key[extracted.teaching]));
   }
-  // The reason, in the user's own words — never paraphrased away.
-  if (extracted.note?.trim()) parts.push(`“${extracted.note.trim()}”`);
+  // The reason, in the user's own words — never paraphrased away —
+  // unless it says exactly the same as a value already listed above
+  // (only an exact match is dropped: a note that ADDS words, e.g.
+  // "瑞士，因为那边环境优美" next to "瑞士", is kept whole).
+  if (extracted.note?.trim()) {
+    const note = extracted.note.trim();
+    const norm = (s: string) => s.toLowerCase().replace(/[·、，,；;。.\s]/g, '');
+    if (!parts.some((p) => norm(p) === norm(note))) {
+      parts.push(`“${note}”`);
+    }
+  }
   return parts.join(' · ');
+}
+
+/** Fold a pending (not yet confirmed) extraction into the known set,
+ * so the "Understood n of 8" progress counts what the model already
+ * understood — it must not wait for the user's confirm tap. The
+ * extraction is never applied here; confirmation still owns that. */
+export function mergeKnownWithExtracted(known: PrefKnown, extracted: PrefExtracted): PrefKnown {
+  const next: PrefKnown = { ...known, countries: [...known.countries] };
+  if (extracted.countries?.length) {
+    next.countries = [...new Set([...next.countries, ...extracted.countries])];
+  }
+  if (extracted.climate) next.climate = extracted.climate;
+  if (extracted.environment) next.environment = extracted.environment;
+  if (extracted.city) next.city = extracted.city;
+  if (extracted.afterGrad) next.afterGrad = extracted.afterGrad;
+  if (extracted.salary) {
+    next.salary = extracted.salary.amount;
+    next.salaryCurrency = extracted.salary.currency;
+  }
+  if (extracted.pressure) next.pressure = extracted.pressure;
+  if (extracted.teaching) next.teaching = extracted.teaching;
+  if (extracted.note?.trim()) next.note = extracted.note.trim();
+  return next;
 }
 
 // --- Desktop-pet known-steps (round 7, Fix B) -------------------------------

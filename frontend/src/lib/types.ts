@@ -294,21 +294,29 @@ export interface ExpansionProgram {
 // --- Success cases (Day 3, social-source offer stories) --------------------
 // Netizen-shared offer stories, NOT officially verified admission outcomes.
 // Missing fields stay null; the UI renders nothing for them.
+export interface CaseOffer {
+  institution: string;
+  programme: string | null;
+  level: string; // 'undergraduate' | 'taught_masters'
+  intake: string | null;
+  note: string | null; // offer-specific note; null when there is none
+}
+
 export interface SuccessCase {
   id: string;
   platform: string;
   sourceUrl: string;
+  sourceRef: string | null; // listing locator, e.g. "survey p. 490" (GradCafe)
   postedDate: string | null;
   authorDisplay: string | null;
   undergradInstitution: string | null;
   undergradMajor: string | null;
   gpa: string | null;
   languageScores: string | null;
-  offerInstitution: string;
-  offerProgramme: string | null;
-  offerLevel: string; // 'undergraduate' | 'taught_masters'
-  intake: string | null;
-  keyExperience: string | null;
+  keyExperience: string | null; // experience shared for the applicant as a whole
+  // One card per applicant (Round 8 dedupe): every offer this applicant
+  // shared. Single-offer cards have exactly one entry.
+  offers: CaseOffer[];
   label: string; // always "网友分享，未经官方核实" in the data
   collectedDate: string;
 }

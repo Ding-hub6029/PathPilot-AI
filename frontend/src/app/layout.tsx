@@ -7,7 +7,7 @@ import { RouteTransition } from '../components/RouteTransition';
 
 export const metadata: Metadata = {
   title: 'PathPilot AI — Evidence-based university selection',
-  description: 'Check the minimum requirements for real UK and Singapore programmes, with the official source for every rule.',
+  description: 'Check the minimum requirements for real programmes from universities worldwide, with the official source for every rule.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -2,12 +2,18 @@
 // Every item was verified on its official page or feed on 2026-11-25:
 // NUS items come from the live NUS Newsroom undergraduate RSS
 // (https://news.nus.edu.sg/tagfeed/en-sg/tags/undergraduate); the British
-// Council, UCL and NTU items are the verified stories in
+// Council and UCL items are the verified stories in
 // ~/workspace/homepage_content_sources.md. Titles are the sources' own
 // headlines (shown in English, like evidence excerpts); the one-line
 // summaries are localised via the news.* / policy.* locale keys. Nothing
 // is copied from the articles — title + link only. Dates are shown only
 // where the source states one.
+//
+// Round 8 (2026-11-26): the NTU Alumni Stories list and the Imperial
+// news-feeds index were removed — both are listing/index pages, not
+// articles, so they do not belong in a news list. The NUS RAG title was
+// re-checked against the live article on 2026-11-26 and is the full
+// headline, ending "Flag Day 2025".
 export interface NewsItem {
   id: string;
   title: string;
@@ -85,20 +91,6 @@ export const NEWS_ITEMS: NewsItem[] = [
     source: 'UCL Arts & Humanities blog',
     date: '2025-02',
     url: 'https://blogs.ucl.ac.uk/arts-hums/2025/02/',
-  },
-  {
-    id: 'ntu-alumni',
-    title: 'NTU Alumni Stories and News',
-    summaryKey: 'news.ntuAlumni',
-    source: 'NTU Alumni',
-    url: 'https://www.ntu.edu.sg/alumni/alumni-stories-news',
-  },
-  {
-    id: 'imperial-feeds',
-    title: 'Imperial College London — News feeds',
-    summaryKey: 'news.imperialFeeds',
-    source: 'Imperial News',
-    url: 'https://www.imperial.ac.uk/news/articles/feeds/',
   },
 ];
 

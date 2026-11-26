@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { fetchRankings, RankingsResult } from '../../lib/api';
-import { displayCountryCode, displayCountryName, displayInstitutionName } from '../../lib/rankings';
+import { RANKING_ENTRIES, RANKING_INSTITUTIONS, RANKING_PROVIDERS, displayCountryCode, displayCountryName, displayInstitutionName } from '../../lib/rankings';
 import { crestFor, monogramFor } from '../../lib/crests';
 import { useApp } from '../../lib/store';
 import { RankingEntry } from '../../lib/types';
@@ -19,25 +19,48 @@ import { vtRef } from '../../lib/viewTransition';
  * selected institutions (max 3), so a world rank is never compared with
  * a national rank and a subject rank is never presented as a course rank.
  * Institution names link to their institution detail page.
+ *
+ * Round 8: the page renders instantly from the local mirror (300 entries,
+ * 148 institutions — identical to the verified backend data). The live
+ * backend only refreshes that data in the background, so a sleeping
+ * free-tier backend can no longer leave the page on an empty state with
+ * no loading indicator while its first request hangs (the old failure:
+ * fetchRankings blocked first paint on 15 sequential no-timeout requests).
  */
+const LOCAL_DATA: RankingsResult = {
+  providers: RANKING_PROVIDERS,
+  institutions: RANKING_INSTITUTIONS,
+  entries: RANKING_ENTRIES,
+  live: false,
+};
+
+type SortKey = 'rank' | 'name' | 'country';
+
 export default function RankingsPage() {
-  const { t, locale } = useApp();
-  const [data, setData] = useState<RankingsResult | null>(null);
+  const { t, tf, locale } = useApp();
+  const [data, setData] = useState<RankingsResult>(LOCAL_DATA);
+  const [refreshing, setRefreshing] = useState(true);
   const [provider, setProvider] = useState('all');
   const [rankType, setRankType] = useState('world');
   const [country, setCountry] = useState('all');
   const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<SortKey>('rank');
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchRankings().then(setData).catch(() => undefined);
+    let cancelled = false;
+    fetchRankings()
+      .then((res) => { if (!cancelled) setData(res); })
+      .catch(() => undefined)
+      .finally(() => { if (!cancelled) setRefreshing(false); });
+    return () => { cancelled = true; };
   }, []);
 
   const institutions = data?.institutions ?? [];
   const entries = data?.entries ?? [];
   const providers = data?.providers ?? [];
 
-  // Country filter options come from the data itself (25 countries in the
+  // Country filter options come from the data itself (26 countries in the
   // top-100 set), never a hard-coded list.
   const countries = useMemo(() => {
     const byCode = new Map<string, string>();
@@ -73,7 +96,8 @@ export default function RankingsPage() {
   // Institutions arrive in id order (alphabetical), not rank order — sort
   // the cards top-to-bottom by rank: the selected provider's rank when one
   // provider is chosen, otherwise the institution's best rank across the
-  // visible providers. Unranked institutions go last.
+  // visible providers. Unranked institutions go last. The sort control
+  // also offers name (A–Z) and country order.
   const rankValue = (e?: RankingEntry): number => {
     if (!e || e.verification_status !== 'verified') return Number.POSITIVE_INFINITY;
     const m = /^=?(\d+)/.exec(e.rank_display ?? '');
@@ -81,14 +105,21 @@ export default function RankingsPage() {
   };
   const sortedInstitutions = useMemo(() => {
     const list = [...filteredInstitutions];
-    list.sort((a, b) => {
-      const ra = Math.min(...visibleEntries.filter((e) => e.institution_id === a.id).map(rankValue));
-      const rb = Math.min(...visibleEntries.filter((e) => e.institution_id === b.id).map(rankValue));
-      if (ra !== rb) return ra - rb;
-      return a.official_name.localeCompare(b.official_name);
-    });
+    if (sort === 'name') {
+      list.sort((a, b) => a.official_name.localeCompare(b.official_name));
+    } else if (sort === 'country') {
+      list.sort((a, b) => a.country_name.localeCompare(b.country_name) || a.official_name.localeCompare(b.official_name));
+    } else {
+      list.sort((a, b) => {
+        const ra = Math.min(...visibleEntries.filter((e) => e.institution_id === a.id).map(rankValue));
+        const rb = Math.min(...visibleEntries.filter((e) => e.institution_id === b.id).map(rankValue));
+        if (ra !== rb) return ra - rb;
+        return a.official_name.localeCompare(b.official_name);
+      });
+    }
     return list;
-  }, [filteredInstitutions, visibleEntries]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredInstitutions, visibleEntries, sort]);
 
   const toggleSelect = (id: string) => {
     setSelected((cur) => {
@@ -110,6 +141,12 @@ export default function RankingsPage() {
       <h1 className="line-mask text-2xl font-bold"><span>{t('rankings.title')}</span></h1>
       <p className="mt-2 text-navy/70">{t('rankings.subtitle')}</p>
       <p className="mt-1 text-sm font-semibold text-navy/70">{t('rankings.noCompare')}</p>
+      <p className="mt-2 text-sm text-navy/60" role="status">
+        {tf('rankings.summary', { institutions: filteredInstitutions.length, entries: visibleEntries.length })}
+        {refreshing && (
+          <span className="ms-2 font-semibold text-teal-dark">{t('rankings.refreshing')}</span>
+        )}
+      </p>
 
       <section className="mt-6" aria-labelledby="prov-title">
         <h2 id="prov-title" className="text-xl font-bold">{t('rankings.providers')}</h2>
@@ -166,6 +203,14 @@ export default function RankingsPage() {
             </select>
           </label>
           <label className="text-sm font-semibold">
+            {t('rankings.sort')}
+            <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="mt-1 block rounded-lg border border-navy/25 px-2 py-1.5 font-normal">
+              <option value="rank">{t('rankings.sortRank')}</option>
+              <option value="name">{t('rankings.sortName')}</option>
+              <option value="country">{t('rankings.sortCountry')}</option>
+            </select>
+          </label>
+          <label className="text-sm font-semibold">
             {t('rankings.search')}
             <input
               type="search"
@@ -177,7 +222,7 @@ export default function RankingsPage() {
           </label>
           <button
             type="button"
-            onClick={() => { setProvider('all'); setRankType('world'); setCountry('all'); setQuery(''); }}
+            onClick={() => { setProvider('all'); setRankType('world'); setCountry('all'); setQuery(''); setSort('rank'); }}
             className="btn-press rounded-full border border-navy/25 px-4 py-2 text-sm font-semibold"
           >
             {t('rankings.clearFilters')}
@@ -316,9 +361,38 @@ export default function RankingsPage() {
       {data && !data.live && (
         <p className="mt-6 text-sm text-navy/60">{t('rankings.offlineNote')}</p>
       )}
-      <p className="mt-2 text-xs text-navy/60" lang="en" dir="ltr">
-        Source: QS Quacquarelli Symonds (www.qs.com). With permission. Copyright © QS Quacquarelli Symonds Ltd.
-      </p>
+
+      {/* Complete source lines for all three providers. QS carries its
+          exact attribution notice; THE and ARWU carry their
+          not-licensed warnings (rankings.rights.*) — the warnings are
+          kept, never dropped. Previously this footer showed the QS line
+          only. */}
+      <section className="mt-8" aria-labelledby="src-title">
+        <h2 id="src-title" className="text-xl font-bold">{t('rankings.sourcesTitle')}</h2>
+        <ul className="mt-3 space-y-2">
+          {providers.map((p) => (
+            <li key={p.id} className="rounded-2xl border border-navy/10 bg-white p-4 text-sm shadow-sm">
+              <p className="font-bold">{p.name} · <span dir="ltr">{p.edition_label}</span></p>
+              <p className="mt-1">
+                <a href={p.entry_url} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{t('rankings.officialTable')}</a>
+                {p.methodology_url && (
+                  <>
+                    {' · '}
+                    <a href={p.methodology_url} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{t('rankings.methodology')}</a>
+                  </>
+                )}
+              </p>
+              {p.id === 'qs' && p.attribution && (
+                <p className="mt-2 text-xs text-navy/60" lang="en" dir="ltr">{p.attribution}</p>
+              )}
+              {(p.id === 'the' || p.id === 'arwu') && (
+                <p className="mt-2 text-xs font-semibold text-amber-dark">{t(`rankings.rights.${p.id}`)}</p>
+              )}
+              <p className="mt-1 text-xs text-navy/60">{p.rights_note}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

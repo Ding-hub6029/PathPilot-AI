@@ -16,6 +16,12 @@ export interface Fmt {
   t: (key: string) => string;
   tf: (key: string, vars?: Record<string, string | number>) => string;
   locale: string;
+  /** The applicant's own budget currency (profile.budgetCurrency).
+   * A budget is NEVER rendered under the fee's currency: GBP 50,000
+   * was shown as "SGD 50,000" for NUS/NTU because the fee sentence
+   * and the observed line both labelled the budget with the fee
+   * currency (round 8). */
+  budgetCurrency?: string;
 }
 
 const fmtNum = (n: number | string, locale: string): string =>
@@ -59,7 +65,7 @@ function periodText(period: 'per_year' | 'total', t: (k: string) => string): str
 
 /** Short period form for the fee sentence: "/year" / "/年" so the
  * sentence reads "Your budget GBP 22/year is below the fee
- * GBP 46,700/year" — the long form ("per year" / "每年") cannot follow
+ * GBP 48,600/year" — the long form ("per year" / "每年") cannot follow
  * a slash. */
 function periodShortText(period: 'per_year' | 'total', t: (k: string) => string): string {
   return period === 'total' ? t('fee.period.totalShort') : t('fee.period.perYearShort');
@@ -147,11 +153,19 @@ function formatFeeObserved(rule: RuleResult, f: Fmt): string {
   const raw = rule.observedRaw;
   if (raw === null || raw === undefined) return t('rule.observed.notProvided');
   if (typeof raw === 'number') {
-    if (!meta) return fmtNum(raw, locale);
+    // The budget is the applicant's, in the applicant's currency —
+    // never the fee's currency. Expansion fee rules have no FEE_META
+    // entry; their threshold carries the fee currency + period.
+    const budgetCurrency = f.budgetCurrency ?? meta?.currency ?? '';
+    const period = meta
+      ? periodText(meta.period, t)
+      : (rule.thresholdRaw && typeof rule.thresholdRaw.period === 'string'
+        ? (rule.thresholdRaw.period === 'total' ? t('fee.period.total') : t('fee.period.perYear'))
+        : '');
     return tf('rule.observed.budget', {
-      currency: meta.currency,
+      currency: budgetCurrency,
       amount: fmtNum(raw, locale),
-      period: periodText(meta.period, t),
+      period,
     });
   }
   if (isRecord(raw)) {
@@ -218,6 +232,15 @@ function formatAcademicObserved(rule: RuleResult, f: Fmt): string {
   if ('field' in raw || 'degree_class' in raw || 'experience_years' in raw) {
     return formatDegreeObserved(raw, f);
   }
+  // Expansion academic rules carry the A-level grades directly
+  // ({grades, maths}) with no curriculum key — render them instead of
+  // "Not provided" (the grades were supplied and the rule used them).
+  if (Array.isArray(raw.grades) && raw.grades.length) {
+    return tf('rule.observed.alevels', {
+      grades: (raw.grades as unknown[]).join(''),
+      maths: raw.maths == null ? dash : String(raw.maths),
+    });
+  }
   return t('rule.observed.notProvided');
 }
 
@@ -255,6 +278,22 @@ function formatLanguageObserved(rule: RuleResult, f: Fmt): string {
   const raw = rule.observedRaw;
   const id = rule.ruleId;
   if (raw === null || raw === undefined) return t('rule.observed.notProvided');
+  // Expansion language rules carry the raw scores as a record
+  // ({ielts_overall, toefl_overall}) — the old code fell through to
+  // the backend's English `observed` string and rendered it verbatim
+  // ("ielts_overall: 7, toefl_overall: None"). Render each supplied
+  // score with its localised label; a missing score is simply absent,
+  // never "None", never a snake_case key.
+  if (isRecord(raw) && ('ielts_overall' in raw || 'toefl_overall' in raw)) {
+    const parts: string[] = [];
+    if (typeof raw.ielts_overall === 'number') {
+      parts.push(tf('rule.observed.ieltsOverall', { score: fmtNum(raw.ielts_overall, locale) }));
+    }
+    if (typeof raw.toefl_overall === 'number') {
+      parts.push(tf('rule.observed.toefl', { score: fmtNum(raw.toefl_overall, locale) }));
+    }
+    return parts.length ? parts.join(' · ') : t('rule.observed.notProvided');
+  }
   // IELTS components: render only the components the rule actually
   // requires (from thresholdRaw), e.g. Reading/Writing for NUS BComp.
   // A threshold of {each_component: x} means all four components.
@@ -351,18 +390,43 @@ export function formatObserved(rule: RuleResult, f: Fmt): string {
   if (typeof raw === 'number') return fmtNum(raw, f.locale);
   if (typeof raw === 'string') return raw;
   if (isRecord(raw)) {
+    // Never render a raw snake_case key ("ielts_overall: 7") or a
+    // null value ("toefl_overall: None"). Known keys get a clean
+    // label; any other identifier-like key renders its value only.
+    const labelFor = (k: string): string | null => {
+      if (k === 'ielts_overall') return 'IELTS';
+      if (k === 'toefl_overall') return 'TOEFL';
+      if (k === 'listening') return t('wizard.ieltsListening');
+      if (k === 'reading') return t('wizard.ieltsReading');
+      if (k === 'writing') return t('wizard.ieltsWriting');
+      if (k === 'speaking') return t('wizard.ieltsSpeaking');
+      if (k === 'grades') return null;
+      if (k === 'maths') return t('wizard.mathsLabel');
+      return null;
+    };
     const entries = Object.entries(raw)
       .filter(([, v]) => v !== null && v !== undefined)
-      .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`);
+      .map(([k, v]) => {
+        const value = Array.isArray(v) ? v.join(', ') : String(v);
+        const label = labelFor(k);
+        if (label) return `${label} ${value}`;
+        if (k.includes('_')) return value;
+        return `${k}: ${value}`;
+      });
     if (entries.length) return entries.join(', ');
   }
   return rule.observed;
 }
 
 /** Blocker sentence for a fee rule: "你的预算 GBP 22/年，低于学费
- * GBP 46,700/年". Returns null when the sentence cannot be built
+ * GBP 48,600/年". Returns null when the sentence cannot be built
  * (missing budget or fee), so the caller can fall back to the generic
- * blocker line. */
+ * blocker line. Round 8: the budget is labelled with the applicant's
+ * own currency, never the fee's — and when the two currencies differ
+ * the sentence says so plainly instead of claiming "below" across
+ * currencies (a fee whose amount is unknown never reaches here: the
+ * threshold is missing, so null is returned and no mismatch is
+ * claimed). */
 export function formatFeeSentence(rule: RuleResult, f: Fmt): string | null {
   const meta = FEE_META[rule.ruleId];
   if (!meta || rule.status !== 'NOT_MET') return null;
@@ -370,10 +434,23 @@ export function formatFeeSentence(rule: RuleResult, f: Fmt): string | null {
   const thr = rule.thresholdRaw;
   const fee = thr ? (thr.gbp_per_year ?? thr.sgd_total ?? thr.amount) : undefined;
   if (typeof raw !== 'number' || typeof fee !== 'number') return null;
+  const budgetCurrency = f.budgetCurrency ?? meta.currency;
+  const feeCurrency = meta.currency;
+  const period = periodShortText(meta.period, f.t);
+  if (budgetCurrency !== feeCurrency) {
+    return f.tf('rule.fee.currencyDiffers', {
+      budgetCurrency,
+      budget: fmtNum(raw, f.locale),
+      feeCurrency,
+      fee: fmtNum(fee, f.locale),
+      period,
+    });
+  }
   return f.tf('rule.fee.below', {
-    currency: meta.currency,
+    budgetCurrency,
     budget: fmtNum(raw, f.locale),
+    feeCurrency,
     fee: fmtNum(fee, f.locale),
-    period: periodShortText(meta.period, f.t),
+    period,
   });
 }

@@ -13,8 +13,10 @@ import { Program } from '../lib/types';
  * drawer. Source excerpts stay in their original language.
  */
 export function RuleRow({ program, rule }: { program: Program; rule: RuleResult }) {
-  const { t, tf, locale } = useApp();
-  const f = { t, tf, locale };
+  const { t, tf, locale, profile } = useApp();
+  // Round 8: the fee sentence / observed line must label the budget
+  // with the applicant's own currency, never the fee's.
+  const f = { t, tf, locale, budgetCurrency: profile.budgetCurrency };
   const reason = ruleReason(rule, f);
   return (
     <div className="border-t border-navy/5 pt-2">

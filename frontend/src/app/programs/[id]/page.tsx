@@ -37,17 +37,12 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
     <div className="mx-auto max-w-4xl px-4 py-8">
       <Link href="/" className="btn-press inline-block rounded-full border border-navy/25 bg-white px-4 py-2 text-sm font-semibold">← {t('program.back')}</Link>
       {/* Editorial magazine header (design upgrade 2026-11-25, ref 1):
-          giant title, microcopy kicker, palette labels. No facts changed. */}
+          giant title, microcopy kicker. No facts changed. */}
       <p className="microcopy mt-6 text-teal-dark">{t('program.editorialKicker')}</p>
       {/* Shared element (research move 4): the programme title morphs
           here from the card / institution-list title. */}
       <h1 ref={vtRef(`program-title-${program.id}`)} className="line-mask mt-2 text-4xl font-extrabold leading-[1.05] tracking-tight md:text-5xl"><span>{displayProgramInstitutionName(program.institution, locale)} — {displayProgramName(program, locale)}</span></h1>
       <p className="mt-3 text-navy/70">{displayCountryCode(program.country, program.country, t)} · {formatIntake(program, t)} · {formatDuration(program, t)}</p>
-      <p className="mt-4 flex items-center gap-4" aria-hidden="true">
-        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-sm bg-navy" /><span className="microcopy text-navy/50" dir="ltr">NAVY</span></span>
-        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-sm bg-teal" /><span className="microcopy text-navy/50" dir="ltr">TEAL</span></span>
-        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-sm bg-amber" /><span className="microcopy text-navy/50" dir="ltr">AMBER</span></span>
-      </p>
       <div className="mt-4 grid gap-3 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:grid-cols-3">
         <div><p className="text-sm font-semibold text-navy/60">{t('program.fee')}</p><p className="font-bold">{formatFeeItems(program, t, locale)}</p></div>
         <div><p className="text-sm font-semibold text-navy/60">{t('program.duration')}</p><p className="font-bold">{formatDuration(program, t)}</p></div>

@@ -3,10 +3,15 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
+import { useElapsed } from '../../lib/useElapsed';
 import { matchProfile, mergePrograms, simulate } from '../../lib/api';
 import { MatchResponse, Profile, Program } from '../../lib/types';
-import { hasPreferences, prefHints, prefSummary } from '../../lib/preferences';
-import { displayProgramName } from '../../lib/programs';
+import {
+  catalogueCountInCountry, cityDisplayName, countryAlternatives, fieldDisplayLabel,
+  hasPreferences, missingPrefCountries, prefHints, prefSummary, trackDisplayLabel,
+} from '../../lib/preferences';
+import { displayProgramName, displayProgramTitle, PROGRAMS } from '../../lib/programs';
+import { EXPANSION_PROGRAMS } from '../../lib/expansion';
 import { displayProgramInstitutionName } from '../../lib/rankings';
 import { StatusChip } from '../../components/StatusChip';
 import { RuleRow } from '../../components/RuleRow';
@@ -19,7 +24,7 @@ type Filter = 'all' | 'met' | 'notmet' | 'unknown';
 
 export default function ResultsPage() {
   const { t, tf, locale, profile } = useApp();
-  const f = { t, tf, locale };
+  const f = { t, tf, locale, budgetCurrency: profile.budgetCurrency };
   const { programs: livePrograms, live: programsLive, loading: programsLoading } = usePrograms();
   // Round 6: lookups cover the merged list (live v2 + expansion mirror),
   // so expansion results resolve to a programme card.
@@ -27,6 +32,12 @@ export default function ResultsPage() {
   const [data, setData] = useState<MatchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  /** The match call is retrying while the backend wakes: show the
+   * waking line with elapsed seconds, never a wrong offline claim —
+   * the offline banners below render only after the patient call
+   * settles offline (round 8). */
+  const [waking, setWaking] = useState(false);
+  const wakingElapsed = useElapsed(waking);
   const [filter, setFilter] = useState<Filter>('all');
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [cityFilter, setCityFilter] = useState<string | null>(null);
@@ -36,11 +47,11 @@ export default function ResultsPage() {
 
   useEffect(() => {
     if (!profile.track || profile.targetProgramIds.length === 0) return;
-    setLoading(true); setError('');
-    matchProfile(profile)
+    setLoading(true); setError(''); setWaking(false);
+    matchProfile(profile, { onRetry: () => setWaking(true) })
       .then(setData)
       .catch(() => setError(t('results.error')))
-      .finally(() => setLoading(false));
+      .finally(() => { setLoading(false); setWaking(false); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.track, JSON.stringify(profile.targetProgramIds)]);
 
@@ -68,6 +79,16 @@ export default function ResultsPage() {
   }, [data, programs]);
   const resultCountries = useMemo(() => [...new Set(resultPrograms.map((p) => p.country))].sort(), [resultPrograms]);
   const resultCities = useMemo(() => [...new Set(resultPrograms.map((p) => p.city).filter((c): c is string => !!c))].sort(), [resultPrograms]);
+
+  // Round 8 (Switzerland honesty): a chosen country with no programme
+  // in the filtered set is explained with the closest verified
+  // alternatives — never a silent zero. Programmes that arrive later
+  // (Worker E) flow through automatically, because the notice is
+  // computed from the live lists, not hardcoded.
+  const missingCountries = useMemo(
+    () => (data ? missingPrefCountries(profile, resultPrograms) : []),
+    [data, resultPrograms, profile],
+  );
 
   // Sorted by eligibility (MET, then partly unknown, then not met),
   // with climate conflicts last (round 6) — the preference never hides
@@ -104,6 +125,15 @@ export default function ResultsPage() {
       {data && !data.live && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('common.offline')}: {t('results.offlineNote')}</p>}
       {data && data.live && <p className="mt-3 rounded-lg bg-teal/10 p-3 text-sm font-semibold text-teal-dark" role="status">{t('common.online')}</p>}
       {!programsLoading && !programsLive && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('programs.offlineNote')}</p>}
+      {/* Round 8: every count says what it counts — the filtered
+          result count, the full result count, the 8 deeply-verified
+          v2 programmes and the 881 expansion programmes — so the
+          numbers here can never contradict another page's. */}
+      {data && (
+        <p className="mt-2 text-sm text-navy/70">
+          {tf('results.countLine', { shown: shown.length, total: data.results.length, v2: PROGRAMS.length, expansion: EXPANSION_PROGRAMS.length })}
+        </p>
+      )}
 
       {/* Status legend: a bare chip ("符合") means nothing without its rule. */}
       <div className="mt-4 rounded-2xl border border-navy/10 bg-white p-4 text-sm">
@@ -165,7 +195,7 @@ export default function ResultsPage() {
                     <p>{tf('results.prefVoiceCountries', { countries: matchedCountries.map((c) => t(`country.${c}`)).join(locale === 'zh-CN' ? '、' : ', ') })}</p>
                   )}
                   {cityCount > 0 && (
-                    <p className={matchedCountries.length > 0 ? 'mt-1' : ''}>{tf('results.prefVoiceCity', { city: profile.prefCity ?? '', count: cityCount })}</p>
+                    <p className={matchedCountries.length > 0 ? 'mt-1' : ''}>{tf('results.prefVoiceCity', { city: cityDisplayName(profile.prefCity ?? '', t), count: cityCount })}</p>
                   )}
                 </div>
               </div>
@@ -179,6 +209,42 @@ export default function ResultsPage() {
           )}
         </section>
       )}
+
+      {/* Round 8 (Switzerland honesty): a chosen country with no
+          programme in the filtered set is explained with the closest
+          verified alternatives — never a silent zero. */}
+      {data && missingCountries.length > 0 && missingCountries.map((code) => {
+        const alts = countryAlternatives(code, profile, programs);
+        const catalogueCount = catalogueCountInCountry(code, programs);
+        const level = trackDisplayLabel(profile.track, t);
+        const field = fieldDisplayLabel(profile.field, t);
+        const altList = [...alts.sameTrack, ...alts.sameField];
+        return (
+          <section key={`missing-${code}`} className="mt-4 rounded-2xl border border-amber/40 bg-amber/10 p-5" aria-labelledby={`missing-${code}-title`}>
+            <h2 id={`missing-${code}-title`} className="text-lg font-bold">{tf('results.noCountryTitle', { country: t(`country.${code}`) })}</h2>
+            <p className="mt-1 text-sm text-navy/80">{tf('results.noCountryNote', { country: t(`country.${code}`), level, field })}</p>
+            {catalogueCount > 0 ? (
+              <>
+                <p className="mt-2 text-sm">{tf('results.noCountryCatalogue', { count: catalogueCount, country: t(`country.${code}`), level })}</p>
+                <ul className="mt-1 space-y-1">
+                  {altList.map((p) => {
+                    const levelLabel = trackDisplayLabel(p.degreeLevel, t);
+                    return (
+                      <li key={p.id}>
+                        <Link href={`/programs/${p.id}`} className="text-sm font-semibold text-teal underline">
+                          {displayProgramTitle(p, locale)}{levelLabel ? ` · ${levelLabel}` : ''}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            ) : (
+              <p className="mt-2 text-sm text-navy/80">{t('results.noCountryNone')}</p>
+            )}
+          </section>
+        );
+      })}
 
       <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filters">
         {([['all', t('results.filterAll')], ['met', t('results.filterMet')], ['notmet', t('results.filterNotMet')], ['unknown', t('results.filterUnknown')]] as [Filter, string][]).map(([f, label]) => (
@@ -210,14 +276,14 @@ export default function ResultsPage() {
               className={`btn-press rounded-full px-3 py-1.5 text-sm font-semibold ${cityFilter === null ? 'bg-navy text-white' : 'border border-navy/25 bg-white'}`}>{t('results.filterAllCities')}</button>
             {resultCities.map((c) => (
               <button key={c} type="button" aria-pressed={cityFilter === c} onClick={() => setCityFilter(cityFilter === c ? null : c)}
-                className={`btn-press rounded-full px-3 py-1.5 text-sm font-semibold ${cityFilter === c ? 'bg-navy text-white' : 'border border-navy/25 bg-white'}`}>{c}</button>
+                className={`btn-press rounded-full px-3 py-1.5 text-sm font-semibold ${cityFilter === c ? 'bg-navy text-white' : 'border border-navy/25 bg-white'}`}>{cityDisplayName(c, t)}</button>
             ))}
           </div>
         </div>
       )}
 
       <div aria-live="polite" className="mt-6">
-        {loading && <p>{t('results.loading')}</p>}
+        {loading && <p>{waking ? tf('pet.wakingElapsed', { seconds: wakingElapsed }) : t('results.loading')}</p>}
         {error && <p role="alert" className="rounded-lg bg-red-50 p-3 font-semibold text-red-800">{error}</p>}
         <div className="grid gap-4 md:grid-cols-2">
           {shown.map((r, i) => {
@@ -306,7 +372,7 @@ export default function ResultsPage() {
             <input type="number" step="0.5" min={0} max={9} value={simPatch.ieltsReading ?? profile.ieltsReading ?? ''} onChange={(e) => setSimPatch({ ...simPatch, ieltsReading: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
           <label className="block"><span className="text-sm font-semibold">{t('wizard.ieltsSpeaking')}</span>
             <input type="number" step="0.5" min={0} max={9} value={simPatch.ieltsSpeaking ?? profile.ieltsSpeaking ?? ''} onChange={(e) => setSimPatch({ ...simPatch, ieltsSpeaking: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
-          <label className="block"><span className="text-sm font-semibold">{t('sim.budget')}</span>
+          <label className="block"><span className="text-sm font-semibold">{t('sim.budget')}{profile.budgetCurrency ? ` (${profile.budgetCurrency})` : ''}</span>
             <input type="number" step="1" min={0} value={simPatch.budget ?? profile.budget ?? ''} onChange={(e) => setSimPatch({ ...simPatch, budget: e.target.value === '' ? '' : Number(e.target.value) })} className="mt-1 w-full rounded-lg border border-navy/25 px-3 py-2" /></label>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -315,7 +381,7 @@ export default function ResultsPage() {
         </div>
         <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
           <div className="rounded-lg bg-paper p-4"><p className="font-bold">{t('sim.baseline')}</p><p className="mt-1 text-navy/70">IELTS {profile.ieltsOverall ?? '–'} · {t('sim.budget')}: {profile.budget ?? '–'} {profile.budgetCurrency}</p></div>
-          <div className="rounded-lg bg-teal/10 p-4"><p className="font-bold">{t('sim.scenario')}</p><p className="mt-1 text-navy/70">IELTS {simPatch.ieltsOverall ?? profile.ieltsOverall ?? '–'} · {t('wizard.ieltsWriting')}: {simPatch.ieltsWriting ?? profile.ieltsWriting ?? '–'} · {t('sim.budget')}: {simPatch.budget ?? profile.budget ?? '–'}</p></div>
+          <div className="rounded-lg bg-teal/10 p-4"><p className="font-bold">{t('sim.scenario')}</p><p className="mt-1 text-navy/70">IELTS {simPatch.ieltsOverall ?? profile.ieltsOverall ?? '–'} · {t('wizard.ieltsWriting')}: {simPatch.ieltsWriting ?? profile.ieltsWriting ?? '–'} · {t('sim.budget')}: {simPatch.budget ?? profile.budget ?? '–'} {profile.budgetCurrency ?? ''}</p></div>
         </div>
       </section>
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../../lib/store';
 import { fetchInstitutionRankings } from '../../../lib/api';
-import { displayCountryCode, displayCountryName, displayInstitutionName, displayProgramInstitutionName } from '../../../lib/rankings';
+import { RANKING_PROVIDERS, displayCountryCode, displayCountryName, displayInstitutionName, displayProgramInstitutionName } from '../../../lib/rankings';
 import { RankingCards } from '../../../components/RankingCards';
 import { PROGRAMS, displayProgramName } from '../../../lib/programs';
 import { EXPANSION_PROGRAMS } from '../../../lib/expansion';
@@ -22,7 +22,7 @@ import { vtRef } from '../../../lib/viewTransition';
  * Programmes come in two groups, never mixed:
  * - the 8 verified v2 programmes (eligibility check available, link to
  *   the full programme detail);
- * - the expansion programmes (366 across 91 institutions, collected from
+ * - the expansion programmes (886 across 100 institutions, collected from
  *   official pages): each shows its verified requirements verbatim, fee,
  *   deadline and sources. They are display-only — matching stays v2-only.
  * Institutions with neither show "programme admission data not yet
@@ -263,9 +263,35 @@ export default function InstitutionDetail({ params }: { params: { id: string } }
       </section>
 
       {!live && <p className="mt-6 text-sm text-navy/60">{t('rankings.offlineNote')}</p>}
-      <p className="mt-2 text-xs text-navy/60" lang="en" dir="ltr">
-        Source: QS Quacquarelli Symonds (www.qs.com). With permission. Copyright © QS Quacquarelli Symonds Ltd.
-      </p>
+      {/* Complete source lines for all three providers (Round 8): QS
+          carries its exact attribution notice; THE and ARWU carry their
+          not-licensed warnings — the warnings are kept, never dropped. */}
+      <section className="mt-6" aria-labelledby="inst-src-title">
+        <h2 id="inst-src-title" className="text-base font-bold">{t('rankings.sourcesTitle')}</h2>
+        <ul className="mt-3 space-y-2">
+          {RANKING_PROVIDERS.map((p) => (
+            <li key={p.id} className="rounded-2xl border border-navy/10 bg-white p-4 text-sm shadow-sm">
+              <p className="font-bold">{p.name} · <span dir="ltr">{p.edition_label}</span></p>
+              <p className="mt-1">
+                <a href={p.entry_url} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{t('rankings.officialTable')}</a>
+                {p.methodology_url && (
+                  <>
+                    {' · '}
+                    <a href={p.methodology_url} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{t('rankings.methodology')}</a>
+                  </>
+                )}
+              </p>
+              {p.id === 'qs' && p.attribution && (
+                <p className="mt-2 text-xs text-navy/60" lang="en" dir="ltr">{p.attribution}</p>
+              )}
+              {(p.id === 'the' || p.id === 'arwu') && (
+                <p className="mt-2 text-xs font-semibold text-amber-dark">{t(`rankings.rights.${p.id}`)}</p>
+              )}
+              <p className="mt-1 text-xs text-navy/60">{p.rights_note}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }
