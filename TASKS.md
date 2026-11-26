@@ -393,3 +393,16 @@ Command: `.venv/bin/pytest -q` → **369 passed, 0 failed** (365 + 3 new fail-fa
 ## Test result (real run, 2026-11-26, round 10 integration)
 
 Command: `.venv/bin/pytest -q` → **365 passed, 0 failed** (364 after the two workers + 1 new adapter integration test; 1 pre-existing anyio deprecation warning). `python3 tools/generate_frontend_mirrors.py` clean (886 programmes, 80 climate cities, 41 cases, 18 reviews, 122 locale keys). `npx tsc --noEmit` clean; `npm run build` passes (`npm run check-locales`: 824 keys × 6). Local uvicorn :8124 (no key): /health ok; pet chat template names ETH Zurich / EPFL / University of Zurich, 25 programmes (scoped); pref-chat audit sentence fallback carries the scope-labelled cities line. Live verification still needs the push + manual Render deploy + Vercel redeploy (see DECISIONS #192).
+
+## Design upgrade round (2026-11-26; user: pages still lack 高级感 / 未来感 / AI科技感 / 流光动态渐变感 / 炫酷切换页面感 / 教学感 / 留学感 / 可探索感)
+
+| ID | Task | Files / notes | Result |
+| --- | --- | --- | --- |
+| D3-DES-WA | Aurora + glass + AI-tech system (globals.css contract, hero aurora + flow title + glow CTA, results next-step panel glass + grid) | `frontend/src/app/globals.css`, `frontend/src/app/page.tsx` (hero only), `frontend/src/app/results/page.tsx` | pass (tsc + build in a scratch copy — in-place build raced with another worker's concurrent build on shared .next; coordinator rebuilt clean) |
+| D3-DES-WB | Destinations section (top 6 countries, tilt + reveal, Reveal component) | `frontend/src/components/Destinations.tsx`, `Destinations.module.css`, `Reveal.tsx` (new) | pass (tsc + build; coordinator switched source to allPrograms() for browse-total parity + wired into page.tsx) |
+| D3-DES-WC | Needle-sweep route transition + LearningPath + pet/chat thinking states | `frontend/src/components/RouteTransition.tsx`, `RouteTransition.module.css`, `LearningPath.tsx` (new), `CompassPet.tsx`, `PrefChat.tsx`, `RecChat.tsx` (visuals only) | pass (tsc + build; coordinator added `.glow-amber-on` for continuous thinking glow + wired LearningPath into page.tsx) |
+| D3-DES-I1 | Coordinator integration: 6 new locale keys × 6 (831 keys), page.tsx wiring (Destinations + LearningPath), allPrograms parity, glow-amber-on, full verification | `frontend/messages/*.json`, `frontend/src/app/page.tsx`, `frontend/src/components/Destinations.tsx`, `frontend/src/app/globals.css`, `frontend/src/components/CompassPet.tsx` | pass (pytest 369; tsc clean; build 12/12; smoke 7 pages 200 + SSR content checks) |
+
+## Test result (real run, 2026-11-26, design upgrade integration)
+
+Command: `.venv/bin/pytest -q` → **369 passed, 0 failed** (no Python changes; 1 pre-existing anyio deprecation warning). `npx tsc --noEmit` clean. `npm run build` pass (12/12 routes). Smoke via `next start` : `/` `/wizard` `/results` `/rankings` `/programs` `/cases` `/report` all 200; SSR homepage contains "Explore destinations", rendered destination counts 218/212/80/51/45/36, "How it works" (LearningPath), aurora/reveal/sweep markers. NOT verified live: no visual check possible in the sandbox (aurora motion, sweep timing, tilt feel, dots/shimmer rendering) — needs live browser + real phone after deploy.

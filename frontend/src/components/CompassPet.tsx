@@ -1120,7 +1120,7 @@ export function CompassPet() {
         onClick={() => toggle(!open)}
         aria-label={t('pet.openLabel')}
         aria-expanded={open}
-        className={`btn-press anim-pet-pop fixed bottom-4 end-4 z-50 rounded-full bg-white p-1.5 shadow-lg ring-2 ring-amber${busy ? ' pet-thinking' : ''}`}
+        className={`btn-press anim-pet-pop fixed bottom-4 end-4 z-50 rounded-full bg-white p-1.5 shadow-lg ring-2 ring-amber${busy ? ' pet-thinking glow-amber-on' : ''}`}
       >
         <span className={`anim-pet-bob${celebrate ? ' anim-pet-celebrate' : ''}`}>
           <CompassFace size={52} mood={mood} eyesRef={(el) => { faceElsRef.current.eyes = el; }} needleRef={(el) => { faceElsRef.current.needle = el; }} />
@@ -1191,7 +1191,15 @@ export function CompassPet() {
             })}
             {busy && (
               <div className="flex justify-start">
-                <div className="rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: wakingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: busyElapsed })}</div>
+                {/* Alive thinking treatment (design upgrade, Worker C):
+                    .think-dots / .glow-amber are global classes owned
+                    by the globals.css worker — used here, not defined
+                    here. Visuals only; the elapsed-seconds text and
+                    all logic are unchanged. */}
+                <div className="glow-amber-on rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">
+                  <span>{waking ? tf('pet.wakingElapsed', { seconds: wakingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: busyElapsed })}</span>
+                  <span className="think-dots ms-2" aria-hidden="true"><span /><span /><span /></span>
+                </div>
               </div>
             )}
             {chips.length > 0 && !busy && (

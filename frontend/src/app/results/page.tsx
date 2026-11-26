@@ -160,7 +160,7 @@ export default function ResultsPage() {
         const blockerCount = usable.filter((r) => r.ruleResults.some((x) => x.status === 'NOT_MET')).length;
         const unknownCount = usable.filter((r) => r.ruleResults.some((x) => x.status === 'UNKNOWN')).length;
         return (
-          <section className="mt-4 rounded-2xl border border-teal/30 bg-teal/5 p-5" aria-labelledby="next-title">
+          <section className="glass grid-bg mt-4 rounded-2xl p-5" aria-labelledby="next-title">
             <h2 id="next-title" className="text-lg font-bold">{t('results.nextTitle')}</h2>
             <p className="mt-1 text-sm text-navy/75">{tf('results.nextSummary', { met: metCount, blockers: blockerCount, unknown: unknownCount })}</p>
             <div className="mt-3 flex flex-wrap gap-2">

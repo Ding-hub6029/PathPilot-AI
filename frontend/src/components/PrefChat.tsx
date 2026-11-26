@@ -999,9 +999,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         </div>
       </div>
       <div className="flex justify-start">
-        <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
+        <div className={`${turn.pending ? 'think-shimmer ' : ''}max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5`}>
           {turn.pending ? (
-            <p>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</p>
+            <p className="flex items-center gap-2">
+              <span>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</span>
+              <span className="think-dots" aria-hidden="true"><span /><span /><span /></span>
+            </p>
           ) : turn.reply && turn.replyLocale === locale ? (
             <>
               {/* Round 10: an offline turn shows its stored template
@@ -1036,9 +1039,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         </div>
       </div>
       <div className="flex justify-start">
-        <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
+        <div className={`${turn.pending ? 'think-shimmer ' : ''}max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5`}>
           {turn.pending ? (
-            <p>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</p>
+            <p className="flex items-center gap-2">
+              <span>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</span>
+              <span className="think-dots" aria-hidden="true"><span /><span /><span /></span>
+            </p>
           ) : turn.reply && turn.replyLocale === locale ? (
             <>
               {/* Round 10: an offline turn shows its stored template
@@ -1233,7 +1239,14 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 it only when no pending turn exists. */}
             {thinking && !turns.some((x) => x.pending) && (
               <div className="flex justify-start">
-                <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</div>
+                {/* Waiting bubble only (renders while thinking): alive
+                    treatment via the global .think-dots / .think-shimmer
+                    classes — defined by the globals.css worker, used
+                    here, visuals only. */}
+                <div className="think-shimmer rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">
+                  <span>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</span>
+                  <span className="think-dots ms-2" aria-hidden="true"><span /><span /><span /></span>
+                </div>
               </div>
             )}
 
@@ -1368,7 +1381,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                     /profile/parse wait, which has no pending turn. */}
                 {thinking && !modelTurns.some((x) => x.pending) && (
                   <div className="flex justify-start">
-                    <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</div>
+                    {/* Waiting bubble only (the /profile/parse wait):
+                        same alive treatment as above. */}
+                    <div className="think-shimmer rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">
+                      <span>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</span>
+                      <span className="think-dots ms-2" aria-hidden="true"><span /><span /><span /></span>
+                    </div>
                   </div>
                 )}
 

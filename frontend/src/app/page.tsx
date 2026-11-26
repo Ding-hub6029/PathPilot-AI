@@ -15,6 +15,8 @@ import { CaseCard } from '../components/CaseCard';
 import { NewsCard } from '../components/NewsCard';
 import { ReviewCard } from '../components/ReviewCard';
 import { FanCarousel } from '../components/FanCarousel';
+import { Destinations } from '../components/Destinations';
+import { LearningPath } from '../components/LearningPath';
 import { ViewTransitionLink } from '../components/ViewTransitionLink';
 import { vtRef } from '../lib/viewTransition';
 import { SUCCESS_CASES } from '../lib/cases';
@@ -51,12 +53,21 @@ export default function HomePage() {
           12-column grid (research move 5): copy spans 7, the compass
           visual spans 5 — deliberate asymmetry instead of a 6/6 split. */}
       <section className="relative grid items-center gap-8 overflow-hidden rounded-3xl bg-navy p-8 text-white md:grid-cols-12">
-        <div className="md:col-span-7">
+        {/* Aurora layer (design upgrade, Worker A): flowing teal/amber/
+            navy blobs behind the content — low opacity, pointer-free,
+            absolutely positioned so there is no layout shift. The two
+            content columns below are `relative` so they paint above it. */}
+        <div className="aurora" aria-hidden="true">
+          <span className="aurora-blob" />
+          <span className="aurora-blob" />
+          <span className="aurora-blob" />
+        </div>
+        <div className="relative md:col-span-7">
           <p className="microcopy anim-fade-up text-amber">{t('tagline')}</p>
-          <h1 className="hero-display line-mask mt-3"><span className="grad-amber-text" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
+          <h1 className="hero-display line-mask mt-3"><span className="grad-flow-text" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
           <p className="anim-fade-up stagger-2 mt-4 max-w-md text-white/85">{t('home.heroSub')}</p>
           <div className="anim-fade-up stagger-3 mt-6 flex flex-wrap gap-3">
-            <Link href="/wizard" className="btn-press rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.ctaWizard')}</Link>
+            <Link href="/wizard" className="btn-press glow-amber rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.ctaWizard')}</Link>
             <button type="button" onClick={() => trySample('ug')} className="btn-press rounded-full border border-white/50 px-5 py-2.5 font-semibold">{t('home.ctaSample')}</button>
           </div>
           <p className="anim-fade-up stagger-4 mt-5 rounded-lg bg-white/10 p-3 text-sm text-white/90" role="note">{t('home.disclaimer')}</p>
@@ -64,7 +75,7 @@ export default function HomePage() {
             <span className="microcopy text-white/50">{t('home.heroKicker')}</span>
           </p>
         </div>
-        <div aria-hidden="true" className="mx-auto w-full max-w-md md:col-span-5">
+        <div aria-hidden="true" className="relative mx-auto w-full max-w-md md:col-span-5">
           <svg viewBox="0 0 400 260" className="w-full">
             <defs>
               <radialGradient id="sphereGrad" cx="35%" cy="30%" r="75%">
@@ -136,18 +147,11 @@ export default function HomePage() {
         />
       )}
 
-      {/* How it works */}
-      <section className="section-rule mt-10">
-        <h2 className="line-mask text-2xl font-bold"><span>{t('home.howTitle')}</span></h2>
-        <ol className="grid-12 mt-4">
-          {[t('home.step1'), t('home.step2'), t('home.step3')].map((s, i) => (
-            <li key={i} className={`card-lift anim-fade-up stagger-${i + 1} rounded-2xl border border-navy/10 bg-white p-5 card-surface md:col-span-4`}>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-teal font-bold text-white">{i + 1}</span>
-              <p className="mt-3">{s}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+      {/* Explore destinations (design upgrade 2026-11-26): interactive
+          country cards from verified programme data only. */}
+      <Destinations />
+
+      <LearningPath />
 
       {/* Timeline (design upgrade 2026-11-25) */}
       <TimelinePanel />

@@ -1,0 +1,203 @@
+/* Destinations — tilt, hover-reveal layer, chips (Worker B).
+ *
+ * Depends on global classes defined by the other design-upgrade worker
+ * in globals.css: .glass (frosted surface) and .aurora-border (gradient
+ * border) are used as class names on the card in Destinations.tsx and
+ * are NEVER redefined here. This module owns only layout, the 3D tilt,
+ * the reveal-layer transition, focus treatment and chips.
+ *
+ * RTL: only logical properties (padding-inline, margin-inline-start,
+ * inset-inline) — no physical left/right anywhere. The arrow flips
+ * under [dir="rtl"].
+ * Motion: tilt is transform-only and cheap; it is disabled on touch
+ * (hover: none) and under prefers-reduced-motion, where the reveal
+ * layer is shown statically instead of on hover.
+ */
+
+.grid {
+  perspective: 1200px;
+}
+
+.card {
+  --rx: 0deg;
+  --ry: 0deg;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-block-size: 11rem;
+  padding: 1.25rem;
+  border-radius: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(-6px);
+  box-shadow: 0 18px 40px rgba(11, 31, 58, 0.22);
+}
+
+.card:focus-visible {
+  outline: 3px solid #f2a541;
+  outline-offset: 3px;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.code {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #0e7c7b;
+}
+
+.arrow {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #f2a541;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover .arrow,
+.card:focus-visible .arrow {
+  transform: translateX(4px);
+}
+
+:global([dir="rtl"]) .arrow {
+  transform: scaleX(-1);
+}
+
+:global([dir="rtl"]) .card:hover .arrow,
+:global([dir="rtl"]) .card:focus-visible .arrow {
+  transform: scaleX(-1) translateX(4px);
+}
+
+.country {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.count {
+  font-size: 0.875rem;
+  color: rgba(11, 31, 58, 0.7);
+}
+
+/* Second layer: collapsed to zero height until hover / keyboard focus.
+ * grid-template-rows animates the height without a fixed pixel value,
+ * so the layer fits any locale's text length. */
+.revealLayer {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s ease;
+}
+
+.revealInner {
+  overflow: hidden;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-block-start: 0.375rem;
+}
+
+.card:hover .revealLayer,
+.card:focus-visible .revealLayer,
+.card:focus-within .revealLayer {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.cities {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.chip {
+  padding-block: 0.125rem;
+  padding-inline: 0.625rem;
+  border: 1px solid rgba(11, 31, 58, 0.2);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.samples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-block-start: 0.25rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px solid rgba(11, 31, 58, 0.12);
+}
+
+.sample {
+  display: flex;
+  flex-direction: column;
+}
+
+.sampleInst {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0e7c7b;
+}
+
+.sampleName {
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+/* Touch: no hover exists, so the second layer is always shown and the
+ * tilt transform is removed entirely. */
+@media (hover: none) {
+  .card,
+  .card:hover,
+  .card:focus-visible {
+    transform: none;
+  }
+
+  .revealLayer {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: no tilt, no lift, no transitions; the second layer
+ * is shown statically. */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover,
+  .card:focus-visible,
+  .arrow,
+  .card:hover .arrow,
+  .card:focus-visible .arrow {
+    transform: none;
+    transition: none;
+  }
+
+  .revealLayer {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition: none;
+  }
+}

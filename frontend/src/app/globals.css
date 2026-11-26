@@ -184,9 +184,100 @@ body { background: #F7F5F0; color: #0B1F3A; }
 .chip-notmet { background: #FBE3E0; color: #8C2B1F; }
 .chip-unknown { background: #F3E8CF; color: #6B4E00; }
 
+/* ---- Aurora / flowing-gradient + glass system (design upgrade 2026-11-26,
+   Worker A) ----
+   Theme is fixed: navy #0B1F3A / teal #0E7C7B / amber #F2A541 / paper
+   #F7F5F0. Amber is rationed to accents only — no class here fills a
+   whole background with a bright colour. All motion animates transform
+   and/or opacity only (plus background-position for the gradient text),
+   so it stays on the compositor; the blur() on .aurora-blob is static,
+   never animated. */
+@keyframes aurora-drift-a { from { transform: translate3d(0, 0, 0) scale(1); opacity: .38; } to { transform: translate3d(48px, 30px, 0) scale(1.12); opacity: .55; } }
+@keyframes aurora-drift-b { from { transform: translate3d(0, 0, 0) scale(1.08); opacity: .5; } to { transform: translate3d(-56px, -34px, 0) scale(.96); opacity: .34; } }
+@keyframes aurora-drift-c { from { transform: translate3d(0, 0, 0) scale(1); opacity: .3; } to { transform: translate3d(36px, -42px, 0) scale(1.14); opacity: .48; } }
+@keyframes grad-flow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes think-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .55; } 30% { transform: translateY(-4px); opacity: 1; } }
+@keyframes think-shimmer-sweep { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
+@keyframes think-shimmer-sweep-rtl { 0% { transform: translateX(100%); } 60%, 100% { transform: translateX(-100%); } }
+@keyframes aurora-border-rotate { to { --ab-angle: 360deg; } }
+/* Registered so the aurora-border sheen angle can animate; without
+   @property support the gradient simply stays at its initial angle. */
+@property --ab-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+/* Absolutely-positioned flowing-gradient layer. Lives inside an
+   overflow-hidden relative parent (e.g. the hero section); blobs sit
+   behind the content (z-index 0, content gets `relative`). */
+.aurora { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.aurora-blob { position: absolute; display: block; width: 60vmin; height: 60vmin; border-radius: 50%; filter: blur(70px); opacity: .45; will-change: transform, opacity; }
+.aurora-blob:nth-child(1) { top: -18%; left: -8%; background: radial-gradient(circle at 35% 35%, rgba(14,124,123,.55), rgba(14,124,123,0) 70%); animation: aurora-drift-a 22s ease-in-out infinite alternate; }
+.aurora-blob:nth-child(2) { right: -12%; bottom: -24%; width: 52vmin; height: 52vmin; background: radial-gradient(circle at 60% 40%, rgba(242,165,65,.5), rgba(242,165,65,0) 70%); animation: aurora-drift-b 18s ease-in-out infinite alternate; }
+.aurora-blob:nth-child(3) { top: 28%; left: 42%; width: 46vmin; height: 46vmin; background: radial-gradient(circle at 50% 50%, rgba(38,90,140,.5), rgba(38,90,140,0) 70%); animation: aurora-drift-c 24s ease-in-out infinite alternate; }
+
+/* Animated gradient text (amber). background-size 200% gives the
+   background-position loop room to travel; ~6s loop. */
+.grad-flow-text { background: linear-gradient(100deg, #F2A541 0%, #F7C873 25%, #F2A541 50%, #F7C873 75%, #F2A541 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: grad-flow 6s ease-in-out infinite; }
+/* The hero title span is also the line-mask child: its animation is
+   owned by .line-mask > span (higher specificity), so the combined
+   rule here keeps the entrance AND the gradient flow running. */
+.line-mask > span.grad-flow-text { animation: line-reveal .7s var(--ease-reveal) both, grad-flow 6s ease-in-out infinite; }
+
+/* Light glass panel, for use on light surfaces. The white 1px border
+   plus the hairline navy ring keep the edge readable on paper. */
+.glass { background: rgba(255,255,255,.62); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); border: 1px solid rgba(255,255,255,.7); box-shadow: 0 0 0 1px rgba(11,31,58,.06), 0 1px 2px rgba(11,31,58,.05), 0 8px 24px rgba(11,31,58,.06); }
+/* Dark glass panel, for use on navy surfaces. */
+.glass-dark { background: rgba(11,31,58,.55); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); border: 1px solid rgba(255,255,255,.16); box-shadow: 0 8px 24px rgba(0,0,0,.25); color: #fff; }
+/* Subtle blueprint grid. Define AFTER .glass: .glass's `background`
+   shorthand resets background-image, so this rule must win for the
+   image while the glass background-color still shows through. Lines
+   are theme navy at 5% opacity — a motif, not a fill. */
+.grid-bg { background-image: linear-gradient(rgba(11,31,58,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(11,31,58,.05) 1px, transparent 1px); background-size: 28px 28px; }
+
+/* Amber glow accent — hover/focus only, so resting UI stays calm. */
+.glow-amber { transition: box-shadow .25s var(--ease-reveal); }
+.glow-amber:hover, .glow-amber:focus-visible { box-shadow: 0 0 0 1px rgba(242,165,65,.55), 0 8px 28px rgba(242,165,65,.45); }
+/* Always-on variant (coordinator, design upgrade 2026-11-26): the pet's
+   thinking state needs a continuous glow, not a hover-only one — the
+   hover rule above never fires while the pet is busy. Same shadow. */
+.glow-amber-on { box-shadow: 0 0 0 1px rgba(242,165,65,.55), 0 8px 28px rgba(242,165,65,.45); }
+
+/* Light-flow border: a faint base border plus a conic-gradient sheen
+   confined to the 1px ring by a mask, rotating slowly via the
+   registered --ab-angle (transform-only on the property, no layout).
+   No overflow:hidden here — the mask already confines the sheen, and
+   clipping would break tooltips/menus inside bordered components. */
+.aurora-border { position: relative; border: 1px solid rgba(242,165,65,.22); }
+.aurora-border::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: conic-gradient(from var(--ab-angle), transparent 0deg, rgba(242,165,65,.85) 70deg, rgba(14,124,123,.7) 140deg, transparent 210deg, transparent 360deg); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite: exclude; animation: aurora-border-rotate 9s linear infinite; pointer-events: none; }
+
+/* Three-dot thinking animation. Expects exactly 3 child <span>s;
+   dots are amber / teal / amber, staggered bounce. */
+.think-dots { display: inline-flex; align-items: center; gap: 4px; }
+.think-dots > span { width: 6px; height: 6px; border-radius: 50%; background: #F2A541; animation: think-bounce 1.2s ease-in-out infinite; }
+.think-dots > span:nth-child(2) { background: #0E7C7B; animation-delay: .15s; }
+.think-dots > span:nth-child(3) { animation-delay: .3s; }
+
+/* Shimmer sweep for waiting bubbles: a translucent highlight that
+   travels across the element (transform-only). The host needs
+   position:relative (or any positioned ancestor) — the sweep is
+   absolutely positioned over it. */
+.think-shimmer { position: relative; overflow: hidden; }
+.think-shimmer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.45) 50%, transparent 80%); transform: translateX(-100%); animation: think-shimmer-sweep 1.8s ease-in-out infinite; pointer-events: none; }
+[dir="rtl"] .think-shimmer::after { animation-name: think-shimmer-sweep-rtl; }
+
+/* Scroll reveal. A Reveal component toggles .reveal-visible via
+   IntersectionObserver; start state is opacity 0 + 14px down, using
+   the site's --ease-reveal. */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .7s var(--ease-reveal), transform .7s var(--ease-reveal); }
+.reveal-visible { opacity: 1; transform: translateY(0); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   /* No route line, no shared-element morph: a plain page change. */
   .route-line { display: none; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  /* Aurora system goes fully static: no drifting blobs, no flowing
+     gradient text, no rotating border sheen, no shimmer, no bouncing
+     dots — and .reveal content renders visible immediately instead of
+     waiting for an IntersectionObserver toggle that may never fire. */
+  .aurora-blob, .grad-flow-text, .line-mask > span.grad-flow-text, .aurora-border::before, .think-shimmer::after, .think-dots > span { animation: none !important; }
+  .reveal { opacity: 1; transform: none; }
 }

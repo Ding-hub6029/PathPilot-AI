@@ -823,5 +823,11 @@
  "r9money.fxApprox": "approx. {amount}",
  "r9money.fxAsOf": "Reference rates {date}, source: {source}, approximate only",
  "r9money.fxCannotConvert": "Cannot be converted for comparison",
- "r9money.noThreshold": "No specific requirement published"
+ "r9money.noThreshold": "No specific requirement published",
+ "home.destTitle": "Explore destinations",
+ "home.destSub": "Every count below comes from verified programmes in the catalogue — nothing estimated.",
+ "home.destPrograms": "{count} verified programmes",
+ "home.step1Learn": "You will learn which tracks exist and how they differ.",
+ "home.step2Learn": "You will learn how your grades and scores map to real requirements.",
+ "home.step3Learn": "You will learn what to do next — and what evidence to gather."
 }

@@ -823,5 +823,11 @@
  "r9money.fxApprox": "约 {amount}",
  "r9money.fxAsOf": "汇率参考 {date}，来源：{source}，仅供参考",
  "r9money.fxCannotConvert": "无法换算比较",
- "r9money.noThreshold": "未公布具体要求"
+ "r9money.noThreshold": "未公布具体要求",
+ "home.destTitle": "探索留学目的地",
+ "home.destSub": "以下每个数字都来自目录中已核实的专业，没有估算。",
+ "home.destPrograms": "{count} 个已验证专业",
+ "home.step1Learn": "你会了解有哪些学习阶段，以及它们的区别。",
+ "home.step2Learn": "你会了解自己的成绩和分数如何对应真实要求。",
+ "home.step3Learn": "你会知道下一步该做什么，以及要准备哪些证明。"
 }

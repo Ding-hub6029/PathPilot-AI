@@ -1,0 +1,103 @@
+/* Route transition sweep (Worker C, design upgrade — research move 2).
+ *
+ * Full variant only (home `/` and wizard `/wizard`): a small compass
+ * rose sweeps across the top of the viewport while the amber route
+ * line draws itself behind it. Total budget 0.8s: line + needle travel
+ * 0.55s, then the overlay fades out by 0.8s and RouteTransition
+ * unmounts it on a timer, so the overlay can never linger, block a
+ * click, or trap focus. The overlay is pointer-events-none and
+ * aria-hidden; navigation, scroll restoration and the back button are
+ * untouched (the focus-to-<main> effect in RouteTransition.tsx is
+ * unchanged, and the page itself still enters via the global
+ * .route-enter rise).
+ *
+ * RTL: the needle travels with `inset-inline-start`, so it runs
+ * right-to-left under [dir="rtl"] with no extra rule, and the line
+ * SVG is flipped the same way globals.css flips .route-line. The
+ * needle is a direction-neutral compass rose, so it needs no flip.
+ *
+ * The quiet variant (.route-enter-quiet, evidence pages) lives in
+ * globals.css and is NOT touched here. The ViewTransitionLink
+ * suppression flag still suppresses this whole overlay (see
+ * RouteTransition.tsx) — the shared-element morph stays the
+ * transition there.
+ *
+ * Reduced motion: the sweep is skipped entirely (display:none) — a
+ * plain page swap. The global reduced-motion rule also collapses the
+ * .route-enter rise, so nothing animates at all.
+ */
+
+.sweep {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 60;
+  height: 22px;
+  pointer-events: none;
+  animation: sweep-out 0.8s var(--ease-reveal) both;
+}
+
+.sweepLine {
+  display: block;
+  width: 100%;
+  height: 18px;
+}
+
+.sweepLine path {
+  stroke-dasharray: 1300;
+  animation: sweep-line-draw 0.55s var(--ease-reveal) both;
+}
+
+[dir="rtl"] .sweepLine {
+  transform: scaleX(-1);
+}
+
+/* The needle travels on the inline axis (logical property), so its
+   direction follows the document direction automatically. */
+.needle {
+  position: absolute;
+  top: -1px;
+  inset-inline-start: 0;
+  display: block;
+  width: 24px;
+  height: 24px;
+  animation: sweep-travel 0.55s var(--ease-reveal) both;
+}
+
+.needle svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 2px rgba(11, 31, 58, 0.35));
+  animation: sweep-wobble 0.55s var(--ease-reveal) both;
+}
+
+@keyframes sweep-line-draw {
+  from { stroke-dashoffset: 1300; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes sweep-travel {
+  from { inset-inline-start: 0; }
+  to { inset-inline-start: calc(100% - 24px); }
+}
+
+@keyframes sweep-wobble {
+  0% { transform: rotate(-18deg); }
+  50% { transform: rotate(14deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Hold fully visible while the line draws and the needle travels
+   (0–~0.55s), then fade out so the overlay is gone by the 0.8s
+   budget; RouteTransition unmounts it on the same timer. */
+@keyframes sweep-out {
+  0%, 68% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep {
+    display: none;
+  }
+}

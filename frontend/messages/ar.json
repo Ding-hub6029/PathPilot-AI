@@ -823,5 +823,11 @@
  "r9money.fxApprox": "حوالي {amount}",
  "r9money.fxAsOf": "أسعار مرجعية {date}، المصدر: {source}، تقريبية فقط",
  "r9money.fxCannotConvert": "لا يمكن التحويل للمقارنة",
- "r9money.noThreshold": "لم يُنشر أي شرط محدد"
+ "r9money.noThreshold": "لم يُنشر أي شرط محدد",
+ "home.destTitle": "استكشف الوجهات الدراسية",
+ "home.destSub": "كل رقم أدناه مأخوذ من برامج موثّقة في الدليل — لا تقديرات.",
+ "home.destPrograms": "{count} برامج موثّقة",
+ "home.step1Learn": "ستتعرّف على المسارات المتاحة وكيف تختلف.",
+ "home.step2Learn": "ستتعرّف على كيفية مطابقة درجاتك للمتطلبات الحقيقية.",
+ "home.step3Learn": "ستعرف ما الخطوة التالية — وما الأدلة التي تجمعها."
 }

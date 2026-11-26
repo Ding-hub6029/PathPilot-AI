@@ -340,7 +340,12 @@ export function RecChat({
 
         {recLoading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{recWaking ? tf('pet.wakingElapsed', { seconds: recElapsed }) : tf('r9chat.matchingElapsed', { seconds: recElapsed })}</div>
+            {/* Waiting bubble: alive treatment via the global .think-dots /
+                .think-shimmer classes (globals.css worker) — visuals only. */}
+            <div className="think-shimmer rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">
+              <span>{recWaking ? tf('pet.wakingElapsed', { seconds: recElapsed }) : tf('r9chat.matchingElapsed', { seconds: recElapsed })}</span>
+              <span className="think-dots ms-2" aria-hidden="true"><span /><span /><span /></span>
+            </div>
           </div>
         )}
 
@@ -466,9 +471,12 @@ export function RecChat({
               </div>
             </div>
             <div className="flex justify-start">
-              <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5">
+              <div className={`${turn.pending ? 'think-shimmer ' : ''}max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5`}>
                 {turn.pending ? (
-                  <p>{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</p>
+                  <p className="flex items-center gap-2">
+                    <span>{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</span>
+                    <span className="think-dots" aria-hidden="true"><span /><span /><span /></span>
+                  </p>
                 ) : turn.reply && turn.replyLocale === locale ? (
                   <>
                     {turn.offline && <p className="mb-1 text-xs font-semibold text-navy/60">{t('wizard.recChatOffline')}</p>}
@@ -490,7 +498,11 @@ export function RecChat({
         ))}
         {aiBusy && !aiTurns.some((x) => x.pending) && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</div>
+            {/* Waiting bubble only: same alive treatment as the pending turn. */}
+            <div className="think-shimmer rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">
+              <span>{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</span>
+              <span className="think-dots ms-2" aria-hidden="true"><span /><span /><span /></span>
+            </div>
           </div>
         )}
         {aiOffline && (

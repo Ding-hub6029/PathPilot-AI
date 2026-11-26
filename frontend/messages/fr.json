@@ -823,5 +823,11 @@
  "r9money.fxApprox": "environ {amount}",
  "r9money.fxAsOf": "Taux de référence {date}, source : {source}, valeurs approximatives",
  "r9money.fxCannotConvert": "Impossible à convertir pour la comparaison",
- "r9money.noThreshold": "Aucune exigence spécifique publiée"
+ "r9money.noThreshold": "Aucune exigence spécifique publiée",
+ "home.destTitle": "Explorer les destinations",
+ "home.destSub": "Chaque chiffre provient des programmes vérifiés du catalogue — rien n'est estimé.",
+ "home.destPrograms": "{count} programmes vérifiés",
+ "home.step1Learn": "Vous découvrirez les parcours possibles et leurs différences.",
+ "home.step2Learn": "Vous verrez comment vos notes correspondent aux exigences réelles.",
+ "home.step3Learn": "Vous saurez quoi faire ensuite — et quelles preuves réunir."
 }
