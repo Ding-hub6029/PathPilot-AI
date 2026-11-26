@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
-import { fetchJson, allPrograms, findProgram } from '../lib/api';
-import { deriveChatLinks, isModelReply, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
+import { fetchJson, fetchJsonPatient, allPrograms, findProgram } from '../lib/api';
+import { deriveChatLinks, isModelReply, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
 import { PROGRAMS, displayProgramTitle } from '../lib/programs';
 import { RANKING_ENTRIES, RANKING_INSTITUTIONS } from '../lib/rankings';
@@ -30,6 +30,27 @@ import enMessages from '../../messages/en.json';
  * asked for or kept. The panel's open state is remembered in
  * sessionStorage only ('pp-pet-open'); closing it forgets it for the
  * session.
+ *
+ * Cold-start resilience (round 7, Fix A): the backend sleeps after 15
+ * min idle and takes ~50s+ to wake; a first call made while it wakes
+ * used to fail fast and strand the pet offline for the session. The
+ * status check and every model call now go through fetchJsonPatient
+ * (lib/api.ts): up to ~90s of retries before offline is declared, a
+ * "waking the backend" line while a retry is in flight, and an
+ * explicit retry action in the footer so the user can re-check after
+ * waking instead of being stuck offline.
+ *
+ * Saved profile (round 7, Fix B): the pet reads the wizard profile
+ * (useApp profile, persisted as pp-profile). When preferences already
+ * exist, the opening turn acknowledges them (pet.greetingKnown) and
+ * the guided flow skips what is already known — degree from
+ * profile.track, a single saved country, and a GB/SG budget band
+ * derived from a saved budget — and goes straight to the suggestion
+ * when all three are known. It never claims "no preferences" while
+ * the header strip shows saved ones. A greeting like "你好" goes to
+ * the model with the saved preferences as context (first free-text
+ * turn only; the displayed message stays verbatim), never a canned
+ * intro that contradicts the saved state.
  *
  * Locale safety (fix 2026-11-25): message state stores ONLY structured
  * data — prompt keys, chosen values, the user's own verbatim text, and
@@ -92,6 +113,7 @@ function hasVerifiedProgrammes(country: string): boolean {
 /** One conversation turn, stored as structured data only. */
 type ChatTurn =
   | { kind: 'prompt'; key: 'pet.greeting' | 'pet.q1' | 'pet.q2' | 'pet.q3' }
+  | { kind: 'prefNote' }
   | { kind: 'choice'; step: 0 | 1 | 2; value: string; degree?: Degree; country?: Country }
   | { kind: 'freeText'; text: string }
   | {
@@ -309,6 +331,9 @@ export function CompassPet() {
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [offline, setOffline] = useState(false);
+  /** The backend is being woken (a retry is in flight after the first
+   * attempt failed): show the waking line, not the offline line. */
+  const [waking, setWaking] = useState(false);
   /** Whether the live model answered recently: true after a model
    * reply (ai_status "available"), false after a failure or a
    * template-only reply, null before the first check. The footer
@@ -406,12 +431,48 @@ export function CompassPet() {
   const greet = () => {
     convRef.current += 1;
     inFlightRef.current.clear();
-    setMessages([
-      { kind: 'prompt', key: 'pet.greeting' },
-      { kind: 'prompt', key: 'pet.q1' },
-    ]);
-    setStep(0);
-    setAnswers({});
+    // Round 7, Fix B: the guided flow skips what the wizard already
+    // learned, and the opening turn acknowledges the saved preferences
+    // instead of claiming there are none. Degree comes from
+    // profile.track, the country when exactly one is saved, and the
+    // budget band from a saved budget (GB/SG ceilings only). Known
+    // answers are shown as choice turns so the transcript shows what
+    // was skipped; when all three are known the suggestion starts at
+    // once. With no saved preferences this is exactly the old
+    // greeting + Q1.
+    const knownSteps = petKnownSteps(profile, BAND_CEILING);
+    const msgs: ChatTurn[] = [];
+    if (hasPreferences(profile)) msgs.push({ kind: 'prefNote' });
+    else msgs.push({ kind: 'prompt', key: 'pet.greeting' });
+    const answersNext: { degree?: Degree; country?: Country; budget?: Band } = {};
+    let stepNext = 0;
+    if (knownSteps.degree) {
+      answersNext.degree = knownSteps.degree;
+      msgs.push({ kind: 'choice', step: 0, value: knownSteps.degree });
+      if (knownSteps.country) {
+        answersNext.country = knownSteps.country;
+        msgs.push({ kind: 'choice', step: 1, value: knownSteps.country });
+        if (knownSteps.band) {
+          answersNext.budget = knownSteps.band;
+          msgs.push({ kind: 'choice', step: 2, value: knownSteps.band, degree: knownSteps.degree, country: knownSteps.country });
+          stepNext = 3;
+        } else {
+          msgs.push({ kind: 'prompt', key: 'pet.q3' });
+          stepNext = 2;
+        }
+      } else {
+        msgs.push({ kind: 'prompt', key: 'pet.q2' });
+        stepNext = 1;
+      }
+    } else {
+      msgs.push({ kind: 'prompt', key: 'pet.q1' });
+    }
+    setMessages(msgs);
+    setStep(stepNext);
+    setAnswers(answersNext);
+    if (stepNext === 3 && knownSteps.degree && knownSteps.country && knownSteps.band) {
+      void askSuggest(knownSteps.degree, knownSteps.country, knownSteps.band);
+    }
   };
 
   useEffect(() => {
@@ -426,14 +487,34 @@ export function CompassPet() {
   }, [open]);
 
   /** One cheap status read when the panel opens, so the footer states
-   * the truth about the model before any chat is claimed as AI. */
+   * the truth about the model before any chat is claimed as AI. The
+   * patient fetch retries while the backend wakes (round 7, Fix A):
+   * offline is declared only after the ~90s budget is spent, and the
+   * waking line shows while a retry is in flight. */
   useEffect(() => {
     if (!open || aiLive !== null) return;
-    fetchJson<{ ai_status?: string }>('/api/ai/status')
-      .then((s) => { setAiLive(s.ai_status === 'available'); if (s.ai_status !== 'available') setOffline(true); })
-      .catch(() => { setAiLive(false); setOffline(true); });
+    setWaking(false);
+    fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: () => setWaking(true) })
+      .then((s) => { setWaking(false); setAiLive(s.ai_status === 'available'); if (s.ai_status !== 'available') setOffline(true); })
+      .catch(() => { setWaking(false); setAiLive(false); setOffline(true); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  /** Re-check the backend after an offline verdict (footer retry):
+   * the instance may have woken since the last check. A live status
+   * clears the offline flag so the next message tries the model
+   * again; a failed check keeps it offline. */
+  const retryStatus = () => {
+    setWaking(true);
+    fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: () => setWaking(true) })
+      .then((s) => {
+        setWaking(false);
+        const live = s.ai_status === 'available';
+        setAiLive(live);
+        setOffline(!live);
+      })
+      .catch(() => { setWaking(false); setAiLive(false); setOffline(true); });
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -581,6 +662,11 @@ export function CompassPet() {
     switch (turn.kind) {
       case 'prompt':
         return { lines: [t(turn.key)] };
+      case 'prefNote':
+        // The saved wizard preferences, in the user's own words —
+        // rendered at render time from the current profile, so a
+        // locale switch never leaves a stale-language bubble.
+        return { lines: [tf('pet.greetingKnown', { prefs: prefSummary(profile, t) })] };
       case 'choice':
         return { lines: [choiceLabel(turn)] };
       case 'freeText':
@@ -699,10 +785,11 @@ export function CompassPet() {
       });
     };
     try {
-      const r = await fetchJson<ChatReply>('/api/assistant/chat', {
+      const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({ message: suggestMessageFor(degree, country, band), locale: requestLocale }),
-      });
+      }, { onRetry: () => setWaking(true) });
+      setWaking(false);
       if (!isModelReply(r)) { goOffline(); return; }
       setOffline(false);
       setAiLive(true);
@@ -713,8 +800,10 @@ export function CompassPet() {
         offlineProgramId: null, offlineEvidenceUrl: null, offlineFee: null, offlineFit: null,
       });
     } catch {
+      setWaking(false);
       goOffline();
     } finally {
+      setWaking(false);
       setBusy(false);
     }
   };
@@ -755,13 +844,19 @@ export function CompassPet() {
   /** Free text goes to the real model, with the conversation history
    * for context. As with the suggestion, a template-only reply is
    * never shown as a chat answer — the turn falls back to the
-   * labelled offline rank lookup (or the plain offline line). */
+   * labelled offline rank lookup (or the plain offline line). Round 7,
+   * Fix B: on the first free-text turn the saved wizard preferences
+   * travel as context with the message (the displayed message stays
+   * the user's verbatim words), so a greeting like "你好" gets a real
+   * reply that knows what is already saved instead of a canned intro
+   * that contradicts it. */
   const onSend = async () => {
     const text = input.trim();
     if (!text || busy) return;
     setInput('');
     push({ kind: 'freeText', text });
     setBusy(true);
+    setWaking(false);
     const requestLocale = locale;
     const goOffline = () => {
       setOffline(true);
@@ -770,19 +865,25 @@ export function CompassPet() {
       if (rank) doCelebrate();
       push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null });
     };
+    const hasAsked = messages.some((m) => m.kind === 'ask');
+    const context = !hasAsked ? savedPrefsContext(profile) : null;
+    const sentMessage = context ? `${text}\n${context}` : text;
     try {
-      const r = await fetchJson<ChatReply>('/api/assistant/chat', {
+      const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
         method: 'POST',
-        body: JSON.stringify({ message: text, locale: requestLocale, history: buildHistory(messages) }),
-      });
+        body: JSON.stringify({ message: sentMessage, locale: requestLocale, history: buildHistory(messages) }),
+      }, { onRetry: () => setWaking(true) });
+      setWaking(false);
       if (!isModelReply(r)) { goOffline(); return; }
       setOffline(false);
       setAiLive(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
       push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, offlineRankId: null });
     } catch {
+      setWaking(false);
       goOffline();
     } finally {
+      setWaking(false);
       setBusy(false);
     }
   };
@@ -881,7 +982,7 @@ export function CompassPet() {
             })}
             {busy && (
               <div className="flex justify-start">
-                <div className="rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">{t('pet.thinking')}</div>
+                <div className="rounded-2xl bg-white px-3 py-2 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? t('pet.waking') : t('pet.thinking')}</div>
               </div>
             )}
             {chips.length > 0 && !busy && (
@@ -913,13 +1014,22 @@ export function CompassPet() {
                 {t('pet.send')}
               </button>
             </div>
-            <p className="mt-1.5 px-1 text-center text-[11px] leading-tight text-navy/50">
-              {offline || aiLive === false
-                ? t('pet.offline')
-                : aiLive === true
-                  ? t('pet.aiLive')
-                  : t('pet.aiChecking')}
-            </p>
+            <div className="mt-1.5 flex items-center justify-center gap-2 px-1 text-[11px] leading-tight text-navy/50">
+              <span>
+                {waking
+                  ? t('pet.waking')
+                  : offline || aiLive === false
+                    ? t('pet.offline')
+                    : aiLive === true
+                      ? t('pet.aiLive')
+                      : t('pet.aiChecking')}
+              </span>
+              {(offline || aiLive === false) && !waking && (
+                <button type="button" onClick={retryStatus} className="btn-press shrink-0 rounded-full bg-amber px-2.5 py-1 text-[11px] font-bold text-navy">
+                  {t('pet.retry')}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

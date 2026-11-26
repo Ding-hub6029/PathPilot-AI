@@ -137,3 +137,92 @@ export function bestCityForClimate(
   }
   return best;
 }
+
+// --- Country-scoped cities + climate (round 7) ------------------------------
+// Fix 1 + Fix 4: no chip or opinion may ever name a city the user did
+// not choose. City chips come from the verified programme cities of
+// the user's chosen countries only; climate opinions talk about the
+// best city of the wanted class WITHIN those countries, and say so
+// honestly when the chosen country has no city of that class.
+
+/** Normalise a programme's city to its climate-table city
+ * ("London Bloomsbury" -> "London"); the table city is the display
+ * name chips and opinions use. */
+export function tableCityOf(city: string | undefined): string | null {
+  if (!city) return null;
+  const match = Object.keys(CLIMATE_CITIES)
+    .find((k) => city === k || city.startsWith(k + ' '));
+  return match ?? city;
+}
+
+/** Verified programme cities in the given countries, unique, sorted
+ * by programme count desc (then alphabetically). Switzerland ->
+ * Zurich + Lausanne ONLY. Empty when no chosen country has a verified
+ * programme city — the caller must then show free text only, never
+ * unrelated cities. */
+export function citiesInCountries(
+  countries: string[],
+  programs: Program[],
+): { city: string; count: number }[] {
+  if (!countries.length) return [];
+  const counts = new Map<string, number>();
+  for (const p of programs) {
+    if (!countries.includes(p.country) || !p.city) continue;
+    const city = tableCityOf(p.city) ?? p.city;
+    counts.set(city, (counts.get(city) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([city, count]) => ({ city, count }))
+    .sort((a, b) => b.count - a.count || a.city.localeCompare(b.city));
+}
+
+/** The city with the most programmes of a wanted climate class WITHIN
+ * the given countries. Null when no programme city in those countries
+ * has that class — the caller must say so honestly instead of pivoting
+ * to another country. */
+export function bestCityForClimateIn(
+  pref: ClimateClass,
+  countries: string[],
+  programs: Program[],
+): { city: string; count: number } | null {
+  if (!countries.length) return null;
+  return bestCityForClimate(pref, programs.filter((p) => countries.includes(p.country)));
+}
+
+/** True when free text says more than the country names it contains
+ * (e.g. a reason): the remainder after removing every catalogue
+ * country name (localised + English + code), separators and
+ * conjunctions is non-empty. "瑞士" -> false; "瑞士和英国" -> false;
+ * "我想去瑞士，因为那边环境优美" -> true. Used by the offline
+ * fallback so a sentence that carried a reason never collapses to a
+ * bare country keyword. */
+export function hasExtraWordsBeyondCountries(
+  text: string,
+  t: (k: string) => string,
+  enMessages: Record<string, string>,
+): boolean {
+  let rest = text.toLowerCase();
+  for (const code of PREF_COUNTRY_CODES) {
+    for (const name of [t(`country.${code}`), enMessages[`country.${code}`] ?? '', code]) {
+      if (!name) continue;
+      rest = rest.split(name.toLowerCase()).join('');
+    }
+  }
+  rest = rest.replace(/[、，,；;。.\s]/g, '').replace(/和|与|及|and|or/g, '');
+  return rest.length > 0;
+}
+
+/** Every verified programme city of the given countries with its
+ * climate class (null when the city is not in the table) and programme
+ * count — the honest material for a "no city of that class here"
+ * answer: the actual classes of the country's real cities. */
+export function countryCitiesWithClimate(
+  countries: string[],
+  programs: Program[],
+): { city: string; climate: ClimateClass | null; count: number }[] {
+  return citiesInCountries(countries, programs).map(({ city, count }) => ({
+    city,
+    climate: cityClimate(city),
+    count,
+  }));
+}

@@ -744,6 +744,26 @@
         ]
       }
     },
+    "/api/v1/assistant/pref-chat": {
+      "post": {
+        "description": "One turn of the model-led preference conversation.\n\nRequest: ``{message (1..500 chars), locale=\"en\", known: {countries,\nclimate, environment, city, afterGrad, salary, salaryCurrency,\npressure, teaching, note}, history: [{role, content}] (max 10)}``.\nResponse: ``{lines (at most 3, conclusion first, next question\nlast), evidence_url, ai_status, model, sources: [{id, url, title}],\nextracted, next_question, done}`` \u2014 ``extracted`` holds only the\npreferences understood from THIS message (validated server-side);\n``next_question`` is the single most useful still-missing\npreference, or null when all 8 are known (``done`` True).",
+        "operationId": "assistant_pref_chat_endpoint_api_v1_assistant_pref_chat_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Assistant Pref Chat Endpoint",
+        "tags": [
+          "assistant"
+        ]
+      }
+    },
     "/api/v1/assistant/suggest": {
       "post": {
         "description": "Answer to the pet's 3 quick-reply questions: degree level,\ncountry, budget band -> a short route suggestion (max 3 lines,\nconclusion first, ONE evidence link). Global scope: a country with\nno verified programme yet gets the honest unknown answer\n(suggest_none), never a 422 and never a guessed route. Only\ndegree_level and budget_band are validated enums.",

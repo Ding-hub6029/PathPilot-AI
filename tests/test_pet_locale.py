@@ -105,7 +105,12 @@ def test_render_happens_at_render_time_in_current_locale(pet_src):
 # 2. Every assistant call sends the current locale
 # ---------------------------------------------------------------------------
 def test_assistant_calls_include_locale(pet_src):
+    # Round 7, Fix A: user-initiated calls go through fetchJsonPatient
+    # (cold-start retries in the shared path); the locale re-fetches
+    # still use fetchJson. Both helpers must send the current locale,
+    # and only /assistant/chat may be called.
     calls = [c for c in _call_texts(pet_src, "fetchJson<ChatReply>")]
+    calls += [c for c in _call_texts(pet_src, "fetchJsonPatient<ChatReply>")]
     assert len(calls) >= 4, calls  # ask + suggest + both locale re-fetches
     for call in calls:
         assert "/api/assistant/" in call, call

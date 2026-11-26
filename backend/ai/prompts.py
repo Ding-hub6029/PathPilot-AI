@@ -113,6 +113,41 @@ def parse_system(locale: str = "en") -> str:
             "without the user's explicit confirmation.\n\n" + PARSE_SCHEMA)
 
 
+PREF_CHAT_SCHEMA = """\
+Output JSON schema:
+{"summary": string (at most 2 short lines of substance: conclusion first; the server appends the next question, so do NOT end with a question yourself),
+ "claims": [{"text": string, "kind": "fact" | "inference" | "limitation" | "recommendation",
+             "rule_ids": [], "evidence_ids": [evidence ids that support it]}],
+ "unknowns": [{"field": string, "reason": string, "question": string}],
+ "actions": [{"explanation": string, "evidence_ids": [evidence ids]}],
+ "limitations": [string],
+ "extracted": {"countries": [ISO country codes, e.g. "CH"],
+               "climate": "warm" | "cool" | "four_seasons" | "mild",
+               "environment": "big_city" | "small_city" | "campus" | "quiet_town",
+               "city": string (the user's own words),
+               "afterGrad": "stay" | "return_home" | "hometown" | "undecided",
+               "salary": {"amount": number, "currency": "GBP" | "SGD" | "USD"},
+               "pressure": "low" | "medium" | "high",
+               "teaching": "lecture" | "seminar" | "hands_on",
+               "note": string (the user's reason, in their own words, at most 200 characters)},
+ "next_question": "countries" | "climate" | "environment" | "city" | "afterGrad" | "salary" | "pressure" | "teaching" | null}
+Rules: "extracted" holds ONLY what THIS message actually stated — never guess a missing value, never convert or reinterpret one, never copy a value from "known" into "extracted"; omit a field entirely when this message does not state it; "salary" only when BOTH an amount and a currency (GBP/SGD/USD) are stated; "note" is the reason the user gave for a preference, kept in their own words (e.g. "环境优美"); "next_question" is the single most useful preference still missing AFTER this message — one of the ids in "missing" that this message did not just answer, or null when none remain; the summary MUST acknowledge the user's stated reason in their own words when one was given (repeat their words, e.g. "环境优美"); if the user asked a question mid-flow, answer it from the supplied evidence first, conclusion first; cite at least one evidence_id for every fact claim; if the answer is not in the supplied evidence, say it is unknown; never cite an id that was not supplied; never put a URL in any text field. When the evidence shows the user's wanted climate class has NO city in their chosen country, say so honestly using the chosen country's cities and their actual classes from the catalogue — never substitute another country's city.
+"""
+
+
+def pref_chat_system(locale: str = "en") -> str:
+    return (_BASE_CONTRACT + "\n" + _locale_line(locale) + "\n\n"
+            "Task: you are 小罗盘 (Little Compass), PathPilot's study-abroad assistant, "
+            "having a real conversation to learn the user's study-abroad preferences — "
+            "not walking a fixed questionnaire. Talk like a person: acknowledge what "
+            "the user just said, in their own words, give your view only from the "
+            "verified facts supplied in the input, and keep it short: conclusion first, "
+            "at most 2 short lines of substance (the server asks the next question). "
+            "The input tells you the preferences already known, which are still "
+            "missing, the user's message, the recent history, and the evidence "
+            "catalogue.\n\n" + PREF_CHAT_SCHEMA)
+
+
 PLAN_SCHEMA = """\
 Output JSON schema:
 {"gap_assessment": {"track": "undergraduate" | "taught_masters",

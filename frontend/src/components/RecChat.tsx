@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
 import { MatchResult, Program } from '../lib/types';
-import { fetchJson } from '../lib/api';
+import { fetchJson, fetchJsonPatient } from '../lib/api';
 import { isModelReply, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { climateLabel } from '../lib/preferences';
 import { StatusChip } from './StatusChip';
@@ -58,6 +58,12 @@ export function RecChat({
   }[]>([]);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiOffline, setAiOffline] = useState(false);
+  /** The backend is being woken (a retry is in flight after the first
+   * attempt failed): show the waking line, not the offline line. */
+  const [waking, setWaking] = useState(false);
+  /** The last free-text message, kept so the retry action can re-send
+   * it instead of dropping the user's words. */
+  const [lastQuestion, setLastQuestion] = useState<string | null>(null);
 
   /** Locale change: re-fetch model answers in the new locale. A
    * failed or template-only re-fetch marks the turn offline instead
@@ -122,13 +128,59 @@ export function RecChat({
     return parts.join(' ');
   };
 
+  /** A real question for the model, with the earlier model turns as
+   * history. The full sentence is sent — never just the country/city
+   * keyword — so the reply can acknowledge the user's reason. A
+   * template-only reply is never shown as an answer: the turn is
+   * stored as offline instead. */
+  const askModel = async (text: string) => {
+    setAiBusy(true);
+    setWaking(false);
+    setMood('think');
+    const requestLocale = locale;
+    const history: ChatHistoryTurn[] = [];
+    for (const turn of aiTurns) {
+      if (!turn.reply || !isModelReply(turn.reply)) continue;
+      history.push({ role: 'user', content: turn.question });
+      history.push({ role: 'assistant', content: turn.reply.lines.join(' ') });
+    }
+    try {
+      const r = await fetchJsonPatient<ChatReply>('/api/assistant/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6) }),
+      }, { onRetry: () => setWaking(true) });
+      setWaking(false);
+      if (!isModelReply(r)) {
+        setAiOffline(true);
+        setAiTurns((prev) => [...prev, { question: text, reply: null, replyLocale: null, offline: true }]);
+        setMood('empathise');
+        return;
+      }
+      setAiOffline(false);
+      setAiTurns((prev) => [...prev, { question: text, reply: r, replyLocale: requestLocale, offline: false }]);
+      setMood('celebrate');
+    } catch {
+      setWaking(false);
+      setAiOffline(true);
+      setAiTurns((prev) => [...prev, { question: text, reply: null, replyLocale: null, offline: true }]);
+      setMood('empathise');
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
   /** Free text: naming a country or a city really re-filters (fast
-   * path, unchanged). Anything else is a question for the real model,
-   * with the earlier model turns as history. */
+   * path, unchanged) — AND the full sentence still goes to the model
+   * for a conversational reply that acknowledges the reason (round 7,
+   * Fix 2: never just show the template "已按X筛选" and drop the
+   * reason). Anything else is a question for the real model, with the
+   * earlier model turns as history. If the model is offline, the
+   * template reply stays and the offline line shows. */
   const onSend = async () => {
     const text = input.trim();
     if (!text || aiBusy) return;
     setInput('');
+    setLastQuestion(text);
     const lower = text.toLowerCase();
     // Country? Match the localised name, the English name, or the code
     // of any country present in the verified recommendations.
@@ -144,6 +196,7 @@ export function RecChat({
         setBatch(0);
         setReply({ key: 'wizard.recChatFilteredCountry', vars: { country: t(`country.${code}`) } });
         setMood('celebrate');
+        await askModel(text);
         return;
       }
     }
@@ -155,40 +208,20 @@ export function RecChat({
         setBatch(0);
         setReply({ key: 'wizard.recChatFilteredCity', vars: { city } });
         setMood('celebrate');
+        await askModel(text);
         return;
       }
     }
     // A real question: ask the model, grounded in the verified data.
-    setAiBusy(true);
-    setMood('think');
-    const requestLocale = locale;
-    const history: ChatHistoryTurn[] = [];
-    for (const turn of aiTurns) {
-      if (!turn.reply || !isModelReply(turn.reply)) continue;
-      history.push({ role: 'user', content: turn.question });
-      history.push({ role: 'assistant', content: turn.reply.lines.join(' ') });
-    }
-    try {
-      const r = await fetchJson<ChatReply>('/api/assistant/chat', {
-        method: 'POST',
-        body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6) }),
-      });
-      if (!isModelReply(r)) {
-        setAiOffline(true);
-        setAiTurns((prev) => [...prev, { question: text, reply: null, replyLocale: null, offline: true }]);
-        setMood('empathise');
-        return;
-      }
-      setAiOffline(false);
-      setAiTurns((prev) => [...prev, { question: text, reply: r, replyLocale: requestLocale, offline: false }]);
-      setMood('celebrate');
-    } catch {
-      setAiOffline(true);
-      setAiTurns((prev) => [...prev, { question: text, reply: null, replyLocale: null, offline: true }]);
-      setMood('empathise');
-    } finally {
-      setAiBusy(false);
-    }
+    await askModel(text);
+  };
+
+  /** Retry the AI chat after an offline turn: re-sends the last
+   * free-text message so the user's words are not dropped. */
+  const retryAi = () => {
+    if (!lastQuestion || aiBusy) return;
+    setAiOffline(false);
+    void askModel(lastQuestion);
   };
 
   const shownMood: PetMood = input.trim() ? 'think' : mood;
@@ -314,11 +347,19 @@ export function RecChat({
         ))}
         {aiBusy && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{t('pet.thinking')}</div>
+            <div className="rounded-2xl bg-white px-4 py-3 text-navy/60 shadow-sm ring-1 ring-navy/5">{waking ? t('pet.waking') : t('pet.thinking')}</div>
           </div>
         )}
         {aiOffline && (
-          <p className="text-xs text-navy/60">{t('wizard.recChatOffline')}</p>
+          <div className="space-y-2">
+            <p className="text-xs text-navy/60">{t('wizard.recChatOffline')}</p>
+            {lastQuestion && (
+              <button type="button" onClick={retryAi} disabled={aiBusy}
+                className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy disabled:opacity-40">
+                {t('wizard.chatPrefRetry')}
+              </button>
+            )}
+          </div>
         )}
 
         {!recLoading && recs !== null && recs.length > 0 && (

@@ -1,11 +1,17 @@
 """Conversational chat + free-text profile parsing (Day 3).
 
-Two endpoints, mounted under ``/api/v1`` by the app (this module does
+Three endpoints, mounted under ``/api/v1`` by the app (this module does
 NOT import ``app.main`` — that would be a circular import):
 
 - ``POST /assistant/chat`` — one free-text question to the pet 小罗盘.
   Model-backed when a provider is configured, template-backed
   otherwise; see ``ai.chat`` for the grounding and fallback rules.
+- ``POST /assistant/pref-chat`` — one turn of the model-led
+  preference conversation (round 7): the model extracts the
+  preferences this message states and picks the next question; see
+  ``ai.pref_chat``. Extraction is validated server-side, never
+  trusted; the offline path is honest (``ai_status="unavailable"``,
+  empty extraction, deterministic next question).
 - ``POST /profile/parse`` — parse free text into a
   StudentProfile-shaped dict. This NEVER applies a profile: it only
   returns the parse (``confirmation_required`` is always True);
@@ -33,6 +39,7 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from ai.chat import answer as chat_answer
 from ai.parse import parse_profile
+from ai.pref_chat import pref_answer
 from ai.provider import ProviderAdapter
 from app.errors import error_response
 
@@ -84,6 +91,41 @@ class ParseRequest(BaseModel):
     def _text_not_blank(cls, value: str) -> str:
         if not value.strip():
             raise ValueError("text must not be blank")
+        return value
+
+    @field_validator("locale")
+    @classmethod
+    def _locale_default(cls, value: str) -> str:
+        return value.strip() or "en"
+
+
+class KnownPrefs(BaseModel):
+    """Preferences already known, as the frontend sends them. Values
+    are validated again in ``ai.pref_chat`` (invalid ones are dropped,
+    never 422) — this model only enforces the JSON shape."""
+    countries: list[str] = Field(default_factory=list)
+    climate: str | None = None
+    environment: str | None = None
+    city: str | None = None
+    afterGrad: str | None = None
+    salary: float | None = None
+    salaryCurrency: str | None = None
+    pressure: str | None = None
+    teaching: str | None = None
+    note: str | None = None
+
+
+class PrefChatRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=500)
+    locale: str = "en"
+    known: KnownPrefs = Field(default_factory=KnownPrefs)
+    history: list[HistoryTurn] = Field(default_factory=list, max_length=10)
+
+    @field_validator("message")
+    @classmethod
+    def _message_not_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("message must not be blank")
         return value
 
     @field_validator("locale")
@@ -146,6 +188,29 @@ async def assistant_chat_endpoint(request: Request):
     if err is not None:
         return err
     return chat_answer(req.message, req.locale,
+                       [turn.model_dump() for turn in req.history],
+                       provider=get_provider())
+
+
+@router.post("/assistant/pref-chat")
+async def assistant_pref_chat_endpoint(request: Request):
+    """One turn of the model-led preference conversation.
+
+    Request: ``{message (1..500 chars), locale="en", known: {countries,
+    climate, environment, city, afterGrad, salary, salaryCurrency,
+    pressure, teaching, note}, history: [{role, content}] (max 10)}``.
+    Response: ``{lines (at most 3, conclusion first, next question
+    last), evidence_url, ai_status, model, sources: [{id, url, title}],
+    extracted, next_question, done}`` — ``extracted`` holds only the
+    preferences understood from THIS message (validated server-side);
+    ``next_question`` is the single most useful still-missing
+    preference, or null when all 8 are known (``done`` True).
+    """
+    req, err = await _parse_body(request, PrefChatRequest)
+    if err is not None:
+        return err
+    return pref_answer(req.message, req.locale,
+                       req.known.model_dump(),
                        [turn.model_dump() for turn in req.history],
                        provider=get_provider())
 

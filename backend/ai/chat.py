@@ -124,7 +124,8 @@ def _enriched_programme_sources(program_id: str) -> list[Source]:
     return out
 
 
-def _retrieve(message: str, locale: str):
+def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
+              climate_class: str | None = None):
     """(template ask() result, retrieved sources, programme ids).
 
     Retrieval reuses the template assistant: its ``ask()`` already does
@@ -133,6 +134,14 @@ def _retrieve(message: str, locale: str):
     ``ask()`` returns no single programme. Gaokao keywords add the
     verified Gaokao-route facts for the matched programme (or the
     general routes when no programme matched).
+
+    ``countries`` scopes the climate evidence to those countries (the
+    pref-chat flow, round 7): when set, no other country's city is
+    ever substituted for a missing wanted class — the chosen
+    countries' own cities join the catalogue with their actual
+    classes instead. ``climate_class`` overrides the class detected
+    from the message (the pref-chat flow passes the stored climate
+    preference); None means detect from the message as before.
     """
     template = assistant_ask(message, locale)
     sources: list[Source] = []
@@ -165,9 +174,10 @@ def _retrieve(message: str, locale: str):
     # programme count) plus the cheapest programme in the top city are
     # verified data, so they join the catalogue — after the programme
     # sources, so existing catalogue order is unchanged.
-    climate_class = _detect_climate_class(message or "")
+    climate_class = climate_class or _detect_climate_class(message or "")
     if climate_class:
-        climate_sources, top_programme = _climate_evidence(climate_class)
+        climate_sources, top_programme = _climate_evidence(
+            climate_class, countries=countries)
         _add(climate_sources)
         if top_programme and top_programme not in pids:
             _add(_enriched_programme_sources(top_programme))
@@ -276,36 +286,80 @@ def _table_city(city: str | None) -> str | None:
     return None
 
 
-def _climate_evidence(wanted: str) -> tuple[list[Source], str | None]:
+def _country_cities(countries: list[str]) -> list[tuple[str, int]]:
+    """(city, verified programme count) for cities with programmes in
+    the given countries, that have a climate-table entry — count desc,
+    name asc. Deterministic; a city with no table entry never appears."""
+    wanted = {c.upper() for c in countries}
+    counts: dict[str, int] = {}
+    for program in list(PROGRAMS.values()) + list(EXPANSION_PROGRAMS.values()):
+        if (program.get("country") or "").upper() not in wanted:
+            continue
+        city = _table_city(program.get("city"))
+        if city and city in CLIMATE:
+            counts[city] = counts.get(city, 0) + 1
+    return sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+
+
+def _climate_source(city: str, count: int) -> Source:
+    entry = CLIMATE[city]
+    slug = re.sub(r"[^a-z0-9]+", "-", city.lower()).strip("-")
+    return Source(
+        id=f"climate:{slug}",
+        url=entry.get("source_url"),
+        title=f"{city} climate",
+        excerpt=(f"{city}: {_CLIMATE_CLASS_LABEL[entry['climate']]} "
+                 f"climate. Verified programmes in {city}: {count}."))
+
+
+def _climate_evidence(wanted: str, countries: list[str] | None = None
+                      ) -> tuple[list[Source], str | None]:
     """Top 3 cities of the wanted climate class by verified programme
     count, each as one citable source (city + count + the table's own
     source URL), plus the cheapest verified programme in the top city
     (returned as a programme id; the caller adds its sources). A city
     with no entry in the table never appears; counts cover the v2
-    programmes and every expansion programme, matchable or not."""
+    programmes and every expansion programme, matchable or not.
+
+    Round 7 (pref-chat): when ``countries`` is given, the wanted-class
+    cities are taken WITHIN those countries first, and the chosen
+    countries' own cities join the catalogue with their ACTUAL classes
+    (so the model can say honestly that e.g. Switzerland has no
+    cool-class city — both Zurich and Lausanne are four-season) instead
+    of silently substituting another country's city. The cheapest
+    programme is then also from within those countries, and is None
+    when no wanted-class city exists there.
+    """
+    scope = [c.upper() for c in countries] if countries else None
     counts: dict[str, int] = {}
     for program in list(PROGRAMS.values()) + list(EXPANSION_PROGRAMS.values()):
+        if scope is not None and (program.get("country") or "").upper() not in scope:
+            continue
         city = _table_city(program.get("city"))
         if city and CLIMATE.get(city, {}).get("climate") == wanted:
             counts[city] = counts.get(city, 0) + 1
     top = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:3]
-    label = _CLIMATE_CLASS_LABEL[wanted]
     sources: list[Source] = []
+    seen: set[str] = set()
     for city, n in top:
-        entry = CLIMATE[city]
-        slug = re.sub(r"[^a-z0-9]+", "-", city.lower()).strip("-")
-        sources.append(Source(
-            id=f"climate:{slug}",
-            url=entry.get("source_url"),
-            title=f"{city} climate",
-            excerpt=(f"{city}: {label} climate. "
-                     f"Verified programmes in {city}: {n}.")))
+        sources.append(_climate_source(city, n))
+        seen.add(city)
+    if scope is not None:
+        # The chosen countries' own cities, with their actual classes,
+        # so a missing wanted class is stated honestly, never papered
+        # over with another country's city.
+        for city, n in _country_cities(scope):
+            if city not in seen:
+                sources.append(_climate_source(city, n))
+                seen.add(city)
     programme_id: str | None = None
     if top:
         city = top[0][0]
         pool = [p for p in list(PROGRAMS.values())
                 + list(EXPANSION_MATCHABLE.values())
-                if _table_city(p.get("city")) == city]
+                if _table_city(p.get("city")) == city
+                and (scope is None
+                     or (p.get("country") or "").upper() in scope)]
         if pool:
             def sort_key(p):
                 fr = program_fee_range(p)

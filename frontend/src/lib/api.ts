@@ -990,6 +990,87 @@ export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T>
   return res.json() as Promise<T>;
 }
 
+// --- Cold-start resilience (round 7, Fix A) --------------------------------
+// The backend runs on a free Render instance that sleeps after 15 min
+// idle; the first request takes ~50s+ to wake it, and a proxy or the
+// network may give up before it answers. A plain fetch would then
+// declare the backend offline even though it is only waking. The
+// model chats (pet, PrefChat, RecChat) all call the backend through
+// this one helper, so all three get the same behaviour:
+// - one attempt gets up to `attemptTimeoutMs` (default 25s);
+// - on a network error, an abort, or a 502/503/504 (the waking/proxy
+//   signatures), retry after a short pause until `budgetMs`
+//   (default 90s) is spent; `onRetry` fires before each retry so the
+//   UI can show a "waking the backend" state instead of offline;
+// - 4xx (including a 404 for an endpoint that does not exist yet) and
+//   429 fail immediately — retrying cannot help, and a missing
+//   endpoint must fall back to the guided path at once.
+// Only after the budget is exhausted does the caller declare offline.
+// Never presents template content as an AI answer — that rule lives in
+// the callers (isModelReply / isModelPrefReply).
+
+export interface FetchPatientOptions {
+  /** Total retry budget in ms (default 90_000). */
+  budgetMs?: number;
+  /** Per-attempt timeout in ms (default 25_000). */
+  attemptTimeoutMs?: number;
+  /** Called before each retry (attempt number, 1-based). */
+  onRetry?: (attempt: number) => void;
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export async function fetchJsonPatient<T>(
+  path: string,
+  init?: RequestInit,
+  options?: FetchPatientOptions,
+): Promise<T> {
+  const budgetMs = options?.budgetMs ?? 90_000;
+  const attemptTimeoutMs = options?.attemptTimeoutMs ?? 25_000;
+  const started = Date.now();
+  let attempt = 0;
+  for (;;) {
+    attempt += 1;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), attemptTimeoutMs);
+    try {
+      const res = await fetch(path, {
+        ...init,
+        headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        const retryable = res.status === 502 || res.status === 503 || res.status === 504;
+        if (retryable && Date.now() - started + 2000 < budgetMs) {
+          options?.onRetry?.(attempt);
+          await sleep(2000);
+          continue;
+        }
+        const body = await res.json().catch(() => ({}));
+        const err = new Error(`HTTP ${res.status}`) as Error & { status?: number; body?: unknown };
+        err.status = res.status; err.body = body;
+        throw err;
+      }
+      return res.json() as Promise<T>;
+    } catch (err) {
+      const status = (err as Error & { status?: number }).status;
+      // An HTTP error thrown above (non-retryable status, or a
+      // retryable one past budget) is final — do not re-enter the
+      // retry path for it.
+      if (status !== undefined) throw err;
+      // Network error / abort: retry while budget remains.
+      if (Date.now() - started + 2000 < budgetMs) {
+        options?.onRetry?.(attempt);
+        await sleep(2000);
+        continue;
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+}
+
 export async function matchProfile(profile: Profile): Promise<MatchResponse> {
   const programIds = profile.targetProgramIds.length ? profile.targetProgramIds
     : allPrograms().filter((p) => p.degreeLevel === profile.track && p.matchable !== false).map((p) => p.id);
