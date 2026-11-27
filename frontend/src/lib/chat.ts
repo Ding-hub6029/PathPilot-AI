@@ -341,7 +341,7 @@ export interface PrefKnown {
   city: string | null;
   afterGrad: 'stay' | 'return_home' | 'hometown' | 'undecided' | null;
   salary: number | null;
-  salaryCurrency: 'GBP' | 'SGD' | 'USD' | null;
+  salaryCurrency: 'GBP' | 'SGD' | 'USD' | 'CHF' | null;
   pressure: 'low' | 'medium' | 'high' | null;
   teaching: 'lecture' | 'seminar' | 'hands_on' | null;
   note: string | null;
@@ -360,7 +360,7 @@ export interface PrefExtracted {
   environment?: PrefKnown['environment'];
   city?: string;
   afterGrad?: PrefKnown['afterGrad'];
-  salary?: { amount: number; currency: 'GBP' | 'SGD' | 'USD' };
+  salary?: { amount: number; currency: 'GBP' | 'SGD' | 'USD' | 'CHF' };
   pressure?: PrefKnown['pressure'];
   teaching?: PrefKnown['teaching'];
   note?: string;
@@ -393,7 +393,7 @@ const ENVIRONMENTS = ['big_city', 'small_city', 'campus', 'quiet_town'] as const
 const AFTER_GRADS = ['stay', 'return_home', 'hometown', 'undecided'] as const;
 const PRESSURES = ['low', 'medium', 'high'] as const;
 const TEACHINGS = ['lecture', 'seminar', 'hands_on'] as const;
-const SALARY_CURRENCIES = ['GBP', 'SGD', 'USD'] as const;
+const SALARY_CURRENCIES = ['GBP', 'SGD', 'USD', 'CHF'] as const;
 
 /** The wizard Profile's preferences, reshaped into the pref-chat
  * `known` object. Only exact enum values are passed — free text in a
@@ -442,6 +442,24 @@ export function firstMissingPref(known: PrefKnown): PrefNextQuestion {
   if (!known.pressure) return 'pressure';
   if (!known.teaching) return 'teaching';
   return null;
+}
+
+/** Round 27 W2: the guided queue's next position — the first
+ * still-unanswered question at or after `from`, or
+ * PREF_QUESTIONS.length when nothing is left (the queue is done).
+ * The queue walks in QUESTIONS order but must never re-ask a
+ * question the profile already answers: answers can arrive out of
+ * order (a model turn preserved across the drop to guided mode, a
+ * pending extraction confirmed while the queue sits elsewhere), so
+ * advancing by a bare +1 re-asks known answers — re-test 21: after
+ * the pressure answer the guided queue replayed from salary and
+ * asked pressure (and teaching) again. `from` past the end, and a
+ * fully-known set, both return PREF_QUESTIONS.length. */
+export function nextMissingPrefIndex(known: PrefKnown, from: number): number {
+  for (let i = Math.max(0, from); i < PREF_QUESTIONS.length; i++) {
+    if (!isPrefKnown(PREF_QUESTIONS[i], known)) return i;
+  }
+  return PREF_QUESTIONS.length;
 }
 
 /** True when one preference question is answered in the known set. */
@@ -616,22 +634,25 @@ export type PrefTurnBubble =
  * never appear before the WHY answer: while the WHY is live the
  * deferred bubble is withheld, and the reply's lines carry no
  * next-question line for a WHY turn (the backend withholds it; see
- * the strip below for the locale re-fetch case). */
+ * the strip below, retained as defence in depth now the locale
+ * re-fetch that used to recompute it is deleted — Round 27 W1). */
 export function prefTurnBubbles(
   turn: PrefTurnLike,
   awaitingReason: { countries: string[]; note?: string; turnId?: number } | null,
 ): PrefTurnBubble[] {
   const out: PrefTurnBubble[] = [{ kind: 'user', text: turn.question }];
   const lines = turn.reply?.lines ?? [];
-  // A locale re-fetch after the WHY was answered AND confirmed
-  // recomputes why_followup as null (the countries are known by
-  // then), so the fresh reply DOES end with the question line: drop
-  // that trailing line here, so the question shows once, as the
-  // deferred bubble below, never twice and never inside the reply
-  // ahead of the WHY. The question line is always the last line of
-  // `lines` when next_question is non-null (the server appends it);
-  // a WHY turn's own reply never ends with it (the backend withheld
-  // it), so no substance line is ever dropped.
+  // Round 27 W1: the locale re-fetch that used to recompute
+  // why_followup as null after the WHY was answered AND confirmed
+  // is deleted — a stored reply is never re-fetched — so this strip
+  // is defence in depth only: if a stored reply ever ends with the
+  // question line while a WHY is attached, drop that trailing line
+  // here, so the question shows once, as the deferred bubble below,
+  // never twice and never inside the reply ahead of the WHY. The
+  // question line is always the last line of `lines` when
+  // next_question is non-null (the server appends it); a WHY turn's
+  // own reply never ends with it (the backend withheld it), so no
+  // substance line is ever dropped.
   const stripQuestion = !!turn.why && !turn.reply?.why_followup
     && !!turn.reply?.next_question && lines.length > 0;
   out.push({ kind: 'reply', lines: stripQuestion ? lines.slice(0, -1) : lines });

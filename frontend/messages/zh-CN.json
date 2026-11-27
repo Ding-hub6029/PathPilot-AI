@@ -745,7 +745,7 @@
  "wizard.chatOpCityLevel": "{city}我记下了，那边有 {count} 个已核实的{level}专业，你慢慢挑～",
  "wizard.chatOpClimateCity": "{city}是{climate}气候，那边有 {count} 个已核实的专业，你觉得怎么样？",
  "wizard.chatOpClimateCityLevel": "{city}是{climate}气候，那边有 {count} 个已核实的{level}专业，你觉得怎么样？",
- "wizard.chatOpClimateNoMatch": "你选的国家里没有{want}气候的城市：{cities}。要换个气候偏好，或者换个国家看看吗？",
+ "wizard.chatOpClimateNoMatch": "你选的国家里有这些城市：{cities}，其中没有{want}气候的城市。气候只是偏好，不影响资格，只影响排序。要换个气候偏好，或者换个国家看看吗？",
  "wizard.chatOpCool": "喜欢凉快的呀，爱丁堡那边一年四季都挺凉的，有 {count} 个已核实的专业，你觉得怎么样？",
  "wizard.chatOpFourSeasons": "喜欢四季分明呀，首尔那边四季都很分明，有 {count} 个已核实的专业，心动不？",
  "wizard.chatOpGB": "伦敦那边有{schools}，都在市中心，听说氛围不错耶！",

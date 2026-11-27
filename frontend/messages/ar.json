@@ -745,7 +745,7 @@
  "wizard.chatOpCityLevel": "تم تدوين {city} — هناك {count} برامج موثّقة من {level}. تصفح على مهل!",
  "wizard.chatOpClimateCity": "مناخ {city} هو {climate}، وهناك {count} برامج موثّقة. ما رأيك؟",
  "wizard.chatOpClimateCityLevel": "مناخ {city} هو {climate}، وهناك {count} برامج موثّقة من {level}. ما رأيك؟",
- "wizard.chatOpClimateNoMatch": "لا توجد مدينة في البلدان التي اخترتها بمناخ {want}: {cities}. هل تريد تجربة مناخ آخر أو بلد آخر؟",
+ "wizard.chatOpClimateNoMatch": "تدرج البيانات الموثّقة هذه المدن في البلدان التي اخترتها: {cities} — ولا مدينة بمناخ {want}. المناخ مجرد تفضيل — لا يقرر الأهلية أبدًا، بل يرتّب النتائج فقط. هل تريد تجربة مناخ آخر أو بلد آخر؟",
  "wizard.chatOpCool": "تحب البرودة: في إدنبرة الجو بارد طوال العام، وهناك {count} برامج موثقة. ما رأيك؟",
  "wizard.chatOpFourSeasons": "تحب الفصول الأربعة، أليس كذلك؟ في سيول الفصول الأربعة واضحة تمامًا، وهناك {count} برامج موثقة. هل أعجبك ذلك؟",
  "wizard.chatOpGB": "في لندن توجد {schools}، في وسط المدينة تمامًا — سمعت أن الأجواء هناك رائعة!",

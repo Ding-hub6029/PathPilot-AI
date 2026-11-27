@@ -103,7 +103,7 @@ Shot: back to the home page, closing on the logo.
 
 ## 3:35–3:40 — Close
 
-> "PathPilot AI — choose by evidence, not by guess. Try it live, link
+> "PathPilot AI — choose by evidence, not by guess. Try it now, link
 > below."
 
 ## Word count / timing

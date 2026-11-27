@@ -4,16 +4,16 @@ import { useApp, type Locale } from '../lib/store';
 import { Profile, emptyProfile } from '../lib/types';
 import {
   PREF_COUNTRY_CODES,
-  bestCityForClimate, bestCityForClimateIn, citiesInCountries, cityDisplayName, climateLabel, countryCitiesWithClimate,
+  bestCityForClimate, bestCityForClimateIn, canonicalCityName, choiceLabelFor, choiceRefsForLabel, citiesInCountries, cityDisplayName, climateLabel, countryCitiesWithClimate,
   environmentLabel, afterGradLabel, hasExtraWordsBeyondCountries, pressureLabel, teachingLabel,
   normaliseClimatePref, prefSummary,
 } from '../lib/preferences';
-import { allPrograms, fetchJson, fetchJsonChat } from '../lib/api';
+import { allPrograms, fetchJsonChat } from '../lib/api';
 import { joinList, parenNote } from '../lib/format';
 import {
   isModelReply, looksLikeQuestion,
   appendCountryNote, countKnownPrefs, effectiveNextPref, extractedSummary, firstMissingPref, isModelPrefReply,
-  isPrefKnown, knownFromProfile, markTurnOffline, mergeExtracted, mergeKnownWithExtracted, normaliseCountryNote,
+  isPrefKnown, knownFromProfile, markTurnOffline, mergeExtracted, mergeKnownWithExtracted, nextMissingPrefIndex, normaliseCountryNote,
   parsePrefChatState, prefChatFingerprint, prefQuestionNameKey, prefTurnBubbles, profilePatchFromExtracted,
   answerTurnWhy, skipTurnWhy, splitWhyConfirmedCountries,
   serializePrefChatState, shouldAskCountryWhy, whyAnchoredTurnId, whyFollowupFromExtracted,
@@ -142,8 +142,14 @@ export function isPrefAnswered(q: PrefQId, p: Profile): boolean {
 }
 
 function firstUnanswered(p: Profile): number {
-  const i = QUESTIONS.findIndex((q) => !isPrefAnswered(q, p));
-  return i === -1 ? QUESTIONS.length : i;
+  // Round 27 W2: the first still-missing preference — the same rule
+  // the queue advance uses, so entry and advance can never disagree
+  // about what counts as answered. (Equivalent to the old
+  // isPrefAnswered scan for every value the app can store:
+  // prefSalary is number | '', and the enum fields only ever hold
+  // their chip values; a whitespace-only note or an invalid enum
+  // string now counts as unanswered instead of answered.)
+  return nextMissingPrefIndex(knownFromProfile(p), 0);
 }
 
 /** Verified institutions in a country, from the shipped catalogue. */
@@ -266,12 +272,12 @@ export function mapFailedPrefAnswer(
   // preference the user never stated). The caller prefills it instead.
   if (looksLikeQuestion(trimmed)) return null;
   if (q === 'salary') {
-    const m = trimmed.match(/(\d+(?:\.\d+)?)\s*(GBP|SGD|USD)?/i);
+    const m = trimmed.match(/(\d+(?:\.\d+)?)\s*(GBP|SGD|USD|CHF)?/i);
     if (!m) return null;
     const amount = Number(m[1]);
     if (!Number.isFinite(amount) || amount <= 0) return null;
-    const currency = (m[2]?.toUpperCase() as 'GBP' | 'SGD' | 'USD' | undefined)
-      ?? (profile.prefSalaryCurrency as 'GBP' | 'SGD' | 'USD' | undefined)
+    const currency = (m[2]?.toUpperCase() as 'GBP' | 'SGD' | 'USD' | 'CHF' | undefined)
+      ?? (profile.prefSalaryCurrency as 'GBP' | 'SGD' | 'USD' | 'CHF' | undefined)
       ?? 'GBP';
     return { patch: { prefSalary: amount, prefSalaryCurrency: currency }, verbatim: trimmed };
   }
@@ -317,6 +323,64 @@ export function mapFailedPrefAnswer(
     if (enumMapped) return { patch: enumMapped, verbatim: trimmed };
   }
   return null;
+}
+
+/**
+ * Round 27 W4: is a stored history string a bare UI choice label for
+ * the answer this question already holds? preserveFailedAnswer stores
+ * the just-tapped label verbatim ("适中", "苏黎世"), so the guided
+ * history would freeze it in the tap-time locale. A bare label —
+ * exactly the localised label of the STORED value, in any locale —
+ * re-localises through answerText() instead; the user's own sentence
+ * (a reason, extra words, a question) never matches and stays
+ * verbatim. Salary is never a label. Exported for tests
+ * (tests/test_r27_w4.py, via a node harness).
+ */
+export function isBareChoiceLabel(
+  q: PrefQId, text: string, profile: Profile,
+): boolean {
+  const refs = choiceRefsForLabel(text);
+  if (!refs.length) return false;
+  switch (q) {
+    case 'countries':
+      return refs.some((r) => r.group === 'countries' && (profile.prefCountries ?? []).includes(r.value));
+    case 'climate':
+      return refs.some((r) => r.group === 'climate' && r.value === profile.prefClimate);
+    case 'environment':
+      return refs.some((r) => r.group === 'environment' && r.value === profile.prefEnvironment);
+    case 'city': {
+      const canonical = canonicalCityName(profile.prefCity ?? '');
+      return refs.some((r) => r.group === 'city' && (r.value === canonical || r.value === profile.prefCity));
+    }
+    case 'afterGrad':
+      return refs.some((r) => r.group === 'afterGrad' && r.value === profile.prefAfterGrad);
+    case 'pressure':
+      return refs.some((r) => r.group === 'pressure' && r.value === profile.prefPressure);
+    case 'teaching':
+      return refs.some((r) => r.group === 'teaching' && r.value === profile.prefTeaching);
+    case 'salary':
+      return false;
+  }
+}
+
+/**
+ * Round 27 W4: the user bubble of one model-led turn, in the CURRENT
+ * locale. A chip tap sends its localised label as the message, and
+ * the turn stores that frozen string — after a language switch the
+ * bubble stayed in the tap-time locale ("苏黎世", "适中"). When the
+ * message is exactly one known choice label (any locale) it renders
+ * through that choice's current-locale label instead; anything else
+ * — free text, a question, a salary, an ambiguous label ("新加坡"
+ * is both a country and a city) — stays verbatim, the user's own
+ * words. The turn's stored `question` is unchanged: it is the record
+ * of what was sent (Round 27 W1 — a language switch never re-sends
+ * it to the backend).
+ * Exported for tests (tests/test_r27_w4.py, via a node harness).
+ */
+export function prefTurnUserText(question: string, t: (k: string) => string): string {
+  const refs = choiceRefsForLabel(question);
+  if (refs.length !== 1) return question;
+  return choiceLabelFor(refs[0], t);
 }
 
 /** One field of a parse confirmation, stored structured (locale key +
@@ -415,8 +479,10 @@ function mapParseToProfile(
 
 /** One model-led turn: the user's verbatim message + the pref-chat
  * reply the model gave for it (plus the locale it was answered in).
- * A turn answered in another locale shows the thinking line until its
- * re-fetch lands; an offline turn says so plainly. Round 8: the turn
+ * Round 27 W1: a stored reply is an immutable record — it is shown
+ * exactly as answered, in the locale it was answered in, and a
+ * language switch never re-fetches or rewrites it; an offline turn
+ * says so plainly. Round 8: the turn
  * is pushed OPTIMISTICALLY (pending) the moment the user taps a chip
  * or sends — the user's own message must show at once, not after the
  * ~30s model wait. `id` lets the reply update that exact turn. */
@@ -529,7 +595,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   /** Salary input for the model-led chat (local only — the amount is
    * sent as a message and applied only after confirmation). */
   const [modelSalary, setModelSalary] = useState('');
-  const [modelSalaryCur, setModelSalaryCur] = useState<'GBP' | 'SGD' | 'USD'>('GBP');
+  const [modelSalaryCur, setModelSalaryCur] = useState<'GBP' | 'SGD' | 'USD' | 'CHF'>('GBP');
   const bottomRef = useRef<HTMLDivElement>(null);
   const moodTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   /** Monotonic turn ids, so an optimistic turn can be updated in
@@ -578,73 +644,6 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [qIndex, profile, modelTurns, thinking, turns, pendingExtract, mode, confirmedNotes]);
-
-  /** Locale change: re-fetch model answers in the new locale (the
-   * question alone is enough context). A failed or template-only
-   * re-fetch marks the turn offline instead of showing stale text. */
-  useEffect(() => {
-    modelTurns.forEach((turn, i) => {
-      if (!turn.reply || turn.replyLocale === locale) return;
-      fetchJson<ChatReply>('/api/assistant/chat', {
-        method: 'POST',
-        body: JSON.stringify({ message: turn.question, locale }),
-      }).then((fresh) => {
-        if (!isModelReply(fresh)) {
-          setAiOffline(true);
-          // Round 10: keep a template reply's verified lines
-          // (labelled offline at render time) instead of clearing.
-          setModelTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh.lines?.length ? fresh : null, replyLocale: fresh.lines?.length ? locale : null, offline: true } : x)));
-          return;
-        }
-        setModelTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh, replyLocale: locale, offline: false } : x)));
-      }).catch(() => {
-        setAiOffline(true);
-        setModelTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
-      });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
-
-  /** Locale change for the model-led turns: re-fetch each turn's
-   * reply in the new locale. The re-fetch refreshes the WORDING only —
-   * its `extracted` is ignored, so a locale switch never applies
-   * anything, and its `next_question` refreshes the chips. */
-  useEffect(() => {
-    turns.forEach((turn, i) => {
-      if (!turn.reply || turn.replyLocale === locale) return;
-      const history: ChatHistoryTurn[] = [];
-      turns.slice(0, i).forEach((t0) => {
-        if (!t0.reply || !isModelPrefReply(t0.reply)) return;
-        history.push({ role: 'user', content: t0.question });
-        history.push({ role: 'assistant', content: t0.reply.lines.join(' ') });
-      });
-      fetchJson<PrefChatReply>('/api/assistant/pref-chat', {
-        method: 'POST',
-        body: JSON.stringify({
-          message: turn.question, locale,
-          known: knownFromProfile(profile), history: history.slice(-6),
-        }),
-      }).then((fresh) => {
-        if (!isModelPrefReply(fresh)) {
-          // Round 10: a template reply in the new locale is still a
-          // verified answer — store it as an offline turn instead of
-          // clearing the reply. Its `extracted` is ignored, so a
-          // locale switch never applies anything.
-          if (fresh.lines?.length) {
-            setTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh, replyLocale: locale, offline: true } : x)));
-            return;
-          }
-          setTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
-          return;
-        }
-        setTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh, replyLocale: locale, offline: false } : x)));
-        if (fresh.next_question !== undefined) setServerNext(fresh.next_question);
-      }).catch(() => {
-        setTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
-      });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
 
   useEffect(() => () => { if (moodTimerRef.current) clearTimeout(moodTimerRef.current); }, []);
 
@@ -1052,13 +1051,24 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       case 'environment': return environmentLabel(profile.prefEnvironment, t);
       // Round 9, R8c: the stored city is the canonical English name
       // ("Zurich") — the bubble shows the localised name ("苏黎世"),
-      // never the raw stored value.
+      // never the raw stored value. Round 27 W4: a stored localised
+      // name renders the same way via cityDisplayName's reverse map.
       case 'city': return cityDisplayName(profile.prefCity ?? '', t);
       case 'afterGrad': return afterGradLabel(profile.prefAfterGrad, t);
       case 'salary': return `${profile.prefSalary} ${profile.prefSalaryCurrency ?? ''}`.trim();
       case 'pressure': return pressureLabel(profile.prefPressure, t);
       case 'teaching': return teachingLabel(profile.prefTeaching, t);
     }
+  };
+
+  /** Round 27 W4: the guided history's answer bubble for one
+   * question. A bare chip label frozen by preserveFailedAnswer
+   * re-localises through answerText(); the user's own sentence stays
+   * verbatim (see isBareChoiceLabel). */
+  const guidedAnswerText = (q: PrefQId): string => {
+    const v = verbatim[q];
+    if (v && isBareChoiceLabel(q, v, profile)) return answerText(q);
+    return v ?? answerText(q);
   };
 
   /**
@@ -1159,6 +1169,20 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     setPendingParse((prev) => (prev && prev.q !== currentQ ? null : prev));
   }, [currentQ]);
 
+  /** Round 27 W2: advance the guided queue to the next question the
+   * profile does NOT answer yet — never by a bare +1. Answers can
+   * arrive out of order (a model turn preserved across the drop to
+   * guided mode, a pending extraction confirmed while the queue sits
+   * elsewhere), so +1 re-asks known answers: re-test 21 answered
+   * pressure in the chat, dropped to guided at salary, and had to
+   * answer salary, pressure and teaching again. `p` is the profile
+   * WITH the just-applied patch — the `profile` closure is stale at
+   * call time. Landing past the last question (index 8) is the done
+   * state: the summary renders, the queue never restarts. */
+  const advanceGuided = (from: number, p: Profile) => {
+    setQIndex(nextMissingPrefIndex(knownFromProfile(p), from));
+  };
+
   const answerSingle = (q: PrefQId, patch: Partial<Profile>) => {
     updateProfile(patch);
     // The opinion needs the just-saved value, which is not in `profile`
@@ -1166,7 +1190,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     const op = opinion(q, { ...profile, ...patch });
     flashMood(op?.mood ?? 'celebrate');
     setInput('');
-    setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+    advanceGuided(QUESTIONS.indexOf(q) + 1, { ...profile, ...patch });
   };
 
   /** A free-text question goes to the real model (grounded, with the
@@ -1256,7 +1280,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       updateProfile({ prefCountriesNote: normaliseCountryNote(text) });
       flashMood('celebrate');
       setInput('');
-      setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+      // Round 27 W2: the note alone answers countries — advance past
+      // every question the profile now answers, not by a bare +1.
+      advanceGuided(QUESTIONS.indexOf(q) + 1, { ...profile, prefCountriesNote: normaliseCountryNote(text) });
       return;
     }
     if (mapped) { answerSingle(q, mapped); return; }
@@ -1299,7 +1325,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         // still on it: after a gateway-down preserve the queue
         // already sits on the next question, and advancing here would
         // skip that question entirely.
-        if (currentQ === 'countries') setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+        if (currentQ === 'countries') advanceGuided(qIndex + 1, profile);
         return;
       }
     }
@@ -1405,7 +1431,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     }
     if (willAskWhy || whyOpen) { flashMood('celebrate'); return; }
     flashMood('celebrate');
-    setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+    // Round 27 W2: the parse patch holds academic facts, not prefs —
+    // but the queue still advances past anything already known.
+    advanceGuided(QUESTIONS.indexOf(q) + 1, { ...profile, ...patch });
   };
 
   const dismissParse = () => {
@@ -1431,11 +1459,16 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       const wasCountries = currentQ === 'countries';
       setAwaitingReason(null);
       setInput('');
-      if (wasCountries) setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+      // Round 27 W2: skipping the reason moves past countries to the
+      // next still-unanswered question, never back over a known one.
+      if (wasCountries) advanceGuided(qIndex + 1, profile);
       return;
     }
     setInput('');
-    setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+    // Round 27 W2: a skipped question stays unanswered, but the queue
+    // still lands on the next UNANSWERED one — a later known answer
+    // (e.g. pressure, preserved from the chat) is never re-asked.
+    advanceGuided(qIndex + 1, profile);
   };
 
   const restart = () => {
@@ -1498,10 +1531,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     entries.map((s) => tf(s.key, { value: s.valueKey ? t(s.valueKey) : s.value })).join(' · ');
 
   /** The model Q&A bubbles for one question: the user's question
-   * verbatim, then the model's lines + evidence link (only when
-   * answered in the current locale), the thinking line while a
-   * re-fetch is pending or the answer is still on its way, or the
-   * honest offline line. */
+   * verbatim, then the model's lines + evidence link (shown exactly
+   * as answered, whatever locale that was — Round 27 W1, a language
+   * switch never re-fetches a stored reply), the thinking line while
+   * the answer is still on its way, or the honest offline line. */
   const renderModelTurns = (q: PrefQId) => modelTurns.filter((turn) => turn.q === q).map((turn, i) => (
     <div key={`${q}-ai-${i}`} className="space-y-3">
       <div className="flex justify-end">
@@ -1516,7 +1549,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
               <span>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</span>
               <span className="think-dots" aria-hidden="true"><span /><span /><span /></span>
             </p>
-          ) : turn.reply && turn.replyLocale === locale ? (
+          ) : turn.reply ? (
             <>
               {/* Round 10: an offline turn shows its stored template
                   lines led by the offline line, never as an AI answer. */}
@@ -1528,8 +1561,6 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 </a>
               )}
             </>
-          ) : turn.reply ? (
-            <p>{t('pet.thinking')}</p>
           ) : (
             <p>{t('wizard.chatAiOffline')}</p>
           )}
@@ -1565,9 +1596,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   };
 
   /** One model-led turn: the user's verbatim message, then the model's
-   * lines + evidence link (only when answered in the current locale),
-   * the thinking line while a re-fetch is pending or the answer is
-   * still on its way, or the honest offline line. Round 16: the
+   * lines + evidence link (shown exactly as answered, whatever locale
+   * that was — Round 27 W1, a language switch never re-fetches a
+   * stored reply), the thinking line while the answer is still on
+   * its way, or the honest offline line. Round 16: the
    * bubble ORDER comes from prefTurnBubbles (lib/chat) — user,
    * reply, WHY question, WHY answer, deferred next question — so the
    * order is unit-testable without a DOM. The WHY question stays in
@@ -1582,7 +1614,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
           return (
             <div key={`pref-${turn.id}-user`} className="flex justify-end">
               <div className="max-w-[90%] rounded-2xl bg-teal px-4 py-3 text-white">
-                <p>{bubble.text}</p>
+                <p>{prefTurnUserText(bubble.text, t)}</p>
               </div>
             </div>
           );
@@ -1596,7 +1628,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                     <span>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</span>
                     <span className="think-dots" aria-hidden="true"><span /><span /><span /></span>
                   </p>
-                ) : turn.reply && turn.replyLocale === locale ? (
+                ) : turn.reply ? (
                   <>
                     {/* Round 10: an offline turn shows its stored template
                         lines led by the offline line, never as an AI answer. */}
@@ -1608,8 +1640,6 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                       </a>
                     )}
                   </>
-                ) : turn.reply ? (
-                  <p>{t('pet.thinking')}</p>
                 ) : (
                   <p>{t('wizard.chatAiOffline')}</p>
                 )}
@@ -1722,7 +1752,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
             onChange={(e) => setModelSalary(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { const v = Number(modelSalary); if (modelSalary.trim() && !Number.isNaN(v)) void sendToPrefChat(`${v} ${modelSalaryCur}`); } }}
             className="w-36 rounded-full border border-navy/25 bg-white px-3 py-2 text-sm" />
-          {(['GBP', 'SGD', 'USD'] as const).map((c) => (
+          {(['GBP', 'SGD', 'USD', 'CHF'] as const).map((c) => (
             <button key={c} type="button" aria-pressed={modelSalaryCur === c}
               onClick={() => setModelSalaryCur(c)}
               className={`btn-press rounded-full border-2 px-3 py-1.5 text-sm font-semibold ${modelSalaryCur === c ? 'border-teal bg-teal/5 text-teal-dark' : 'border-navy/15 bg-white'}`}>
@@ -2008,7 +2038,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                   {isPrefAnswered(q, profile) && (
                     <div className="flex justify-end">
                       <div className="max-w-[90%] rounded-2xl bg-teal px-4 py-3 text-white">
-                        <p>{verbatim[q] ?? answerText(q)}</p>
+                        <p>{guidedAnswerText(q)}</p>
                       </div>
                     </div>
                   )}
@@ -2148,7 +2178,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                       aria-label={t('wizard.prefSalaryQ')}
                       onChange={(e) => { const v = e.target.value; updateProfile({ prefSalary: v === '' ? '' : Number(v) }); }}
                       className="w-36 rounded-full border border-navy/25 bg-white px-3 py-2 text-sm" />
-                    {(['GBP', 'SGD', 'USD'] as const).map((c) => (
+                    {(['GBP', 'SGD', 'USD', 'CHF'] as const).map((c) => (
                       <button key={c} type="button" aria-pressed={(profile.prefSalaryCurrency ?? 'GBP') === c}
                         onClick={() => updateProfile({ prefSalaryCurrency: c })}
                         className={`btn-press rounded-full border-2 px-3 py-1.5 text-sm font-semibold ${(profile.prefSalaryCurrency ?? 'GBP') === c ? 'border-teal bg-teal/5 text-teal-dark' : 'border-navy/15 bg-white'}`}>
@@ -2199,7 +2229,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                           return;
                         }
                         setAwaitingReason(null);
-                        flashMood(opinion('countries', profile)?.mood ?? 'celebrate'); setQIndex((i) => Math.min(i + 1, QUESTIONS.length));
+                        flashMood(opinion('countries', profile)?.mood ?? 'celebrate'); advanceGuided(qIndex + 1, profile);
                       }}
                       className="btn-press rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">
                       {t('wizard.chatNext')}
@@ -2207,7 +2237,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                   )}
                   {currentQ === 'salary' && (
                     <button type="button"
-                      onClick={() => { if (hasSalary) flashMood('idle'); setQIndex((i) => Math.min(i + 1, QUESTIONS.length)); }}
+                      onClick={() => { if (hasSalary) flashMood('idle'); advanceGuided(qIndex + 1, profile); }}
                       className="btn-press rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white">
                       {t('wizard.chatNext')}
                     </button>

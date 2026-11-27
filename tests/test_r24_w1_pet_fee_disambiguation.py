@@ -467,8 +467,12 @@ def test_r24_w1_compass_pet_routing_pins():
     assert "pendingChips ??" in pet
     assert "disambiguationLevels(pending.candidates, allPrograms())" in pet
 
-    # The locale re-fetch re-sends a follow-up's constructed message.
-    assert "m.sentMessage ?? m.message" in pet
+    # Round 27 W1 SUPERSEDES the old locale rule below (re-test
+    # task 21): the locale re-fetch that re-sent a follow-up's
+    # constructed message is deleted — a stored reply is never
+    # re-fetched. The constructed message is still what onSend
+    # itself sends for the follow-up turn.
+    assert "message: sentMessage, locale: requestLocale" in pet
 
     # Onboarding itself is intact: the step branches still exist,
     # after the pending branch, and the suggestion path is untouched.

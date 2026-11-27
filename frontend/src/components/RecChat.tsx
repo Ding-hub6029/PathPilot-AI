@@ -1,9 +1,9 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
 import { MatchResult, Program, type FeeItem, type Profile } from '../lib/types';
-import { fetchJson, fetchJsonChat } from '../lib/api';
+import { fetchJsonChat } from '../lib/api';
 import { detectLevelWord, disambiguationFollowupMessage, isModelReply, looksLikeQuestion, scopedProgrammeDisplay, scopedProgrammeMessage, stripProgrammeMarker, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import {
   catalogueCountInCountry, cityDisplayName, climateLabel, countryAlternatives,
@@ -92,8 +92,9 @@ export function RecChat({
    * the "Programme id <id>." marker the backend keys on, while
    * `question` is the clean display label (programme display name +
    * the question) — the internal id never reaches the bubble. A
-   * retry or locale re-fetch re-sends `sent`, never the display
-   * text, so the scoping survives both. */
+   * retry re-sends `sent`, never the display text, so the scoping
+   * survives it. Round 27 W1: a language switch never re-sends
+   * anything — a stored reply is shown exactly as answered. */
   /** Monotonic turn ids, so an optimistic turn (and a retry of it) can
    * be updated in place when its reply lands (round 8). */
   const turnIdRef = useRef(0);
@@ -111,42 +112,6 @@ export function RecChat({
    * what the re-test flagged. */
   const aiElapsed = useElapsed(aiBusy);
   const recElapsed = useElapsed(recLoading);
-
-  /** Locale change: re-fetch model answers in the new locale. A
-   * failed or template-only re-fetch marks the turn offline instead
-   * of showing stale text. */
-  useEffect(() => {
-    aiTurns.forEach((turn, i) => {
-      if (!turn.reply || turn.replyLocale === locale) return;
-      fetchJson<ChatReply>('/api/assistant/chat', {
-        method: 'POST',
-        // Round 21 (W3): scope the re-ask to the cards in view, so a
-        // deictic "this programme" question is answered from those
-        // programmes' verified facts instead of "查不到".
-        // Round 22 (W2): send the wizard track too, so an
-        // undergraduate profile can never match an MSc programme.
-        // Round 23: re-send the turn's `sent` message (with the
-        // "Programme id" marker when a chip scoped it), never the
-        // display label — the re-fetch must stay scoped to the same
-        // programme the user tapped.
-        body: JSON.stringify({ message: turn.sent ?? turn.question, locale, program_ids: shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
-      }).then((fresh) => {
-        if (!isModelReply(fresh)) {
-          // Round 10: keep a template re-fetch as an offline turn instead
-          // of dropping the answer.
-          setAiOffline(true);
-          const hasLines = Array.isArray(fresh.lines) && fresh.lines.length > 0;
-          setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: hasLines ? fresh : null, replyLocale: hasLines ? locale : null, offline: true } : x)));
-          return;
-        }
-        setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: fresh, replyLocale: locale, offline: false } : x)));
-      }).catch(() => {
-        setAiOffline(true);
-        setAiTurns((prev) => prev.map((x, j) => (j === i ? { ...x, reply: null, replyLocale: null, offline: true } : x)));
-      });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
 
   /** Round 9, R1: the list is ordered preference-first (preferred
    * countries first, then eligibility) — the wizard page sorts the
@@ -531,9 +496,12 @@ export function RecChat({
         )}
 
         {/* Model answers to free-text questions (the country/city
-            re-filter above stays local). A turn answered in another
-            locale shows the thinking line until its re-fetch lands;
-            an offline turn says so plainly instead of pretending. */}
+            re-filter above stays local). Round 27 W1: a stored reply
+            is shown exactly as answered, in the locale it was
+            answered in — a language switch never re-fetches it, so
+            no turn ever shows "Thinking…" or gets rewritten after a
+            switch; an offline turn says so plainly instead of
+            pretending. */}
         {aiTurns.map((turn, i) => (
           <div key={`ai-${i}`} className="space-y-3">
             <div className="flex justify-end">
@@ -552,7 +520,7 @@ export function RecChat({
                     <span>{waking ? tf('pet.wakingElapsed', { seconds: aiElapsed }) : tf('r9chat.thinkingElapsed', { seconds: aiElapsed })}</span>
                     <span className="think-dots" aria-hidden="true"><span /><span /><span /></span>
                   </p>
-                ) : turn.reply && turn.replyLocale === locale ? (
+                ) : turn.reply ? (
                   <>
                     {turn.offline && <p className="mb-1 text-xs font-semibold text-navy/60">{t('wizard.recChatOffline')}</p>}
                     {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 ? 'mt-1' : ''}>{line}</p>))}
@@ -593,8 +561,6 @@ export function RecChat({
                       </div>
                     )}
                   </>
-                ) : turn.reply ? (
-                  <p>{t('pet.thinking')}</p>
                 ) : (
                   <p>{t('wizard.recChatOffline')}</p>
                 )}

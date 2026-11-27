@@ -14,7 +14,7 @@ Edinburgh for a Switzerland user. This module replaces the fixed
 - extraction is validated server-side and never trusted: countries
   must be ISO codes present in the verified catalogue, enums must be
   one of the allowed values, salary needs both a positive amount and
-  a GBP/SGD/USD currency, anything else is dropped, never clamped or
+  a GBP/SGD/USD/CHF currency, anything else is dropped, never clamped or
   converted;
 - climate evidence is scoped to the known countries (see
   ``ai.chat._climate_evidence``): when the chosen country has no city
@@ -91,7 +91,7 @@ _ENVIRONMENT_VALUES = ("big_city", "small_city", "campus", "quiet_town")
 _AFTER_GRAD_VALUES = ("stay", "return_home", "hometown", "undecided")
 _PRESSURE_VALUES = ("low", "medium", "high")
 _TEACHING_VALUES = ("lecture", "seminar", "hands_on")
-_SALARY_CURRENCIES = ("GBP", "SGD", "USD")
+_SALARY_CURRENCIES = ("GBP", "SGD", "USD", "CHF")
 
 _ENUM_FIELDS: dict[str, tuple[str, ...]] = {
     "climate": _CLIMATE_VALUES,
@@ -376,7 +376,7 @@ _PLACE_CITY_WORDS: frozenset[str] = frozenset({
 # same exact-match synonym lists the frontend's local mapper uses
 # (mapLocalAnswer in PrefChat.tsx): climate via _detect_climate_class
 # (with the frontend's negation guard), the other enums via
-# _DET_ENUM_SYNONYMS, salary as a number + GBP/SGD/USD currency, and
+# _DET_ENUM_SYNONYMS, salary as a number + GBP/SGD/USD/CHF currency, and
 # a city as the user's own words. Only the first missing preference
 # is ever mapped: the chat asks one question at a time, and a free
 # question ("瑞士有哪些好学校？") must never be misread as an answer
@@ -519,7 +519,7 @@ def _deterministic_extract(message: str, known: dict | None = None) -> dict:
                 out[nxt] = value
                 break
     elif nxt == "salary":
-        m = re.search(r"(\d+(?:\.\d+)?)\s*(GBP|SGD|USD)?", msg,
+        m = re.search(r"(\d+(?:\.\d+)?)\s*(GBP|SGD|USD|CHF)?", msg,
                       re.IGNORECASE)
         if m:
             amount = float(m.group(1))

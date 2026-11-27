@@ -745,7 +745,7 @@
  "wizard.chatOpCityLevel": "Anotado: {city} — hay {count} programas verificados de {level}. ¡Tómate tu tiempo!",
  "wizard.chatOpClimateCity": "{city} tiene clima {climate}, con {count} programas verificados. ¿Qué te parece?",
  "wizard.chatOpClimateCityLevel": "{city} tiene clima {climate}, con {count} programas verificados de {level}. ¿Qué te parece?",
- "wizard.chatOpClimateNoMatch": "Ninguna ciudad de tus países elegidos tiene clima {want}: {cities}. ¿Quieres probar otro clima u otro país?",
+ "wizard.chatOpClimateNoMatch": "Los datos verificados listan estas ciudades en tus países elegidos: {cities} — ninguna tiene clima {want}. El clima es solo una preferencia: nunca decide la elegibilidad, solo ordena los resultados. ¿Quieres probar otro clima u otro país?",
  "wizard.chatOpCool": "Te gusta el fresco: en Edimburgo hace fresco todo el año, con {count} programas verificados. ¿Qué te parece?",
  "wizard.chatOpFourSeasons": "Cuatro estaciones, ¿verdad? En Seúl se viven las cuatro a fondo, con {count} programas verificados. ¿Te tienta?",
  "wizard.chatOpGB": "En Londres están {schools}, en pleno centro: ¡dicen que el ambiente es genial!",

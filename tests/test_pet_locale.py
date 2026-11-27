@@ -10,15 +10,17 @@ The fix pins here, by parsing frontend/src/components/CompassPet.tsx:
   the user's verbatim text, whole backend payloads + replyLocale) —
   no t()/tf() result and no `lines:` literal ever flows into a
   push()/setMessages() call;
-- every assistant call (/assistant/chat, including the locale-change
-  re-fetch) sends the current locale, and a reply counts as an AI
-  answer only when ai_status is "available" — anything else falls
-  back to the labelled offline catalogue, never a template line shown
-  as chat;
-- a live backend turn is rendered only when its replyLocale matches the
-  current locale, and a [locale, messages] effect re-fetches stale turns;
-- a live backend turn is rendered only when its replyLocale matches the
-  current locale, and a [locale, messages] effect re-fetches stale turns;
+- every assistant call (/assistant/chat) sends the current locale, and
+  a reply counts as an AI answer only when ai_status is "available" —
+  anything else falls back to the labelled offline catalogue, never a
+  template line shown as chat;
+- Round 27 W1 SUPERSEDES the old locale rule (re-test task 21): a
+  stored backend reply is an immutable record — it renders exactly as
+  answered, whatever locale that was, and NO [locale, messages] effect
+  re-fetches it. A language switch re-renders chrome/labels only and
+  never re-derives, re-fetches or rewrites reply content (the old
+  re-fetch rewrote fee answers into rank lines and flipped the footer
+  to "AI answers" while the model was down);
 - the offline suggestion's programme name is rendered through
   displayProgramTitle() at render time, never stored as a string.
 
@@ -110,12 +112,16 @@ def test_assistant_calls_include_locale(pet_src):
     # still use fetchJson. Round 15, F2: user-initiated calls go
     # through fetchJsonChat instead (one turn bounded to ~20 s, no
     # retry on a slow abort — same /assistant/chat endpoint, same
-    # locale payload). Both helpers must send the current locale,
-    # and only /assistant/chat may be called.
+    # locale payload). Round 27 W1 SUPERSEDES the old count: the
+    # locale re-fetches that used fetchJson are deleted — a stored
+    # reply is never re-fetched — so the only /assistant/chat calls
+    # are the two user-initiated ones (askSuggest + onSend). Both
+    # helpers must send the current locale, and only /assistant/chat
+    # may be called.
     calls = [c for c in _call_texts(pet_src, "fetchJson<ChatReply>")]
     calls += [c for c in _call_texts(pet_src, "fetchJsonPatient<ChatReply>")]
     calls += [c for c in _call_texts(pet_src, "fetchJsonChat<ChatReply>")]
-    assert len(calls) >= 4, calls  # ask + suggest + both locale re-fetches
+    assert len(calls) == 2, calls  # askSuggest + onSend, no re-fetches
     for call in calls:
         assert "/api/assistant/" in call, call
         assert "locale" in call, call
@@ -133,30 +139,29 @@ def test_template_endpoints_are_not_called(pet_src):
 
 
 # ---------------------------------------------------------------------------
-# 3. Stale backend turns are re-fetched on locale change, never shown
+# 3. Stored backend turns are shown as answered, never re-fetched
 # ---------------------------------------------------------------------------
-def test_stale_backend_turns_refetched_on_locale_change(pet_src):
-    # Turns remember the locale their reply was answered in.
+def test_stored_backend_turns_shown_as_answered_after_locale_change(pet_src):
+    # Round 27 W1 SUPERSEDES test_stale_backend_turns_refetched_on_locale_change
+    # (re-test task 21: the re-fetch rewrote fee answers into rank
+    # lines and flipped the footer to "AI answers" while the model
+    # was down). Turns still remember the locale their reply was
+    # answered in — as a record, not a render gate.
     assert "replyLocale" in pet_src
-    # A backend turn's lines render only when answered in this locale.
-    # Only renderTurn counts here: buildHistory also reads .reply.lines,
-    # but to send them back as API context — never as visible text.
-    assert "replyLocale === locale" in pet_src
+    # A backend turn's lines render whatever locale they were answered
+    # in: no replyLocale === locale gate anywhere in the component.
+    assert "replyLocale === locale" not in pet_src
     render_fn = pet_src.split("const renderTurn")[1].split("const askSuggest")[0]
-    for m in re.finditer(r"\.reply\.lines", render_fn):
-        # The guard is the `if (... replyLocale === locale)` that opens
-        # the block rendering the stored backend lines (a comment and
-        # the link derivation may sit between the guard and the line).
-        before = render_fn[:m.start()].split("\n")[-10:]
-        assert any("replyLocale === locale" in line for line in before), before
-    # A [locale, messages] effect re-fetches stale turns in the new locale.
-    assert re.search(r"\}, \[locale, messages\]\);", pet_src), \
-        "no [locale, messages] refresh effect found"
-    effect = pet_src.split("}, [locale, messages]);")[0]
-    assert effect.count("/api/assistant/chat") >= 2, effect
-    # A template-only re-fetch never becomes a live turn: only a reply
-    # with ai_status "available" is stored (see isModelReply).
-    assert "isModelReply(fresh)" in effect
+    assert "if (turn.reply) {" in render_fn
+    # "Thinking…" remains only as the pending-turn fallback (one per
+    # case); a stored reply never renders it.
+    assert render_fn.count("t('pet.thinking')") == 2
+    # No [locale, messages] effect re-fetches stale turns any more —
+    # no useEffect dep array mentions locale at all.
+    assert not re.search(r"\}, \[[^\]]*locale[^\]]*\]\);", pet_src)
+    # No re-fetch fetch remains: the only /assistant/chat calls are
+    # the user-initiated ones (see test 2 above).
+    assert "fetchJson<" not in pet_src
 
 
 # ---------------------------------------------------------------------------

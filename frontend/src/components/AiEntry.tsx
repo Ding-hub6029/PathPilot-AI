@@ -40,8 +40,11 @@ import type { Profile } from '../lib/types';
  * The question is built by the calling page from its own context
  * (provider, institution, programme id, filters) plus the saved
  * wizard profile when present; the message itself is always English
- * and the backend answers in the current locale. A locale change
- * while the panel is open re-asks in the new locale, like the pet.
+ * and the backend answers in the current locale. Round 27 W1: a
+ * stored reply is an immutable record — a language switch shows it
+ * exactly as answered and never re-asks (the old locale re-fetch
+ * rewrote answers and hid them behind "Thinking…" while the model
+ * was down, same as the pet's re-test task 21 bug).
  */
 
 export type RecommendLevel = 'undergraduate' | 'taught_masters';
@@ -131,6 +134,9 @@ export function AiEntry({ label, question, note, programId, institutionId }: AiE
   const [busy, setBusy] = useState(false);
   const [waking, setWaking] = useState(false);
   const [reply, setReply] = useState<ChatReply | null>(null);
+  /** Locale the stored reply was answered in — a record only
+   * (Round 27 W1: a language switch never re-asks, so this is never
+   * read for rendering; the reply is shown exactly as answered). */
   const [replyLocale, setReplyLocale] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -190,14 +196,6 @@ export function AiEntry({ label, question, note, programId, institutionId }: AiE
     }
   };
 
-  // Locale change while open: re-ask in the new locale, like the pet —
-  // a stale-locale reply is never shown as the current answer.
-  useEffect(() => {
-    if (!open || !reply || replyLocale === locale) return;
-    void ask(question, locale);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale, open, reply, replyLocale]);
-
   // The page's context changed under an open panel (e.g. the browse
   // filters moved): re-ask with the new question.
   useEffect(() => {
@@ -207,10 +205,11 @@ export function AiEntry({ label, question, note, programId, institutionId }: AiE
   }, [question, open]);
 
   const model = isModelReply(reply);
-  // Thinking only while a request is actually in flight. A locale
-  // re-fetch starts at once on a locale change, so a stale-locale
-  // reply is never shown as the current answer; if that re-fetch
-  // fails, the error + retry shows instead of the stale reply.
+  // Thinking only while a request is actually in flight. Round 27
+  // W1: a language switch never starts a request — the stored reply
+  // stays visible exactly as answered — so thinking here means a
+  // real ask (open / new question / retry) is in flight, never a
+  // locale re-fetch.
   const showThinking = busy;
   // Next-step links come from the reply's source ids, never from model
   // text (deriveChatLinks, as in the pet). On a programme page the

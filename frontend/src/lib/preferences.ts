@@ -286,11 +286,449 @@ export function localiseCountryNote(
   return out.join('·');
 }
 
+// --- Choice-label reverse map (round 27 W4) --------------------------
+// A choice chip sends its LOCALISED label as the message ("\u82cf\u9ece\u4e16",
+// "\u9002\u4e2d"), and a failed turn can store that label verbatim as the
+// preference value (mapFailedPrefAnswer, PrefChat) — so after a language
+// switch the stored string is in the OLD locale while the UI renders in
+// the new one. The forward label functions above only map a canonical
+// value -> current-locale label; they cannot read a localised string
+// back. This table is the reverse direction: every choice label in
+// every locale -> its canonical (group, value). Generated from
+// frontend/messages/*.json (choice labels only: the climate /
+// environment / afterGrad / pressure / teaching enums, country names
+// and city names — never free text, never the reason note);
+// tests/test_r27_w4.py re-derives it from those files and fails on any
+// drift, so a locale edit must regenerate this table. Keys are
+// lower-cased labels; values are "group:value", with '|' joining the
+// two readings of an ambiguous label ("\u65b0\u52a0\u5761" is both the
+// SG country name and the Singapore city name; "\u9999\u6e2f" both HK
+// and Hong Kong) — callers that know the question disambiguate, the
+// question-less bubble lookup keeps such a string verbatim.
+
+export type PrefChoiceGroup =
+  | 'climate' | 'environment' | 'afterGrad' | 'pressure' | 'teaching'
+  | 'countries' | 'city';
+
+/** One canonical choice value: the group it belongs to + the stored
+ * value (enum, country code, or canonical English city name). */
+export interface PrefChoiceRef { group: PrefChoiceGroup; value: string; }
+
+export const CHOICE_LABEL_REVERSE: Record<string, string> = {
+  "adelaide": "city:Adelaide",
+  "ainda não sei": "afterGrad:undecided",
+  "alemanha": "countries:DE",
+  "alemania": "countries:DE",
+  "allemagne": "countries:DE",
+  "ameno": "climate:mild",
+  "amsterdam": "city:Amsterdam",
+  "ann arbor": "city:Ann Arbor",
+  "auckland": "city:Auckland",
+  "aulas expositivas": "teaching:lecture",
+  "austin": "city:Austin",
+  "australia": "countries:AU",
+  "australie": "countries:AU",
+  "austrália": "countries:AU",
+  "aún no lo sé": "afterGrad:undecided",
+  "baltimore": "city:Baltimore",
+  "beijing": "city:Beijing",
+  "berkeley": "city:Berkeley",
+  "berlim": "city:Berlin",
+  "berlin": "city:Berlin",
+  "berlín": "city:Berlin",
+  "big city": "environment:big_city",
+  "big lectures": "teaching:lecture",
+  "birmingham": "city:Birmingham",
+  "boston": "city:Boston",
+  "brisbane": "city:Brisbane",
+  "bristol": "city:Bristol",
+  "buenos aires": "city:Buenos Aires",
+  "cambridge": "city:Cambridge",
+  "canada": "countries:CA",
+  "canadá": "countries:CA",
+  "canberra": "city:Canberra",
+  "champaign": "city:Champaign",
+  "chaud": "climate:warm",
+  "chicago": "city:Chicago",
+  "cidade grande": "environment:big_city",
+  "cidade pequena": "environment:small_city",
+  "cidade tranquila": "environment:quiet_town",
+  "cidade universitária · clima de campus": "environment:campus",
+  "ciudad grande": "environment:big_city",
+  "ciudad pequeña": "environment:small_city",
+  "ciudad universitaria · ambiente de campus": "environment:campus",
+  "clases magistrales": "teaching:lecture",
+  "com calma": "pressure:low",
+  "con calma": "pressure:low",
+  "consigo lidar com intensidade": "pressure:high",
+  "cool": "climate:cool",
+  "copenhagen": "city:Copenhagen",
+  "copenhague": "city:Copenhagen",
+  "corea del sur": "countries:KR",
+  "coreia do sul": "countries:KR",
+  "corée du sud": "countries:KR",
+  "coventry": "city:Coventry",
+  "cuatro estaciones": "climate:four_seasons",
+  "cálido": "climate:warm",
+  "daejeon": "city:Daejeon",
+  "delft": "city:Delft",
+  "dhahran": "city:Dhahran",
+  "doux": "climate:mild",
+  "dublim": "city:Dublin",
+  "dublin": "city:Dublin",
+  "dublín": "city:Dublin",
+  "durham": "city:Durham",
+  "edimburgo": "city:Edinburgh",
+  "edinburgh": "city:Edinburgh",
+  "edmonton": "city:Edmonton",
+  "estados unidos": "countries:US",
+  "estocolmo": "city:Stockholm",
+  "evanston": "city:Evanston",
+  "ficar no país onde estudo": "afterGrad:stay",
+  "filadelfia": "city:Philadelphia",
+  "filadélfia": "city:Philadelphia",
+  "four seasons": "climate:four_seasons",
+  "frais": "climate:cool",
+  "france": "countries:FR",
+  "francia": "countries:FR",
+  "frança": "countries:FR",
+  "fresco": "climate:cool",
+  "germany": "countries:DE",
+  "glasgow": "city:Glasgow",
+  "go back home": "afterGrad:return_home",
+  "go back to my hometown": "afterGrad:hometown",
+  "grande ville": "environment:big_city",
+  "grands cours magistraux": "teaching:lecture",
+  "hands-on practice": "teaching:hands_on",
+  "hangzhou": "city:Hangzhou",
+  "heidelberg": "city:Heidelberg",
+  "hong kong": "city:Hong Kong|countries:HK",
+  "i can handle intensity": "pressure:high",
+  "ithaca": "city:Ithaca",
+  "japan": "countries:JP",
+  "japon": "countries:JP",
+  "japão": "countries:JP",
+  "japón": "countries:JP",
+  "je ne sais pas encore": "afterGrad:undecided",
+  "je peux gérer l’intensité": "pressure:high",
+  "kioto": "city:Kyoto",
+  "kowloon tong": "city:Kowloon Tong",
+  "kuala lumpur": "city:Kuala Lumpur",
+  "kyoto": "city:Kyoto",
+  "lausanne": "city:Lausanne",
+  "leeds": "city:Leeds",
+  "leuven": "city:Leuven",
+  "london": "city:London",
+  "londres": "city:London",
+  "los angeles": "city:Los Angeles",
+  "los ángeles": "city:Los Angeles",
+  "lund": "city:Lund",
+  "manchester": "city:Manchester",
+  "melbourne": "city:Melbourne",
+  "milan": "city:Milan",
+  "mild": "climate:mild",
+  "milán": "city:Milan",
+  "milão": "city:Milan",
+  "moderada": "pressure:medium",
+  "moderate": "pressure:medium",
+  "modérée": "pressure:medium",
+  "montreal": "city:Montreal",
+  "montréal": "city:Montreal",
+  "munich": "city:Munich",
+  "munique": "city:Munich",
+  "múnich": "city:Munich",
+  "nanjing": "city:Nanjing",
+  "nankin": "city:Nanjing",
+  "nankín": "city:Nanjing",
+  "nanquim": "city:Nanjing",
+  "netherlands": "countries:NL",
+  "new haven": "city:New Haven",
+  "new york": "city:New York",
+  "not sure yet": "afterGrad:undecided",
+  "nottingham": "city:Nottingham",
+  "nova york": "city:New York",
+  "nueva york": "city:New York",
+  "orsay": "city:Orsay",
+  "oxford": "city:Oxford",
+  "palaiseau": "city:Palaiseau",
+  "paris": "city:Paris",
+  "parís": "city:Paris",
+  "pasadena": "city:Pasadena",
+  "pays-bas": "countries:NL",
+  "países baixos": "countries:NL",
+  "países bajos": "countries:NL",
+  "pekín": "city:Beijing",
+  "pequim": "city:Beijing",
+  "perth": "city:Perth",
+  "petite ville": "environment:small_city",
+  "petite ville tranquille": "environment:quiet_town",
+  "petits séminaires": "teaching:seminar",
+  "philadelphia": "city:Philadelphia",
+  "pittsburgh": "city:Pittsburgh",
+  "pratique": "teaching:hands_on",
+  "princeton": "city:Princeton",
+  "providence": "city:Providence",
+  "práctica": "teaching:hands_on",
+  "prática": "teaching:hands_on",
+  "pueblo tranquilo": "environment:quiet_town",
+  "puedo con la intensidad": "pressure:high",
+  "pékin": "city:Beijing",
+  "quatre saisons": "climate:four_seasons",
+  "quatro estações": "climate:four_seasons",
+  "quedarme en el país donde estudio": "afterGrad:stay",
+  "quente": "climate:warm",
+  "quiet town": "environment:quiet_town",
+  "quioto": "city:Kyoto",
+  "reino unido": "countries:GB",
+  "rentrer dans ma ville natale": "afterGrad:hometown",
+  "rentrer dans mon pays": "afterGrad:return_home",
+  "rester dans le pays où j’étudie": "afterGrad:stay",
+  "royaume-uni": "countries:GB",
+  "san diego": "city:San Diego",
+  "seattle": "city:Seattle",
+  "seminarios pequeños": "teaching:seminar",
+  "seminários pequenos": "teaching:seminar",
+  "seoul": "city:Seoul",
+  "seul": "city:Seoul",
+  "seúl": "city:Seoul",
+  "sha tin": "city:Sha Tin",
+  "shanghai": "city:Shanghai",
+  "shanghái": "city:Shanghai",
+  "sheffield": "city:Sheffield",
+  "singapore": "city:Singapore|countries:SG",
+  "singapour": "city:Singapore|countries:SG",
+  "singapur": "city:Singapore|countries:SG",
+  "singapura": "city:Singapore|countries:SG",
+  "small city": "environment:small_city",
+  "small seminars": "teaching:seminar",
+  "south korea": "countries:KR",
+  "stanford": "city:Stanford",
+  "stay in the country where i study": "afterGrad:stay",
+  "stockholm": "city:Stockholm",
+  "suave": "climate:mild",
+  "suisse": "countries:CH",
+  "suita": "city:Suita",
+  "suiza": "countries:CH",
+  "suíça": "countries:CH",
+  "switzerland": "countries:CH",
+  "sydney": "city:Sydney",
+  "séoul": "city:Seoul",
+  "sídney": "city:Sydney",
+  "taipei": "city:Taipei",
+  "taipé": "city:Taipei",
+  "taipéi": "city:Taipei",
+  "take it easy": "pressure:low",
+  "tokio": "city:Tokyo",
+  "tokyo": "city:Tokyo",
+  "toronto": "city:Toronto",
+  "tranquillement": "pressure:low",
+  "tóquio": "city:Tokyo",
+  "united kingdom": "countries:GB",
+  "united states": "countries:US",
+  "university park": "city:University Park",
+  "university town · campus vibe": "environment:campus",
+  "uppsala": "city:Uppsala",
+  "urbana-champaign": "city:Urbana-Champaign",
+  "vancouver": "city:Vancouver",
+  "ville universitaire · ambiance campus": "environment:campus",
+  "voltar para meu país": "afterGrad:return_home",
+  "voltar para minha cidade natal": "afterGrad:hometown",
+  "volver a mi ciudad": "afterGrad:hometown",
+  "volver a mi país": "afterGrad:return_home",
+  "warm": "climate:warm",
+  "xangai": "city:Shanghai",
+  "zurich": "city:Zurich",
+  "édimbourg": "city:Edinburgh",
+  "états-unis": "countries:US",
+  "أستراليا": "countries:AU",
+  "أستطيع تحمّل الشدة": "pressure:high",
+  "ألمانيا": "countries:DE",
+  "البقاء في بلد الدراسة": "afterGrad:stay",
+  "العودة إلى الوطن": "afterGrad:return_home",
+  "العودة إلى مسقط رأسي": "afterGrad:hometown",
+  "المملكة المتحدة": "countries:GB",
+  "الولايات المتحدة": "countries:US",
+  "اليابان": "countries:JP",
+  "بارد": "climate:cool",
+  "بلدة هادئة": "environment:quiet_town",
+  "بهدوء": "pressure:low",
+  "تطبيق عملي": "teaching:hands_on",
+  "حلقات دراسية صغيرة": "teaching:seminar",
+  "دافئ": "climate:warm",
+  "سنغافورة": "countries:SG",
+  "سويسرا": "countries:CH",
+  "فرنسا": "countries:FR",
+  "فصول أربعة": "climate:four_seasons",
+  "كندا": "countries:CA",
+  "كوريا الجنوبية": "countries:KR",
+  "لم أقرر بعد": "afterGrad:undecided",
+  "متوسطة": "pressure:medium",
+  "محاضرات كبيرة": "teaching:lecture",
+  "مدينة جامعية · أجواء الحرم الجامعي": "environment:campus",
+  "مدينة صغيرة": "environment:small_city",
+  "مدينة كبيرة": "environment:big_city",
+  "معتدل": "climate:mild",
+  "هولندا": "countries:NL",
+  "هونغ كونغ": "countries:HK",
+  "上海": "city:Shanghai",
+  "东京": "city:Tokyo",
+  "乌普萨拉": "city:Uppsala",
+  "九龙塘": "city:Kowloon Tong",
+  "京都": "city:Kyoto",
+  "代尔夫特": "city:Delft",
+  "伊萨卡": "city:Ithaca",
+  "伦敦": "city:London",
+  "伯克利": "city:Berkeley",
+  "伯明翰": "city:Birmingham",
+  "凉爽": "climate:cool",
+  "利兹": "city:Leeds",
+  "剑桥": "city:Cambridge",
+  "加拿大": "countries:CA",
+  "动手实践": "teaching:hands_on",
+  "北京": "city:Beijing",
+  "匹兹堡": "city:Pittsburgh",
+  "南京": "city:Nanjing",
+  "厄巴纳-香槟": "city:Urbana-Champaign",
+  "台北": "city:Taipei",
+  "吉隆坡": "city:Kuala Lumpur",
+  "吹田": "city:Suita",
+  "哥本哈根": "city:Copenhagen",
+  "四季分明": "climate:four_seasons",
+  "回国发展": "afterGrad:return_home",
+  "回家乡": "afterGrad:hometown",
+  "圣迭戈": "city:San Diego",
+  "埃德蒙顿": "city:Edmonton",
+  "埃文斯顿": "city:Evanston",
+  "堪培拉": "city:Canberra",
+  "墨尔本": "city:Melbourne",
+  "多伦多": "city:Toronto",
+  "大城市": "environment:big_city",
+  "大学城·校园氛围": "environment:campus",
+  "大田": "city:Daejeon",
+  "大课讲座": "teaching:lecture",
+  "奥克兰": "city:Auckland",
+  "奥斯汀": "city:Austin",
+  "奥赛": "city:Orsay",
+  "安娜堡": "city:Ann Arbor",
+  "安静小镇": "environment:quiet_town",
+  "小城市": "environment:small_city",
+  "小班研讨": "teaching:seminar",
+  "巴尔的摩": "city:Baltimore",
+  "巴黎": "city:Paris",
+  "布宜诺斯艾利斯": "city:Buenos Aires",
+  "布里斯托尔": "city:Bristol",
+  "布里斯班": "city:Brisbane",
+  "帕莱索": "city:Palaiseau",
+  "帕萨迪纳": "city:Pasadena",
+  "德国": "countries:DE",
+  "悉尼": "city:Sydney",
+  "慕尼黑": "city:Munich",
+  "斯坦福": "city:Stanford",
+  "斯德哥尔摩": "city:Stockholm",
+  "新加坡": "city:Singapore|countries:SG",
+  "日本": "countries:JP",
+  "普林斯顿": "city:Princeton",
+  "普罗维登斯": "city:Providence",
+  "曼彻斯特": "city:Manchester",
+  "杜伦": "city:Durham",
+  "杭州": "city:Hangzhou",
+  "柏林": "city:Berlin",
+  "格拉斯哥": "city:Glasgow",
+  "沙田": "city:Sha Tin",
+  "法国": "countries:FR",
+  "波士顿": "city:Boston",
+  "洛杉矶": "city:Los Angeles",
+  "洛桑": "city:Lausanne",
+  "海德堡": "city:Heidelberg",
+  "温和": "climate:mild",
+  "温哥华": "city:Vancouver",
+  "温暖": "climate:warm",
+  "澳大利亚": "countries:AU",
+  "爱丁堡": "city:Edinburgh",
+  "牛津": "city:Oxford",
+  "珀斯": "city:Perth",
+  "瑞士": "countries:CH",
+  "留在留学国家": "afterGrad:stay",
+  "米兰": "city:Milan",
+  "纽约": "city:New York",
+  "纽黑文": "city:New Haven",
+  "美国": "countries:US",
+  "考文垂": "city:Coventry",
+  "芝加哥": "city:Chicago",
+  "苏黎世": "city:Zurich",
+  "英国": "countries:GB",
+  "荷兰": "countries:NL",
+  "蒙特利尔": "city:Montreal",
+  "西雅图": "city:Seattle",
+  "诺丁汉": "city:Nottingham",
+  "谢菲尔德": "city:Sheffield",
+  "费城": "city:Philadelphia",
+  "轻松一点": "pressure:low",
+  "还没想好": "afterGrad:undecided",
+  "适中": "pressure:medium",
+  "都柏林": "city:Dublin",
+  "阿姆斯特丹": "city:Amsterdam",
+  "阿德莱德": "city:Adelaide",
+  "隆德": "city:Lund",
+  "韩国": "countries:KR",
+  "首尔": "city:Seoul",
+  "香槟": "city:Champaign",
+  "香港": "city:Hong Kong|countries:HK",
+  "高强度也可以": "pressure:high",
+  "鲁汶": "city:Leuven",
+};
+
+/** Every canonical choice a stored string could be: the exact
+ * localised label of a choice, in any locale. [] for free text, a
+ * sentence, a number, or anything the tables do not know — those
+ * stay verbatim by design. Matching is exact (trimmed,
+ * case-insensitive): a sentence that merely CONTAINS a label never
+ * matches. */
+export function choiceRefsForLabel(text: string): PrefChoiceRef[] {
+  const hit = CHOICE_LABEL_REVERSE[text.trim().toLowerCase()];
+  if (!hit) return [];
+  return hit.split('|').map((part) => {
+    const i = part.indexOf(':');
+    return { group: part.slice(0, i) as PrefChoiceGroup, value: part.slice(i + 1) };
+  });
+}
+
+/** Current-locale label for one canonical choice — the forward
+ * direction, through the existing label functions. */
+export function choiceLabelFor(ref: PrefChoiceRef, t: (k: string) => string): string {
+  switch (ref.group) {
+    case 'climate': return climateLabel(ref.value, t);
+    case 'environment': return environmentLabel(ref.value, t);
+    case 'afterGrad': return afterGradLabel(ref.value, t);
+    case 'pressure': return pressureLabel(ref.value, t);
+    case 'teaching': return teachingLabel(ref.value, t);
+    case 'countries': return t(`country.${ref.value}`);
+    case 'city': return cityDisplayName(ref.value, t);
+  }
+}
+
+/** Canonical English name for a stored city string: the name itself
+ * when it already is canonical, else the city the localised name
+ * belongs to in any locale ("\u82cf\u9ece\u4e16" -> "Zurich"). Null
+ * for a city the tables do not know — a user-typed name stays the
+ * user's own spelling, never a guess. */
+export function canonicalCityName(stored: string): string | null {
+  if (!stored) return null;
+  const refs = choiceRefsForLabel(stored).filter((r) => r.group === 'city');
+  if (refs.length !== 1) return null;
+  return refs[0].value;
+}
+
 /** Localised city name for chips and filters: `city.<slug>` when the
  * locale file has one (zh-CN carries the standard exonyms; other
  * locales fall back through t() to the English name, which is the
  * correct display name there). Never a raw key, never an invented
- * name — an untranslated city renders in English. */
+ * name — an untranslated city renders in English. Round 27 W4: the
+ * stored value may itself be a localised name ("苏黎世" stored by a
+ * failed turn) — it is reverse-mapped to the canonical name first,
+ * then localised in the current locale, so a stored Chinese city no
+ * longer leaks verbatim into the English summary. An unknown name
+ * still renders verbatim. */
 export function cityKey(city: string): string {
   const slug = city.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
   return `city.${slug}`;
@@ -299,7 +737,11 @@ export function cityKey(city: string): string {
 export function cityDisplayName(city: string, t: (k: string) => string): string {
   if (!city) return city;
   const v = t(cityKey(city));
-  return v === cityKey(city) ? city : v;
+  if (v !== cityKey(city)) return v;
+  const canonical = canonicalCityName(city);
+  if (!canonical) return city;
+  const localised = t(cityKey(canonical));
+  return localised === cityKey(canonical) ? canonical : localised;
 }
 
 /**

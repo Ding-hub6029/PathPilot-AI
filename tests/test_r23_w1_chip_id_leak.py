@@ -17,9 +17,11 @@ user-visible bubble text (programme display name + the question);
 the "Programme id <id>." marker the backend keys its programme-id
 intent on (backend/app/router_chat.py program_ids). The bubble
 renders through ``stripProgrammeMarker`` as a render-side guard, and
-retry / locale re-fetch re-send the stored ``sent``, so the scoping
-survives both. The sent marker string itself is unchanged, so the
-backend behaviour is identical — the existing no-key scope tests
+a retry re-sends the stored ``sent``, so the scoping survives it.
+Round 27 W1: the locale re-fetch that also re-sent ``sent`` is
+deleted — a stored reply is never re-fetched. The sent marker
+string itself is unchanged, so the backend behaviour is identical
+— the existing no-key scope tests
 (test_r21_w3_why_scope, test_r22_w2_why_disambiguation) still cover
 it. A node harness (/tmp/r23-w1-harness.mjs) exercises the real
 helpers from frontend/src/lib/chat.ts plus this wiring.
@@ -58,10 +60,11 @@ def test_turn_stores_sent_separately_from_question():
 
 def test_backend_receives_sent_message_not_display_label():
     src = _src(REC_CHAT)
+    # askModel sends the stored sent message, never the display label.
     assert "body: JSON.stringify({ message: sent, locale: requestLocale" in src
-    # History and the locale re-fetch re-send the stored sent message.
+    # History and the retry re-send the stored sent message. (Round 27
+    # W1: the locale re-fetch that also re-sent it is deleted.)
     assert "content: turn.sent ?? turn.question" in src
-    assert "message: turn.sent ?? turn.question, locale, program_ids" in src
 
 
 def test_user_bubble_renders_through_strip_guard():

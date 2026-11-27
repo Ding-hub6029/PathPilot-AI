@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
 import type { Profile } from '../lib/types';
-import { fetchJson, fetchJsonChat, fetchJsonPatient, modelAvailability, allPrograms, findProgram } from '../lib/api';
+import { fetchJsonChat, fetchJsonPatient, modelAvailability, allPrograms, findProgram } from '../lib/api';
 import { checkingDelayMs, footerAiLineKey, freshAiVerdict, probeVerdictApplies, type AiStatusPayload } from '../lib/aiStatus';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, detectLevelWord, disambiguationFollowupMessage, disambiguationLevels, isModelReply, looksLikeQuestion, pendingDisambiguation, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
@@ -66,17 +66,22 @@ import enMessages from '../../messages/en.json';
  * turn only; the displayed message stays verbatim), never a canned
  * intro that contradicts the saved state.
  *
- * Locale safety (fix 2026-11-25): message state stores ONLY structured
- * data — prompt keys, chosen values, the user's own verbatim text, and
- * whole backend answer payloads plus the locale they were answered in
- * (replyLocale). No rendered string (no t()/tf() result, no backend
- * line) is ever stored as a bubble. Every visible string is produced
- * at render time from the current locale: prompts/choices through t(),
- * offline suggestions through t()/tf() + displayProgramTitle(), and
- * live backend turns only when replyLocale === locale — otherwise the
- * turn shows the thinking line and is re-fetched in the new locale
- * (see the [locale, messages] effect below), so switching locale
- * mid-conversation leaves no stale-language text anywhere in the panel.
+ * Locale safety (fix 2026-11-25; Round 27 W1): message state stores
+ * ONLY structured data — prompt keys, chosen values, the user's own
+ * verbatim text, and whole backend answer payloads plus the locale
+ * they were answered in (replyLocale). No rendered string (no t()/tf()
+ * result, no backend line) is ever stored as a bubble. Chrome and
+ * labels are produced at render time from the current locale
+ * (prompts/choices through t(), offline suggestions through t()/tf()
+ * + displayProgramTitle()), but a stored assistant reply is an
+ * immutable record: it is shown exactly as answered, in the locale
+ * it was answered in, and a language switch NEVER re-fetches,
+ * re-derives or rewrites it — re-test task 21 showed the old
+ * locale re-fetch rewriting fee answers into rank lines and
+ * flipping the footer to "AI answers" while the model was down.
+ * Model replies in the old locale stay in the old locale after a
+ * switch (trust over translation); only a genuinely new turn is
+ * ever fetched.
  *
  * Global scope (2026-11-25): the product covers universities worldwide,
  * not just the UK and Singapore. The country question (Q2) is therefore
@@ -149,9 +154,11 @@ type ChatTurn =
       /** Round 24 (W1): the exact message POSTed for this turn, when
           it differs from `message` — a disambiguation follow-up
           sends the original question + the level word, while the
-          turn stores the original question. The locale re-fetch
-          re-sends this, so a fee answer stays a fee answer in the
-          new locale instead of falling back to the ambiguous line. */
+          turn stores the original question. Round 27 W1: the locale
+          re-fetch that used to re-send this is deleted — a stored
+          reply is never re-fetched — so this field is now a record
+          of what was sent, read by nothing; removing it would touch
+          sendAskTurn, so it stays until that is next revised. */
       sentMessage?: string;
       /** Devil's-advocate turn (round 11): sent with mode=devil, so
           the reply challenges the saved preferences with verified
@@ -492,10 +499,8 @@ export function CompassPet() {
   const [aiLive, setAiLive] = useState<boolean | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  /** Bumped on every restart so late re-fetch responses are ignored. */
+  /** Bumped on every restart so late turn responses are ignored. */
   const convRef = useRef(0);
-  /** Indices of backend turns currently being re-fetched for a locale. */
-  const inFlightRef = useRef<Set<number>>(new Set());
 
   /** Pet state machine (research move 3): idle / blink (CSS) / think /
       celebrate / empathise / bored — driven by real app events, never
@@ -580,7 +585,6 @@ export function CompassPet() {
 
   const greet = () => {
     convRef.current += 1;
-    inFlightRef.current.clear();
     // Round 8: a restart clears any stuck busy/waking state — a
     // restart while a call was in flight used to leave the quick
     // replies hidden (chips render only when !busy) with no way back.
@@ -761,7 +765,7 @@ export function CompassPet() {
    * turnInFlightRef is true while a user turn (onSend / askSuggest)
    * is in flight; turnVerdictGenRef is bumped by noteTurnVerdict()
    * at every turn verdict (goOffline / toOffline and every setAiLive
-   * in onSend, askSuggest and the locale re-fetch effect). A probe
+   * in onSend and askSuggest). A probe
    * captures the generation at start; if a turn is in flight or the
    * generation moved when the probe resolves, the probe verdict is
    * dropped — the turn's own verdict lands when it ends. */
@@ -957,112 +961,16 @@ export function CompassPet() {
    * model answers. Round 23 W4: devil's-advocate turns are never
    * included either — their challenge lines are not the context a
    * later normal question should be answered from, or the devil
-   * voice leaks into unrelated answers through the history. `before`
-   * limits to turns before an index (used by the locale re-fetch, so
-   * a turn never quotes itself). */
-  const buildHistory = (turns: ChatTurn[], before?: number): ChatHistoryTurn[] => {
+   * voice leaks into unrelated answers through the history. */
+  const buildHistory = (turns: ChatTurn[]): ChatHistoryTurn[] => {
     const out: ChatHistoryTurn[] = [];
-    turns.forEach((m, i) => {
-      if (before !== undefined && i >= before) return;
+    turns.forEach((m) => {
       if (m.kind !== 'ask' || m.devil || !m.reply || !isModelReply(m.reply)) return;
       out.push({ role: 'user', content: m.message });
       out.push({ role: 'assistant', content: m.reply.lines.join(' ') });
     });
     return out.slice(-6);
   };
-
-  /**
-   * Locale change: re-fetch every live backend-backed turn whose reply
-   * was answered in the old locale, in the new locale. While a turn
-   * awaits its fresh reply it renders the thinking line (see
-   * renderTurn), never the old-locale lines. A failed re-fetch — or a
-   * re-fetch that comes back template-only (ai_status not
-   * "available") — falls back to the offline catalogue rendered in
-   * the new locale. The in-flight set stops duplicate fetches;
-   * replyLocale records the locale each reply was actually answered
-   * in, so a reply that lands after a further switch is re-fetched
-   * again instead of shown stale.
-   */
-  useEffect(() => {
-    messages.forEach((m, i) => {
-      if ((m.kind !== 'suggest' && m.kind !== 'ask') || !m.reply || m.replyLocale === locale) return;
-      if (inFlightRef.current.has(i)) return;
-      inFlightRef.current.add(i);
-      const conv = convRef.current;
-      // A devil's-advocate turn is re-fetched in devil mode too, with
-      // the saved preferences — otherwise the fresh reply would be a
-      // straight answer wearing the devil boundary.
-      const devilProf = m.kind === 'ask' && m.devil ? devilProfileFor(profile) : null;
-      const req = m.kind === 'suggest'
-        ? fetchJson<ChatReply>('/api/assistant/chat', {
-            method: 'POST',
-            body: JSON.stringify({ message: suggestMessageFor(m.degree, m.country, m.band), locale }),
-          })
-        : fetchJson<ChatReply>('/api/assistant/chat', {
-            method: 'POST',
-            body: JSON.stringify({
-              // Round 24 (W1): a disambiguation follow-up re-sends
-              // its constructed message (original question + level
-              // word), not the stored original question alone — the
-              // latter would come back ambiguous again and the fee
-              // answer would regress to "tell me undergraduate or
-              // masters" in the new locale.
-              message: m.sentMessage ?? m.message, locale, history: buildHistory(messages, i),
-              ...(devilProf ? { mode: 'devil', profile: devilProf } : {}),
-            }),
-          });
-      const toOffline = () => {
-        if (convRef.current !== conv) return;
-        noteTurnVerdict();
-        setOffline(true);
-        setAiLive(false);
-        setMessages((prev) => prev.map((x, j) => {
-          if (j !== i) return x;
-          if (x.kind === 'suggest') {
-            const off = suggestOffline(x.degree, x.country, x.band);
-            return {
-              ...x, reply: null, replyLocale: null, offline: true,
-              offlineProgramId: off?.programId ?? null,
-              offlineEvidenceUrl: off?.evidenceUrl ?? null,
-              offlineFee: off?.fee ?? null, offlineFit: off?.fit ?? null,
-            };
-          }
-          if (x.kind === 'ask') {
-            const rank = rankOffline(x.message);
-            return { ...x, reply: null, replyLocale: null, offline: true, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(x.message) };
-          }
-          return x;
-        }));
-      };
-      req.then((fresh) => {
-        if (convRef.current !== conv) return;
-        if (!isModelReply(fresh)) {
-          // Round 10: a template reply in the NEW locale is still a
-          // verified answer — store it as an offline turn (led by
-          // the offline line at render time) instead of dropping it
-          // for a bare offline line. Only a reply with no lines at
-          // all falls through to the catalogue.
-          if (m.kind === 'ask' && fresh.lines?.length) {
-            noteTurnVerdict();
-            setOffline(true);
-            setAiLive(false);
-            setMessages((prev) => prev.map((x, j) => (j === i && x.kind === 'ask' ? { ...x, reply: fresh, replyLocale: locale, offline: true } : x)));
-            return;
-          }
-          toOffline(); return;
-        }
-        setOffline(false);
-        noteTurnVerdict();
-        setAiLive(true);
-        setMessages((prev) => prev.map((x, j) => {
-          if (j !== i || (x.kind !== 'suggest' && x.kind !== 'ask')) return x;
-          return { ...x, reply: fresh, replyLocale: locale };
-        }));
-      }).catch(toOffline)
-        .finally(() => { inFlightRef.current.delete(i); });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale, messages]);
 
   const toggle = (next: boolean) => {
     if (next) {
@@ -1126,9 +1034,12 @@ export function CompassPet() {
 
   /**
    * Every visible string of one turn, produced at render time from the
-   * current locale. Backend lines are shown only when they were
-   * answered in the current locale; a stale reply renders the thinking
-   * line until its re-fetch lands (see the [locale, messages] effect).
+   * current locale — except a stored backend reply, which is shown
+   * exactly as answered (Round 27 W1: a stored reply is an immutable
+   * record; a language switch re-renders chrome/labels only and
+   * never re-fetches or rewrites it, so a reply answered in another
+   * locale stays in that locale instead of showing "Thinking…" or
+   * being replaced by a re-derived answer).
    */
   const renderTurn = (turn: ChatTurn): {
     lines: string[];
@@ -1194,7 +1105,7 @@ export function CompassPet() {
         };
       }
       case 'suggest': {
-        if (turn.reply && turn.replyLocale === locale) {
+        if (turn.reply) {
           // A live reply counts as an AI answer only when the backend
           // actually used a model (ai_status "available") — a
           // template-only reply is never stored as one (see
@@ -1207,7 +1118,6 @@ export function CompassPet() {
             nextSteps: { wizard: '/wizard', program: links.program, institution: links.institution },
           };
         }
-        if (turn.reply) return { lines: [t('pet.thinking')] };
         if (turn.offline) {
           if (!turn.offlineProgramId) return { lines: [offlineLine] };
           const program = findProgram(turn.offlineProgramId);
@@ -1233,7 +1143,7 @@ export function CompassPet() {
         return { lines: [t('pet.thinking')] };
       }
       case 'ask': {
-        if (turn.reply && turn.replyLocale === locale) {
+        if (turn.reply) {
           const links = deriveChatLinks(turn.reply.sources);
           // Round 10: an offline turn whose reply is the verified
           // template answer leads with the offline line, then the
@@ -1253,7 +1163,6 @@ export function CompassPet() {
             devilOffline: turn.devil && turn.offline,
           };
         }
-        if (turn.reply) return { lines: [t('pet.thinking')] };
         if (turn.offline) {
           // Labelled offline content only: the rank lookup below is
           // from the built-in catalogue, never a model answer.
@@ -1446,7 +1355,7 @@ export function CompassPet() {
    *   scoped to the pending candidates as program_ids (the backend
    *   is stateless — the pending context travels in this request),
    *   and the ask turn stores the original question (plus the exact
-   *   sent message, so a locale re-fetch re-sends it).
+   *   sent message, kept as a record of what was sent).
    *
    * Everything else — the devil one-shot, the template-offline
    * fallback, the conversation guard — is identical for both. */
