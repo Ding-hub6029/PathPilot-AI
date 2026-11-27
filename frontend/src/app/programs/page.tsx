@@ -195,7 +195,7 @@ export default function ProgramsPage() {
               <p className="mt-1 text-sm text-navy/75">
                 {t(LEVEL_KEYS[p.degreeLevel] ?? 'cases.filterTm')}
                 {' · '}{formatIntake(p, t)}
-                {' · '}{formatDuration(p, t)}
+                {' · '}{formatDuration(p, t, locale)}
                 {' · '}{fees || t('institution.feeNotPublished')}
               </p>
             </li>

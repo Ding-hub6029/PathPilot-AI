@@ -996,7 +996,9 @@ export function CompassPet() {
           // template's own lines — the school names the backend
           // retrieved — instead of hiding them and showing a bare
           // "offline" with nothing after it.
-          const lines = turn.offline ? [offlineLine, ...turn.reply.lines] : turn.reply.lines;
+          // Round 19 (W1): a devil turn already discloses via the
+          // boundary above (devil.offlineBoundary) — drop the body offline line.
+          const lines = turn.offline && !turn.devil ? [offlineLine, ...turn.reply.lines] : turn.reply.lines;
           return {
             lines,
             evidenceUrl: turn.reply.evidence_url,

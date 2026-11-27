@@ -133,10 +133,10 @@ export default function ProgramDetail({ params }: { params: { id: string } }) {
       {/* Shared element (research move 4): the programme title morphs
           here from the card / institution-list title. */}
       <h1 ref={vtRef(`program-title-${program.id}`)} className="line-mask mt-2 text-4xl font-extrabold leading-[1.05] tracking-tight md:text-5xl"><span>{displayProgramInstitutionName(program.institution, locale)} — {displayProgramName(program, locale)}</span></h1>
-      <p className="mt-3 text-navy/70">{displayCountryCode(program.country, program.country, t)} · {formatIntake(program, t)} · {formatDuration(program, t)}</p>
+      <p className="mt-3 text-navy/70">{displayCountryCode(program.country, program.country, t)} · {formatIntake(program, t)} · {formatDuration(program, t, locale)}</p>
       <div className="mt-4 grid gap-3 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:grid-cols-3">
         <div><p className="text-sm font-semibold text-navy/60">{t('program.fee')}</p><p className="font-bold">{formatFeeItems(program, t, locale)}</p></div>
-        <div><p className="text-sm font-semibold text-navy/60">{t('program.duration')}</p><p className="font-bold">{formatDuration(program, t)}</p></div>
+        <div><p className="text-sm font-semibold text-navy/60">{t('program.duration')}</p><p className="font-bold">{formatDuration(program, t, locale)}</p></div>
         <div><p className="text-sm font-semibold text-navy/60">{t('program.intake')}</p><p className="font-bold">{formatIntake(program, t)}</p></div>
       </div>
 

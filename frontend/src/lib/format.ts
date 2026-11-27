@@ -68,23 +68,72 @@ export function localiseIntakeLabel(
   return null;
 }
 
-export function formatDuration(program: Program, t: (key: string) => string): string {
+/** Localise the parenthetical of a duration ("180 credits",
+ * "180 ECTS", "4 semesters, 120 ECTS"). Each comma-separated part
+ * must be a plain "<number> <unit>" the locale files know; anything
+ * else returns null so the caller falls back to the raw value
+ * instead of rendering an invented one. ECTS is a standard acronym
+ * and stays "ECTS" in every locale (like IELTS elsewhere); only the
+ * surrounding words are localised. Parenthesis style follows the
+ * locale: full-width （） with ， in zh-CN, half-width () with ", "
+ * elsewhere. */
+const DURATION_PAREN_PART = /^(\d+)\s+(semesters?|credits?|ects)$/i;
+
+function localiseDurationParen(
+  inner: string,
+  t: (key: string) => string,
+  locale: string,
+): string | null {
+  const cjk = locale === 'zh-CN';
+  const parts: string[] = [];
+  for (const raw of inner.split(',')) {
+    const m = DURATION_PAREN_PART.exec(raw.trim());
+    if (!m) return null;
+    const n = Number(m[1]);
+    const unit = m[2].toLowerCase();
+    const key = unit === 'ects'
+      ? 'format.ects'
+      : unit.startsWith('semester')
+        ? (n === 1 ? 'format.semester' : 'format.semesters')
+        : (n === 1 ? 'format.credit' : 'format.credits');
+    const v = t(key);
+    if (v === key) return null;
+    parts.push(v.replace('{n}', String(n)));
+  }
+  if (!parts.length) return null;
+  return `${cjk ? '（' : '('}${parts.join(cjk ? '，' : ', ')}${cjk ? '）' : ')'}`;
+}
+
+export function formatDuration(program: Program, t: (key: string) => string, locale = 'en'): string {
   const key = `program.duration.${program.id}`;
   const v = t(key);
   if (v !== key) return v;
   // Generic fallback for expansion programmes: "3 years", "12 months",
   // "1 year full-time" — parsed, never rendered as raw English.
+  // Round 19: the parenthetical is parsed too — "3 years
+  // (180 credits)" / "3 years (180 ECTS)" / "2 years (4 semesters,
+  // 120 ECTS)" — because the UZH card fell through here: its
+  // duration has a parenthetical the old regex could not match, and
+  // it carried no per-programme key. A parenthetical the parser does
+  // not know ("1.5 years (three terms)", "2-3 years") still falls
+  // back to the raw value rather than an invented rendering.
   const s = (program.duration || '').trim();
-  const m = /^(\d+(?:\.\d+)?)\s+(years?|months?)(?:\s+full-time)?$/i.exec(s);
+  const m = /^(\d+(?:\.\d+)?)\s+(years?|months?)(?:\s+full-time)?(?:\s*\(([^)]+)\))?$/i.exec(s);
   if (m) {
     const n = Number(m[1]);
-    const fullTime = /\bfull-time$/i.test(s);
+    const head = s.replace(/\s*\([^)]*\)\s*$/, '');
+    const fullTime = /\bfull-time$/i.test(head);
     const unit = m[2].toLowerCase().startsWith('month') ? 'month' : 'year';
     const k = fullTime
       ? (n === 1 ? 'format.yearFullTime' : 'format.yearsFullTime')
       : (unit === 'month' ? (n === 1 ? 'format.month' : 'format.months') : (n === 1 ? 'format.year' : 'format.years'));
     const out = t(k);
-    return out === k ? program.duration : out.replace('{n}', String(n));
+    if (out === k) return program.duration;
+    const base = out.replace('{n}', String(n));
+    if (!m[3]) return base;
+    const paren = localiseDurationParen(m[3], t, locale);
+    if (paren === null) return program.duration;
+    return `${base}${locale === 'zh-CN' ? '' : ' '}${paren}`;
   }
   return program.duration;
 }
@@ -140,5 +189,5 @@ export function pickFeeItem(program: Program, profile: Profile): FeeItem | undef
 /** "September 2026 · 3 years full-time · GBP 46,700 per year" line,
  * in the current locale. */
 export function formatProgramLine(program: Program, t: (key: string) => string, locale: string): string {
-  return `${formatIntake(program, t, locale)} · ${formatDuration(program, t)} · ${formatFeeItems(program, t, locale)}`;
+  return `${formatIntake(program, t, locale)} · ${formatDuration(program, t, locale)} · ${formatFeeItems(program, t, locale)}`;
 }

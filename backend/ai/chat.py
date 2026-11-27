@@ -63,7 +63,8 @@ from ai.assistant import (LOCALES, _DEADLINE_WORDS, _FEE_WORDS,
 from ai.grounding import (FORBIDDEN_PATTERNS, Source,
                           check_model_output, difference_errors,
                           gaokao_sources, programme_fact_texts,
-                          programme_sources, ranking_sources, resolve_url)
+                          programme_sources, ranking_sources, resolve_url,
+                          stated_differences)
 from ai.prompts import PROMPT_VERSION, chat_system, devil_advocate_system
 from ai.provider import ProviderAdapter, ProviderError
 from app.data import (CLIMATE, DATA_DIR, EXPANSION_MATCHABLE,
@@ -1281,9 +1282,18 @@ def _render_lines(payload: dict, locale: str, sources: list[Source]) -> list[str
             if offer not in lines:
                 lines.append(offer)
         elif not added_action:
-            nxt = _t(locale, "next")
-            if nxt not in lines:
-                lines.append(nxt)
+            # Round 19 (W1): when the last rendered line already
+            # closes with an engine-checked difference statement
+            # (devil replies: "相差3项。" / "3 more …"), the
+            # "next" line must not follow it — the difference is
+            # the reply's closing sentence. Detection uses the
+            # same patterns as the difference checker, so this
+            # covers en/zh; the other locales have no checker
+            # patterns yet (pre-existing gap, Round 17).
+            if not (lines and stated_differences(lines[-1])):
+                nxt = _t(locale, "next")
+                if nxt not in lines:
+                    lines.append(nxt)
     return lines[:3]
 
 
@@ -1728,14 +1738,29 @@ def _devil_template_result(conflicts: list[dict], sources: list[Source],
     when nothing conflicts, plus the eligibility-check offer when
     there is room. A climate line states the engine-computed
     difference between the two largest city counts (Round 17 W2).
-    Never a model answer, never an invented clash."""
+    Round 19 (W1): when the last conflict line already closes with
+    that difference sentence, the offer is dropped — the difference
+    is the reply's closing sentence. Never a model answer, never an
+    invented clash."""
     if conflicts:
         lines = [devil_conflict_line(c, locale) for c in conflicts[:3]]
     else:
         loc = locale if locale in _DEVIL_T else "en"
         lines = [_DEVIL_T[loc]["no_conflict"]]
     if len(lines) < 3:
-        lines.append(_t(locale, "next"))
+        # Round 19 (W1): the trailing "next" line must not follow a
+        # difference sentence. Dropping, not moving, the offer:
+        # putting it before the conflict would lead with the
+        # call-to-action ahead of the conclusion, and the wizard
+        # CTA still reaches the user through the frontend's
+        # nextSteps button. Only the last line is checked: with
+        # several conflicts the difference sits mid-reply by
+        # construction (climate is listed first), and reordering
+        # conflicts is out of scope — the offer is kept there.
+        last = conflicts[len(lines) - 1] if conflicts else None
+        if not (last is not None
+                and _devil_difference_sentence(last, locale)):
+            lines.append(_t(locale, "next"))
     evidence_url: str | None = None
     for conflict in conflicts:
         for eid in conflict["evidence_ids"]:

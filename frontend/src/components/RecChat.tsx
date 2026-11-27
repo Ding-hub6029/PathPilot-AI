@@ -169,7 +169,7 @@ export function RecChat({
       : r.eligibilitySummary === 'PARTIAL_UNKNOWN' ? 'wizard.recChatPartial' : 'wizard.recChatNotMet';
     const parts = [t(statusKey)];
     const cityName = p.city ? cityDisplayName(p.city, t) : '';
-    const duration = formatDuration(p, t);
+    const duration = formatDuration(p, t, locale);
     if (cityName || duration) parts.push([cityName, duration].filter(Boolean).join(' · '));
     const feeItem = pickFeeItem(p, profile);
     if (feeItem) {

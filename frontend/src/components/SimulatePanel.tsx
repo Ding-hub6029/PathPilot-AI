@@ -66,6 +66,15 @@ export function SimulatePanel({
     });
   }, [candidates, interacted]);
   const [result, setResult] = useState<MultiSimulateResponse | null>(null);
+  // Round 19 W2 — the boundary line must describe the explanation
+  // actually shown: "AI 生成的解读" is only true when the model
+  // really wrote it (result.explanation.source === 'model'). Before
+  // any run, and after a template/unavailable run, there is no
+  // AI reading on the page, so the honest wording is the template
+  // one (rules summary, no AI model used). Both boundary sites
+  // below share this one conditional.
+  const explanationIsModel = result?.explanation?.source === 'model';
+  const boundaryKey = explanationIsModel ? 'sim.boundary' : 'sim.boundaryTemplate';
   const [activeScenario, setActiveScenario] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -197,8 +206,10 @@ export function SimulatePanel({
     <section className="mt-10 rounded-2xl border border-navy/10 bg-white p-6 shadow-sm" aria-labelledby="sim-multi-title">
       <h2 id="sim-multi-title" className="text-xl font-bold">{t('sim.multiTitle')}</h2>
       <p className="mt-1 text-sm text-navy/70">{t('sim.multiIntro')}</p>
-      {/* Visible reliability boundary, on every render, in all locales. */}
-      <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="note">{t('sim.boundary')}</p>
+      {/* Visible reliability boundary, on every render, in all locales.
+          Conditional (Round 19 W2): the AI wording only when the
+          explanation really came from the model — see boundaryKey. */}
+      <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="note">{t(boundaryKey)}</p>
 
       {programIds.length === 0 ? (
         <p className="mt-4 text-sm text-navy/70">{t('sim.noProgrammes')}</p>
@@ -314,7 +325,7 @@ export function SimulatePanel({
             {result.explanation?.text ? (
               <p className="mt-2 whitespace-pre-line rounded-xl bg-paper p-4 text-sm text-navy/85">{result.explanation.text}</p>
             ) : null}
-            <p className="mt-2 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="note">{t('sim.boundary')}</p>
+            <p className="mt-2 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="note">{t(boundaryKey)}</p>
           </div>
         </div>
       )}
