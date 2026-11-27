@@ -40,11 +40,15 @@ Edinburgh for a Switzerland user. This module replaces the fixed
   still-missing preference in the default order, AFTER applying
   that extraction.
 
-The next question is asked as the last line of ``lines``. The line is
-built server-side from a fixed localised template (never model text),
-so the contract holds even when the model does not end with a
-question; the model is told not to ask it itself. ``done`` is True
-exactly when all 8 preferences are known (merged known + extracted).
+The next question is asked as the last line of ``lines`` — EXCEPT when
+the turn carries a WHY follow-up (see ``why_followup``): then the
+turn's question IS the WHY, the next-question line is withheld from
+``lines`` (Round 16: the climate question used to render ahead of the
+WHY, so the user was asked climate before the reason was explored),
+and ``next_question`` still names the deferred preference — the
+frontend asks it after the WHY is answered or skipped. ``done`` is
+True exactly when all 8 preferences are known (merged known +
+extracted).
 
 Nothing is logged or stored: no message, history or key ever leaves
 this call except inside the provider request itself.
@@ -470,12 +474,18 @@ def _validate_next_question(value, merged_known: dict) -> str | None:
 # ---------------------------------------------------------------------------
 
 def _render_pref_lines(payload: dict, locale: str, sources: list[Source],
-                       next_question: str | None) -> list[str]:
+                       next_question: str | None,
+                       why: dict | None = None) -> list[str]:
     """Model lines (at most 3, conclusion first) with the next question
     as the last line. When a question follows, the model substance is
-    capped at 2 lines so the total stays within 3."""
+    capped at 2 lines so the total stays within 3. Round 16: when the
+    turn carries a WHY follow-up (``why`` non-null), the WHY is the
+    turn's question and the next-question line is WITHHELD — the
+    frontend renders it after the WHY is answered or skipped, so the
+    climate question can never appear ahead of the WHY. ``lines`` is
+    then substance only (at most 3)."""
     lines = _render_lines(payload, locale, sources)
-    if next_question is None:
+    if next_question is None or why is not None:
         return lines[:3]
     question = _question_line(next_question, locale)
     body = [line for line in lines[:2] if line != question]
@@ -500,7 +510,14 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     the generic "I don't know" first line is replaced by what the
     evidence actually shows (cities + actual classes + counts) —
     the model being unavailable must not erase evidence already in
-    hand. Any other template line is left exactly as written."""
+    hand. Any other template line is left exactly as written.
+
+    Round 16: when ``why`` is present, the WHY follow-up is the
+    turn's question and the next-question line is WITHHELD from
+    ``lines`` (same rule as the model path — see
+    ``_render_pref_lines``): the deferred preference still rides in
+    ``next_question``, and the frontend asks it after the WHY is
+    answered or skipped."""
     nxt = first_missing(known)
     done = nxt is None
     lines = list(template["lines"][:2])
@@ -515,7 +532,7 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
             lines = [cities]
         elif country is not None and not lines:
             lines = [country]
-    if nxt is not None:
+    if nxt is not None and why is None:
         lines.append(_question_line(nxt, locale))
     return {"lines": lines[:3],
             "evidence_url": None if force_no_url else template.get("evidence_url"),
@@ -539,7 +556,10 @@ def pref_answer(message: str, locale: str = "en",
     Returns ``{lines, evidence_url, ai_status, model, sources,
     extracted, next_question, done, why_followup}``: ``lines`` at most 3, conclusion
     first, the next question as the last line while anything is still
-    missing; ``extracted`` holds only the preferences understood from
+    missing — UNLESS the turn carries a WHY follow-up, in which case
+    the WHY is the turn's question, the next-question line is withheld
+    from ``lines`` and ``next_question`` names the deferred preference
+    (Round 16); ``extracted`` holds only the preferences understood from
     THIS message, validated server-side; ``next_question`` is the
     single most useful still-missing preference, or null when all 8
     are known (``done`` True); ``why_followup`` is
@@ -656,7 +676,14 @@ def pref_answer(message: str, locale: str = "en",
     merged = merge_known(clean_known, extracted)
     nxt = _validate_next_question(parsed.get("next_question"), merged)
     done = nxt is None
-    lines = _render_pref_lines(parsed, loc, sources, nxt)
+    # Round 14, P0: the WHY follow-up rides in the FIRST reply of the
+    # turn that records new countries — never gated on the user
+    # confirming the extraction first. Round 16: when it is present,
+    # it IS the turn's question, so the next-question line is
+    # withheld from `lines` (see _render_pref_lines) and `nxt` stays
+    # the deferred preference.
+    why = why_followup(extracted, clean_known)
+    lines = _render_pref_lines(parsed, loc, sources, nxt, why)
     # Defence in depth: a rendered line must never carry a raw URL, a
     # probability/guarantee, or key material — if it does, fall back.
     joined_lines = "\n".join(lines)
@@ -672,7 +699,4 @@ def pref_answer(message: str, locale: str = "en",
             "extracted": extracted,
             "next_question": nxt,
             "done": done,
-            # Round 14, P0: the WHY follow-up rides in the FIRST reply
-            # of the turn that records new countries — never gated on
-            # the user confirming the extraction first.
-            "why_followup": why_followup(extracted, clean_known)}
+            "why_followup": why}

@@ -388,6 +388,147 @@ export function whyAnchoredTurnId(
   return turnIds.includes(awaitingReason.turnId) ? awaitingReason.turnId : null;
 }
 
+// --- WHY as a first-class part of its turn (round 16) -----------------------
+// Re-test task 10 (2026-11-27 03:14-03:19 CST) found the WHY still
+// broken in three ways, all in the turn rendering:
+// (1) ORDER: the first reply's lines end with the next-question line
+//     (climate), and the WHY bubble renders after the whole reply —
+//     so the climate question is asked BEFORE the WHY. The backend
+//     now withholds the question line when why_followup is present
+//     (see ai/pref_chat.py); the deferred question renders after the
+//     WHY is answered or skipped, never before.
+// (2) DETACHED ANSWER: the WHY answer was appended to the
+//     confirmedNotes list and rendered as a bottom bubble while the
+//     WHY question itself vanished from history (awaitingReason was
+//     cleared, and nothing in the turn remembered the question). The
+//     WHY question + answer now live ON the turn (PrefTurnWhy,
+//     persisted with it) and render inside the turn's block, in
+//     order, in both the model and the guided branch (renderPrefTurns
+//     is shared) and across leave-and-return.
+// (3) The input died while a confirm was pending (see mergeExtracted
+//     below and the PrefChat input guards).
+
+/** One WHY follow-up as part of a pref-chat turn: the question the
+ * turn asked about the user's reason for its countries, the user's
+ * verbatim answer once given, and whether they skipped it. */
+export interface PrefTurnWhy {
+  countries: string[];
+  note?: string;
+  /** The user's verbatim answer, once given; null while unanswered. */
+  answer: string | null;
+  /** True when the user skipped the WHY (the reason stays unknown). */
+  skipped: boolean;
+}
+
+/** The fields of a pref-chat turn the bubble order depends on. */
+export interface PrefTurnLike {
+  id: number;
+  question: string;
+  reply: PrefChatReply | null;
+  why?: PrefTurnWhy | null;
+}
+
+/** One bubble of a rendered pref-chat turn, in order. The component
+ * renders each kind; this function owns the ORDER, so it is
+ * unit-testable without a DOM (see tests/test_r16_w1.py). */
+export type PrefTurnBubble =
+  | { kind: 'user'; text: string }
+  | { kind: 'reply'; lines: string[] }
+  | { kind: 'why'; countries: string[]; note?: string }
+  | { kind: 'whyAnswer'; answer: string }
+  | { kind: 'deferredQuestion'; question: Exclude<PrefNextQuestion, null> };
+
+/** The bubbles of one pref-chat turn, in rendered order:
+ * the user's verbatim message, the reply's lines, the WHY question,
+ * the WHY answer (once given), and — only after the WHY is answered
+ * or skipped — the deferred next question. The climate question can
+ * never appear before the WHY answer: while the WHY is live the
+ * deferred bubble is withheld, and the reply's lines carry no
+ * next-question line for a WHY turn (the backend withholds it; see
+ * the strip below for the locale re-fetch case). */
+export function prefTurnBubbles(
+  turn: PrefTurnLike,
+  awaitingReason: { countries: string[]; note?: string; turnId?: number } | null,
+): PrefTurnBubble[] {
+  const out: PrefTurnBubble[] = [{ kind: 'user', text: turn.question }];
+  const lines = turn.reply?.lines ?? [];
+  // A locale re-fetch after the WHY was answered AND confirmed
+  // recomputes why_followup as null (the countries are known by
+  // then), so the fresh reply DOES end with the question line: drop
+  // that trailing line here, so the question shows once, as the
+  // deferred bubble below, never twice and never inside the reply
+  // ahead of the WHY. The question line is always the last line of
+  // `lines` when next_question is non-null (the server appends it);
+  // a WHY turn's own reply never ends with it (the backend withheld
+  // it), so no substance line is ever dropped.
+  const stripQuestion = !!turn.why && !turn.reply?.why_followup
+    && !!turn.reply?.next_question && lines.length > 0;
+  out.push({ kind: 'reply', lines: stripQuestion ? lines.slice(0, -1) : lines });
+  // The WHY question: live when it anchors to this turn, else the
+  // turn's own record (resolved or still open).
+  const liveHere = awaitingReason?.turnId === turn.id ? awaitingReason : null;
+  if (liveHere) {
+    out.push({ kind: 'why', countries: liveHere.countries, ...(liveHere.note ? { note: liveHere.note } : {}) });
+    return out;
+  }
+  if (turn.why) {
+    out.push({ kind: 'why', countries: turn.why.countries, ...(turn.why.note ? { note: turn.why.note } : {}) });
+    if (turn.why.answer !== null) {
+      out.push({ kind: 'whyAnswer', answer: turn.why.answer });
+    }
+    if ((turn.why.answer !== null || turn.why.skipped) && turn.reply?.next_question) {
+      out.push({ kind: 'deferredQuestion', question: turn.reply.next_question });
+    }
+  }
+  return out;
+}
+
+/** Attach a WHY answer to its turn: the acknowledgement renders
+ * inside the turn, right after the WHY question — never as a
+ * detached bottom bubble. Returns the turns with that turn's
+ * why.answer set (skipped false); every other turn is returned
+ * untouched. When the turn has no why record yet, one is created
+ * from `why` (the live awaitingReason); when turnId is undefined
+ * or matches no turn, the turns are returned unchanged — the caller
+ * then falls back to the confirmedNotes bubble (old blobs, the
+ * guided queue's turn-less WHY). */
+export function answerTurnWhy<T extends PrefTurnLike>(
+  turns: readonly T[],
+  turnId: number | undefined,
+  answer: string,
+  why?: { countries: string[]; note?: string } | null,
+): T[] {
+  if (turnId === undefined) return [...turns];
+  return turns.map((x) => {
+    if (x.id !== turnId) return x;
+    const record: PrefTurnWhy | null = x.why ?? (why && why.countries.length
+      ? { countries: why.countries, ...(why.note ? { note: why.note } : {}), answer: null, skipped: false }
+      : null);
+    if (!record) return x;
+    return { ...x, why: { ...record, answer, skipped: false } };
+  });
+}
+
+/** Mark a turn's WHY as skipped (the reason stays unknown): the WHY
+ * question stays in the turn's history, the deferred question
+ * renders after it, and the question is never re-asked. Same
+ * fallbacks as answerTurnWhy. */
+export function skipTurnWhy<T extends PrefTurnLike>(
+  turns: readonly T[],
+  turnId: number | undefined,
+  why?: { countries: string[]; note?: string } | null,
+): T[] {
+  if (turnId === undefined) return [...turns];
+  return turns.map((x) => {
+    if (x.id !== turnId) return x;
+    const record: PrefTurnWhy | null = x.why ?? (why && why.countries.length
+      ? { countries: why.countries, ...(why.note ? { note: why.note } : {}), answer: null, skipped: false }
+      : null);
+    if (!record) return x;
+    return { ...x, why: { ...record, skipped: true } };
+  });
+}
+
 /** Localised city name for a stored (canonical English) city value:
  * `city.<slug>` when the locale file has one, the stored value
  * itself otherwise (a Chinese city name, or an untranslated city,
@@ -528,6 +669,35 @@ export function mergeKnownWithExtracted(known: PrefKnown, extracted: PrefExtract
   if (extracted.teaching) next.teaching = extracted.teaching;
   if (extracted.note?.trim()) next.note = extracted.note.trim();
   return next;
+}
+
+/**
+ * Merge two pref-chat extractions, oldest first (Round 16): when a
+ * new reply arrives while an earlier extraction is still waiting for
+ * confirmation — which is now reachable, because the input stays live
+ * while a confirm is pending — the new understanding is folded into
+ * the pending one instead of overwriting it. Nothing the model
+ * understood is dropped, and the confirm bubble covers everything
+ * understood so far. Countries union; enums / city / salary take the
+ * newer value; the note appends as one atom (see appendCountryNote).
+ * Nothing is applied here — confirmation still owns that.
+ */
+export function mergeExtracted(oldE: PrefExtracted, newE: PrefExtracted): PrefExtracted {
+  const out: PrefExtracted = { ...oldE };
+  if (newE.countries?.length) {
+    out.countries = [...new Set([...(oldE.countries ?? []), ...newE.countries])];
+  }
+  if (newE.climate !== undefined) out.climate = newE.climate;
+  if (newE.environment !== undefined) out.environment = newE.environment;
+  if (newE.city !== undefined) out.city = newE.city;
+  if (newE.afterGrad !== undefined) out.afterGrad = newE.afterGrad;
+  if (newE.salary !== undefined) out.salary = newE.salary;
+  if (newE.pressure !== undefined) out.pressure = newE.pressure;
+  if (newE.teaching !== undefined) out.teaching = newE.teaching;
+  if (newE.note?.trim()) {
+    out.note = appendCountryNote(oldE.note, newE.note.trim());
+  }
+  return out;
 }
 
 // --- Desktop-pet known-steps (round 7, Fix B) -------------------------------
@@ -671,6 +841,11 @@ export interface PersistedPrefTurn {
   reply: PrefChatReply | null;
   replyLocale: string | null;
   offline: boolean;
+  /** Round 16: the WHY follow-up that belongs to this turn (see
+   * PrefTurnWhy) — persisted with the turn so leave-and-return keeps
+   * the WHY question + answer attached to it, never as a detached
+   * bottom bubble. Absent on pre-round-16 blobs. */
+  why?: PrefTurnWhy | null;
 }
 
 export interface PersistedModelTurn {
@@ -735,6 +910,7 @@ export function serializePrefChatState(
   const turns = state.turns.map((x: PersistedPrefTurn & { pending?: boolean }) => ({
     id: x.id, question: x.question, reply: x.reply,
     replyLocale: x.replyLocale ?? null, offline: x.offline || !!x.pending,
+    ...(x.why ? { why: x.why } : {}),
   }));
   const modelTurns = state.modelTurns.map((x: PersistedModelTurn & { pending?: boolean }) => ({
     id: x.id, q: x.q, question: x.question, reply: x.reply,
@@ -779,11 +955,29 @@ export function parsePrefChatState(
     if (!x || typeof x !== 'object') return null;
     const t = x as Record<string, unknown>;
     if (!_isNum(t.id) || !_isStr(t.question) || !t.question.trim()) return null;
+    // Round 16: the WHY that belongs to this turn. A malformed why
+    // is dropped, never applied — the turn itself still parses.
+    let why: PrefTurnWhy | null = null;
+    if (t.why && typeof t.why === 'object') {
+      const w = t.why as Record<string, unknown>;
+      if (Array.isArray(w.countries) && w.countries.length
+        && w.countries.every((c) => _isStr(c) && c)
+        && (w.answer === null || _isStr(w.answer))
+        && typeof w.skipped === 'boolean') {
+        why = {
+          countries: w.countries as string[],
+          ...(_isStr(w.note) && w.note ? { note: w.note } : {}),
+          answer: w.answer as string | null,
+          skipped: w.skipped as boolean,
+        };
+      }
+    }
     turns.push({
       id: t.id, question: t.question,
       reply: (t.reply && typeof t.reply === 'object' ? t.reply : null) as PrefChatReply | null,
       replyLocale: _isStr(t.replyLocale) ? t.replyLocale : null,
       offline: t.offline === true,
+      ...(why ? { why } : {}),
     });
   }
   const modelTurns: PersistedModelTurn[] = [];

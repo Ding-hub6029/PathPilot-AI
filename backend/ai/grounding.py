@@ -284,16 +284,77 @@ def _norm_number(n: str) -> str:
     return n.replace(",", "").rstrip("0").rstrip(".") if "." in n else n.replace(",", "")
 
 
+# Difference statements (Round 16, W2): a model that states "X differs
+# from Y by N" is doing arithmetic the numeric cross-check above cannot
+# see — small bare integers are deliberately not cross-checked, and even
+# an extracted N would pass as a substring of its own operands ("1" is
+# in "14" and in "11"). A stated difference is therefore only trusted
+# when it equals an ENGINE-COMPUTED difference supplied by the caller;
+# anything else is rejected and the caller falls back to the template.
+# The checker validates the arithmetic, never the wording: the model
+# may state the two counts separately, but the moment it states a
+# difference, that number must be one the engine computed.
+_DIFFERENCE_RES = [
+    # Chinese: 相差1项 / 多出3个 / 少2项 / 3项之差
+    re.compile(r"相差\s*(\d+)\s*[项个]"),
+    re.compile(r"多(?:出)?\s*(\d+)\s*[项个]"),
+    re.compile(r"少\s*(\d+)\s*[项个]"),
+    re.compile(r"(\d+)\s*[项个]之差"),
+    # English: differs by 3 / 3 more / 3 fewer / 3 apart
+    re.compile(r"differ(?:s|ence)?\s+by\s+(\d+)", re.IGNORECASE),
+    re.compile(r"(\d+)\s+more\b", re.IGNORECASE),
+    re.compile(r"(\d+)\s+fewer\b", re.IGNORECASE),
+    re.compile(r"(\d+)\s+apart\b", re.IGNORECASE),
+]
+
+
+def stated_differences(text: str) -> list[int]:
+    """Numbers ``text`` states as a difference between two counts
+    (e.g. 相差1项, 3 more, differs by 3), in order of appearance.
+    A text that states the counts separately, with no difference
+    wording, yields []."""
+    out: list[int] = []
+    for pat in _DIFFERENCE_RES:
+        for m in pat.finditer(text or ""):
+            out.append(int(m.group(1)))
+    return out
+
+
+def difference_errors(text: str,
+                      allowed_differences: frozenset[int] | None) -> list[str]:
+    """Errors for difference statements in ``text`` that do not equal
+    an engine-computed difference. ``allowed_differences`` None means
+    no difference checking (callers with no engine-computed diffs keep
+    their old behaviour); an empty set means no difference may be
+    stated at all."""
+    if allowed_differences is None:
+        return []
+    errors: list[str] = []
+    for n in stated_differences(text or ""):
+        if n not in allowed_differences:
+            allowed = (", ".join(str(d) for d in sorted(allowed_differences))
+                       or "none")
+            errors.append(
+                f"text states a difference of {n}, which is not an "
+                f"engine-computed difference (allowed: {allowed})")
+    return errors
+
+
 def check_model_output(payload, *, allowed_evidence_ids,
                        allowed_rule_ids, rule_status,
                        evidence_texts: dict[str, str],
                        allowed_candidate_ids=frozenset(),
-                       locale: str = "en") -> CheckResult:
+                       locale: str = "en",
+                       allowed_differences: frozenset[int] | None = None) -> CheckResult:
     """Validate one structured model output (spec Ch13 output schema).
 
     ``rule_status`` maps rule_id -> engine status (MET/NOT_MET/UNKNOWN/
     NOT_APPLICABLE). ``evidence_texts`` maps evidence id -> the text the
     cited fact must be consistent with (rule detail / manifest excerpt).
+    ``allowed_differences`` is the set of engine-computed differences
+    the model may state (devil chat); None disables difference
+    checking — a stated difference is arithmetic, not a quoted number,
+    so the numeric cross-check below can never validate it.
     """
     errors: list[str] = []
 
@@ -365,6 +426,14 @@ def check_model_output(payload, *, allowed_evidence_ids,
             for num in _numbers_in(text):
                 if _norm_number(num) not in cited_norm and num not in cited_norm:
                     fail(f"{tag} states number {num} which is not in the cited evidence")
+        # Derived differences: a stated difference must equal an
+        # engine-computed one (Round 16 W2). The numeric cross-check
+        # above cannot see it — small integers are not extracted, and
+        # a wrong difference is a substring of its own operands — so
+        # it is checked here, for every claim kind: arithmetic is
+        # arithmetic whether the claim is a fact or an inference.
+        for err in difference_errors(text, allowed_differences):
+            fail(f"{tag} {err}")
     unknowns = payload.get("unknowns")
     if unknowns is not None:
         if not isinstance(unknowns, list):

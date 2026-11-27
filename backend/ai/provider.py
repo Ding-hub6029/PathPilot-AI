@@ -100,6 +100,19 @@ _BREAKER_TRIP_KINDS = ("timeout", "transport_error")
 _BREAKER_MIN_LATENCY_S = 5.0
 _PROBE_BREAKER_MIN_LATENCY_S = 1.0
 
+# Round 16 W3: budget for the probe's 1-token chat confirmation (see
+# probe_live). A liveness call is time-to-first-token dominated — but
+# the real gateway is slow even for that: a direct key test on
+# 2026-11-27 ~03:36 CST measured a tiny chat answering in ~3.4 s
+# while healthy — so 7 s is ~2x headroom over a healthy reply while
+# still catching a hang in seconds instead of the 15 s model budget.
+# (A 5 s budget was tried first and rejected: only 1.6 s of headroom
+# over the measured 3.4 s would turn ordinary gateway slowness into
+# false "unavailable" verdicts and template-only model paths.)
+# The fallback chat probe (gateways without a /models endpoint) uses
+# the same timeout_s - 3 s budget, i.e. 7 s at the default timeout.
+_PROBE_CHAT_TIMEOUT_S = 7.0
+
 
 def _slow_enough(started: float, minimum_s: float) -> bool:
     return (time.monotonic() - started) >= minimum_s
@@ -205,19 +218,51 @@ class ProviderAdapter:
         return {"Authorization": f"Bearer {self.api_key or ''}",
                 "Content-Type": "application/json"}
 
+    def _probe_chat_call(self, timeout_s: float) -> bool:
+        """One 1-token chat call as a liveness check. True only when
+        the gateway actually answers on the model path. A slow
+        failure (timeout / transport error that actually waited)
+        trips the breaker, like a slow model call would; a fast
+        failure (HTTP 500, bad reply, auth) already fails fast and
+        does not. Bypasses the breaker — the probe is what re-tests
+        liveness. Never raises: any ProviderError means not live."""
+        started = time.monotonic()
+        try:
+            self.chat([{"role": "user", "content": "ok"}],
+                      timeout_s=timeout_s,
+                      max_tokens=1, temperature=0.0,
+                      _bypass_breaker=True)
+        except ProviderError as exc:
+            # chat() itself trips the breaker on a slow timeout /
+            # transport failure; trip here too for the same kinds so
+            # the verdict is consistent even if chat() did not (e.g.
+            # a ProviderError raised before the trip logic runs).
+            if (exc.retryable and exc.kind in _BREAKER_TRIP_KINDS
+                    and _slow_enough(started, _PROBE_BREAKER_MIN_LATENCY_S)):
+                _trip_gateway_breaker()
+            return False
+        return True
+
     def probe_live(self, timeout_s: float = 10.0) -> bool:
-        """Live gateway probe (Round 14): True only when the gateway
-        actually answers right now. /ai/status used to report the
-        config-only ``ai_status`` ("available" whenever a key was
-        configured), so it said "available" through a whole 8-minute
-        outage. This exercises the real path instead:
+        """Live gateway probe (Round 14, tightened Round 16 W3): True
+        only when the gateway actually answers right now. /ai/status
+        used to report the config-only ``ai_status`` ("available"
+        whenever a key was configured), so it said "available"
+        through a whole 8-minute outage. This exercises the real path
+        instead:
 
         1. GET {base_url}/models (no generation, no tokens, fast when
-           the gateway is up). 200 means live. 401/403 means the key
-           is rejected — the model cannot work, so False without
-           tripping the breaker (a bad key fails fast anyway). Any
-           other status (404/405/501: this gateway does not implement
-           the list endpoint) falls through to step 2.
+           the gateway is up). 200 means the list endpoint answers —
+           but NOT that the model works (Round 16 W3: the audit's
+           gateway answered /models while POST /chat/completions
+           hung, so the probe said "available" and a simulate click
+           then spent the full 15 s model budget — re-test task 10,
+           18 s to a template). So a 200 falls through to step 2
+           as a confirmation. 401/403 means the key is rejected —
+           the model cannot work, so False without tripping the
+           breaker (a bad key fails fast anyway). Any other status
+           (404/405/501: this gateway does not implement the list
+           endpoint) falls through to step 2 as the only signal.
         2. One tiny chat call (max_tokens=1), bypassing the breaker —
            the probe is what re-tests liveness, so it must not be
            blocked by the breaker it is meant to clear. Success
@@ -237,11 +282,12 @@ class ProviderAdapter:
             with self._client(min(timeout_s, 3.0)) as client:
                 resp = client.get(f"{self.base_url}/models",
                                   headers=self._auth_headers())
-            if resp.status_code == 200:
-                _clear_gateway_breaker()
-                return True
             if resp.status_code in (401, 403):
                 return False
+            if resp.status_code == 200:
+                # List endpoint answers — confirm on the real model
+                # path before reporting live (see step 1 above).
+                return self._probe_chat_call(_PROBE_CHAT_TIMEOUT_S)
             # Any other status: this gateway may not implement the
             # list endpoint — fall through to the chat probe.
         except httpx.TimeoutException:
@@ -259,14 +305,10 @@ class ProviderAdapter:
             # Malformed base URL: the chat probe would fail the same
             # way, fast — report it without spending the chat budget.
             return False
-        try:
-            self.chat([{"role": "user", "content": "ok"}],
-                      timeout_s=max(1.0, timeout_s - 3.0),
-                      max_tokens=1, temperature=0.0,
-                      _bypass_breaker=True)
-        except ProviderError:
-            return False
-        return True
+        # Fallback for gateways without a list endpoint: the chat call
+        # is the only liveness signal, so it keeps the looser
+        # timeout_s - 3 s budget (see _PROBE_CHAT_TIMEOUT_S).
+        return self._probe_chat_call(max(1.0, timeout_s - 3.0))
 
     # -- public API ---------------------------------------------------------
     def chat(self, messages: list[dict], *, system: str | None = None,

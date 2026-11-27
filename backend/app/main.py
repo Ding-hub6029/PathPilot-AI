@@ -35,7 +35,7 @@ from ai.assistant import (BUDGET_BANDS, DEGREE_LEVELS, ask as assistant_ask,
                         suggest as assistant_suggest)
 from ai.explain import explain_structured_with_status
 from ai.prompts import PROMPT_VERSION
-from ai.provider import ProviderAdapter
+from ai.provider import ProviderAdapter, gateway_breaker_open
 from app.adapter import (RULES_VERSION, flat_to_student, match_response,
                          rule_to_frontend, source_manifest_hash, summary_for)
 from app.data import (CLIMATE, DATA_VERSION, EXPANSION_INSTITUTION_CITIES,
@@ -112,6 +112,42 @@ def reset_ai_status_cache() -> None:
     with _ai_status_lock:
         _AI_STATUS_CACHE["at"] = 0.0
         _AI_STATUS_CACHE["payload"] = None
+
+
+def _model_skip_cached() -> bool:
+    """True when a model attempt would be wasted (Round 16 W3).
+
+    The circuit breaker (ai.provider) only opens after a slow model
+    failure, and the frontend's /ai/status read only gates the
+    explain flag it sends — neither helps when the frontend's verdict
+    is stale but the backend already knows: a probe that said
+    "unavailable" within its 60 s TTL, or a breaker tripped by
+    another endpoint's slow failure. In that case the simulate
+    handler skips the model attempt and the template renders in
+    engine time instead of spending the 15 s model budget proving
+    the gateway is still down (re-test task 10: 18 s to a template
+    while the probe said "available" — the probe then only checked
+    GET /models; it now confirms on the chat path, and this check
+    makes the handler honour its verdict).
+
+    Non-blocking: if a probe is in flight right now the lock is
+    held and this returns False (attempt as before) instead of
+    waiting on the probe. No cached verdict (cold cache) also means
+    attempt as before — the probe refreshes on /ai/status reads.
+    """
+    if gateway_breaker_open():
+        return True
+    if not _ai_status_lock.acquire(blocking=False):
+        return False
+    try:
+        payload = _AI_STATUS_CACHE["payload"]
+        if payload is None:
+            return False
+        if time.monotonic() - _AI_STATUS_CACHE["at"] >= _AI_STATUS_TTL_S:
+            return False
+        return payload.get("ai_status") == "unavailable"
+    finally:
+        _ai_status_lock.release()
 
 
 def _client_ip(request: Request) -> str:
@@ -332,8 +368,10 @@ def ai_status():
     # outage while every model path was template-only — the signal the
     # frontend used to decide whether to attempt a model call was
     # false. ProviderAdapter.probe_live() exercises the gateway (GET
-    # /models, else one 1-token chat call, ~3 s worst case when the
-    # gateway is unreachable) and the result is cached for 60 s
+    # /models, then a 1-token chat confirmation on the real model
+    # path — Round 16 W3: /models alone answered while chat hung, so
+    # the probe said "available" and a simulate click spent the full
+    # 15 s model budget), and the result is cached for 60 s
     # server-side, so a probe costs ~1 tiny call per minute per backend
     # process, not one per user request; concurrent callers wait on
     # the lock and share the cached value. "probed" tells callers
@@ -1201,12 +1239,22 @@ async def simulate(request: Request):
         # the general bucket.
         provider = None
         if body.get("explain") is True:
-            # Same per-user key as the middleware (Round 13): the
-            # manual check must use _client_ip, not request.client.host.
-            if _rate_limited(_client_ip(request), "ai", RATE_LIMIT_AI_PER_MIN):
-                return _err(rid, "RATE_LIMITED",
-                            "AI call budget exceeded; try again shortly.", 429)
-            provider = ProviderAdapter()
+            # Round 16 W3: when the gateway is already known down
+            # (breaker open, or a fresh probe said "unavailable" —
+            # see _model_skip_cached) the model attempt is skipped
+            # BEFORE the AI-bucket check: a template-only call makes
+            # no model call, so it must not consume the 10/min AI
+            # budget, and the numbers still render instead of a 429
+            # while the model is down.
+            if _model_skip_cached():
+                provider = None
+            else:
+                # Same per-user key as the middleware (Round 13): the
+                # manual check must use _client_ip, not request.client.host.
+                if _rate_limited(_client_ip(request), "ai", RATE_LIMIT_AI_PER_MIN):
+                    return _err(rid, "RATE_LIMITED",
+                                "AI call budget exceeded; try again shortly.", 429)
+                provider = ProviderAdapter()
         # Round 13 fail-fast: explain_simulation's model call is
         # synchronous (up to 15 s single attempt, no repair), so it
         # runs in a worker thread — the event loop stays free for

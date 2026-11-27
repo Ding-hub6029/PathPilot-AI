@@ -12,12 +12,14 @@ import { allPrograms, fetchJson, fetchJsonChat } from '../lib/api';
 import {
   isModelReply, looksLikeQuestion,
   appendCountryNote, countKnownPrefs, effectiveNextPref, extractedSummary, firstMissingPref, isModelPrefReply,
-  isPrefKnown, knownFromProfile, markTurnOffline, mergeKnownWithExtracted, normaliseCountryNote,
-  parsePrefChatState, prefChatFingerprint, prefQuestionNameKey, profilePatchFromExtracted,
+  isPrefKnown, knownFromProfile, markTurnOffline, mergeExtracted, mergeKnownWithExtracted, normaliseCountryNote,
+  parsePrefChatState, prefChatFingerprint, prefQuestionNameKey, prefTurnBubbles, profilePatchFromExtracted,
+  answerTurnWhy, skipTurnWhy,
   serializePrefChatState, shouldAskCountryWhy, whyAnchoredTurnId, whyFollowupFromExtracted,
   PREF_QUESTIONS,
   type ChatHistoryTurn, type ChatReply, type ParseReply,
   type PrefChatPersistedState, type PrefChatReply, type PrefExtracted, type PrefKnown, type PrefNextQuestion,
+  type PrefTurnBubble, type PrefTurnWhy,
 } from '../lib/chat';
 import { CompassFace, type PetMood } from './CompassPet';
 import { useElapsed } from '../lib/useElapsed';
@@ -411,6 +413,12 @@ interface PrefTurn {
   replyLocale: Locale | null;
   offline: boolean;
   pending: boolean;
+  /** Round 16: the WHY follow-up that belongs to this turn — its
+   * question, the user's verbatim answer once given, and whether
+   * they skipped it. First-class turn state (see PrefTurnWhy in
+   * lib/chat): the WHY question + answer render inside this turn's
+   * block and persist with it, never as a detached bottom bubble. */
+  why?: PrefTurnWhy | null;
 }
 
 export function PrefChat({ onDone }: { onDone: () => void }) {
@@ -696,7 +704,16 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       const knownCountries = profile.prefCountries ?? [];
       const newCountries = (preserved.patch.prefCountries ?? []).filter((c) => !knownCountries.includes(c));
       if (shouldAskCountryWhy(newCountries, profile.prefCountriesNote)) {
-        setAwaitingReason({ countries: newCountries, note: preserved.patch.prefCountriesNote?.trim() || undefined });
+        // Round 16: anchor the WHY to the preserved turn (its id)
+        // and record it on the turn — the guided branch renders
+        // renderPrefTurns above the offline banner, so the WHY
+        // question + answer stay with the turn instead of vanishing
+        // when the mode switches.
+        const note = preserved.patch.prefCountriesNote?.trim() || undefined;
+        setAwaitingReason({ countries: newCountries, ...(note ? { note } : {}), turnId });
+        setTurns((prev) => prev.map((x) => (x.id === turnId && !x.why
+          ? { ...x, why: { countries: newCountries, ...(note ? { note } : {}), answer: null, skipped: false } }
+          : x)));
       }
       return;
     }
@@ -719,12 +736,39 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * backstop, and only fires when the reason is still unanswered. */
   const armWhyFromReply = (r: PrefChatReply, knownBefore: PrefKnown, turnId?: number) => {
     const w = r.why_followup;
+    let why: { countries: string[]; note?: string } | null = null;
     if (w && w.countries?.length) {
-      setAwaitingReason({ countries: w.countries, ...(w.note ? { note: w.note } : {}), ...(turnId !== undefined ? { turnId } : {}) });
-      return;
+      why = { countries: w.countries, ...(w.note ? { note: w.note } : {}) };
+    } else {
+      why = whyFollowupFromExtracted(r.extracted, knownBefore);
     }
-    const derived = whyFollowupFromExtracted(r.extracted, knownBefore);
-    if (derived) setAwaitingReason({ ...derived, ...(turnId !== undefined ? { turnId } : {}) });
+    if (!why) return;
+    setAwaitingReason({ ...why, ...(turnId !== undefined ? { turnId } : {}) });
+    // Round 16: the WHY belongs to THIS turn — record it on the
+    // turn as well, so the question stays in the turn's history
+    // (and survives leave-and-return) even after awaitingReason is
+    // cleared by the answer. An already-recorded WHY is never
+    // overwritten (its answer / skipped state is history now).
+    if (turnId !== undefined) {
+      // A fresh const: the `let` above loses its non-null narrowing
+      // inside the setTurns closure.
+      const armedWhy: { countries: string[]; note?: string } = why;
+      setTurns((prev) => prev.map((x) => (x.id === turnId && !x.why
+        ? { ...x, why: { ...armedWhy, answer: null, skipped: false } }
+        : x)));
+    }
+  };
+
+  /** Set the pending extraction, folding a new understanding into an
+   * existing unconfirmed one instead of overwriting it (Round 16):
+   * the input stays live while a confirm is pending, so a new reply
+   * can land before the old extraction is confirmed — overwriting it
+   * would silently drop what the model understood from the earlier
+   * turn. The merged whole is still confirmed by one tap. */
+  const setPendingExtractMerged = (extracted: PrefExtracted, rawText: string) => {
+    setPendingExtract((prev) => (prev
+      ? { extracted: mergeExtracted(prev.extracted, extracted), rawText: prev.rawText }
+      : { extracted, rawText }));
   };
 
   /** One model-led turn: message + known prefs + history to the
@@ -746,7 +790,14 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     setThinking(true);
     setWaking(false);
     const requestLocale = locale;
-    const requestKnown = knownFromProfile(profile);
+    // Round 16: the request's `known` folds in an unconfirmed
+    // extraction, so answering the next question while a confirm is
+    // pending does not make the server re-ask what it already
+    // understood. Nothing is APPLIED here — the profile still waits
+    // for the user's confirm tap.
+    const requestKnown = pendingExtract
+      ? mergeKnownWithExtracted(knownFromProfile(profile), pendingExtract.extracted)
+      : knownFromProfile(profile);
     const turnId = nextTurnId();
     setTurns((prev) => [...prev, { id: turnId, question: trimmed, reply: null, replyLocale: null, offline: false, pending: true }]);
     const history: ChatHistoryTurn[] = [];
@@ -779,7 +830,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
           setFailedText(null);
           setTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: true, pending: false } : x)));
           if (r.next_question !== undefined) setServerNext(r.next_question);
-          setPendingExtract({ extracted: r.extracted, rawText: trimmed });
+          // Round 16: fold into a still-pending extraction instead
+          // of overwriting it — see setPendingExtractMerged.
+          setPendingExtractMerged(r.extracted, trimmed);
           // Round 14, P0: the WHY follow-up belongs to THIS reply —
           // arm it now, not when the user confirms the extraction.
           // Round 15: anchored to this turn's id, so the bubble
@@ -798,7 +851,9 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       setTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: false, pending: false } : x)));
       if (r.next_question !== undefined) setServerNext(r.next_question);
       if (r.extracted && Object.keys(r.extracted).length > 0) {
-        setPendingExtract({ extracted: r.extracted, rawText: trimmed });
+        // Round 16: fold into a still-pending extraction instead of
+        // overwriting it — see setPendingExtractMerged.
+        setPendingExtractMerged(r.extracted, trimmed);
         // Round 14, P0: the WHY follow-up belongs to THIS reply —
         // arm it now, not when the user confirms the extraction.
         // Round 15: anchored to this turn's id, so the bubble
@@ -859,7 +914,20 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       // Round 15: anchor the backstop WHY to the turn this extraction
       // came from (the latest turn), so it renders with that reply.
       const anchorId = turns.length ? turns[turns.length - 1].id : undefined;
-      setAwaitingReason({ countries: newCountries, note: pendingExtract.extracted.note?.trim() || undefined, ...(anchorId !== undefined ? { turnId: anchorId } : {}) });
+      // Round 16: never re-arm a WHY the user already answered or
+      // skipped on that turn (skip-then-confirm used to resurrect
+      // it), and record the WHY on the turn when arming it here.
+      const anchorTurn = anchorId !== undefined ? turns.find((x) => x.id === anchorId) : undefined;
+      const whyResolved = !!anchorTurn?.why && (anchorTurn.why.answer !== null || anchorTurn.why.skipped);
+      if (!whyResolved) {
+        const note = pendingExtract.extracted.note?.trim() || undefined;
+        setAwaitingReason({ countries: newCountries, ...(note ? { note } : {}), ...(anchorId !== undefined ? { turnId: anchorId } : {}) });
+        if (anchorId !== undefined) {
+          setTurns((prev) => prev.map((x) => (x.id === anchorId && !x.why
+            ? { ...x, why: { countries: newCountries, ...(note ? { note } : {}), answer: null, skipped: false } }
+            : x)));
+        }
+      }
     }
   };
 
@@ -879,9 +947,17 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     // Round 14, P2a: the note is one summary atom — append joined
     // with '·', never with a separator prefSummary splits on.
     updateProfile({ prefCountriesNote: appendCountryNote(profile.prefCountriesNote, trimmed) });
-    // Round 15: append — the WHY answer is its own noted bubble,
-    // kept alongside (never overwritten by) the confirm summary.
-    setConfirmedNotes((prev) => [...prev, trimmed]);
+    // Round 16: a WHY anchored to a turn is answered ON that turn —
+    // the acknowledgement renders inside the turn's block, right
+    // after the WHY question, never as a detached bottom bubble. A
+    // WHY with no turn to attach to (guided queue, old blob) keeps
+    // the confirmedNotes bubble as its fallback (Round 15 behaviour).
+    const anchorId = awaitingReason?.turnId;
+    if (anchorId !== undefined && turns.some((x) => x.id === anchorId)) {
+      setTurns((prev) => answerTurnWhy(prev, anchorId, trimmed, awaitingReason));
+    } else {
+      setConfirmedNotes((prev) => [...prev, trimmed]);
+    }
     setAwaitingReason(null);
     setInput('');
     flashMood('celebrate');
@@ -889,8 +965,15 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
 
   /** Skip the why-follow-up (the reason stays unknown — unknown stays
    * unknown, never invented). Round 15: skipping the reason must not
-   * erase the noted bubbles already shown — they are history now. */
+   * erase the noted bubbles already shown — they are history now.
+   * Round 16: a skipped WHY stays in its turn's history (the
+   * question was asked) and the deferred question renders after it;
+   * a turn-less WHY just clears. */
   const skipReason = () => {
+    const anchorId = awaitingReason?.turnId;
+    if (anchorId !== undefined) {
+      setTurns((prev) => skipTurnWhy(prev, anchorId, awaitingReason));
+    }
     setAwaitingReason(null);
   };
 
@@ -1177,6 +1260,10 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       await askModel(q, text);
       return;
     }
+    // Round 16: the input stays live while a parse waits for confirm
+    // — a new answer supersedes the unconfirmed parse, exactly as
+    // skipping past it would (a question above leaves it alone).
+    if (pendingParse) setPendingParse(null);
     setThinking(true);
     setWaking(false);
     let parsed: ParseReply | null = null;
@@ -1410,69 +1497,107 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * anchored bubble (inside renderPrefTurns, right after its turn's
    * reply) and the unanchored fallback (right after all turns,
    * still before the confirm bubble). */
-  const renderWhyBubble = () => {
-    if (!awaitingReason) return null;
-    return (
-      <div className="flex justify-start">
-        <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
-          <p>{awaitingReason.note
-            ? tf('p0.chatWhyReason', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、'), note: awaitingReason.note })
-            : tf('p0.chatWhyCountry', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、') })}</p>
-        </div>
+  const renderWhyBubble = (countries: string[], note?: string) => (
+    <div className="flex justify-start">
+      <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
+        <p>{note
+          ? tf('p0.chatWhyReason', { countries: countries.map((c) => t(`country.${c}`)).join('、'), note })
+          : tf('p0.chatWhyCountry', { countries: countries.map((c) => t(`country.${c}`)).join('、') })}</p>
       </div>
-    );
+    </div>
+  );
+
+  /** The live WHY bubble for the currently open follow-up when it
+   * anchors to no turn (an old blob, or the guided queue's
+   * turn-less WHY): renders right after the turns, still before the
+   * confirm bubble. */
+  const renderLiveWhyBubble = () => {
+    if (!awaitingReason) return null;
+    return renderWhyBubble(awaitingReason.countries, awaitingReason.note);
   };
 
   /** One model-led turn: the user's verbatim message, then the model's
    * lines + evidence link (only when answered in the current locale),
    * the thinking line while a re-fetch is pending or the answer is
-   * still on its way, or the honest offline line. */
-  const renderPrefTurns = () => {
-    // Round 15: the WHY follow-up anchors to the turn that armed it
-    // (whyAnchoredTurnId) — the bubble renders inside that turn's
-    // block, immediately after its reply, so the WHY is part of the
-    // FIRST visible reply. Round 14 rendered it in the input block
-    // AFTER the confirm bubble, so the first reply ended with the
-    // climate question and the WHY only appeared underneath the
-    // confirm prompt.
-    const whyAnchor = whyAnchoredTurnId(awaitingReason, turns.map((x) => x.id));
-    return turns.map((turn, i) => (
-    <div key={`pref-${i}`} className="space-y-3">
-      <div className="flex justify-end">
-        <div className="max-w-[90%] rounded-2xl bg-teal px-4 py-3 text-white">
-          <p>{turn.question}</p>
-        </div>
-      </div>
-      <div className="flex justify-start">
-        <div className={`${turn.pending ? 'think-shimmer ' : ''}max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5`}>
-          {turn.pending ? (
-            <p className="flex items-center gap-2">
-              <span>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</span>
-              <span className="think-dots" aria-hidden="true"><span /><span /><span /></span>
-            </p>
-          ) : turn.reply && turn.replyLocale === locale ? (
-            <>
-              {/* Round 10: an offline turn shows its stored template
-                  lines led by the offline line, never as an AI answer. */}
-              {turn.offline && (<p>{t('wizard.chatAiOffline')}</p>)}
-              {turn.reply.lines.map((line, j) => (<p key={j} className={j > 0 || turn.offline ? 'mt-1' : ''}>{line}</p>))}
-              {turn.reply.evidence_url && (
-                <a href={turn.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
-                  {t('pet.evidence')} ↗
-                </a>
-              )}
-            </>
-          ) : turn.reply ? (
-            <p>{t('pet.thinking')}</p>
-          ) : (
-            <p>{t('wizard.chatAiOffline')}</p>
-          )}
-        </div>
-      </div>
-      {whyAnchor === turn.id && renderWhyBubble()}
+   * still on its way, or the honest offline line. Round 16: the
+   * bubble ORDER comes from prefTurnBubbles (lib/chat) — user,
+   * reply, WHY question, WHY answer, deferred next question — so the
+   * order is unit-testable without a DOM. The WHY question stays in
+   * the turn's history after it is answered, the acknowledgement
+   * renders attached to the turn (never as a detached bottom bubble),
+   * and the deferred question (e.g. climate) renders only after the
+   * WHY is answered or skipped, never ahead of it. */
+  const renderPrefTurns = () => turns.map((turn) => (
+    <div key={`pref-${turn.id}`} className="space-y-3">
+      {prefTurnBubbles(turn, awaitingReason).map((bubble) => {
+        if (bubble.kind === 'user') {
+          return (
+            <div key={`pref-${turn.id}-user`} className="flex justify-end">
+              <div className="max-w-[90%] rounded-2xl bg-teal px-4 py-3 text-white">
+                <p>{bubble.text}</p>
+              </div>
+            </div>
+          );
+        }
+        if (bubble.kind === 'reply') {
+          return (
+            <div key={`pref-${turn.id}-reply`} className="flex justify-start">
+              <div className={`${turn.pending ? 'think-shimmer ' : ''}max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5`}>
+                {turn.pending ? (
+                  <p className="flex items-center gap-2">
+                    <span>{waking ? tf('pet.wakingElapsed', { seconds: thinkingElapsed }) : tf('r9chat.thinkingElapsed', { seconds: thinkingElapsed })}</span>
+                    <span className="think-dots" aria-hidden="true"><span /><span /><span /></span>
+                  </p>
+                ) : turn.reply && turn.replyLocale === locale ? (
+                  <>
+                    {/* Round 10: an offline turn shows its stored template
+                        lines led by the offline line, never as an AI answer. */}
+                    {turn.offline && (<p>{t('wizard.chatAiOffline')}</p>)}
+                    {bubble.lines.map((line, k) => (<p key={k} className={k > 0 || turn.offline ? 'mt-1' : ''}>{line}</p>))}
+                    {turn.reply.evidence_url && (
+                      <a href={turn.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
+                        {t('pet.evidence')} ↗
+                      </a>
+                    )}
+                  </>
+                ) : turn.reply ? (
+                  <p>{t('pet.thinking')}</p>
+                ) : (
+                  <p>{t('wizard.chatAiOffline')}</p>
+                )}
+              </div>
+            </div>
+          );
+        }
+        if (bubble.kind === 'why') {
+          return (
+            <div key={`pref-${turn.id}-why`}>
+              {renderWhyBubble(bubble.countries, bubble.note)}
+            </div>
+          );
+        }
+        if (bubble.kind === 'whyAnswer') {
+          return (
+            <div key={`pref-${turn.id}-why-answer`} className="flex justify-start">
+              <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
+                <p>{t('wizard.chatOpThanks')}</p>
+                <p className="mt-1 text-sm text-navy/70">{bubble.answer}</p>
+              </div>
+            </div>
+          );
+        }
+        // deferredQuestion: the next preference question, asked only
+        // after the WHY is answered or skipped.
+        return (
+          <div key={`pref-${turn.id}-deferred`} className="flex justify-start">
+            <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
+              <p>{t(ASK_KEY[bubble.question])}</p>
+            </div>
+          </div>
+        );
+      })}
     </div>
-    ));
-  };
+  ));
 
   /** Chips for the model-led next question. A tap sends the chip's
    * label as the user's message — the model, not the chip, decides
@@ -1558,7 +1683,13 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * Round 14, P0: the why-follow-up is armed in the FIRST reply now,
    * so it is open while the extraction is still pending confirmation
    * — the input stays live for the reason (a question still goes to
-   * the model and the why stays open for after the answer). */
+   * the model and the why stays open for after the answer).
+   * Round 16: the input/send/skip stay live while a confirm is
+   * pending, even after the WHY is answered — a send then goes
+   * through as a new turn (sendToPrefChat folds the pending
+   * extraction into the request's known, and a new extraction folds
+   * into the pending confirm instead of overwriting it), so the user
+   * is never stuck at the confirm gate with a dead input. */
   const submitModelText = () => {
     const text = input.trim();
     if (!text || thinking) return;
@@ -1574,7 +1705,6 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       saveReason(text);
       return;
     }
-    if (pendingExtract) return;
     setInput('');
     void sendToPrefChat(text);
   };
@@ -1621,7 +1751,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 the confirm bubble — never after it. When it IS
                 anchored, renderPrefTurns already placed it inside
                 its turn, so this renders nothing. */}
-            {awaitingReason && whyAnchoredTurnId(awaitingReason, turns.map((x) => x.id)) === null && renderWhyBubble()}
+            {awaitingReason && whyAnchoredTurnId(awaitingReason, turns.map((x) => x.id)) === null && renderLiveWhyBubble()}
 
             {/* Before the first turn, the pet asks the first missing
                 preference in its own words so the user sees a question
@@ -1705,13 +1835,18 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                     onKeyDown={(e) => { if (e.key === 'Enter') submitModelText(); }}
                     placeholder={nextQ === 'city' ? cityPlaceholder : t('wizard.prefFreeText')}
                     aria-label={t('wizard.chatTypePlaceholder')}
-                    // Round 14, P0: the input stays live for the WHY
-                    // answer while an extraction waits for confirm.
-                    disabled={thinking || (!!pendingExtract && !awaitingReason)}
+                    // Round 16: the input stays live while a confirm
+                    // is pending — the old `pendingExtract` clause
+                    // killed it the moment the WHY was answered (or
+                    // on resume with a pending extraction), so the
+                    // user could not answer the next question before
+                    // tapping confirm. Only a call in flight
+                    // disables it now.
+                    disabled={thinking}
                     className="min-w-0 flex-1 rounded-full border border-navy/25 bg-white px-3 py-2 text-sm disabled:opacity-50" />
                   <button type="button"
                     onClick={submitModelText}
-                    disabled={thinking || (!!pendingExtract && !awaitingReason) || !input.trim()}
+                    disabled={thinking || !input.trim()}
                     className="btn-press shrink-0 rounded-full bg-teal px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">
                     {t('wizard.chatSend')}
                   </button>
@@ -1720,7 +1855,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                   {/* P0-3: while the why-follow-up is open, Skip skips
                       the reason (it stays unknown), not the next
                       preference question. */}
-                  <button type="button" onClick={awaitingReason ? skipReason : skipNext} disabled={thinking || (!!pendingExtract && !awaitingReason)} className="btn-press text-sm font-semibold text-teal-dark underline underline-offset-2 disabled:opacity-40">
+                  <button type="button" onClick={awaitingReason ? skipReason : skipNext} disabled={thinking} className="btn-press text-sm font-semibold text-teal-dark underline underline-offset-2 disabled:opacity-40">
                     {t('wizard.chatSkip')}
                   </button>
                 </div>
@@ -1949,13 +2084,14 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                       onKeyDown={(e) => { if (e.key === 'Enter') void submitFreeText(); }}
                       placeholder={currentQ === 'countries' ? t('wizard.prefCountriesOther') : currentQ === 'city' ? cityPlaceholder : t('wizard.prefFreeText')}
                       aria-label={t('wizard.chatTypePlaceholder')}
-                      // Round 14, P0: the input stays live for the WHY
-                      // answer while a parse waits for confirm.
-                      disabled={thinking || (!!pendingParse && !awaitingReason)}
+                      // Round 16: the input stays live while a parse
+                      // waits for confirm (same rule as the model-led
+                      // confirm) — only a call in flight disables it.
+                      disabled={thinking}
                       className="min-w-0 flex-1 rounded-full border border-navy/25 bg-white px-3 py-2 text-sm disabled:opacity-50" />
                     <button type="button"
                       onClick={() => void submitFreeText()}
-                      disabled={thinking || (!!pendingParse && !awaitingReason) || !input.trim()}
+                      disabled={thinking || !input.trim()}
                       className="btn-press shrink-0 rounded-full bg-teal px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">
                       {t('wizard.chatSend')}
                     </button>

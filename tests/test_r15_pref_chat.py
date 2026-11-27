@@ -215,13 +215,18 @@ def test_r15_pref_chat_render_order_and_wizard_step():
 
     # Finding 1: the anchored WHY renders inside renderPrefTurns,
     # and the unanchored fallback renders after the turns but before
-    # the confirm bubble.
-    anchor = prefchat.index("whyAnchor === turn.id && renderWhyBubble()")
+    # the confirm bubble. Round 16: the bubble order lives in
+    # prefTurnBubbles (lib/chat) — user, reply, WHY, WHY answer,
+    # deferred question — and renderPrefTurns renders from it, so the
+    # WHY is part of its turn's block, before the confirm bubble.
+    assert "prefTurnBubbles(turn, awaitingReason)" in prefchat, (
+        "renderPrefTurns must render the turn's bubbles from prefTurnBubbles")
+    assert "renderWhyBubble(bubble.countries, bubble.note)" in prefchat, (
+        "the WHY bubble inside a turn must render from the turn's WHY record")
     confirm = prefchat.index("{pendingExtract && (")
-    assert anchor < confirm, "WHY anchor must render before the confirm bubble"
-    fallback = prefchat.index(
-        "whyAnchoredTurnId(awaitingReason, turns.map((x) => x.id)) === null && renderWhyBubble()")
     turns_render = prefchat.index("{renderPrefTurns()}")
+    fallback = prefchat.index(
+        "whyAnchoredTurnId(awaitingReason, turns.map((x) => x.id)) === null && renderLiveWhyBubble()")
     assert turns_render < fallback < confirm, (
         "unanchored WHY must render after the turns and before the confirm bubble")
     assert prefchat.count("armWhyFromReply(r, requestKnown, turnId)") == 2, (

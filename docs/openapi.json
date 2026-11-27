@@ -746,7 +746,7 @@
     },
     "/api/v1/assistant/pref-chat": {
       "post": {
-        "description": "One turn of the model-led preference conversation.\n\nRequest: ``{message (1..500 chars), locale=\"en\", known: {countries,\nclimate, environment, city, afterGrad, salary, salaryCurrency,\npressure, teaching, note}, history: [{role, content}] (max 10)}``.\nResponse: ``{lines (at most 3, conclusion first, next question\nlast), evidence_url, ai_status, model, sources: [{id, url, title}],\nextracted, next_question, done}`` \u2014 ``extracted`` holds only the\npreferences understood from THIS message (validated server-side);\n``next_question`` is the single most useful still-missing\npreference, or null when all 8 are known (``done`` True).",
+        "description": "One turn of the model-led preference conversation.\n\nRequest: ``{message (1..500 chars), locale=\"en\", known: {countries,\nclimate, environment, city, afterGrad, salary, salaryCurrency,\npressure, teaching, note}, history: [{role, content}] (max 10)}``.\nResponse: ``{lines (at most 3, conclusion first, next question\nlast \u2014 unless a WHY follow-up is present, in which case the WHY\nis the turn's question, the next-question line is withheld from\nlines and next_question names the deferred preference),\nevidence_url, ai_status, model, sources: [{id, url, title}],\nextracted, next_question, done}`` \u2014 ``extracted`` holds only the\npreferences understood from THIS message (validated server-side);\n``next_question`` is the single most useful still-missing\npreference, or null when all 8 are known (``done`` True).",
         "operationId": "assistant_pref_chat_endpoint_api_v1_assistant_pref_chat_post",
         "responses": {
           "200": {

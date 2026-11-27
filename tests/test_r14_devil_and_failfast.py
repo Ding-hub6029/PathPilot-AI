@@ -127,27 +127,38 @@ def test_ai_status_unconfigured_reports_unavailable_without_probe(monkeypatch):
 
 
 def test_ai_status_live_probe_available_and_cached(monkeypatch):
-    """Gateway answers GET /models: available, probed=True — and the
-    second call within the 60 s TTL does NOT probe again (the handler
-    is still called exactly once). Pre-fix this returned "available"
-    without ever touching the gateway, so it could not distinguish a
-    live gateway from a dead one."""
-    calls = {"n": 0}
+    """Gateway answers GET /models AND the 1-token chat confirmation:
+    available, probed=True — and the second call within the 60 s TTL
+    does NOT probe again (neither endpoint is called again).
+    Pre-fix this returned "available" without ever touching the
+    gateway, so it could not distinguish a live gateway from a dead
+    one. Round 16 W3: GET /models 200 alone no longer means live —
+    the audit's gateway answered the list endpoint while
+    /chat/completions hung, so the probe confirms on the chat path
+    before reporting available."""
+    calls = {"models": 0, "chat": 0}
 
     def _handler(request: httpx.Request) -> httpx.Response:
-        calls["n"] += 1
-        assert request.method == "GET" and request.url.path.endswith("/models")
-        return httpx.Response(200, json={"data": [{"id": "mock-r14-model"}]})
+        if request.method == "GET" and request.url.path.endswith("/models"):
+            calls["models"] += 1
+            return httpx.Response(200, json={"data": [{"id": "mock-r14-model"}]})
+        assert request.method == "POST" and request.url.path.endswith("/chat/completions")
+        calls["chat"] += 1
+        return httpx.Response(200, json={
+            "choices": [{"message": {"content": "ok"}}], "usage": {}})
 
     _mock_adapter(monkeypatch, _handler)
     r = client.get("/api/v1/ai/status")
     assert r.status_code == 200, r.text
     assert r.json()["ai_status"] == "available"
     assert r.json()["probed"] is True
-    assert calls["n"] == 1
+    assert calls == {"models": 1, "chat": 1}, (
+        "available must mean the list endpoint AND the chat path "
+        "both answered")
     r = client.get("/api/v1/ai/status")
     assert r.json()["ai_status"] == "available"
-    assert calls["n"] == 1, "second status read within TTL must not re-probe"
+    assert calls == {"models": 1, "chat": 1}, (
+        "second status read within TTL must not re-probe")
 
 
 def test_ai_status_live_probe_down_reports_unavailable_and_trips_breaker(monkeypatch):

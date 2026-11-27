@@ -61,9 +61,9 @@ from ai.assistant import (LOCALES, _DEADLINE_WORDS, _FEE_WORDS,
                           program_display_name, program_evidence_url,
                           program_fee_range)
 from ai.grounding import (FORBIDDEN_PATTERNS, Source,
-                          check_model_output, gaokao_sources,
-                          programme_fact_texts, programme_sources,
-                          ranking_sources, resolve_url)
+                          check_model_output, difference_errors,
+                          gaokao_sources, programme_fact_texts,
+                          programme_sources, ranking_sources, resolve_url)
 from ai.prompts import PROMPT_VERSION, chat_system, devil_advocate_system
 from ai.provider import ProviderAdapter, ProviderError
 from app.data import (CLIMATE, DATA_DIR, EXPANSION_MATCHABLE,
@@ -1198,23 +1198,54 @@ def _safety_errors(text: str, evidence_joined: str) -> list[str]:
 
 def _validate_chat_payload(payload: dict, sources: list[Source],
                            evidence_texts: dict[str, str],
-                           locale: str) -> list[str]:
+                           locale: str,
+                           allowed_differences: frozenset[int] | None = None
+                           ) -> list[str]:
     """All validation errors for one structured model output (empty =
     valid). check_model_output covers claims/actions; the summary and
-    action explanations get the extra safety scan as well."""
+    action explanations get the extra safety scan as well.
+    ``allowed_differences`` is the set of engine-computed differences
+    the model may state (devil chat); None disables difference
+    checking. A wrong difference hides in the summary just as easily
+    as in a claim, so the summary and action explanations are checked
+    for it too — the safety scan alone cannot see it (small integers
+    are not cross-checked, and a wrong difference is a substring of
+    its own operands)."""
     check = check_model_output(
         payload, allowed_evidence_ids=set(evidence_texts),
         allowed_rule_ids=set(), rule_status={},
-        evidence_texts=evidence_texts, locale=locale)
+        evidence_texts=evidence_texts, locale=locale,
+        allowed_differences=allowed_differences)
     errors = list(check.errors)
     joined = " ".join(evidence_texts.values())
     summary = payload.get("summary")
     if isinstance(summary, str) and summary.strip():
         errors.extend(_safety_errors(summary, joined))
+        errors.extend(difference_errors(summary, allowed_differences))
     for action in payload.get("actions") or []:
         if isinstance(action, dict) and isinstance(action.get("explanation"), str):
             errors.extend(_safety_errors(action["explanation"], joined))
+            errors.extend(
+                difference_errors(action["explanation"], allowed_differences))
     return errors
+
+
+def _devil_allowed_differences(conflicts: list[dict]) -> frozenset[int]:
+    """Engine-computed differences the devil's model reply may state:
+    every pairwise absolute difference between the listed city counts
+    of each climate conflict. A difference between any other pair of
+    numbers is not in the set and is rejected — the model must state
+    counts separately instead. Empty when no climate conflict lists
+    two cities: then no difference may be stated at all."""
+    diffs: set[int] = set()
+    for conflict in conflicts:
+        if conflict.get("kind") != "climate":
+            continue
+        counts = [n for _city, _cls, n in conflict.get("cities") or []]
+        for i in range(len(counts)):
+            for j in range(i + 1, len(counts)):
+                diffs.add(abs(counts[i] - counts[j]))
+    return frozenset(diffs)
 
 
 # ---------------------------------------------------------------------------
@@ -1543,14 +1574,22 @@ def devil_conflicts(profile, message: str) -> list[dict]:
                     for city, _n in cities):
                 listed = [(city, CLIMATE[city]["climate"], n)
                           for city, n in cities[:3]]
-                conflicts.append({
+                conflict = {
                     "kind": "climate", "country": country, "wanted": wanted,
                     "cities": listed,
                     "evidence_ids": [_climate_source(city, n).id
                                      for city, n in cities[:3]],
                     "sources": [_climate_source(city, n)
                                 for city, n in cities[:3]],
-                })
+                }
+                if len(listed) >= 2:
+                    # Engine-computed difference between the two
+                    # largest city counts (Round 16 W2): the model may
+                    # only ever state THIS difference — never one it
+                    # subtracted itself (14 vs 11 was answered "1").
+                    conflict["count_difference"] = abs(
+                        listed[0][2] - listed[1][2])
+                conflicts.append(conflict)
         if level:
             pool = [p for p in list(PROGRAMS.values())
                     + list(EXPANSION_MATCHABLE.values())
@@ -1771,10 +1810,21 @@ def answer(message: str, locale: str = "en",
     }
     if is_devil:
         # The engine-computed conflicts are the ONLY challenges the
-        # model may raise, each with its supporting evidence ids.
+        # model may raise, each with its supporting evidence ids. The
+        # climate conflict additionally carries the engine-computed
+        # difference between the two largest city counts
+        # (``count_difference``): the model may state ONLY that
+        # difference, never one it subtracted itself — and the checker
+        # enforces it against _devil_allowed_differences below.
         envelope["devil_conflicts"] = [
             {"kind": c["kind"], "evidence_ids": c["evidence_ids"],
-             "detail": devil_conflict_line(c, "en")} for c in conflicts]
+             "detail": devil_conflict_line(c, "en")
+             + (f" Verified difference between the two largest city "
+                f"counts: {c['count_difference']} programmes."
+                if c["kind"] == "climate"
+                and c.get("count_difference") is not None else ""),
+             "count_difference": c.get("count_difference")}
+            for c in conflicts]
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]
     started = time.monotonic()
     try:
@@ -1792,7 +1842,10 @@ def answer(message: str, locale: str = "en",
         logger.info("assistant/chat model output unparsable latency_ms=%d",
                     int((time.monotonic() - started) * 1000))
         return fallback()
-    errors = _validate_chat_payload(parsed, sources, evidence_texts, loc)
+    errors = _validate_chat_payload(
+        parsed, sources, evidence_texts, loc,
+        allowed_differences=(_devil_allowed_differences(conflicts)
+                             if is_devil else None))
     if errors:
         # Round 10: no repair retry — one bad output costs a second
         # ~10 s model call and still usually fails; the verified

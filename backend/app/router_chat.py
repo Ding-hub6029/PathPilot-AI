@@ -224,7 +224,10 @@ async def assistant_pref_chat_endpoint(request: Request):
     climate, environment, city, afterGrad, salary, salaryCurrency,
     pressure, teaching, note}, history: [{role, content}] (max 10)}``.
     Response: ``{lines (at most 3, conclusion first, next question
-    last), evidence_url, ai_status, model, sources: [{id, url, title}],
+    last — unless a WHY follow-up is present, in which case the WHY
+    is the turn's question, the next-question line is withheld from
+    lines and next_question names the deferred preference),
+    evidence_url, ai_status, model, sources: [{id, url, title}],
     extracted, next_question, done}`` — ``extracted`` holds only the
     preferences understood from THIS message (validated server-side);
     ``next_question`` is the single most useful still-missing

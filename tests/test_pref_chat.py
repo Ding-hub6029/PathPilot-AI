@@ -438,7 +438,12 @@ def test_pref_chat_switzerland_reason_kept(monkeypatch):
     assert "环境优美" in "\n".join(r["lines"])
     assert r["next_question"] == "climate"
     assert r["done"] is False
-    assert r["lines"][-1] == _question_line("climate", "zh-CN")
+    # Round 16: the turn carries a WHY follow-up, so the WHY is the
+    # turn's question and the climate question line is WITHHELD from
+    # `lines` — it must not render ahead of the WHY. `next_question`
+    # still names the deferred preference.
+    assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
+    assert _question_line("climate", "zh-CN") not in r["lines"]
     assert len(r["lines"]) <= 3
     assert captured["envelope"]["task"] == "pref-chat"
     assert captured["envelope"]["prompt_version"] == "ai-prompts-v1"
@@ -675,7 +680,11 @@ def test_pref_chat_no_key_fallback_extracts_country_and_reason(monkeypatch):
     assert r["extracted"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert r["next_question"] == "climate"
     assert r["done"] is False
-    assert r["lines"][-1] == _question_line("climate", "zh-CN")
+    # Round 16: the turn carries a WHY follow-up, so the climate
+    # question line is WITHHELD from `lines` (the WHY is the turn's
+    # question); `next_question` still names the deferred preference.
+    assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
+    assert _question_line("climate", "zh-CN") not in r["lines"]
     # Round 15: city names are localised in the Chinese reply.
     assert "苏黎世" in "\n".join(r["lines"])
 
@@ -838,7 +847,9 @@ def test_pref_chat_why_followup_in_gateway_error_fallback(monkeypatch):
     assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert r["extracted"]["countries"] == ["CH"]
     assert r["next_question"] == "climate"
-    assert r["lines"][-1] == _question_line("climate", "zh-CN")
+    # Round 16: the WHY is the turn's question, so the climate
+    # question line is WITHHELD from `lines` on this path too.
+    assert _question_line("climate", "zh-CN") not in r["lines"]
 
 
 def test_pref_chat_why_followup_in_gateway_failure_fallback(monkeypatch):
