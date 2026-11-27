@@ -7,7 +7,7 @@ import { displayProgramInstitutionName } from '../lib/rankings';
 import { StatusChip } from './StatusChip';
 import { RuleRow } from './RuleRow';
 import { GaokaoPanel } from './GaokaoPanel';
-import { formatDuration } from '../lib/format';
+import { formatDuration, joinList } from '../lib/format';
 
 /**
  * Why-not explanations + rule-by-rule comparison (Day 3, W2).
@@ -396,9 +396,8 @@ function fixLabel(fix: WhynotFix, t: (k: string) => string, tf: (k: string, v?: 
     return tf('whynot.fixBudget', { to: fmtNum(typeof fix.to === 'number' ? fix.to : null, locale), currency: fix.currency ?? '' });
   }
   if (fix.kind === 'ielts_components' && isRecord(fix.to)) {
-    const list = Object.entries(fix.to)
-      .map(([c, v]) => `${componentLabel(c, t)} ${fmtNum(typeof v === 'number' ? v : null, locale)}`)
-      .join(locale === 'zh-CN' ? '、' : ', ');
+    const list = joinList(Object.entries(fix.to)
+      .map(([c, v]) => `${componentLabel(c, t)} ${fmtNum(typeof v === 'number' ? v : null, locale)}`), locale);
     return tf('whynot.fixComponents', { list });
   }
   return fix.id;
@@ -564,7 +563,7 @@ export function WhyNot({ result, program, server, modelNote, aiStatus }: {
           {tf('whynot.cheapestFix', {
             fix: fixLabel(fix, t, tf, locale),
             count: fix.resolvesRuleIds.length,
-            rules: fix.resolvesRuleIds.map((id) => ruleName(id, t)).join(locale === 'zh-CN' ? '、' : ', '),
+            rules: joinList(fix.resolvesRuleIds.map((id) => ruleName(id, t)), locale),
           })}
           {fix.verified ? ` ${t('whynot.verified')}` : ''}
         </p>
@@ -660,7 +659,7 @@ export function CompareView({ results, programs }: { results: MatchResult[]; pro
                 {tf('whynot.cheapestFix', {
                   fix: fixLabel(local.cheapestFix, t, tf, locale),
                   count: local.cheapestFix.resolvesRuleIds.length,
-                  rules: local.cheapestFix.resolvesRuleIds.map((id) => ruleName(id, t)).join(locale === 'zh-CN' ? '、' : ', '),
+                  rules: joinList(local.cheapestFix.resolvesRuleIds.map((id) => ruleName(id, t)), locale),
                 })}
               </p>
             )}

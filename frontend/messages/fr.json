@@ -539,6 +539,8 @@
  "results.nextEdit": "Affiner mon profil",
  "results.nextReport": "Voir le rapport complet",
  "results.nextSummary": "{met} programme(s) remplissent toutes les conditions connues, {blockers} présentent des obstacles et {unknown} présentent des inconnues.",
+ "results.nextSummaryZero": "Aucun programme ne remplit entièrement toutes les exigences connues : aucune université ne publie de conversion du Gaokao vers les notes locales, donc l'exigence académique reste inconnue partout.",
+ "results.nextSummaryZeroClosest": "Les meilleurs programmes ci-dessous sont les correspondances vérifiées les plus proches, pas des programmes entièrement remplis.",
  "results.nextTitle": "Que faire ensuite",
  "results.noCountryCatalogue": "Le catalogue vérifié contient bien {count} programme(s) en {country}, dans d'autres domaines ou niveaux. Alternatives vérifiées les plus proches :",
  "results.noCountryNone": "Le catalogue vérifié ne contient encore aucun programme en {country}.",

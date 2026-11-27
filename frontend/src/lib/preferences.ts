@@ -1,6 +1,7 @@
 import { ClimateClass, MatchResult, Profile, Program } from './types';
 import { CLIMATE_CITIES } from './climate';
 import { programMatchesField } from './fields';
+import { joinList } from './format';
 
 /** Countries offered as quick-reply chips for the preferences step. */
 export const PREF_COUNTRY_CODES = ['GB', 'US', 'SG', 'AU', 'CA', 'JP', 'KR', 'DE', 'FR', 'NL', 'CH', 'HK'] as const;
@@ -75,12 +76,12 @@ export function hasPreferences(profile: Profile): boolean {
  * the campus label "大学城校园氛围") is dropped instead of rendered
  * twice — the results-page summary had the same tautology as the
  * PrefChat confirmation bubble. */
-export function prefSummary(profile: Profile, t: (k: string) => string): string {
+export function prefSummary(profile: Profile, t: (k: string) => string, locale?: string): string {
   // One entry per preference, tagged when it came from the free-text
   // countries note: only note atoms may lose a single segment (below).
   const parts: { text: string; fromNote: boolean }[] = [];
   if (profile.prefClimate) parts.push({ text: climateLabel(profile.prefClimate, t), fromNote: false });
-  if (profile.prefCountries?.length) parts.push({ text: profile.prefCountries.map((c) => t(`country.${c}`)).join(', '), fromNote: false });
+  if (profile.prefCountries?.length) parts.push({ text: joinList(profile.prefCountries.map((c) => t(`country.${c}`)), locale ?? 'en'), fromNote: false });
   // Round 23: the note is stored verbatim in the language the user
   // typed it in (saveReason / profilePatchFromExtracted), while every
   // other part renders through t() — so an English summary showed the

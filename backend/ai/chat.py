@@ -70,6 +70,7 @@ from ai.grounding import (FORBIDDEN_PATTERNS, Source,
                           gaokao_sources, programme_fact_texts,
                           programme_sources, ranking_sources, resolve_url,
                           stated_differences)
+from ai.locale_sep import join_list
 from ai.prompts import PROMPT_VERSION, chat_system, devil_advocate_system
 from ai.provider import ProviderAdapter, ProviderError
 from app.data import (CLIMATE, DATA_DIR, EXPANSION_MATCHABLE,
@@ -161,6 +162,40 @@ def _clean_track(track) -> str | None:
     return track if track in ("undergraduate", "taught_masters") else None
 
 
+# The frontend's saved-preferences context marker (frontend/src/lib/
+# chat.ts savedPrefsContext, appended by CompassPet to the FIRST
+# free-text turn only): "\nThe user's saved preferences from the
+# eligibility check: ...". The model envelope keeps the full message
+# (the model can use the context); retrieval and the template must
+# see ONLY the user's verbatim question (see
+# _strip_saved_prefs_context).
+_SAVED_PREFS_MARKER = ("\nThe user's saved preferences from the "
+                       "eligibility check: ")
+
+
+def _strip_saved_prefs_context(message: str) -> str:
+    """The user's verbatim question, without the frontend's appended
+    saved-preferences context.
+
+    Round 24 (W1): the context is English free text ("countries: CH;
+    climate: cool") appended to the user's question, and the template
+    matcher reads the WHOLE string as the question — the context
+    words corrupt the degree-phrase extraction ("computer science
+    saved preferences eligibility check countries ch climate cool"
+    matches no degree name), so a fee question with a saved profile
+    answered the blanket unknown and the climate-cities line hijacked
+    the reply (Edinburgh / Durham / Lund for an ETH question),
+    while the same question without a profile reached the ambiguous
+    line. The same corruption broke greetings ("你好" + context is
+    longer than the 12-character greeting cap). Retrieval and the
+    template therefore match on the stripped question; the model
+    envelope (built in answer() from the raw message) still carries
+    the context. A message without the marker is returned unchanged
+    — pref-chat and every other caller are unaffected."""
+    idx = (message or "").find(_SAVED_PREFS_MARKER)
+    return message[:idx] if idx >= 0 else message
+
+
 def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
               climate_class: str | None = None,
               country_programmes: bool = False,
@@ -206,7 +241,13 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
     under (undergraduate / taught_masters): programme matching — the
     template's own match and the scope narrowing — filters by it, so
     an undergraduate profile can never match an MSc programme.
+
+    Round 24 (W1): the message is stripped of the frontend's appended
+    saved-preferences context before ANY matching or retrieval (see
+    _strip_saved_prefs_context) — the context is for the model
+    envelope only, which answer() builds from the raw message.
     """
+    message = _strip_saved_prefs_context(message)
     track = _clean_track(track)
     scope_ids = _clean_program_ids(program_ids)
     template = assistant_ask(message, locale, track=track)
@@ -749,8 +790,7 @@ def evidence_cities_line(sources: list[Source], locale: str) -> str | None:
         return None
     line_t = (_EVIDENCE_CITIES_LINES.get(locale)
               or _EVIDENCE_CITIES_LINES["en"])
-    sep = "、" if locale == "zh-CN" else ", "
-    return line_t.format(cities=sep.join(items))
+    return line_t.format(cities=join_list(items, locale))
 
 
 _COUNTRY_SOURCE_RE = re.compile(
@@ -781,8 +821,9 @@ def country_evidence_line(sources: list[Source], locale: str) -> str | None:
         code = s.id[len("country:"):].upper()
         country = country_display_name(code, locale)
         n, names = m.group(2), m.group(3)
-        if locale == "zh-CN":
-            names = names.replace("; ", "、")
+        # The excerpt is canonical English ("; "-joined); the rendered
+        # line re-joins the names with the active locale's separator.
+        names = join_list(names.split("; "), locale)
         line_t = _COUNTRY_LINES.get(locale) or _COUNTRY_LINES["en"]
         return line_t.format(country=country, names=names, n=n)
     return None
@@ -914,11 +955,10 @@ def ranking_overview_line(sources: list[Source], locale: str) -> str | None:
                 items.append(f"{mm.group(2)} (#{mm.group(1)})")
         if not items:
             continue
-        sep = "、" if locale == "zh-CN" else ", "
         line_t = (_RANKING_OVERVIEW_LINES.get(locale)
                   or _RANKING_OVERVIEW_LINES["en"])
         return line_t.format(provider=provider_name, edition=edition,
-                             items=sep.join(items))
+                             items=join_list(items, locale))
     return None
 
 
@@ -1081,16 +1121,17 @@ def _scope_names_line(candidates: list[str], locale: str,
     with the locale's list separator."""
     names = [program_display_name(_verified_programme(pid))
              for pid in candidates[:3]]
-    sep = "、" if locale == "zh-CN" else ", "
     line_t = lines.get(locale) or lines["en"]
-    return line_t.format(names=sep.join(names))
+    return line_t.format(names=join_list(names, locale))
 
 
 def _scope_line(scope_ids: list[str], message: str, lines: list[str],
                 template: dict, locale: str,
-                track: str | None = None) -> str | None:
+                track: str | None = None) -> tuple[str | None, list[str]]:
     """Deterministic first line for a question about a programme the
-    caller has in scope, or None when the scope must not answer it.
+    caller has in scope, plus the candidate programme ids the line is
+    about — (line, candidates); (None, []) when the scope must not
+    answer it.
 
     - Fact question (fee / IELTS / deadline) + exactly one candidate
       programme in scope -> that programme's verified fact line (the
@@ -1110,19 +1151,25 @@ def _scope_line(scope_ids: list[str], message: str, lines: list[str],
       so the scope disambiguates only when exactly one of them is
       in view.
 
+    Round 24 (W1): the candidates travel with a fact / which-one
+    line so the caller keeps the disambiguation live (a which-one
+    reply without them would drop the caller's pending state and its
+    level chips). The why refusal carries none: it is not a level
+    disambiguation, and its candidates must not keep level chips up.
+
     ``track`` (Round 22, W2): the wizard track — candidates are
     filtered by it, and the match itself (localised display titles
     included) runs with it, so an undergraduate profile can never
     be answered from an MSc programme in scope."""
     msg = _norm(message or "")
     if not scope_ids or template.get("program_id") is not None:
-        return None
+        return None, []
     track = _clean_track(track)
     matched = _match_programmes(msg, scope_ids=scope_ids, track=track)
     if matched:
         candidates = [pid for pid in matched if pid in scope_ids]
         if not candidates:
-            return None
+            return None, []
     else:
         candidates = list(scope_ids)
     if track is not None:
@@ -1130,7 +1177,7 @@ def _scope_line(scope_ids: list[str], message: str, lines: list[str],
                       if (_verified_programme(pid) or {}).get("degree_level")
                       == track]
         if not candidates:
-            return None
+            return None, []
     unknown_first = bool(lines) and lines[0] == _t(locale, "unknown")
     # The template's ambiguous-programme line is only reachable when
     # the message carries no rank word (the rank branch answers
@@ -1148,15 +1195,15 @@ def _scope_line(scope_ids: list[str], message: str, lines: list[str],
         w in msg for w in _RANK_WORDS)
     if any(w in msg for w in _FEE_WORDS + _IELTS_WORDS + _DEADLINE_WORDS):
         if len(candidates) == 1 and (unknown_first or ambiguous):
-            return _scope_fact_line(candidates[0], message, locale)
+            return _scope_fact_line(candidates[0], message, locale), list(candidates)
         if len(candidates) > 1 and unknown_first:
-            return _scope_names_line(candidates, locale, _WHICH_ONE_LINES)
-        return None
+            return _scope_names_line(candidates, locale, _WHICH_ONE_LINES), list(candidates)
+        return None, []
     if (any(w in msg for w in _WHY_WORDS)
             and any(w in msg for w in _WHY_NOT_MET_WORDS)
             and unknown_first):
-        return _scope_names_line(candidates, locale, _WHY_REFUSAL_LINES)
-    return None
+        return _scope_names_line(candidates, locale, _WHY_REFUSAL_LINES), []
+    return None, []
 
 
 
@@ -1639,9 +1686,10 @@ def _template_result(template: dict, sources: list[Source],
     prog_line = (_programme_fact_line(programme_id, locale)
                  if programme_id else None)
     rank_line = ranking_overview_line(sources, locale)
-    scope_line = (_scope_line(_clean_program_ids(scope_program_ids),
-                              message, lines, template, locale, track=track)
-                  if scope_program_ids else None)
+    scope_line, scope_candidates = (
+        _scope_line(_clean_program_ids(scope_program_ids),
+                    message, lines, template, locale, track=track)
+        if scope_program_ids else (None, []))
     sugg_line: str | None = None
     if message:
         sugg_pid = _suggest_pick(message)
@@ -1695,11 +1743,25 @@ def _template_result(template: dict, sources: list[Source],
         # provider table for a ranking overview, the programme's own
         # official page otherwise).
         evidence_url = next((s.url for s in sources if s.url), None)
-    return {"lines": lines,
-            "evidence_url": evidence_url,
-            "ai_status": "unavailable", "model": None,
-            "sources": [{"id": s.id, "url": s.url, "title": s.title}
-                        for s in sources]}
+    result = {"lines": lines,
+              "evidence_url": evidence_url,
+              "ai_status": "unavailable", "model": None,
+              "sources": [{"id": s.id, "url": s.url, "title": s.title}
+                          for s in sources]}
+    if template.get("candidates"):
+        # Round 24 (W1): the template's ambiguous-programme line
+        # resolves nothing on its own — the caller needs the matched
+        # ids to carry the pending disambiguation forward (original
+        # question + level answer, scoped to these ids). Only present
+        # when the template itself was ambiguous.
+        result["candidates"] = list(template["candidates"])
+    elif scope_candidates:
+        # Round 24 (W1): the scope's own re-ask (the which-one line
+        # for an unrecognised level word) is a pending
+        # disambiguation too — without the ids the caller would drop
+        # its pending state and its level chips.
+        result["candidates"] = list(scope_candidates)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -2003,10 +2065,9 @@ def devil_conflict_line(conflict: dict, locale: str = "en") -> str:
         words = _CLASS_WORDS.get(loc) or _CLASS_WORDS["en"]
         wanted = words[conflict["wanted"]]
         item_t = _CITY_ITEM.get(loc) or _CITY_ITEM["en"]
-        sep = "、" if loc == "zh-CN" else ", "
-        cities = sep.join(item_t.format(
+        cities = join_list((item_t.format(
             city=localised_city_name(c, loc), cls=words[cls], n=n)
-            for c, cls, n in conflict["cities"][:3])
+            for c, cls, n in conflict["cities"][:3]), loc)
         line = t["climate"].format(
             prefix=t["prefix"], wanted=wanted,
             country=country_display_name(conflict["country"], loc),

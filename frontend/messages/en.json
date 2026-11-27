@@ -539,6 +539,8 @@
  "results.nextEdit": "Refine my profile",
  "results.nextReport": "View full report",
  "results.nextSummary": "{met} programme(s) meet all known requirements, {blockers} have blockers, {unknown} have unknowns.",
+ "results.nextSummaryZero": "0 programmes fully meet every known requirement — no university publishes a Gaokao-to-A-level conversion, so the academic rule stays unknown everywhere.",
+ "results.nextSummaryZeroClosest": "The top matches below are the closest verified matches, not fully-met ones.",
  "results.nextTitle": "What to do next",
  "results.noCountryCatalogue": "The verified catalogue does hold {count} programme(s) in {country} — in other tracks or fields. Closest verified alternatives:",
  "results.noCountryNone": "The verified catalogue holds no programme in {country} yet.",

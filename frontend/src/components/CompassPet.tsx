@@ -7,7 +7,7 @@ import type { Profile } from '../lib/types';
 import { fetchJson, fetchJsonChat, fetchJsonPatient, modelAvailability, allPrograms, findProgram } from '../lib/api';
 import { checkingDelayMs, footerAiLineKey, freshAiVerdict, probeVerdictApplies, type AiStatusPayload } from '../lib/aiStatus';
 import { useElapsed } from '../lib/useElapsed';
-import { deriveChatLinks, isModelReply, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
+import { deriveChatLinks, detectLevelWord, disambiguationFollowupMessage, disambiguationLevels, isModelReply, looksLikeQuestion, pendingDisambiguation, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
 import { PROGRAMS, displayProgramTitle } from '../lib/programs';
 import { RANKING_ENTRIES, RANKING_INSTITUTIONS } from '../lib/rankings';
@@ -146,6 +146,13 @@ type ChatTurn =
   | {
       kind: 'ask';
       message: string;
+      /** Round 24 (W1): the exact message POSTed for this turn, when
+          it differs from `message` — a disambiguation follow-up
+          sends the original question + the level word, while the
+          turn stores the original question. The locale re-fetch
+          re-sends this, so a fee answer stays a fee answer in the
+          new locale instead of falling back to the ambiguous line. */
+      sentMessage?: string;
       /** Devil's-advocate turn (round 11): sent with mode=devil, so
           the reply challenges the saved preferences with verified
           facts instead of answering straight. Rendered with the
@@ -970,7 +977,13 @@ export function CompassPet() {
         : fetchJson<ChatReply>('/api/assistant/chat', {
             method: 'POST',
             body: JSON.stringify({
-              message: m.message, locale, history: buildHistory(messages, i),
+              // Round 24 (W1): a disambiguation follow-up re-sends
+              // its constructed message (original question + level
+              // word), not the stored original question alone — the
+              // latter would come back ambiguous again and the fee
+              // answer would regress to "tell me undergraduate or
+              // masters" in the new locale.
+              message: m.sentMessage ?? m.message, locale, history: buildHistory(messages, i),
               ...(devilProf ? { mode: 'devil', profile: devilProf } : {}),
             }),
           });
@@ -1123,7 +1136,7 @@ export function CompassPet() {
         // of claiming preferences that no longer exist. (The nonce
         // effect above normally clears the turn outright; this is
         // defence in depth for any stale turn that still renders.)
-        const summary = prefSummary(profile, t);
+        const summary = prefSummary(profile, t, locale);
         if (!hasPreferences(profile) || !summary) return { lines: [t('pet.greeting')] };
         // The saved wizard preferences, in the user's own words —
         // rendered at render time from the current profile, so a
@@ -1298,6 +1311,15 @@ export function CompassPet() {
       setTimedOut(false);
       goOffline();
       turnInFlightRef.current = false;
+      // This early return runs before the try's finally, so busy /
+      // waking must be cleared here — without this the pet stays
+      // stuck thinking (chips hidden, input blocked) after a
+      // known-down suggestion. (Round 24 W4: the same omission in
+      // this gate before the fix.)
+      if (convRef.current === conv) {
+        setWaking(false);
+        setBusy(false);
+      }
       return;
     }
     try {
@@ -1338,6 +1360,25 @@ export function CompassPet() {
 
   const onChip = (value: string) => {
     if (busy) return;
+    // Round 24 (W1): while a disambiguation is pending the chips
+    // are the level chips, NOT onboarding Q1 — a tap answers the
+    // pending question (original question + level word, scoped to
+    // the matched ids), never starts country selection. The bubble
+    // shows the localised level label; the devil toggle is untouched
+    // (a clarification answer is not a question to challenge).
+    const pendingNow = pendingDisambiguation(messages);
+    if (pendingNow) {
+      const level = value as Degree;
+      void sendAskTurn({
+        displayText: t(level === 'undergraduate' ? 'pet.q1ug' : 'pet.q1tm'),
+        baseMessage: disambiguationFollowupMessage(pendingNow.question, level, locale),
+        askMessage: pendingNow.question,
+        programIds: pendingNow.candidates,
+        devilTurn: false,
+        skipContext: true,
+      });
+      return;
+    }
     if (step === 0) {
       const degree = value as Degree;
       setAnswers((a) => ({ ...a, degree }));
@@ -1369,25 +1410,43 @@ export function CompassPet() {
     }
   };
 
-  /** Free text goes to the real model, with the conversation history
-   * for context. Round 10: a template-only reply IS shown — led by
-   * the offline line, with the template's own verified lines after
-   * it — because the backend's template answer (e.g. the Swiss
-   * schools for "瑞士有哪些好学校？") is a real answer the user
-   * needs, and discarding it used to leave nothing at all. Only
-   * when the call itself fails (backend unreachable) does the turn
-   * fall back to the labelled offline rank lookup, the built-in
-   * country directory, or the plain offline line. Round 7,
-   * Fix B: on the first free-text turn the saved wizard preferences
-   * travel as context with the message (the displayed message stays
-   * the user's verbatim words), so a greeting like "你好" gets a real
-   * reply that knows what is already saved instead of a canned intro
-   * that contradicts it. */
-  const onSend = async () => {
-    const text = input.trim();
-    if (!text || busy) return;
-    setInput('');
-    push({ kind: 'freeText', text });
+  /** One free-text turn to /assistant/chat. Round 24 (W1): the send
+   * is shared by the normal path and the disambiguation follow-up —
+   * the two differ only in what is sent and what the turn stores:
+   *
+   * - normal: the bubble shows the user's verbatim text, the request
+   *   sends it (plus the saved-preferences context on the first
+   *   turn), the ask turn stores it;
+   * - disambiguation follow-up: the bubble shows the level answer,
+   *   the request sends the ORIGINAL question + the level word,
+   *   scoped to the pending candidates as program_ids (the backend
+   *   is stateless — the pending context travels in this request),
+   *   and the ask turn stores the original question (plus the exact
+   *   sent message, so a locale re-fetch re-sends it).
+   *
+   * Everything else — the devil one-shot, the template-offline
+   * fallback, the conversation guard — is identical for both. */
+  interface SendAskArgs {
+    /** Bubble text for the user's turn. */
+    displayText: string;
+    /** The question, before the saved-preferences context is
+        appended (normal path only). */
+    baseMessage: string;
+    /** Stored on the ask turn (the original question for a
+        disambiguation follow-up). */
+    askMessage: string;
+    /** Programme scope for the request (the pending candidates). */
+    programIds?: string[];
+    /** Devil's-advocate turn (normal path only, one-shot). */
+    devilTurn: boolean;
+    /** Skip the saved-preferences context (disambiguation: the
+        original question already carried it on its first send). */
+    skipContext?: boolean;
+  }
+
+  const sendAskTurn = async (args: SendAskArgs) => {
+    const { displayText, baseMessage, askMessage, programIds, devilTurn } = args;
+    push({ kind: 'freeText', text: displayText });
     setBusy(true);
     turnInFlightRef.current = true;
     setWaking(false);
@@ -1397,15 +1456,6 @@ export function CompassPet() {
     // in the new conversation.
     const conv = convRef.current;
     beginPatientCall();
-    // Round 23 W4 — one-shot devil: the toggle applies to at most
-    // THIS turn. Capture it now and switch it off as the turn is
-    // sent, so a later question — including one typed while this
-    // turn is still in flight — is a normal answer. Every devil
-    // marker below uses the per-turn capture, never the sticky
-    // state (which used to stay on until tapped again and hijack
-    // every later free-text question with mode=devil).
-    const isDevilTurn = devilMode;
-    if (isDevilTurn) setDevilMode(false);
     // Round 15, F2: one turn is bounded to ~20 s by fetchJsonChat
     // (lib/api.ts) — a slow abort falls back at once instead of
     // re-issuing the whole turn for another 40 s.
@@ -1418,25 +1468,42 @@ export function CompassPet() {
       noteTurnVerdict();
       setOffline(true);
       setAiLive(false);
-      const rank = rankOffline(text);
+      const rank = rankOffline(askMessage);
       if (rank) doCelebrate();
-      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, devil: isDevilTurn, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(text) });
+      push({ kind: 'ask', message: askMessage, reply: null, replyLocale: null, offline: true, devil: devilTurn, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(askMessage) });
     };
     const hasAsked = messages.some((m) => m.kind === 'ask');
-    const context = !hasAsked ? savedPrefsContext(profile) : null;
-    const sentMessage = context ? `${text}\n${context}` : text;
+    const context = !args.skipContext && !hasAsked ? savedPrefsContext(profile) : null;
+    const sentMessage = context ? `${baseMessage}\n${context}` : baseMessage;
     // Devil's advocate (round 11; round 23 W4: one-shot — see the
-    // capture above): the saved preferences travel as a structured
+    // capture in onSend): the saved preferences travel as a structured
     // profile with mode=devil, so the backend challenges them with
     // engine-computed conflicts; without a profile the backend
     // derives what it can from the message itself. Only this turn
-    // carries mode=devil — the toggle is already off again.
-    const devilProf = isDevilTurn ? devilProfileFor(profile) : null;
+    // carries mode=devil.
+    const devilProf = devilTurn ? devilProfileFor(profile) : null;
+    // Round 24 W4/W1 (integration): deliberately NO known-down gate
+    // here — W4 added one (modelAvailability() === 'unavailable' →
+    // goOffline) and it was removed at integration. Skipping the
+    // backend call returns the offline rank fallback (reply: null)
+    // instead of the backend's verified template answer, so while
+    // the gateway is down a fee question would get rank lines and
+    // the pending-disambiguation flow (Round 24 W1 — the ambiguous
+    // reply's candidates, the level follow-up) could never start.
+    // The gate saves nothing measurable: when the verdict is
+    // 'unavailable' the backend breaker is already open (the pet
+    // re-probes on every open and a failed probe trips it; the 180 s
+    // breaker cooldown outlives the 60 s verdict cache), so the
+    // backend fails fast to the template in ~0.07 s (measured,
+    // tests/test_r24_w4_pet_latency.py). askSuggest keeps its gate
+    // because its offline catalogue reproduces the suggestion
+    // answer exactly — no template is lost there.
     try {
       const r = await fetchJsonChat<ChatReply>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify({
           message: sentMessage, locale: requestLocale, history: buildHistory(messages),
+          ...(programIds?.length ? { program_ids: programIds } : {}),
           ...(devilProf ? { mode: 'devil', profile: devilProf } : {}),
         }),
       }, patientOpts);
@@ -1452,7 +1519,7 @@ export function CompassPet() {
           setTimedOut(false);
           setAiLive(false);
           if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
-          push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: true, devil: isDevilTurn, offlineRankId: null, offlineCountry: null });
+          push({ kind: 'ask', message: askMessage, ...(args.skipContext && sentMessage !== askMessage ? { sentMessage } : {}), reply: r, replyLocale: requestLocale, offline: true, devil: devilTurn, offlineRankId: null, offlineCountry: null });
           return;
         }
         setTimedOut(false);
@@ -1465,7 +1532,7 @@ export function CompassPet() {
       noteTurnVerdict();
       setAiLive(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
-      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, devil: isDevilTurn, offlineRankId: null, offlineCountry: null });
+      push({ kind: 'ask', message: askMessage, ...(args.skipContext && sentMessage !== askMessage ? { sentMessage } : {}), reply: r, replyLocale: requestLocale, offline: false, devil: devilTurn, offlineRankId: null, offlineCountry: null });
     } catch (err) {
       setWaking(false);
       if (convRef.current === conv) {
@@ -1483,8 +1550,101 @@ export function CompassPet() {
     }
   };
 
+  /** Free text goes to the real model, with the conversation history
+   * for context. Round 10: a template-only reply IS shown — led by
+   * the offline line, with the template's own verified lines after
+   * it — because the backend's template answer (e.g. the Swiss
+   * schools for "瑞士有哪些好学校？") is a real answer the user
+   * needs, and discarding it used to leave nothing at all. Only
+   * when the call itself fails (backend unreachable) does the turn
+   * fall back to the labelled offline rank lookup, the built-in
+   * country directory, or the plain offline line. Round 7,
+   * Fix B: on the first free-text turn the saved wizard preferences
+   * travel as context with the message (the displayed message stays
+   * the user's verbatim words), so a greeting like "你好" gets a real
+   * reply that knows what is already saved instead of a canned intro
+   * that contradicts it.
+   *
+   * Round 24 (W1): when a disambiguation is pending (the last ask
+   * turn's reply listed 2+ programmes and asked for the level),
+   * typed text is routed first: a level word resolves it (original
+   * question + level word, scoped to the candidates); a reply that
+   * names no level and is not a new question is re-asked LOCALLY —
+   * a bare word must never reach the backend, where it would answer
+   * the blanket unknown for verified data; a new question falls
+   * through to the normal send and supersedes the pending one. */
+  const onSend = async () => {
+    const text = input.trim();
+    if (!text || busy) return;
+    const pendingNow = pendingDisambiguation(messages);
+    if (pendingNow) {
+      const level = detectLevelWord(text);
+      if (level) {
+        setInput('');
+        return void sendAskTurn({
+          displayText: text,
+          baseMessage: disambiguationFollowupMessage(pendingNow.question, level, locale),
+          askMessage: pendingNow.question,
+          programIds: pendingNow.candidates,
+          devilTurn: false,
+          skipContext: true,
+        });
+      }
+      if (!looksLikeQuestion(text)) {
+        // Not a level answer and not a new question ("hmm", "ok") —
+        // ask once more, locally: re-show the ambiguous reply. The
+        // pending disambiguation stays live (the re-asked turn
+        // carries the same candidates), so the level chips stay up
+        // and the user can always tap one instead.
+        setInput('');
+        push({ kind: 'freeText', text });
+        push({
+          kind: 'ask', message: pendingNow.question, reply: pendingNow.reply,
+          replyLocale: pendingNow.replyLocale as Locale, offline: true, devil: false,
+          offlineRankId: null, offlineCountry: null,
+        });
+        return;
+      }
+      // A new question: fall through to the normal send — the new
+      // ask turn supersedes the pending disambiguation.
+    }
+    setInput('');
+    // Round 23 W4 — one-shot devil: the toggle applies to at most
+    // THIS turn. Capture it now and switch it off as the turn is
+    // sent, so a later question — including one typed while this
+    // turn is still in flight — is a normal answer. Every devil
+    // marker below uses the per-turn capture, never the sticky
+    // state (which used to stay on until tapped again and hijack
+    // every later free-text question with mode=devil). A
+    // disambiguation answer never consumes the toggle (above): it
+    // is not a question, so there is nothing to challenge.
+    const isDevilTurn = devilMode;
+    if (isDevilTurn) setDevilMode(false);
+    return void sendAskTurn({
+      displayText: text, baseMessage: text, askMessage: text,
+      devilTurn: isDevilTurn,
+    });
+  };
+
+  /** Round 24 (W1): while a disambiguation is pending, the chips
+      are the pending question's level chips — never the onboarding
+      chips (a tap on "Undergraduate" used to answer onboarding Q1
+      and jump to country selection). Levels come from the matched
+      candidates (undergraduate first); when none resolves from the
+      frontend catalogue, both levels are offered — the backend
+      still resolves the follow-up from the message alone. */
+  const pending = pendingDisambiguation(messages);
+  const pendingLevels = pending
+    ? disambiguationLevels(pending.candidates, allPrograms())
+    : [];
+  const pendingChips = pending
+    ? (pendingLevels.length ? pendingLevels : (['undergraduate', 'taught_masters'] as Degree[]))
+      .map((level) => ({ value: level, label: t(level === 'undergraduate' ? 'pet.q1ug' : 'pet.q1tm') }))
+    : null;
+
   const chips: { value: string; label: string }[] =
-    step === 0
+    pendingChips ??
+    (step === 0
       ? [{ value: 'undergraduate', label: t('pet.q1ug') }, { value: 'taught_masters', label: t('pet.q1tm') }]
       : step === 1
         ? PET_COUNTRY_CODES.map((code) => ({ value: code, label: t(`country.${code}`) }))
@@ -1496,7 +1656,7 @@ export function CompassPet() {
                 ? [{ value: 'low', label: t('pet.q3sgUgLow') }, { value: 'mid', label: t('pet.q3sgUgMid') }, { value: 'high', label: t('pet.q3sgUgHigh') }]
                 : [{ value: 'low', label: t('pet.q3sgTmLow') }, { value: 'mid', label: t('pet.q3sgTmMid') }, { value: 'high', label: t('pet.q3sgTmHigh') }]
               : [{ value: 'low', label: t('pet.q3Low') }, { value: 'mid', label: t('pet.q3Mid') }, { value: 'high', label: t('pet.q3High') }]
-          : [];
+          : []);
 
   return (
     <>
@@ -1540,7 +1700,7 @@ export function CompassPet() {
               + the pet.greetingKnown opening bubble. */}
           {hasPreferences(profile) && pathname !== '/results' && (
             <div className="flex items-center justify-between gap-2 bg-amber/15 px-3 py-2 text-xs text-navy">
-              <p className="min-w-0 truncate">{tf('pet.prefSaved', { prefs: prefSummary(profile, t) })}</p>
+              <p className="min-w-0 truncate">{tf('pet.prefSaved', { prefs: prefSummary(profile, t, locale) })}</p>
               <Link href="/wizard" onClick={closeForNavigation} className="btn-press shrink-0 rounded-full bg-white px-2.5 py-1 font-semibold text-navy ring-1 ring-navy/10">{t('results.prefEdit')}</Link>
             </div>
           )}

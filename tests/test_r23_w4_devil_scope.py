@@ -174,6 +174,16 @@ def _onsend_body() -> str:
     return src[start:end]
 
 
+def _sendask_body() -> str:
+    """The shared send path (Round 24, W1: onSend's fetch body moved
+    into sendAskTurn so the disambiguation follow-up sends through
+    the same turn logic)."""
+    src = PET.read_text(encoding="utf-8")
+    start = src.index("const sendAskTurn = async (args: SendAskArgs) => {")
+    end = src.index("const onSend = async () => {", start)
+    return src[start:end]
+
+
 def test_devil_is_one_shot_in_onsend():
     """onSend captures the devil flag for THIS turn only and switches
     the toggle off as the turn is sent, so the next free-text question
@@ -181,16 +191,24 @@ def test_devil_is_one_shot_in_onsend():
     body = _onsend_body()
     assert "const isDevilTurn = devilMode" in body
     assert "setDevilMode(false)" in body
-    # The reset happens when the turn is sent (before the fetch), not
-    # after the reply lands.
-    assert body.index("setDevilMode(false)") < body.index("fetchJsonChat")
-    # Every devil marker inside onSend uses the per-turn capture, never
-    # the sticky state — including the offline fallback path.
-    assert "devil: devilMode" not in body
-    assert "devil: isDevilTurn" in body
-    assert "devilProf = devilMode" not in body
-    assert "devilProf = isDevilTurn" in body
-    assert "mode: 'devil'" in body
+    # The reset happens when the turn is sent (before the normal-path
+    # send call), not after the reply lands. The first sendAskTurn
+    # call in onSend is the disambiguation resolve (devilTurn: false
+    # — it never touches the toggle), so the ordering is checked
+    # against the LAST call, the normal path.
+    assert body.index("setDevilMode(false)") < body.rindex("sendAskTurn({")
+    # The capture travels into the shared send path as its devilTurn
+    # argument — never the sticky state.
+    assert "devilTurn: isDevilTurn" in body
+    send_body = _sendask_body()
+    # Every devil marker inside the send path uses the per-turn
+    # argument, never the sticky state — including the offline
+    # fallback path.
+    assert "devil: devilMode" not in send_body
+    assert "devil: devilTurn" in send_body
+    assert "devilProf = devilMode" not in send_body
+    assert "devilProf = devilTurn" in send_body
+    assert "mode: 'devil'" in send_body
 
 
 def test_devil_turns_excluded_from_history():

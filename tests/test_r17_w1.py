@@ -440,7 +440,7 @@ def test_r17_w1_source_pins():
     # The guided branch re-offers the same confirm bubble as the
     # model branch (two render sites, not one).
     assert prefchat.count(
-        "{tf('wizard.chatParseConfirm', { summary: extractedSummary(pendingExtract.extracted, t) })}") == 2, (
+        "{tf('wizard.chatParseConfirm', { summary: extractedSummary(pendingExtract.extracted, t, locale) })}") == 2, (
         "the confirm bubble must render in the model branch AND the guided branch")
 
     # Finding 2: the whyAnswer branch renders the answer as a cyan

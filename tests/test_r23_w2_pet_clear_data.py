@@ -120,7 +120,7 @@ def test_store_still_bumps_the_nonce_in_clear_data():
 
 def test_pref_note_falls_back_to_plain_greeting_when_nothing_remembered():
     case = _pref_note_case(_pet_src())
-    assert "const summary = prefSummary(profile, t);" in case
+    assert "const summary = prefSummary(profile, t, locale);" in case
     assert "if (!hasPreferences(profile) || !summary) return { lines: [t('pet.greeting')] };" in case
 
 

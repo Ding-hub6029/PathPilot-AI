@@ -70,10 +70,11 @@ def _answer_no_key(monkeypatch, message: str, locale: str) -> dict:
 
 def _listed_count(line: str) -> int:
     """Programmes named in an ambiguous line: the names between the
-    colon and the ". Tell me" tail, joined with "、" (ask() joins
-    with "、" in every locale)."""
+    colon and the ". Tell me" tail, joined with the locale's
+    enumeration separator (", " in en — Round 24 W2: ask() used to
+    join with "、" in every locale)."""
     names_part = line.split(":", 1)[1].split(". Tell me")[0]
-    return len([n for n in names_part.split("、") if n.strip()])
+    return len([n for n in names_part.split(", ") if n.strip()])
 
 
 def _count_word(line: str) -> int | None:

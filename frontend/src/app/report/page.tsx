@@ -91,7 +91,7 @@ export default function ReportPage() {
     { label: t('report.profileScores'), value: scoreParts.join(' · ') },
     { label: t('report.profileBudget'), value: profile.budget !== '' && profile.budget !== undefined ? `${profile.budget} ${profile.budgetCurrency ?? ''}`.trim() : '' },
     { label: t('report.profileIntake'), value: profile.intakeYear ? String(profile.intakeYear) : '' },
-    { label: t('report.profilePrefs'), value: prefSummary(profile, t) },
+    { label: t('report.profilePrefs'), value: prefSummary(profile, t, locale) },
   ].filter((row) => row.value);
 
   // Locale-correct date: e.g. 2026年11月26日 on a Chinese UI, never

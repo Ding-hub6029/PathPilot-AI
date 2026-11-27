@@ -539,6 +539,8 @@
  "results.nextEdit": "Refinar mi perfil",
  "results.nextReport": "Ver el informe completo",
  "results.nextSummary": "{met} programa(s) cumplen todos los requisitos conocidos, {blockers} tienen bloqueos y {unknown} tienen incógnitas.",
+ "results.nextSummaryZero": "Ningún programa cumple todos los requisitos conocidos: ninguna universidad publica una conversión del Gaokao a las notas locales, así que el requisito académico queda desconocido en todos.",
+ "results.nextSummaryZeroClosest": "Los programas destacados abajo son las coincidencias verificadas más cercanas, no programas totalmente cumplidos.",
  "results.nextTitle": "Qué hacer a continuación",
  "results.noCountryCatalogue": "El catálogo verificado sí tiene {count} programa(s) en {country}, en otras áreas o niveles. Alternativas verificadas más cercanas:",
  "results.noCountryNone": "El catálogo verificado aún no tiene ningún programa en {country}.",

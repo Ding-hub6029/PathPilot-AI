@@ -43,16 +43,18 @@ SUPPORTED_PROVIDERS = ("openai", "deepseek", "gemini")
 # pays it again on the next call because nothing remembers the failure.
 #
 # A slow failure (timeout / transport error — the gateway hanging or
-# unreachable, the exact failure mode in the audit) trips the breaker
-# for GATEWAY_BREAKER_COOLDOWN_S: while it is open, chat()/achat()
-# raise immediately without touching the network, so the callers fall
-# back to their templates in engine time. A fast failure (HTTP 500,
-# 401, bad JSON) does NOT trip it — it already fails fast, and a
-# single 500 is not evidence the gateway is down. Any successful
-# model call clears the breaker, and probe_live() bypasses it (the
-# probe is what re-tests liveness) and clears it on success. The
-# state is module-level, not per-adapter: adapters are constructed
-# fresh per request, but the gateway is one shared service.
+# unreachable, the exact failure mode in the audit — or, since
+# Round 24 W4, a slow HTTP 5xx: the relay answering 502 after its
+# upstream hung) trips the breaker for GATEWAY_BREAKER_COOLDOWN_S:
+# while it is open, chat()/achat() raise immediately without
+# touching the network, so the callers fall back to their templates
+# in engine time. A fast failure (HTTP 500, 401, bad JSON) does NOT
+# trip it — it already fails fast, and a single 500 is not evidence
+# the gateway is down. Any successful model call clears the breaker,
+# and probe_live() bypasses it (the probe is what re-tests liveness)
+# and clears it on success. The state is module-level, not
+# per-adapter: adapters are constructed fresh per request, but the
+# gateway is one shared service.
 #
 # Round 18 W2: the cooldown (180 s) deliberately OUTLIVES the 60 s
 # /ai/status probe cache (app.main _AI_STATUS_TTL_S). With equal
@@ -98,7 +100,11 @@ def _clear_gateway_breaker() -> None:
 
 
 # A slow gateway failure trips the breaker; a fast one does not (see
-# above). Only these kinds are "the gateway hung".
+# above). Only these kinds are "the gateway hung" — plus, since
+# Round 24 W4, a slow HTTP 5xx (see _trips_breaker): the flapping
+# relay answers 502 after its upstream hangs, so a 502 that took
+# seconds to arrive is the same sickness as a timeout, and without
+# tripping on it every chat turn paid the full ~12 s wait again.
 _BREAKER_TRIP_KINDS = ("timeout", "transport_error")
 
 # Latency gate (Round 14 fix): the breaker exists to avoid REPEATING
@@ -131,6 +137,28 @@ _PROBE_CHAT_TIMEOUT_S = 7.0
 def _slow_enough(started: float, minimum_s: float) -> bool:
     return (time.monotonic() - started) >= minimum_s
 
+
+def _trips_breaker(exc: ProviderError, started: float,
+                   minimum_s: float) -> bool:
+    """True when a model failure should trip the gateway circuit
+    breaker: the failure actually waited (latency-gated — an instant
+    raise costs nothing to repeat), and its kind means the gateway
+    hung: a timeout / transport error, or — Round 24 W4 — a slow
+    HTTP 5xx. A 502/503 that took seconds to arrive is the relay
+    reporting its upstream hung; every later turn would pay the
+    same wait, so the breaker must remember it. A fast 5xx still
+    does not trip (the existing test_breaker_does_not_trip_on_fast_500
+    pins that: one transient 500 is not evidence the gateway is
+    down), and a 429 / 4xx never trips however slow — a 429 means
+    the gateway is UP but throttling, and a 4xx is our request,
+    not the gateway."""
+    if not _slow_enough(started, minimum_s):
+        return False
+    if exc.kind in _BREAKER_TRIP_KINDS:
+        return True
+    return (exc.kind == "provider_http"
+            and (exc.status_code or 0) >= 500)
+
 DEFAULT_BASE_URLS = {
     "openai": "https://api.openai.com/v1",
     "deepseek": "https://api.deepseek.com/v1",
@@ -143,14 +171,19 @@ DEFAULT_MAX_TOKENS = 1200
 
 class ProviderError(Exception):
     """A model call failed. ``message`` is sanitised: it never contains
-    the API key, the request body, or a raw provider error payload."""
+    the API key, the request body, or a raw provider error payload.
+    ``status_code`` is the HTTP status when the failure was an HTTP
+    error response (None otherwise): the breaker logic needs it to
+    tell a slow 5xx (gateway sick) from a 429 / 4xx (gateway up)."""
 
     def __init__(self, message: str, *, retryable: bool = False,
-                 kind: str = "provider_error") -> None:
+                 kind: str = "provider_error",
+                 status_code: int | None = None) -> None:
         super().__init__(message)
         self.message = message
         self.retryable = retryable
         self.kind = kind
+        self.status_code = status_code
 
 
 @dataclass
@@ -248,11 +281,12 @@ class ProviderAdapter:
                       _bypass_breaker=True)
         except ProviderError as exc:
             # chat() itself trips the breaker on a slow timeout /
-            # transport failure; trip here too for the same kinds so
-            # the verdict is consistent even if chat() did not (e.g.
-            # a ProviderError raised before the trip logic runs).
-            if (exc.retryable and exc.kind in _BREAKER_TRIP_KINDS
-                    and _slow_enough(started, _PROBE_BREAKER_MIN_LATENCY_S)):
+            # transport failure (and, since Round 24 W4, a slow 5xx);
+            # trip here too for the same kinds so the verdict is
+            # consistent even if chat() did not (e.g. a ProviderError
+            # raised before the trip logic runs).
+            if exc.retryable and _trips_breaker(
+                    exc, started, _PROBE_BREAKER_MIN_LATENCY_S):
                 _trip_gateway_breaker()
             return False
         return True
@@ -375,9 +409,10 @@ class ProviderAdapter:
             # re-trip (it would extend the cooldown on every call).
             # Latency-gated: only a failure that actually waited
             # trips it (an instant mock timeout must not poison
-            # later calls — see _BREAKER_MIN_LATENCY_S).
-            if (exc.retryable and exc.kind in _BREAKER_TRIP_KINDS
-                    and _slow_enough(started, _BREAKER_MIN_LATENCY_S)):
+            # later calls — see _BREAKER_MIN_LATENCY_S). Round 24
+            # W4: a slow HTTP 5xx trips too (see _trips_breaker).
+            if (exc.retryable
+                    and _trips_breaker(exc, started, _BREAKER_MIN_LATENCY_S)):
                 _trip_gateway_breaker()
             raise
         except httpx.TimeoutException:
@@ -452,8 +487,9 @@ class ProviderAdapter:
                 raise ProviderError(f"Unsupported provider {self.provider!r}.",
                                     retryable=False, kind="unsupported_provider")
         except ProviderError as exc:
-            if (exc.retryable and exc.kind in _BREAKER_TRIP_KINDS
-                    and _slow_enough(started, _BREAKER_MIN_LATENCY_S)):
+            # Same trip rule as chat() (Round 24 W4: slow 5xx trips).
+            if (exc.retryable
+                    and _trips_breaker(exc, started, _BREAKER_MIN_LATENCY_S)):
                 _trip_gateway_breaker()
             raise
         except httpx.TimeoutException:
@@ -495,11 +531,13 @@ class ProviderAdapter:
         if resp.status_code == 429 or resp.status_code >= 500:
             raise ProviderError(
                 f"AI provider returned HTTP {resp.status_code}.",
-                retryable=True, kind="provider_http")
+                retryable=True, kind="provider_http",
+                status_code=resp.status_code)
         if resp.status_code >= 400:
             raise ProviderError(
                 f"AI provider rejected the request (HTTP {resp.status_code}).",
-                retryable=False, kind="provider_http")
+                retryable=False, kind="provider_http",
+                status_code=resp.status_code)
         try:
             data = resp.json()
             text = data["choices"][0]["message"]["content"]
@@ -537,11 +575,13 @@ class ProviderAdapter:
         if resp.status_code == 429 or resp.status_code >= 500:
             raise ProviderError(
                 f"AI provider returned HTTP {resp.status_code}.",
-                retryable=True, kind="provider_http")
+                retryable=True, kind="provider_http",
+                status_code=resp.status_code)
         if resp.status_code >= 400:
             raise ProviderError(
                 f"AI provider rejected the request (HTTP {resp.status_code}).",
-                retryable=False, kind="provider_http")
+                retryable=False, kind="provider_http",
+                status_code=resp.status_code)
         try:
             data = resp.json()
             parts = data["candidates"][0]["content"]["parts"]
@@ -567,11 +607,13 @@ class ProviderAdapter:
         if resp.status_code == 429 or resp.status_code >= 500:
             raise ProviderError(
                 f"AI provider returned HTTP {resp.status_code}.",
-                retryable=True, kind="provider_http")
+                retryable=True, kind="provider_http",
+                status_code=resp.status_code)
         if resp.status_code >= 400:
             raise ProviderError(
                 f"AI provider rejected the request (HTTP {resp.status_code}).",
-                retryable=False, kind="provider_http")
+                retryable=False, kind="provider_http",
+                status_code=resp.status_code)
         try:
             data = resp.json()
             text = data["choices"][0]["message"]["content"]
@@ -607,11 +649,13 @@ class ProviderAdapter:
         if resp.status_code == 429 or resp.status_code >= 500:
             raise ProviderError(
                 f"AI provider returned HTTP {resp.status_code}.",
-                retryable=True, kind="provider_http")
+                retryable=True, kind="provider_http",
+                status_code=resp.status_code)
         if resp.status_code >= 400:
             raise ProviderError(
                 f"AI provider rejected the request (HTTP {resp.status_code}).",
-                retryable=False, kind="provider_http")
+                retryable=False, kind="provider_http",
+                status_code=resp.status_code)
         try:
             data = resp.json()
             parts = data["candidates"][0]["content"]["parts"]

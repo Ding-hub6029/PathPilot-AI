@@ -539,6 +539,8 @@
  "results.nextEdit": "完善我的资料",
  "results.nextReport": "查看完整报告",
  "results.nextSummary": "{met} 个课程符合所有已知要求，{blockers} 个存在障碍，{unknown} 个存在未知项。",
+ "results.nextSummaryZero": "0 个课程完全符合所有已知要求——没有任何大学公布高考成绩换算标准，所以所有专业的学术要求都是“未知”。",
+ "results.nextSummaryZeroClosest": "下面排在前面的课程是最接近的已核实匹配，而不是“全部符合”的课程。",
  "results.nextTitle": "下一步",
  "results.noCountryCatalogue": "已核实目录里在{country}确实有 {count} 个课程——在其他方向或类型里。最接近的已核实选择：",
  "results.noCountryNone": "已核实目录里暂时还没有{country}的课程。",

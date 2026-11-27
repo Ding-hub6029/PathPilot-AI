@@ -23,7 +23,7 @@ import { useBackendStatus } from '../../lib/backendStatus';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
 import { SimulatePanel } from '../../components/SimulatePanel';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
-import { formatDuration } from '../../lib/format';
+import { formatDuration, joinList } from '../../lib/format';
 
 type Filter = 'all' | 'met' | 'notmet' | 'unknown';
 
@@ -203,10 +203,30 @@ export default function ResultsPage() {
         const metCount = usable.filter((r) => r.ruleResults.every((x) => x.status === 'MET')).length;
         const blockerCount = usable.filter((r) => r.ruleResults.some((x) => x.status === 'NOT_MET')).length;
         const unknownCount = usable.filter((r) => r.ruleResults.some((x) => x.status === 'UNKNOWN')).length;
+        // Round 24 (W3): a bare "0 programme(s) meet all known
+        // requirements" next to the top matches reads as a
+        // contradiction — if 0 meet, why is anything recommended?
+        // For a Gaokao profile the zero is structural (no university
+        // publishes a Gaokao-to-A-level conversion, so the academic
+        // rule is UNKNOWN everywhere), so the headline itself says
+        // so in two short lines and names the cards below as the
+        // closest verified matches, not fully-met ones. Same gate
+        // as the zero-met explainer below; every other profile
+        // keeps the counts summary. Engine verdicts untouched.
+        const hasGaokao = profile.gaokaoScore !== '' && profile.gaokaoScore !== undefined;
+        const academicUnknown = usable.some((r) => r.ruleResults.some((x) => x.ruleId.endsWith('-academic') && x.status === 'UNKNOWN'));
+        const zeroGaokao = metCount === 0 && hasGaokao && academicUnknown;
         return (
           <section className="glass grid-bg mt-4 rounded-2xl p-5" aria-labelledby="next-title">
             <h2 id="next-title" className="text-lg font-bold">{t('results.nextTitle')}</h2>
-            <p className="mt-1 text-sm text-navy/75">{tf('results.nextSummary', { met: metCount, blockers: blockerCount, unknown: unknownCount })}</p>
+            {zeroGaokao ? (
+              <>
+                <p className="mt-1 text-sm text-navy/75">{t('results.nextSummaryZero')}</p>
+                <p className="mt-1 text-sm font-semibold text-navy/80">{t('results.nextSummaryZeroClosest')}</p>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-navy/75">{tf('results.nextSummary', { met: metCount, blockers: blockerCount, unknown: unknownCount })}</p>
+            )}
             <div className="mt-3 flex flex-wrap gap-2">
               <Link href="/report" className="btn-press rounded-full bg-navy px-5 py-2 font-semibold text-white">{t('results.nextReport')}</Link>
               <Link href="/wizard" className="btn-press rounded-full border border-navy/30 bg-white px-5 py-2 font-semibold">{t('results.nextEdit')}</Link>
@@ -251,7 +271,7 @@ export default function ResultsPage() {
             <h2 id="prefs-title" className="text-lg font-bold">{t('results.prefTitle')}</h2>
             <Link href="/wizard" className="btn-press rounded-full border border-navy/30 bg-white px-4 py-1.5 text-sm font-semibold">{t('results.prefEdit')}</Link>
           </div>
-          <p className="mt-1 text-sm text-navy/80">{prefSummary(profile, t)}</p>
+          <p className="mt-1 text-sm text-navy/80">{prefSummary(profile, t, locale)}</p>
           {/* Pet-voiced line (2026-11-25): not just a field list. Only
               countries / cities that actually appear in the verified
               results are named — the country line is true because
@@ -266,7 +286,7 @@ export default function ResultsPage() {
                 <span className="inline-flex shrink-0 rounded-full bg-teal/10 p-0.5"><CompassFace size={32} mood="idle" /></span>
                 <div className="text-sm">
                   {matchedCountries.length > 0 && (
-                    <p>{tf('results.prefVoiceCountries', { countries: matchedCountries.map((c) => t(`country.${c}`)).join(locale === 'zh-CN' ? '、' : ', ') })}</p>
+                    <p>{tf('results.prefVoiceCountries', { countries: joinList(matchedCountries.map((c) => t(`country.${c}`)), locale) })}</p>
                   )}
                   {cityCount > 0 && (
                     <p className={matchedCountries.length > 0 ? 'mt-1' : ''}>{tf('results.prefVoiceCity', { city: cityDisplayName(profile.prefCity ?? '', t), count: cityCount })}</p>

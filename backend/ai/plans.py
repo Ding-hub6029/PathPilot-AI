@@ -33,6 +33,7 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 
 from ai.explain import localised_gap_state, rule_family
+from ai.locale_sep import join_list
 from ai.grounding import (
     FORBIDDEN_PATTERNS,
     gaokao_sources,
@@ -2655,7 +2656,8 @@ def _barely_met(rule, locale: str = "en") -> str | None:
             if at_min:
                 return _plan_str(
                     locale, "barely.components",
-                    comps=", ".join(_plan_comp(locale, k) for k in at_min),
+                    comps=join_list((_plan_comp(locale, k) for k in at_min),
+                                    locale),
                     each=f"{each:g}")
         for key, val in threshold.items():
             if key in observed and _num(observed[key]) == _num(val):
@@ -2916,12 +2918,11 @@ def _template_task(gap: dict, programs_by_id: dict, deadline: str | None,
     # Values for the per-kind placeholders. Labels stay verbatim
     # ("German C1 (CEFR)"); the language name is localised.
     labels = gap.get("other_requirements") or []
-    sep = "、" if locale == "zh-CN" else ", "
-    labels_joined = sep.join(labels)
+    labels_joined = join_list(labels, locale)
     parsed = _parse_other_label(labels[0], locale) if labels else {
         "language": "", "level": "", "exam": ""}
     missing = gap.get("missing_components") or []
-    comps_joined = sep.join(_plan_comp(locale, c) for c in missing)
+    comps_joined = join_list((_plan_comp(locale, c) for c in missing), locale)
     fill = {"rule_id": label, "detail": detail, "labels": labels_joined,
             "language": parsed["language"], "level": parsed["level"],
             "exam": parsed["exam"], "comps": comps_joined}

@@ -19,6 +19,7 @@ import json
 
 from ai.grounding import (check_model_output, programme_fact_texts,
                           programme_sources, render_structured_explanation)
+from ai.locale_sep import join_list
 from ai.prompts import PROMPT_VERSION, explain_system
 from ai.provider import ProviderAdapter, ProviderError
 from app.schemas import Evaluation, StudentProfile
@@ -766,9 +767,9 @@ def _candidates_for_rule(rule, gaps: list[dict], locale: str = "en") -> list[dic
                 target3 = _round_half_up(float(three_gap["required"]))
                 for comp in _COMPONENTS:
                     changes.setdefault(comp, target3)
-            parts = ", ".join(_fill(s["retake_part"],
+            parts = join_list((_fill(s["retake_part"],
                                     comp=_comp_name(locale, c), v=_fmt_num(v))
-                              for c, v in sorted(changes.items()))
+                              for c, v in sorted(changes.items())), locale)
             out.append({
                 "id": "ielts-components-retake",
                 "kind": "ielts_components", "field": "ieltsComponents",
@@ -1049,7 +1050,8 @@ def compute_whynot(evaluation: Evaluation,
     if cheapest is not None:
         lines.append(_fill(s["why_cheapest"], label=cheapest["label"],
                            n=cheapest["rules_resolved"],
-                           rules=", ".join(cheapest["resolves_rule_ids"])))
+                           rules=join_list(cheapest["resolves_rule_ids"],
+                                           locale)))
     elif no_single_fix:
         lines.append(s["why_no_single"])
     return {
@@ -1898,8 +1900,7 @@ def localised_gap_state(rule, locale: str = "en", label: str | None = None,
             ielts_obs = _num(obs_d.get("ielts_overall"))
             toefl_obs = _num(obs_d.get("toefl_overall"))
             if labels:
-                sep = "、" if locale == "zh-CN" else ", "
-                out = _fill(s["lang_other"], labels=sep.join(labels))
+                out = _fill(s["lang_other"], labels=join_list(labels, locale))
             elif ielts_obs is None and toefl_obs is None and _num(obs) is None:
                 out = s["lang_no_test"]
             elif (toefl_obs is not None and thr is not None
@@ -1931,9 +1932,8 @@ def localised_gap_state(rule, locale: str = "en", label: str | None = None,
             elif missing:
                 comp_names = [_comp_name(locale, c, capital=True)
                               for c in missing]
-                sep = "、" if locale == "zh-CN" else ", "
                 out = _fill(s["lang_components_missing"],
-                            comps=sep.join(comp_names))
+                            comps=join_list(comp_names, locale))
             else:
                 out = _fill(s["lang_components_unknown"], label=label)
         elif fam == "toefl":
@@ -1996,8 +1996,7 @@ def localised_gap_state(rule, locale: str = "en", label: str | None = None,
                 missing.append(s["subject.english"])
             if obs_d.get("maths") is None:
                 missing.append(s["subject.maths"])
-            sep = "、" if locale == "zh-CN" else ", "
-            out = _fill(s["gcse_unknown"], subjects=sep.join(missing))
+            out = _fill(s["gcse_unknown"], subjects=join_list(missing, locale))
         elif fam in ("test", "gre"):
             test = _gap_state_test_name(rule)
             out = (_fill(s["test_unknown"], test=test)

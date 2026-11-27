@@ -12,7 +12,7 @@ import {
 import { useElapsed } from '../lib/useElapsed';
 import { StatusChip } from './StatusChip';
 import { CompassFace, type PetMood } from './CompassPet';
-import { formatDuration, formatFeeItem, formatFeeItemWithLabel, formatIntake, pickFeeItem } from '../lib/format';
+import { formatDuration, formatFeeItem, formatFeeItemWithLabel, formatIntake, joinList, pickFeeItem } from '../lib/format';
 import { convertCurrency, FX_AS_OF } from '../lib/fx';
 import { ruleName } from '../lib/ruleText';
 import { displayProgramTitle } from '../lib/programs';
@@ -207,7 +207,7 @@ export function RecChat({
       parts.push(tf('wizard.recChatIntake', { intake: intakeLabel }));
     }
     const blockers = (r.ruleResults ?? []).filter((rule) => rule.status === 'NOT_MET').map((rule) => ruleName(rule.ruleId, t));
-    if (blockers.length) parts.push(blockers.join('、'));
+    if (blockers.length) parts.push(joinList(blockers, locale));
     // Round 6: when the climate preference conflicts with this city's
     // climate, say so honestly — the programme stays in the list, just
     // ranked lower by the wizard sort.

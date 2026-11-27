@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import re
 
+from ai.locale_sep import join_list
 from app.data import (DATA_VERSION, EXPANSION_INSTITUTIONS,
                       EXPANSION_MATCHABLE, EXPANSION_PROGRAMS, PROGRAMS,
                       RANKINGS)
@@ -560,8 +561,7 @@ def country_answer(country: str, locale: str = "en") -> dict | None:
     if not programmes:
         return None
     institutions = country_institutions(country)
-    sep = "、" if loc == "zh-CN" else ", "
-    names = sep.join(name for _iid, name in institutions[:3])
+    names = join_list((name for _iid, name in institutions[:3]), loc)
     country_name = country_display_name(country, loc)
     line1 = _fmt("country_list", loc, country=country_name, names=names,
                  n=len(programmes))
@@ -767,7 +767,7 @@ _INSTITUTION_PROGRAMMES: dict[str, list[str]] = {
 }
 
 _UG_WORDS = ("本科", "学士", "undergrad", "bsc", "beng", "bcomp", "bachelor")
-_TM_WORDS = ("硕士", "master", "msc", "mcomp", "msai", "postgrad", "taught")
+_TM_WORDS = ("硕士", "研究生", "master", "msc", "mcomp", "msai", "postgrad", "taught")
 
 # Wizard tracks (Round 22, W2): the profile track a chat question is
 # asked under. An undergraduate profile must NEVER match an MSc
@@ -1005,7 +1005,7 @@ _DEGREE_PHRASE_STRIP_WORDS = frozenset(
     ))
 _DEGREE_PHRASE_STRIP_SUBSTRINGS = (
     "学费", "雅思", "要求", "申请", "截止", "什么时候", "费用", "多少钱",
-    "告诉", "请问", "本科", "硕士", "学士", "大学", "学院", "学校",
+    "告诉", "请问", "本科", "硕士", "研究生", "学士", "大学", "学院", "学校",
     "的", "是", "吗", "多少", "什么", "哪个", "哪一", "怎么", "如何",
 )
 
@@ -1239,23 +1239,35 @@ def _ielts_fact(program: dict, locale: str) -> str | None:
             if v is not None and (key.startswith("ielts_") or v <= 9):
                 parts.append(_fmt("ielts_component", locale,
                                   name=_t(locale, tkey), v=_score(v)))
-        return ", ".join(parts)
+        return join_list(parts, locale)
     return None
 
 
 def _ask_result(lines: list[str], locale: str, program_id: str | None = None,
                 institution_id: str | None = None,
-                evidence_url: str | None = None) -> dict:
+                evidence_url: str | None = None,
+                candidates: list[str] | None = None) -> dict:
     program = _lookup_program(program_id) if program_id else None
-    return {"lines": lines[:MAX_ANSWER_LINES],
-            "program_id": program_id,
-            "program_name": program_display_name(program) if program else None,
-            "institution_id": institution_id,
-            "evidence_url": evidence_url,
-            "ai_status": AI_STATUS, "data_version": DATA_VERSION,
-            "next_steps": {"wizard": "/wizard",
-                           "program": f"/programs/{program_id}" if program_id else None,
-                           "institution": f"/institutions/{institution_id}" if institution_id else None}}
+    result = {"lines": lines[:MAX_ANSWER_LINES],
+              "program_id": program_id,
+              "program_name": program_display_name(program) if program else None,
+              "institution_id": institution_id,
+              "evidence_url": evidence_url,
+              "ai_status": AI_STATUS, "data_version": DATA_VERSION,
+              "next_steps": {"wizard": "/wizard",
+                             "program": f"/programs/{program_id}" if program_id else None,
+                             "institution": f"/institutions/{institution_id}" if institution_id else None}}
+    if candidates:
+        # Round 24 (W1): the ambiguous-programme line names several
+        # programmes but resolves none of them — the caller (the pet)
+        # needs their ids to carry the pending disambiguation forward
+        # (re-send the original question + the level answer, scoped
+        # to these ids). The backend is stateless per request, so the
+        # ids travel in the response, never in server memory. Only
+        # present on the ambiguous branch; every other answer is
+        # byte-identical to before.
+        result["candidates"] = list(candidates)
+    return result
 
 
 def ask(message: str, locale: str = "en", track: str | None = None) -> dict:
@@ -1290,7 +1302,8 @@ def ask(message: str, locale: str = "en", track: str | None = None) -> dict:
             return _ask_result(lines, loc, institution_id=candidates[0]["id"],
                                evidence_url=evidence)
         if len(candidates) > 1:
-            names = "、".join(i.get("official_name", "") for i in candidates[:3])
+            names = join_list((i.get("official_name", "")
+                               for i in candidates[:3]), loc)
             return _ask_result([_fmt("ambiguous_rank", loc, names=names)], loc)
         return _ask_result([_t(loc, "rank_need_name"), _t(loc, "unknown_2")], loc)
 
@@ -1338,13 +1351,17 @@ def ask(message: str, locale: str = "en", track: str | None = None) -> dict:
                                loc, program_id=pids[0],
                                evidence_url=program_evidence_url(program))
         if len(pids) > 1:
-            names = "、".join(program_display_name(_lookup_program(pid))
-                              for pid in pids)
+            names = join_list((program_display_name(_lookup_program(pid))
+                               for pid in pids), loc)
             # Round 23 (W5): the count word comes from the same list
             # that is rendered — the template used to hard-code "two"
             # while the list held three (or ten) programmes.
+            # Round 24 (W1): the matched ids travel in the response
+            # as `candidates` — the pet's follow-up (original
+            # question + the level answer) is scoped to them.
             return _ask_result([_fmt("ambiguous_programme", loc,
-                                     count=len(pids), names=names)], loc)
+                                     count=len(pids), names=names)], loc,
+                               candidates=list(pids))
 
     # Round 9 (R3): a country QUESTION ("瑞士有哪些好学校？") is
     # answered from that country's own verified programmes and

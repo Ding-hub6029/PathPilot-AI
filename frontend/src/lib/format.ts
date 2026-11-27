@@ -22,6 +22,33 @@ import { FeeItem, Profile, Program } from './types';
 
 const fmtNum = (n: number, locale: string): string => n.toLocaleString(locale);
 
+/** Round 24: the enumeration separator for a locale — the single
+ * place frontend name lists are joined. Before this, each call site
+ * hard-coded its own rule (`locale === 'zh-CN' ? '、' : ', '`), and
+ * several joined with a bare '、' in every locale, so an English chat
+ * bubble listed countries/programmes with a Chinese enumeration
+ * comma; ar fell through to the Latin ", " everywhere. Standard
+ * enumeration separators: ", " in en/es/fr/pt-BR, "、" in zh-CN,
+ * "، " (Arabic comma + space) in ar. Unknown locales fall back to
+ * ", ". Storage joins ('·' atoms, ';' legacy notes) are NOT this:
+ * they are machine formats parsed back, not rendered lists. */
+export const LIST_SEPARATORS: Record<string, string> = {
+  en: ', ',
+  'zh-CN': '、',
+  es: ', ',
+  fr: ', ',
+  'pt-BR': ', ',
+  ar: '، ',
+};
+
+export function listSeparator(locale: string): string {
+  return LIST_SEPARATORS[locale] ?? ', ';
+}
+
+export function joinList(items: readonly string[], locale: string): string {
+  return items.join(listSeparator(locale));
+}
+
 const MONTHS_EN = [
   'january', 'february', 'march', 'april', 'may', 'june',
   'july', 'august', 'september', 'october', 'november', 'december',

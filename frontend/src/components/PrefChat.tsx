@@ -9,6 +9,7 @@ import {
   normaliseClimatePref, prefSummary,
 } from '../lib/preferences';
 import { allPrograms, fetchJson, fetchJsonChat } from '../lib/api';
+import { joinList } from '../lib/format';
 import {
   isModelReply, looksLikeQuestion,
   appendCountryNote, countKnownPrefs, effectiveNextPref, extractedSummary, firstMissingPref, isModelPrefReply,
@@ -148,7 +149,7 @@ function firstUnanswered(p: Profile): number {
 /** Verified institutions in a country, from the shipped catalogue. */
 function schoolsIn(country: string, locale: string): string {
   const names = [...new Set(allPrograms().filter((p) => p.country === country).map((p) => p.institution))];
-  return names.join(locale === 'zh-CN' ? '、' : ', ');
+  return joinList(names, locale);
 }
 
 /** Word match: ASCII words match on word boundaries ("low" must not
@@ -657,7 +658,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const rawNext: PrefNextQuestion = serverNext !== undefined ? serverNext : firstMissingPref(known);
   const nextQ: PrefNextQuestion = effectiveNextPref(rawNext, known, skipped);
   const modelDone = nextQ === null;
-  const remainingLabel = missingQs.map((q) => t(prefQuestionNameKey(q))).join('、');
+  const remainingLabel = joinList(missingQs.map((q) => t(prefQuestionNameKey(q))), locale);
 
   /** Switch to the guided queue with the honest offline line. The
    * guided queue resumes at the first unanswered question. `base`
@@ -896,7 +897,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * own words. */
   const confirmExtract = () => {
     if (!pendingExtract) return;
-    const summary = extractedSummary(pendingExtract.extracted, t);
+    const summary = extractedSummary(pendingExtract.extracted, t, locale);
     const patch = profilePatchFromExtracted(pendingExtract.extracted, profile);
     // P0-3: a newly recorded country asks why — a chip tap carries
     // no reason, so without this the reason is never volunteered and
@@ -1032,7 +1033,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         const countryLabels = (profile.prefCountries ?? []).map((c) => t(`country.${c}`));
         const note = profile.prefCountriesNote ?? '';
         const parts = [...countryLabels, ...(note && !countryLabels.some((l) => norm(l) === norm(note)) ? [note] : [])].filter(Boolean);
-        return parts.join('、');
+        return joinList(parts, locale);
       }
       case 'climate': return climateLabel(profile.prefClimate, t);
       case 'environment': return environmentLabel(profile.prefEnvironment, t);
@@ -1096,7 +1097,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
             return { key: levelKey ? 'wizard.chatOpClimateCityLevel' : 'wizard.chatOpClimateCity', vars, mood: 'celebrate' };
           }
           const cities = countryCitiesWithClimate(codes, allPrograms());
-          const desc = cities.map(({ city, climate }) => (climate ? `${cityDisplayName(city, t)}（${climateLabel(climate, t)}）` : cityDisplayName(city, t))).join('、');
+          const desc = joinList(cities.map(({ city, climate }) => (climate ? `${cityDisplayName(city, t)}（${climateLabel(climate, t)}）` : cityDisplayName(city, t))), locale);
           if (desc) {
             return { key: 'wizard.chatOpClimateNoMatch', vars: { want: climateName, cities: desc }, mood: 'empathise' };
           }
@@ -1475,7 +1476,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     ? tf('r9chat.cityPlaceholder', { city: cityDisplayName(cityChips[0].city, t) })
     : t('r9chat.cityPlaceholderAny');
 
-  const summary = prefSummary(profile, t);
+  const summary = prefSummary(profile, t, locale);
   const hasSalary = profile.prefSalary !== '' && profile.prefSalary !== undefined;
 
   /** A pending parse's understood fields, rendered in the current
@@ -1535,8 +1536,8 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     <div className="flex justify-start">
       <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
         <p>{note
-          ? tf('p0.chatWhyReason', { countries: countries.map((c) => t(`country.${c}`)).join('、'), note })
-          : tf('p0.chatWhyCountry', { countries: countries.map((c) => t(`country.${c}`)).join('、') })}</p>
+          ? tf('p0.chatWhyReason', { countries: joinList(countries.map((c) => t(`country.${c}`)), locale), note })
+          : tf('p0.chatWhyCountry', { countries: joinList(countries.map((c) => t(`country.${c}`)), locale) })}</p>
       </div>
     </div>
   );
@@ -1820,7 +1821,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
               <div className="space-y-3">
                 <div className="flex justify-start">
                   <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
-                    <p>{tf('wizard.chatParseConfirm', { summary: extractedSummary(pendingExtract.extracted, t) })}</p>
+                    <p>{tf('wizard.chatParseConfirm', { summary: extractedSummary(pendingExtract.extracted, t, locale) })}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -1965,7 +1966,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
               <div className="space-y-3">
                 <div className="flex justify-start">
                   <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
-                    <p>{tf('wizard.chatParseConfirm', { summary: extractedSummary(pendingExtract.extracted, t) })}</p>
+                    <p>{tf('wizard.chatParseConfirm', { summary: extractedSummary(pendingExtract.extracted, t, locale) })}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -2030,8 +2031,8 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                   <div className="flex justify-start">
                     <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
                       <p>{awaitingReason.note
-                        ? tf('p0.chatWhyReason', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、'), note: awaitingReason.note })
-                        : tf('p0.chatWhyCountry', { countries: awaitingReason.countries.map((c) => t(`country.${c}`)).join('、') })}</p>
+                        ? tf('p0.chatWhyReason', { countries: joinList(awaitingReason.countries.map((c) => t(`country.${c}`)), locale), note: awaitingReason.note })
+                        : tf('p0.chatWhyCountry', { countries: joinList(awaitingReason.countries.map((c) => t(`country.${c}`)), locale) })}</p>
                     </div>
                   </div>
                 )}

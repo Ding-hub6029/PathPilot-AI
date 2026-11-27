@@ -539,6 +539,8 @@
  "results.nextEdit": "Refinar meu perfil",
  "results.nextReport": "Ver relatório completo",
  "results.nextSummary": "{met} programa(s) atende(m) a todos os requisitos conhecidos, {blockers} tem(têm) bloqueios e {unknown} tem(têm) incógnitas.",
+ "results.nextSummaryZero": "Nenhum programa atende totalmente todos os requisitos conhecidos — nenhuma universidade publica uma conversão do Gaokao para as notas locais, então o requisito acadêmico fica desconhecido em todos.",
+ "results.nextSummaryZeroClosest": "Os principais programas abaixo são as correspondências verificadas mais próximas, não programas totalmente atendidos.",
  "results.nextTitle": "O que fazer a seguir",
  "results.noCountryCatalogue": "O catálogo verificado tem {count} programa(s) em {country} — em outras áreas ou níveis. Alternativas verificadas mais próximas:",
  "results.noCountryNone": "O catálogo verificado ainda não tem nenhum programa em {country}.",

@@ -125,7 +125,9 @@ def test_locale_key_parity_after_duration_keys():
     # Round 23 W3: +3 wizard.note* keys (noteBeautifulEnv,
     # noteCampusVibe, noteUniversityTown) for the localised countries
     # note in prefSummary — parity across locales still holds.
-    assert len(base) == 973, len(base)
+    # Round 24 W3: +2 results.nextSummaryZero* keys (zero + closest
+    # lines for the Gaokao-caused "0 meet" headline) — parity holds.
+    assert len(base) == 975, len(base)
     for locale in LOCALES:
         assert sets[locale] == base, (locale, sets[locale] ^ base)
 
@@ -284,7 +286,7 @@ def test_r21_results_card_renders_duration_via_format_duration():
     card now renders formatDuration(p, t, locale) under the title,
     on the same `p` the card already resolves from mergePrograms()."""
     results = (ROOT / "frontend" / "src" / "app" / "results" / "page.tsx").read_text(encoding="utf-8")
-    assert "import { formatDuration } from '../../lib/format';" in results
+    assert "import { formatDuration, joinList } from '../../lib/format';" in results
     assert "{formatDuration(p, t, locale)}" in results
 
 
@@ -302,7 +304,7 @@ def test_r21_institution_cards_render_duration():
     # The comparison columns on /results (WhyNot CompareView) had the
     # same gap — no duration in the column headers.
     whynot = (ROOT / "frontend" / "src" / "components" / "WhyNot.tsx").read_text(encoding="utf-8")
-    assert "import { formatDuration } from '../lib/format';" in whynot
+    assert "import { formatDuration, joinList } from '../lib/format';" in whynot
     assert "{formatDuration(program, t, locale)}" in whynot
 
 

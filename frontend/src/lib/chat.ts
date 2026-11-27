@@ -27,6 +27,7 @@
  */
 
 import type { Profile } from './types';
+import { joinList } from './format';
 
 /** One /assistant/chat reply. */
 export interface ChatReply {
@@ -35,6 +36,11 @@ export interface ChatReply {
   ai_status?: string;
   model?: string | null;
   sources?: { id: string; url: string | null; title: string }[];
+  /** Round 24 (W1): the programme ids behind an ambiguous reply
+   * ("I found 2 matching programmes…") — the caller carries them
+   * forward as the scope of the level follow-up. Absent unless the
+   * reply is ambiguous. */
+  candidates?: string[];
 }
 
 /** One /profile/parse reply (StudentProfile-shaped, parse only). */
@@ -170,6 +176,135 @@ export function scopedProgrammeDisplay(programTitle: string, question: string, l
 
 export function stripProgrammeMarker(text: string): string {
   return text.replace(/^Programme id [A-Za-z0-9_-]+\.\s*/, '');
+}
+
+// --- Programme disambiguation (round 24, W1) -------------------------------
+// The pet's free-text fee flow used to dead-end on the backend's
+// ambiguous reply ("I found 2 matching programmes… Tell me
+// undergraduate or masters."): the reply carried no programme ids,
+// the "Undergraduate" chip was the onboarding Q1 chip (tapping it
+// jumped to country selection), and typing "undergraduate" sent a
+// bare level word the backend honestly answered with unknown —
+// while the same fee answers directly in wizard step 8. The backend
+// is stateless per request, so the follow-up carries the pending
+// context in the request itself: the original question + the level
+// word as the message, scoped to the matched ids as program_ids.
+// These helpers own the frontend half of that contract; CompassPet
+// renders from them. Nothing here invents data: the candidates come
+// from the reply, the level words mirror the backend's own
+// _UG_WORDS/_TM_WORDS (ai/assistant.py).
+
+/** Level words, mirroring backend ai/assistant.py _UG_WORDS /
+ * _TM_WORDS — undergraduate checked first, exactly as the backend
+ * filters. "研究生" is a masters word (a postgraduate student). */
+const DISAMBIG_UG_WORDS = ['本科', '学士', 'undergrad', 'bsc', 'beng', 'bcomp', 'bachelor'];
+const DISAMBIG_TM_WORDS = ['硕士', '研究生', 'master', 'msc', 'mcomp', 'msai', 'postgrad', 'taught'];
+
+/** Degree level a free-text reply names, or null when it names none.
+ * Substring match on the lowercased text, the same rule the backend
+ * uses — so the frontend and the backend agree on what counts as a
+ * level answer ("Undergraduate", "masters", "本科", "硕士",
+ * "研究生"). A word that names no level ("grad", "hmm") is null:
+ * the caller re-asks instead of sending a bare word the backend
+ * would answer with unknown. */
+export function detectLevelWord(text: string): DegreeLevel | null {
+  const lower = (text ?? '').toLowerCase();
+  if (DISAMBIG_UG_WORDS.some((w) => lower.includes(w))) return 'undergraduate';
+  if (DISAMBIG_TM_WORDS.some((w) => lower.includes(w))) return 'taught_masters';
+  return null;
+}
+
+/** One chat turn, as far as the disambiguation derivation needs it. */
+export interface DisambiguationTurnLike {
+  kind: string;
+  message?: string;
+  reply?: ChatReply | null;
+  replyLocale?: string | null;
+}
+
+/** A live level disambiguation: the ambiguous reply's candidates +
+ * the original question it asked about. */
+export interface PendingDisambiguation {
+  /** The matched programme ids, in the backend's order. */
+  candidates: string[];
+  /** The original question, verbatim (the ask turn's message). */
+  question: string;
+  /** The ambiguous reply itself (re-used for the local re-ask). */
+  reply: ChatReply;
+  /** The locale the ambiguous reply was answered in. */
+  replyLocale: string | null;
+}
+
+/**
+ * The pending disambiguation, derived from the turns alone — no
+ * extra state to go stale. It is the LAST ask/freeText turn, and it
+ * is pending only when that turn is an ask whose reply still lists
+ * 2+ candidates: any later turn ends it — a follow-up (whose reply
+ * either answers the fee or asks again with fresh candidates), a
+ * new question, or a re-ask turn (which carries the same candidates
+ * and keeps it live). Choice/prompt turns in between do not decide
+ * anything; they cannot follow an ambiguous ask through the UI.
+ */
+export function pendingDisambiguation(
+  turns: readonly DisambiguationTurnLike[],
+): PendingDisambiguation | null {
+  for (let i = turns.length - 1; i >= 0; i--) {
+    const t = turns[i];
+    if (t.kind !== 'ask' && t.kind !== 'freeText') continue;
+    if (t.kind === 'ask' && t.reply
+      && (t.reply.candidates?.length ?? 0) >= 2 && t.message) {
+      return {
+        candidates: [...(t.reply.candidates as string[])],
+        question: t.message,
+        reply: t.reply,
+        replyLocale: t.replyLocale ?? null,
+      };
+    }
+    return null;
+  }
+  return null;
+}
+
+/**
+ * The distinct degree levels among the candidates, undergraduate
+ * first (the Q1 chip order — never the backend's candidate order,
+ * which lists MSc first for ETH). Unknown ids contribute nothing;
+ * [] when no candidate resolves — the caller then falls back to
+ * both level chips, since the backend still resolves the follow-up
+ * from the message alone.
+ */
+export function disambiguationLevels(
+  candidates: string[],
+  programs: { id: string; degreeLevel?: string }[],
+): DegreeLevel[] {
+  const found = new Set<DegreeLevel>();
+  for (const id of candidates) {
+    const p = programs.find((x) => x.id === id);
+    if (p?.degreeLevel === 'undergraduate' || p?.degreeLevel === 'taught_masters') {
+      found.add(p.degreeLevel);
+    }
+  }
+  return (['undergraduate', 'taught_masters'] as DegreeLevel[])
+    .filter((l) => found.has(l));
+}
+
+/**
+ * The exact message POSTed for a level follow-up: the ORIGINAL
+ * question + the level word, so the backend's matcher (which already
+ * answers "…Computer Science? undergraduate" with the BSc fee)
+ * resolves it from the scoped programme. The word is the question's
+ * own locale (本科/硕士 for zh-CN, undergraduate/masters otherwise)
+ * — the backend recognises both word sets in any locale.
+ */
+export function disambiguationFollowupMessage(
+  question: string,
+  level: DegreeLevel,
+  locale = 'en',
+): string {
+  const word = locale === 'zh-CN'
+    ? (level === 'undergraduate' ? '本科' : '硕士')
+    : (level === 'undergraduate' ? 'undergraduate' : 'masters');
+  return `${question} ${word}`;
 }
 
 // --- Pref-chat contract (round 7) ------------------------------------------
@@ -632,10 +767,11 @@ export function prefQuestionNameKey(q: Exclude<PrefNextQuestion, null>): string 
 export function extractedSummary(
   extracted: PrefExtracted,
   t: (k: string) => string,
+  locale?: string,
 ): string {
   const parts: string[] = [];
   if (extracted.countries?.length) {
-    parts.push(extracted.countries.map((c) => t(`country.${c}`)).join('、'));
+    parts.push(joinList(extracted.countries.map((c) => t(`country.${c}`)), locale ?? 'en'));
   }
   if (extracted.climate) {
     parts.push(t(`wizard.prefClimate${extracted.climate === 'four_seasons' ? 'FourSeasons' : extracted.climate[0].toUpperCase() + extracted.climate.slice(1)}`));
