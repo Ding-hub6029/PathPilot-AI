@@ -154,10 +154,18 @@ def _enriched_programme_sources(program_id: str) -> list[Source]:
     return out
 
 
+def _clean_track(track) -> str | None:
+    """Wizard track a chat question is asked under (undergraduate /
+    taught_masters), or None when absent or invalid — an invalid value
+    is dropped, never a 422 and never a match filter."""
+    return track if track in ("undergraduate", "taught_masters") else None
+
+
 def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
               climate_class: str | None = None,
               country_programmes: bool = False,
-              program_ids: list[str] | None = None):
+              program_ids: list[str] | None = None,
+              track: str | None = None):
     """(template ask() result, retrieved sources, programme ids).
 
     Retrieval reuses the template assistant: its ``ask()`` already does
@@ -193,8 +201,15 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
     never claim a covered country has no data. The pref-chat flow
     leaves this off: its country evidence is the climate-city list,
     pinned by its own tests.
+
+    ``track`` (Round 22, W2) is the wizard track the question is asked
+    under (undergraduate / taught_masters): programme matching — the
+    template's own match and the scope narrowing — filters by it, so
+    an undergraduate profile can never match an MSc programme.
     """
-    template = assistant_ask(message, locale)
+    track = _clean_track(track)
+    scope_ids = _clean_program_ids(program_ids)
+    template = assistant_ask(message, locale, track=track)
     sources: list[Source] = []
     seen: set[str] = set()
 
@@ -208,7 +223,8 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
     if template.get("program_id"):
         pids.append(template["program_id"])
     else:
-        for pid in _match_programmes(_norm(message or "")):
+        for pid in _match_programmes(_norm(message or ""),
+                                     scope_ids=scope_ids, track=track):
             if (pid in PROGRAMS or pid in EXPANSION_MATCHABLE) \
                     and pid not in pids:
                 pids.append(pid)
@@ -244,7 +260,8 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
         # answer() passes none, so the pet is unaffected.
         for city, n in _country_cities(countries):
             _add([_climate_source(city, n)])
-    if country_programmes and not _match_programmes(_norm(message or "")):
+    if country_programmes and not _match_programmes(
+            _norm(message or ""), scope_ids=scope_ids, track=track):
         # Round 9 (R3): a country question with no matched programme
         # ("瑞士有哪些好学校？") retrieved nothing, so even the live
         # model could only say the country has no verified data —
@@ -302,7 +319,7 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
     # path and the template fallback can answer a deictic "this
     # programme" question from verified facts. The scope ids stay out
     # of ``pids`` (see the docstring): they are context, not a match.
-    for pid in _clean_program_ids(program_ids):
+    for pid in scope_ids:
         _add(_enriched_programme_sources(pid))
         own = _verified_programme(pid) or {}
         iid = own.get("institution_id") or V2_PROGRAM_INSTITUTION.get(pid)
@@ -1005,7 +1022,8 @@ def _scope_names_line(candidates: list[str], locale: str,
 
 
 def _scope_line(scope_ids: list[str], message: str, lines: list[str],
-                template: dict, locale: str) -> str | None:
+                template: dict, locale: str,
+                track: str | None = None) -> str | None:
     """Deterministic first line for a question about a programme the
     caller has in scope, or None when the scope must not answer it.
 
@@ -1025,23 +1043,43 @@ def _scope_line(scope_ids: list[str], message: str, lines: list[str],
       answer. ``candidates`` narrows the template's own alias match
       to the scope: naming ETH matches two undergraduate siblings,
       so the scope disambiguates only when exactly one of them is
-      in view."""
+      in view.
+
+    ``track`` (Round 22, W2): the wizard track — candidates are
+    filtered by it, and the match itself (localised display titles
+    included) runs with it, so an undergraduate profile can never
+    be answered from an MSc programme in scope."""
     msg = _norm(message or "")
     if not scope_ids or template.get("program_id") is not None:
         return None
-    matched = _match_programmes(msg)
+    track = _clean_track(track)
+    matched = _match_programmes(msg, scope_ids=scope_ids, track=track)
     if matched:
         candidates = [pid for pid in matched if pid in scope_ids]
         if not candidates:
             return None
     else:
         candidates = list(scope_ids)
+    if track is not None:
+        candidates = [pid for pid in candidates
+                      if (_verified_programme(pid) or {}).get("degree_level")
+                      == track]
+        if not candidates:
+            return None
     unknown_first = bool(lines) and lines[0] == _t(locale, "unknown")
     # The template's ambiguous-programme line is only reachable when
     # the message carries no rank word (the rank branch answers
     # first in assistant.ask); without that guard a rank+fee
     # question's rank answer would be replaced by a fee line.
-    ambiguous = len(matched) > 1 and not any(
+    # "Ambiguous" also covers the template failing to answer at all
+    # without saying unknown — i.e. its ambiguous-programme line:
+    # the display-title match may have narrowed to one programme in
+    # scope while the template's own global match stayed ambiguous
+    # (Round 22, W2: a shared Chinese degree name with no institution
+    # token is ambiguous globally but unique in the visible batch).
+    # program_id is None here (the early return above), so a
+    # non-unknown first line can only be that ambiguous line.
+    ambiguous = (len(matched) > 1 or not unknown_first) and not any(
         w in msg for w in _RANK_WORDS)
     if any(w in msg for w in _FEE_WORDS + _IELTS_WORDS + _DEADLINE_WORDS):
         if len(candidates) == 1 and (unknown_first or ambiguous):
@@ -1506,7 +1544,8 @@ def _resolve_evidence_url(payload: dict, sources: list[Source]) -> str | None:
 def _template_result(template: dict, sources: list[Source],
                      locale: str = "en", *, programme_id: str | None = None,
                      message: str = "",
-                     scope_program_ids: list[str] | None = None) -> dict:
+                     scope_program_ids: list[str] | None = None,
+                     track: str | None = None) -> dict:
     """Template answer, with the generic "I don't know" first line
     replaced by what the retrieved evidence actually shows when
     climate sources were retrieved (round 7 fix: the model being
@@ -1536,7 +1575,7 @@ def _template_result(template: dict, sources: list[Source],
                  if programme_id else None)
     rank_line = ranking_overview_line(sources, locale)
     scope_line = (_scope_line(_clean_program_ids(scope_program_ids),
-                              message, lines, template, locale)
+                              message, lines, template, locale, track=track)
                   if scope_program_ids else None)
     sugg_line: str | None = None
     if message:
@@ -1996,7 +2035,8 @@ def answer(message: str, locale: str = "en",
            history: list[dict] | None = None,
            provider: ProviderAdapter | None = None,
            mode: str = "normal", profile: dict | None = None,
-           program_ids: list[str] | None = None) -> dict:
+           program_ids: list[str] | None = None,
+           track: str | None = None) -> dict:
     """Answer one free-text question for 小罗盘.
 
     Returns ``{lines, evidence_url, ai_status, model, sources}``:
@@ -2012,6 +2052,11 @@ def answer(message: str, locale: str = "en",
     programmes' verified facts instead of the blanket unknown; see
     ``_scope_line``. Devil's advocate ignores it (its profile is the
     scope there).
+
+    ``track`` (Round 22, W2) is the wizard track the question is asked
+    under (undergraduate / taught_masters, else None): programme
+    matching filters by it, so an undergraduate profile can never
+    match an MSc programme. An invalid value is dropped, never a 422.
 
     Devil's advocate (``mode="devil"``): the same retrieval + grounding,
     but the answer challenges the user's stated preferences (from
@@ -2038,6 +2083,7 @@ def answer(message: str, locale: str = "en",
         return result
 
     provider = provider or ProviderAdapter()
+    track = _clean_track(track)
     if is_devil:
         # Retrieval scoped to the challenged preferences: the wanted
         # climate class within the chosen countries, so the catalogue
@@ -2046,7 +2092,7 @@ def answer(message: str, locale: str = "en",
         countries, wanted, _level, _budget = _devil_effective(profile, msg)
         template, sources, pids = _retrieve(
             msg, loc, countries=countries or None, climate_class=wanted,
-            country_programmes=True)
+            country_programmes=True, track=track)
         conflicts = devil_conflicts(profile, msg)
         sources = _ensure_devil_sources(conflicts, sources)
         if not conflicts:
@@ -2059,7 +2105,7 @@ def answer(message: str, locale: str = "en",
     else:
         template, sources, pids = _retrieve(
             msg, loc, country_programmes=True,
-            program_ids=_clean_program_ids(program_ids))
+            program_ids=_clean_program_ids(program_ids), track=track)
         conflicts = []
     sources_out = [{"id": s.id, "url": s.url, "title": s.title} for s in sources]
 
@@ -2069,7 +2115,8 @@ def answer(message: str, locale: str = "en",
         return _template_result(template, sources, loc,
                                 programme_id=_detect_programme_id(msg),
                                 message=msg,
-                                scope_program_ids=_clean_program_ids(program_ids))
+                                scope_program_ids=_clean_program_ids(program_ids),
+                                track=track)
 
     # (c) No key: the template assistant is the honest answer.
     if not provider.available:

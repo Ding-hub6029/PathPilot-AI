@@ -59,6 +59,35 @@ export function footerAiLineKey(args: {
   return 'pet.aiChecking';
 }
 
+/** Probe verdicts are the WEAKEST evidence about the model — a
+ * 1-token chat, weaker than a real turn — so a probe verdict may only
+ * be applied while it is still the freshest evidence. Round 22 W1
+ * (re-test task 16, 2026-11-27 14:21-14:27): the open probe is slow
+ * (its 1-token confirmation hangs up to ~7 s on a flapping gateway)
+ * while a turn verdict can land first — the known-down fast path
+ * declares offline within ~1-2 s of open — so the probe resolved
+ * "available" DURING the user's lookup and flipped the footer
+ * offline -> "AI 回答" mid-turn; the turn's template reply then set
+ * it back to offline. The old probe guard (a sequence ref) only
+ * protected against newer PROBES, never against TURN verdicts.
+ *
+ * A probe verdict applies only when BOTH hold:
+ * - no turn is currently in flight (a turn in flight is about to
+ *   produce fresher, real-turn evidence), AND
+ * - no turn verdict has landed since this probe started (a turn
+ *   verdict after the probe started is fresher evidence than the
+ *   probe, whichever direction it points).
+ * Dropping a stale probe verdict is always safe: the turn's own
+ * verdict lands when it ends, and the footer retry re-probes. */
+export function probeVerdictApplies(args: {
+  turnInFlight: boolean;
+  turnVerdictGenAtProbeStart: number;
+  turnVerdictGenNow: number;
+}): boolean {
+  if (args.turnInFlight) return false;
+  return args.turnVerdictGenAtProbeStart === args.turnVerdictGenNow;
+}
+
 /** Milliseconds to wait before applying a verdict that arrived
  * `elapsedMs` after the open, so the checking state is visible for
  * at least AI_CHECKING_MIN_MS in total. */

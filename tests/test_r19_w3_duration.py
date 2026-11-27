@@ -383,6 +383,120 @@ def test_r21_duration_reaches_results_card_for_swiss_three(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# Round 22, worker W3 — EPFL 4th card: "3 years" without ECTS
+# ---------------------------------------------------------------------------
+# Root cause is DATA, not a rendering path (see /tmp/r22-w3-decisions.md):
+# every programme-card surface already renders through the shared
+# formatDuration path (results card, step-8 RecChat, browse, detail,
+# institution pages, CompareView, homepage + report via
+# formatProgramLine), and the R21 test above pins that no .tsx renders
+# a raw duration. The 4th Swiss card is epfl-cs-bsc-2027, whose data
+# duration was the bare "3 years" with no per-programme locale key,
+# so the generic fallback honestly rendered just that — while its
+# sibling epfl-ai-bsc-2027 already carried "3 years (180 ECTS)".
+# The ECTS figure is verified, not invented: EPFL's official
+# "Study programs structure" page states "Bachelor: 180 ECTS" and
+# Ordinance RS 414.132.3 Art. 5 requires 180 ECTS credits for the
+# Bachelor — so all five EPFL BSc programmes that had the bare value
+# now carry "3 years (180 ECTS)" with the new source
+# epfl-bachelor-ects (top-level + per-programme; the backend
+# validator rejects a programme source id missing from data["sources"]).
+# EPFL MSc programmes are deliberately untouched: the same official
+# page says masters are "90 – 120 ECTS ... depending on the field",
+# so no blanket figure can be assigned without per-programme checks.
+
+EPFL_BSC = [
+    "epfl-cs-bsc-2027",
+    "epfl-ai-bsc-2027",
+    "epfl-mechanical-engineering-bsc-2027",
+    "epfl-electrical-engineering-bsc-2027",
+    "epfl-civil-engineering-bsc-2027",
+    "epfl-chemical-engineering-bsc-2027",
+]
+EPFL_BSC_FIXED = [pid for pid in EPFL_BSC if pid != "epfl-ai-bsc-2027"]
+EPFL_BSC_ECTS_SOURCE = "epfl-bachelor-ects"
+
+
+def _expansion_data() -> dict:
+    return json.loads((ROOT / "data" / "expansions" / "expansion.json").read_text(encoding="utf-8"))
+
+
+def test_r22_epfl_bsc_duration_data_carries_ects():
+    """Data fix, pinned: no EPFL Bachelor is left with the bare
+    "3 years" — all six carry "3 years (180 ECTS)"."""
+    by_id = _expansion_by_id()
+    for pid in EPFL_BSC:
+        prog = by_id[pid]
+        assert prog["degree_level"] == "undergraduate", pid
+        assert prog["duration"] == "3 years (180 ECTS)", (pid, prog["duration"])
+
+
+def test_r22_epfl_bsc_duration_source_is_traced():
+    """The ECTS figure is sourced, not asserted: each fixed programme
+    lists epfl-bachelor-ects, and that id resolves to the EPFL
+    "Study programs structure" page in the top-level sources (the
+    backend validator requires the resolution)."""
+    data = _expansion_data()
+    top = {s["id"]: s for s in data["sources"]}
+    src = top.get(EPFL_BSC_ECTS_SOURCE)
+    assert src, EPFL_BSC_ECTS_SOURCE
+    assert src["url"] == "https://www.epfl.ch/education/bachelor/study-programs-structure/", src
+    assert "180" in (src.get("title") or ""), src
+    by_id = _expansion_by_id()
+    for pid in EPFL_BSC_FIXED:
+        ids = {s["id"] for s in by_id[pid]["sources"]}
+        assert EPFL_BSC_ECTS_SOURCE in ids, (pid, ids)
+
+
+def test_r22_epfl_cards_render_ects_in_zh_and_en(tmp_path):
+    """Rendering end: the real formatDuration over the corrected data
+    durations renders exactly "3 年（180 ECTS）" / "3 years
+    (180 ECTS)" for every EPFL BSc card — the same strings the top-3
+    Swiss cards already show (no per-programme locale key needed:
+    the generic "(180 ECTS)" parenthetical fallback handles it)."""
+    by_id = _expansion_by_id()
+    cases = ([(pid, by_id[pid]["duration"], "zh-CN") for pid in EPFL_BSC]
+             + [(pid, by_id[pid]["duration"], "en") for pid in EPFL_BSC])
+    got = _run_format_duration(tmp_path, cases)
+    for pid in EPFL_BSC:
+        assert got[(pid, "zh-CN")] == "3 年（180 ECTS）", (pid, got[(pid, "zh-CN")])
+        assert got[(pid, "en")] == "3 years (180 ECTS)", (pid, got[(pid, "en")])
+
+
+def test_r22_epfl_msc_duration_not_invented():
+    """Deliberate non-fix, pinned: EPFL masters stay at the bare
+    "2 years" — the official page says masters are 90–120 ECTS
+    depending on the field, so assigning one figure to all of them
+    would be invented data. A per-programme MSc ECTS pass is a
+    separate task."""
+    by_id = _expansion_by_id()
+    msc = [pid for pid, p in by_id.items()
+           if pid.startswith("epfl-") and p.get("degree_level") == "taught_masters"]
+    assert msc, "no EPFL MSc programmes found"
+    for pid in msc:
+        assert by_id[pid]["duration"] == "2 years", (pid, by_id[pid]["duration"])
+        assert "ECTS" not in by_id[pid]["duration"], pid
+
+
+def test_r22_no_swiss_bsc_card_lacks_ects(tmp_path):
+    """Blanket guard over the audit profile: every Swiss
+    undergraduate programme in the catalogue now renders with an
+    ECTS figure in both locales — the EPFL gap cannot recur on the
+    next card without this test failing."""
+    by_id = _expansion_by_id()
+    data = _expansion_data()
+    swiss_bsc = [p["id"] for p in data["programs"]
+                 if p.get("country") == "CH" and p.get("degree_level") == "undergraduate"]
+    assert len(swiss_bsc) == 9, swiss_bsc  # 6 EPFL + 2 ETH + 1 UZH
+    cases = ([(pid, by_id[pid]["duration"], "zh-CN") for pid in swiss_bsc]
+             + [(pid, by_id[pid]["duration"], "en") for pid in swiss_bsc])
+    got = _run_format_duration(tmp_path, cases)
+    for pid in swiss_bsc:
+        assert "180 ECTS" in got[(pid, "zh-CN")], (pid, got[(pid, "zh-CN")])
+        assert "180 ECTS" in got[(pid, "en")], (pid, got[(pid, "en")])
+
+
+# ---------------------------------------------------------------------------
 # Nit 5 — judgement lock-in (backend half of the diagnosis)
 # ---------------------------------------------------------------------------
 

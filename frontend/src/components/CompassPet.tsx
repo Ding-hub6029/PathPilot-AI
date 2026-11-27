@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
 import type { Profile } from '../lib/types';
 import { fetchJson, fetchJsonChat, fetchJsonPatient, modelAvailability, allPrograms, findProgram } from '../lib/api';
-import { checkingDelayMs, footerAiLineKey, freshAiVerdict, type AiStatusPayload } from '../lib/aiStatus';
+import { checkingDelayMs, footerAiLineKey, freshAiVerdict, probeVerdictApplies, type AiStatusPayload } from '../lib/aiStatus';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, isModelReply, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
@@ -690,8 +690,22 @@ export function CompassPet() {
   /** Unconfirmed-verdict re-probes used by the CURRENT probe only;
    * reset on every fresh (non-retry) probe start below. */
   const unconfirmedRetriesRef = useRef(0);
+  /** Round 22 W1 — turn-verdict freshness for the probe guard (see
+   * probeVerdictApplies, lib/aiStatus.ts): a probe verdict is the
+   * weakest evidence and must never overwrite a turn verdict.
+   * turnInFlightRef is true while a user turn (onSend / askSuggest)
+   * is in flight; turnVerdictGenRef is bumped by noteTurnVerdict()
+   * at every turn verdict (goOffline / toOffline and every setAiLive
+   * in onSend, askSuggest and the locale re-fetch effect). A probe
+   * captures the generation at start; if a turn is in flight or the
+   * generation moved when the probe resolves, the probe verdict is
+   * dropped — the turn's own verdict lands when it ends. */
+  const turnInFlightRef = useRef(false);
+  const turnVerdictGenRef = useRef(0);
+  const noteTurnVerdict = () => { turnVerdictGenRef.current += 1; };
   const probeAiStatus = (opts?: { minChecking?: boolean; unconfirmedRetry?: boolean }) => {
     const seq = ++probeSeqRef.current;
+    const genAtStart = turnVerdictGenRef.current;
     if (probeTimerRef.current) {
       clearTimeout(probeTimerRef.current);
       probeTimerRef.current = undefined;
@@ -702,6 +716,14 @@ export function CompassPet() {
     const minChecking = opts?.minChecking ?? false;
     const applyVerdict = (verdict: boolean | null) => {
       if (probeSeqRef.current !== seq) return;
+      // Round 22 W1: a stale probe verdict must never overwrite a
+      // turn verdict (see probeVerdictApplies) — drop it, but still
+      // clear waking so the footer falls back to the turn's verdict
+      // (or the checking line), never the waking line.
+      if (!probeVerdictApplies({ turnInFlight: turnInFlightRef.current, turnVerdictGenAtProbeStart: genAtStart, turnVerdictGenNow: turnVerdictGenRef.current })) {
+        setWaking(false);
+        return;
+      }
       if (verdict === null) {
         // Available but unprobed: never claim AI on it. One bounded
         // fresh re-probe (the backend normally never returns this
@@ -725,6 +747,13 @@ export function CompassPet() {
     };
     const applyDown = () => {
       if (probeSeqRef.current !== seq) return;
+      // Round 22 W1: same staleness guard as applyVerdict — a probe
+      // that started before a turn must not overwrite the turn's
+      // verdict in either direction.
+      if (!probeVerdictApplies({ turnInFlight: turnInFlightRef.current, turnVerdictGenAtProbeStart: genAtStart, turnVerdictGenNow: turnVerdictGenRef.current })) {
+        setWaking(false);
+        return;
+      }
       setWaking(false);
       setTimedOut(retryFiredRef.current);
       setAiLive(false);
@@ -909,6 +938,7 @@ export function CompassPet() {
           });
       const toOffline = () => {
         if (convRef.current !== conv) return;
+        noteTurnVerdict();
         setOffline(true);
         setAiLive(false);
         setMessages((prev) => prev.map((x, j) => {
@@ -938,6 +968,7 @@ export function CompassPet() {
           // for a bare offline line. Only a reply with no lines at
           // all falls through to the catalogue.
           if (m.kind === 'ask' && fresh.lines?.length) {
+            noteTurnVerdict();
             setOffline(true);
             setAiLive(false);
             setMessages((prev) => prev.map((x, j) => (j === i && x.kind === 'ask' ? { ...x, reply: fresh, replyLocale: locale, offline: true } : x)));
@@ -946,6 +977,7 @@ export function CompassPet() {
           toOffline(); return;
         }
         setOffline(false);
+        noteTurnVerdict();
         setAiLive(true);
         setMessages((prev) => prev.map((x, j) => {
           if (j !== i || (x.kind !== 'suggest' && x.kind !== 'ask')) return x;
@@ -1177,6 +1209,7 @@ export function CompassPet() {
       return;
     }
     setBusy(true);
+    turnInFlightRef.current = true;
     const requestLocale = locale;
     // Round 8: the conversation this call belongs to — a restart
     // (greet bumps convRef) while the call is in flight must not let
@@ -1192,6 +1225,7 @@ export function CompassPet() {
     // call carries the retry verdict.
     const goOffline = () => {
       if (convRef.current !== conv) return;
+      noteTurnVerdict();
       setOffline(true);
       setAiLive(false);
       const off = suggestOffline(degree, country, band);
@@ -1213,6 +1247,7 @@ export function CompassPet() {
     if ((await modelAvailability()) === 'unavailable') {
       setTimedOut(false);
       goOffline();
+      turnInFlightRef.current = false;
       return;
     }
     try {
@@ -1225,6 +1260,7 @@ export function CompassPet() {
       if (convRef.current !== conv) return;
       setOffline(false);
       setTimedOut(false);
+      noteTurnVerdict();
       setAiLive(true);
       if (deriveChatLinks(r.sources).program) doCelebrate();
       push({
@@ -1239,6 +1275,10 @@ export function CompassPet() {
         goOffline();
       }
     } finally {
+      // Round 22 W1: the flag mirrors the in-flight lookup, not the
+      // conversation — a superseded turn is no longer in flight even
+      // when its late reply is ignored below.
+      turnInFlightRef.current = false;
       if (convRef.current === conv) {
         setWaking(false);
         setBusy(false);
@@ -1299,6 +1339,7 @@ export function CompassPet() {
     setInput('');
     push({ kind: 'freeText', text });
     setBusy(true);
+    turnInFlightRef.current = true;
     setWaking(false);
     const requestLocale = locale;
     // Round 8: the conversation this call belongs to — a restart
@@ -1315,6 +1356,7 @@ export function CompassPet() {
     // call carries the retry verdict.
     const goOffline = () => {
       if (convRef.current !== conv) return;
+      noteTurnVerdict();
       setOffline(true);
       setAiLive(false);
       const rank = rankOffline(text);
@@ -1344,6 +1386,7 @@ export function CompassPet() {
         // lines at all still falls through to the catalogue.
         if (r.lines?.length) {
           if (convRef.current !== conv) return;
+          noteTurnVerdict();
           setOffline(true);
           setTimedOut(false);
           setAiLive(false);
@@ -1358,6 +1401,7 @@ export function CompassPet() {
       if (convRef.current !== conv) return;
       setOffline(false);
       setTimedOut(false);
+      noteTurnVerdict();
       setAiLive(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
       push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, devil: devilMode, offlineRankId: null, offlineCountry: null });
@@ -1368,6 +1412,9 @@ export function CompassPet() {
         goOffline();
       }
     } finally {
+      // Round 22 W1: see askSuggest — the flag mirrors the in-flight
+      // lookup, not the conversation.
+      turnInFlightRef.current = false;
       if (convRef.current === conv) {
         setWaking(false);
         setBusy(false);

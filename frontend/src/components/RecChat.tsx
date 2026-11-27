@@ -115,7 +115,9 @@ export function RecChat({
         // Round 21 (W3): scope the re-ask to the cards in view, so a
         // deictic "this programme" question is answered from those
         // programmes' verified facts instead of "查不到".
-        body: JSON.stringify({ message: turn.question, locale, program_ids: shown.map((r) => r.programId) }),
+        // Round 22 (W2): send the wizard track too, so an
+        // undergraduate profile can never match an MSc programme.
+        body: JSON.stringify({ message: turn.question, locale, program_ids: shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
       }).then((fresh) => {
         if (!isModelReply(fresh)) {
           // Round 10: keep a template re-fetch as an offline turn instead
@@ -237,7 +239,9 @@ export function RecChat({
         // nothing and got the blanket "查不到", while the same
         // question on the programme detail page (which carries the
         // "Programme id" marker) got the verified fee answer.
-        body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6), program_ids: shown.map((r) => r.programId) }),
+        // Round 22 (W2): send the wizard track too, so an
+        // undergraduate profile can never match an MSc programme.
+        body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6), program_ids: shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
       }, { onRetry: () => setWaking(true) });
       setWaking(false);
       if (!isModelReply(r)) {
@@ -504,6 +508,29 @@ export function RecChat({
                       <a href={turn.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
                         {t('pet.evidence')} ↗
                       </a>
+                    )}
+                    {/* Round 22 (W2): a genuinely ambiguous "which
+                        one" reply becomes one tap, not a free-text
+                        English-name quiz — chips name the visible
+                        programmes, and tapping one re-asks the same
+                        question with the explicit "Programme id"
+                        marker, so the exact programme answers from
+                        its verified facts. Only on the latest turn:
+                        the chips name the batch in view now. */}
+                    {i === aiTurns.length - 1 && (turn.reply.lines.join(' ').includes('哪一门') || turn.reply.lines.join(' ').includes('Which one do you mean')) && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {shown.map((r) => {
+                          const p = programs.find((x) => x.id === r.programId);
+                          if (!p) return null;
+                          return (
+                            <button key={r.programId} type="button" disabled={aiBusy}
+                              onClick={() => void askModel(`Programme id ${p.id}. ${turn.question}`)}
+                              className="btn-press rounded-full border border-teal/50 bg-teal/10 px-3 py-1.5 text-left text-xs font-semibold text-navy disabled:opacity-40">
+                              {displayProgramTitle(p, locale)}
+                            </button>
+                          );
+                        })}
+                      </div>
                     )}
                   </>
                 ) : turn.reply ? (

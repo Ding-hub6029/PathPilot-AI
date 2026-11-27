@@ -42552,6 +42552,11 @@
      "id": "epfl-tuition",
      "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
      "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "epfl-bachelor-ects",
+     "url": "https://www.epfl.ch/education/bachelor/study-programs-structure/",
+     "retrieved_at": "2026-11-27T06:30:00Z"
     }
    ],
    "matchable": true,
@@ -42560,7 +42565,7 @@
    "intake_year": 2027,
    "study_mode": "full-time",
    "city": "Lausanne",
-   "duration": "3 years",
+   "duration": "3 years (180 ECTS)",
    "duration_months": 36
   },
   {
@@ -42604,6 +42609,11 @@
      "id": "epfl-tuition",
      "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
      "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "epfl-bachelor-ects",
+     "url": "https://www.epfl.ch/education/bachelor/study-programs-structure/",
+     "retrieved_at": "2026-11-27T06:30:00Z"
     }
    ],
    "matchable": true,
@@ -42612,7 +42622,7 @@
    "intake_year": 2027,
    "study_mode": "full-time",
    "city": "Lausanne",
-   "duration": "3 years",
+   "duration": "3 years (180 ECTS)",
    "duration_months": 36
   },
   {
@@ -42656,6 +42666,11 @@
      "id": "epfl-tuition",
      "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
      "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "epfl-bachelor-ects",
+     "url": "https://www.epfl.ch/education/bachelor/study-programs-structure/",
+     "retrieved_at": "2026-11-27T06:30:00Z"
     }
    ],
    "matchable": true,
@@ -42664,7 +42679,7 @@
    "intake_year": 2027,
    "study_mode": "full-time",
    "city": "Lausanne",
-   "duration": "3 years",
+   "duration": "3 years (180 ECTS)",
    "duration_months": 36
   },
   {
@@ -42708,6 +42723,11 @@
      "id": "epfl-tuition",
      "url": "https://www.epfl.ch/education/studies/en/rules-and-procedures/study-taxes/tuition-fee-other-fees/",
      "retrieved_at": "2026-11-25T00:00:00Z"
+    },
+    {
+     "id": "epfl-bachelor-ects",
+     "url": "https://www.epfl.ch/education/bachelor/study-programs-structure/",
+     "retrieved_at": "2026-11-27T06:30:00Z"
     }
    ],
    "matchable": true,
@@ -42716,7 +42736,7 @@
    "intake_year": 2027,
    "study_mode": "full-time",
    "city": "Lausanne",
-   "duration": "3 years",
+   "duration": "3 years (180 ECTS)",
    "duration_months": 36
   },
   {
@@ -54682,6 +54702,11 @@
      "id": "epfl-language",
      "url": "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/",
      "retrieved_at": "2026-11-26T11:30:00Z"
+    },
+    {
+     "id": "epfl-bachelor-ects",
+     "url": "https://www.epfl.ch/education/bachelor/study-programs-structure/",
+     "retrieved_at": "2026-11-27T06:30:00Z"
     }
    ],
    "matchable": true,
@@ -54690,7 +54715,7 @@
    "intake_year": 2027,
    "study_mode": "full-time",
    "city": "Lausanne",
-   "duration": "3 years",
+   "duration": "3 years (180 ECTS)",
    "duration_months": 36,
    "start": "September 2027",
    "language_of_instruction": {
@@ -57949,6 +57974,12 @@
    "url": "https://www.epfl.ch/campus/services/internal-trainings/language-centre/language-tests-and-questions/languages-taught-and-international-tests/",
    "retrieved_at": "2026-11-26T11:30:00Z",
    "title": "Languages taught and international tests (EPFL)"
+  },
+  {
+   "id": "epfl-bachelor-ects",
+   "url": "https://www.epfl.ch/education/bachelor/study-programs-structure/",
+   "retrieved_at": "2026-11-27T06:30:00Z",
+   "title": "Study programs structure — Bachelor: 180 ECTS (EPFL)"
   },
   {
    "id": "uzh-degrees",

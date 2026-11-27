@@ -87,6 +87,11 @@ class ChatRequest(BaseModel):
     # unknown. Never a programme the user named; the template's own
     # match still wins there.
     program_ids: list[str] = Field(default_factory=list, max_length=10)
+    # Wizard track (Round 22, W2): undergraduate / taught_masters.
+    # ai.chat drops anything else (never a 422); the matcher filters
+    # by it, so an undergraduate profile can never match an MSc
+    # programme.
+    track: str | None = Field(default=None)
 
     @field_validator("message")
     @classmethod
@@ -224,7 +229,7 @@ async def assistant_chat_endpoint(request: Request):
         chat_answer, req.message, req.locale,
         [turn.model_dump() for turn in req.history],
         provider=get_provider(), mode=req.mode, profile=req.profile,
-        program_ids=req.program_ids)
+        program_ids=req.program_ids, track=req.track)
 
 
 @router.post("/assistant/pref-chat")

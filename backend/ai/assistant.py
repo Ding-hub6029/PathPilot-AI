@@ -766,8 +766,13 @@ _INSTITUTION_PROGRAMMES: dict[str, list[str]] = {
     "南洋理工": ["ntu-bcomp-cs-2027", "ntu-msai-2027"],
 }
 
-_UG_WORDS = ("本科", "undergrad", "bsc", "beng", "bcomp", "bachelor")
+_UG_WORDS = ("本科", "学士", "undergrad", "bsc", "beng", "bcomp", "bachelor")
 _TM_WORDS = ("硕士", "master", "msc", "mcomp", "msai", "postgrad", "taught")
+
+# Wizard tracks (Round 22, W2): the profile track a chat question is
+# asked under. An undergraduate profile must NEVER match an MSc
+# programme, and vice versa — the matcher filters by it.
+_TRACKS = ("undergraduate", "taught_masters")
 
 _RANK_WORDS = ("排名", "rank", "qs", "泰晤士", "软科", "arwu", "第几")
 _FEE_WORDS = ("学费", "fee", "tuition", "多少钱", "cost")
@@ -890,11 +895,109 @@ def _rank_lines(inst: dict, locale: str) -> tuple[list[str], str | None]:
             _t(locale, "rank_next")], evidence
 
 
-def _match_programmes(message: str) -> list[str]:
-    """Programme ids the message refers to (0, 1 or 2)."""
+def _filter_by_track(pids: list[str], track) -> list[str]:
+    """Candidates restricted to the wizard track, or unchanged when no
+    (valid) track is given. An explicitly named programme in the other
+    track filters to [] — never a cross-track match."""
+    if track not in _TRACKS:
+        return list(pids)
+    return [pid for pid in pids
+            if (_lookup_program(pid) or {}).get("degree_level") == track]
+
+
+def _degree_name_strings(program: dict) -> list[str]:
+    """Verified degree-name strings for a programme, lowercased: the
+    official English name plus every localised name (``name_localized``,
+    e.g. zh-CN "计算机科学理学学士"). These are the names the cards
+    actually show, so a user typing the card's Chinese name must match
+    here — the old matcher only knew English tokens."""
+    out: list[str] = []
+    official = (program.get("official_name") or "").strip()
+    if official:
+        out.append(official.lower())
+    for value in (program.get("name_localized") or {}).values():
+        if isinstance(value, str) and value.strip():
+            out.append(value.strip().lower())
+    return out
+
+
+def _institution_strings(program: dict) -> list[str]:
+    """Institution name strings for a programme, lowercased: the
+    programme's own institution name, the rankings entry's Chinese
+    name (``name_zh``), and every alias key that maps to the
+    institution — so "ETH Zurich", "eth" and "苏黎世联邦理工" all
+    identify the same institution."""
+    out: list[str] = []
+    inst = (program.get("institution") or "").strip()
+    if inst:
+        out.append(inst.lower())
+    from app.data import V2_PROGRAM_INSTITUTION
+    iid = program.get("institution_id") or V2_PROGRAM_INSTITUTION.get(
+        program.get("id", ""))
+    if iid:
+        for inst_entry in RANKINGS.get("institutions", []):
+            if inst_entry.get("id") == iid:
+                name_zh = (inst_entry.get("name_zh") or "").strip()
+                if name_zh:
+                    out.append(name_zh.lower())
+                break
+        for alias, alias_iid in _INSTITUTION_ALIASES.items():
+            if alias_iid == iid and alias not in out:
+                out.append(alias)
+    return out
+
+
+def _match_by_display_title(message: str, pool_ids) -> list[str]:
+    """Programmes in ``pool_ids`` whose verified degree name (official
+    English name or any localised name) appears in the message.
+
+    A degree name shared by several programmes — the Chinese
+    "计算机科学理学学士" is held by 20 programmes worldwide — narrows
+    by an institution token in the message ("ETH Zurich" / "eth" /
+    "苏黎世联邦理工"); with no institution token the shared name stays
+    ambiguous and all hits are returned. [] when no degree name
+    appears at all. Only verified catalogue data is consulted, never
+    a guessed translation."""
+    hits: list[str] = []
+    for pid in pool_ids:
+        prog = _lookup_program(pid)
+        if prog is None:
+            continue
+        if any(name in message for name in _degree_name_strings(prog)):
+            hits.append(pid)
+    if len(hits) <= 1:
+        return hits
+    narrowed = [pid for pid in hits
+                if any(s in message
+                       for s in _institution_strings(_lookup_program(pid)))]
+    return narrowed or hits
+
+
+def _match_programmes(message: str, scope_ids=None, track=None) -> list[str]:
+    """Programme ids the message refers to (0, 1 or 2+).
+
+    ``scope_ids`` (Round 22, W2) is the caller-supplied visible batch:
+    the display-title match runs against those programmes first, so a
+    card's Chinese name resolves to the one programme in view even
+    when the same degree name is shared catalogue-wide. ``track`` is
+    the wizard track (undergraduate / taught_masters): every branch's
+    result is filtered by it, so an undergraduate profile can never
+    match an MSc programme. Either may be None (the old behaviour)."""
     for alias, pid in _PROGRAM_ALIASES.items():
         if alias in message:
-            return [pid]
+            return _filter_by_track([pid], track)
+    # Round 22 (W2): the card's own localised display title. The pool
+    # is the visible batch when one is in scope, else the whole
+    # verified catalogue — a degree name that is unique in the pool
+    # answers at once; a shared one needs its institution token.
+    pool = (list(scope_ids) if scope_ids else
+            [p["id"] for p in list(PROGRAMS.values())
+             + list(EXPANSION_MATCHABLE.values())])
+    titled = _match_by_display_title(message, pool)
+    if titled:
+        # An explicitly titled programme in the other track is no
+        # match at all — never fall through to a cross-track guess.
+        return _filter_by_track(titled, track)
     for keyword, pids in _INSTITUTION_PROGRAMMES.items():
         if keyword in message:
             level = None
@@ -903,10 +1006,10 @@ def _match_programmes(message: str) -> list[str]:
             elif any(w in message for w in _TM_WORDS):
                 level = "taught_masters"
             if level is None:
-                return list(pids)
+                return _filter_by_track(list(pids), track)
             matched = [pid for pid in pids
                        if PROGRAMS[pid].get("degree_level") == level]
-            return matched or list(pids)
+            return _filter_by_track(matched or list(pids), track)
     # Expansion (round 6): an institution alias the v2 branches did not
     # cover — that institution's promoted programmes, filtered by level
     # words the same way (at most the institution's promoted set).
@@ -920,7 +1023,7 @@ def _match_programmes(message: str) -> list[str]:
         pids = [p["id"] for p in EXPANSION_MATCHABLE.values()
                 if p.get("institution_id") == inst_id
                 and (level is None or p.get("degree_level") == level)]
-        return pids
+        return _filter_by_track(pids, track)
     return []
 
 
@@ -977,11 +1080,16 @@ def _ask_result(lines: list[str], locale: str, program_id: str | None = None,
                            "institution": f"/institutions/{institution_id}" if institution_id else None}}
 
 
-def ask(message: str, locale: str = "en") -> dict:
+def ask(message: str, locale: str = "en", track: str | None = None) -> dict:
     """Free-text question, answered only from verified data.
 
     Order: personal-data guard -> greeting -> rank lookup -> programme
     facts (fee / IELTS / deadline) -> unknown. Nothing is stored.
+
+    ``track`` (Round 22, W2) is the wizard track the question is asked
+    under (undergraduate / taught_masters, else None): programme
+    matching filters by it, so an undergraduate profile can never
+    match an MSc programme.
     """
     loc = locale if locale in _T else "en"
     msg = _norm(message or "")
@@ -1016,7 +1124,7 @@ def ask(message: str, locale: str = "en") -> dict:
     elif any(w in msg for w in _DEADLINE_WORDS):
         fact = "deadline"
     if fact:
-        pids = _match_programmes(msg)
+        pids = _match_programmes(msg, track=track)
         if len(pids) == 1:
             program = _lookup_program(pids[0])
             name = program_display_name(program)
