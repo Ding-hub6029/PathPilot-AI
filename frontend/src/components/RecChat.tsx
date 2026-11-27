@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
 import { MatchResult, Program, type FeeItem, type Profile } from '../lib/types';
 import { fetchJson, fetchJsonChat } from '../lib/api';
-import { isModelReply, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
+import { isModelReply, scopedProgrammeDisplay, scopedProgrammeMessage, stripProgrammeMarker, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import {
   catalogueCountInCountry, cityDisplayName, climateLabel, countryAlternatives,
   fieldDisplayLabel, missingPrefCountries, sortRecsByPreference, trackDisplayLabel,
@@ -84,8 +84,16 @@ export function RecChat({
    * below stays local — it really re-filters). A template-only reply
    * is never shown as an answer: the turn is stored as offline. */
   const [aiTurns, setAiTurns] = useState<{
-    id: number; question: string; reply: ChatReply | null; replyLocale: Locale | null; offline: boolean; pending: boolean;
+    id: number; question: string; sent: string; reply: ChatReply | null; replyLocale: Locale | null; offline: boolean; pending: boolean;
   }[]>([]);
+  /** `question` is the user-visible bubble text; `sent` is the exact
+   * message POSTed to the backend. They differ when a one-tap chip
+   * scopes the question to one programme (round 23): `sent` carries
+   * the "Programme id <id>." marker the backend keys on, while
+   * `question` is the clean display label (programme display name +
+   * the question) — the internal id never reaches the bubble. A
+   * retry or locale re-fetch re-sends `sent`, never the display
+   * text, so the scoping survives both. */
   /** Monotonic turn ids, so an optimistic turn (and a retry of it) can
    * be updated in place when its reply lands (round 8). */
   const turnIdRef = useRef(0);
@@ -117,7 +125,11 @@ export function RecChat({
         // programmes' verified facts instead of "查不到".
         // Round 22 (W2): send the wizard track too, so an
         // undergraduate profile can never match an MSc programme.
-        body: JSON.stringify({ message: turn.question, locale, program_ids: shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
+        // Round 23: re-send the turn's `sent` message (with the
+        // "Programme id" marker when a chip scoped it), never the
+        // display label — the re-fetch must stay scoped to the same
+        // programme the user tapped.
+        body: JSON.stringify({ message: turn.sent ?? turn.question, locale, program_ids: shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
       }).then((fresh) => {
         if (!isModelReply(fresh)) {
           // Round 10: keep a template re-fetch as an offline turn instead
@@ -212,22 +224,29 @@ export function RecChat({
    * stored as offline instead. Round 8: the turn is pushed
    * optimistically first, so the user's question shows at once; a
    * retry re-sends by updating the same turn (`existingId`), not by
-   * appending a duplicate. */
-  const askModel = async (text: string, existingId?: number) => {
+   * appending a duplicate. Round 23: `text` is the DISPLAY text
+   * (what the bubble shows); `sentOverride` is the exact message
+   * POSTed to the backend when it differs — a chip tap passes the
+   * "Programme id <id>." marker here, so the backend stays scoped
+   * while the bubble stays clean. A retry (`existingId`) re-sends
+   * the stored `sent`, so the scoping survives a retry too. */
+  const askModel = async (text: string, existingId?: number, sentOverride?: string) => {
     setAiBusy(true);
     setWaking(false);
     setMood('think');
     const requestLocale = locale;
     const turnId = existingId ?? nextTurnId();
+    const existing = existingId !== undefined ? aiTurns.find((x) => x.id === existingId) : undefined;
+    const sent = sentOverride ?? existing?.sent ?? text;
     if (existingId === undefined) {
-      setAiTurns((prev) => [...prev, { id: turnId, question: text, reply: null, replyLocale: null, offline: false, pending: true }]);
+      setAiTurns((prev) => [...prev, { id: turnId, question: text, sent, reply: null, replyLocale: null, offline: false, pending: true }]);
     } else {
       setAiTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, pending: true, offline: false } : x)));
     }
     const history: ChatHistoryTurn[] = [];
     for (const turn of aiTurns) {
       if (!turn.reply || !isModelReply(turn.reply)) continue;
-      history.push({ role: 'user', content: turn.question });
+      history.push({ role: 'user', content: turn.sent ?? turn.question });
       history.push({ role: 'assistant', content: turn.reply.lines.join(' ') });
     }
     try {
@@ -241,7 +260,10 @@ export function RecChat({
         // "Programme id" marker) got the verified fee answer.
         // Round 22 (W2): send the wizard track too, so an
         // undergraduate profile can never match an MSc programme.
-        body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6), program_ids: shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
+        // Round 23: send `sent` — the exact message, with the
+        // "Programme id" marker when a chip scoped the question —
+        // never the display label.
+        body: JSON.stringify({ message: sent, locale: requestLocale, history: history.slice(-6), program_ids: shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
       }, { onRetry: () => setWaking(true) });
       setWaking(false);
       if (!isModelReply(r)) {
@@ -490,7 +512,11 @@ export function RecChat({
           <div key={`ai-${i}`} className="space-y-3">
             <div className="flex justify-end">
               <div className="max-w-[90%] rounded-2xl bg-teal px-4 py-3 text-white">
-                <p>{turn.question}</p>
+                {/* Round 23: render-side guard — a leading "Programme
+                    id" marker is stripped, so an internal id can
+                    never reach the user bubble even if a turn was
+                    stored mis-wired. */}
+                <p>{stripProgrammeMarker(turn.question)}</p>
               </div>
             </div>
             <div className="flex justify-start">
@@ -513,10 +539,14 @@ export function RecChat({
                         one" reply becomes one tap, not a free-text
                         English-name quiz — chips name the visible
                         programmes, and tapping one re-asks the same
-                        question with the explicit "Programme id"
-                        marker, so the exact programme answers from
-                        its verified facts. Only on the latest turn:
-                        the chips name the batch in view now. */}
+                        question scoped to that programme. Round 23:
+                        the scope travels ONLY in the sent message
+                        ("Programme id <id>." marker) — the bubble
+                        shows the clean display label (programme
+                        display name + the question), never the raw
+                        internal id (re-test task 17). Only on the
+                        latest turn: the chips name the batch in view
+                        now. */}
                     {i === aiTurns.length - 1 && (turn.reply.lines.join(' ').includes('哪一门') || turn.reply.lines.join(' ').includes('Which one do you mean')) && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {shown.map((r) => {
@@ -524,7 +554,11 @@ export function RecChat({
                           if (!p) return null;
                           return (
                             <button key={r.programId} type="button" disabled={aiBusy}
-                              onClick={() => void askModel(`Programme id ${p.id}. ${turn.question}`)}
+                              onClick={() => void askModel(
+                                scopedProgrammeDisplay(displayProgramTitle(p, locale), turn.question, locale),
+                                undefined,
+                                scopedProgrammeMessage(p.id, turn.question),
+                              )}
                               className="btn-press rounded-full border border-teal/50 bg-teal/10 px-3 py-1.5 text-left text-xs font-semibold text-navy disabled:opacity-40">
                               {displayProgramTitle(p, locale)}
                             </button>
@@ -554,7 +588,11 @@ export function RecChat({
         {aiOffline && (
           <div className="space-y-2">
             <p className="text-xs text-navy/60">{t('wizard.recChatOffline')}</p>
-            {lastQuestion && (
+            {/* Round 23: a chip-scoped turn never sets lastQuestion
+                (it is free text only), so the retry button must also
+                show when an offline turn exists — retryAi re-sends
+                that turn's stored `sent` message, marker included. */}
+            {(lastQuestion || aiTurns.some((x) => x.offline)) && (
               <button type="button" onClick={retryAi} disabled={aiBusy}
                 className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy disabled:opacity-40">
                 {t('wizard.chatPrefRetry')}

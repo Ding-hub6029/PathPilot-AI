@@ -122,7 +122,10 @@ def test_zurich_duration_key_exists_in_all_locales():
 def test_locale_key_parity_after_duration_keys():
     sets = {locale: set(_messages(locale)) for locale in LOCALES}
     base = sets["en"]
-    assert len(base) == 970, len(base)
+    # Round 23 W3: +3 wizard.note* keys (noteBeautifulEnv,
+    # noteCampusVibe, noteUniversityTown) for the localised countries
+    # note in prefSummary — parity across locales still holds.
+    assert len(base) == 973, len(base)
     for locale in LOCALES:
         assert sets[locale] == base, (locale, sets[locale] ^ base)
 

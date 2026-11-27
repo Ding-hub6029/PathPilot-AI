@@ -140,6 +140,38 @@ export function suggestMessage(
     `${ceiling.amount.toLocaleString('en-US')} ${ceiling.period}.`;
 }
 
+// --- Scoped programme question (round 23) ---------------------------------
+// A one-tap chip that scopes a question to ONE programme must send the
+// internal id to the backend but NEVER show it to the user (re-test
+// task 17: tapping the ETH chip rendered the user bubble as
+// "Programme id eth-cs-bsc-2027. 这个专业学费多少？").
+//
+// - `scopedProgrammeMessage` is the exact string POSTed to
+//   /assistant/chat: the backend keys its programme-id intent on the
+//   "Programme id <id>." marker (backend/app/router_chat.py
+//   program_ids), so the marker stays in the SENT message.
+// - `scopedProgrammeDisplay` is the bubble text: the programme's
+//   display name plus the user's question, no id. The separator is
+//   locale-shaped (full-width colon in Chinese locales, ": "
+//   elsewhere) so the label reads naturally in both.
+// - `stripProgrammeMarker` is the render-side guard: a leading
+//   marker is stripped from anything shown in a user bubble, so even
+//   a stale or mis-wired turn can never leak an internal id. The
+//   pattern is anchored to the start and requires the trailing ". ",
+//   so a user's own words mentioning a programme id mid-sentence are
+//   left alone.
+export function scopedProgrammeMessage(programId: string, question: string): string {
+  return `Programme id ${programId}. ${question}`;
+}
+
+export function scopedProgrammeDisplay(programTitle: string, question: string, locale = 'en'): string {
+  return `${programTitle}${locale.startsWith('zh') ? '：' : ': '}${question}`;
+}
+
+export function stripProgrammeMarker(text: string): string {
+  return text.replace(/^Programme id [A-Za-z0-9_-]+\.\s*/, '');
+}
+
 // --- Pref-chat contract (round 7) ------------------------------------------
 // POST /api/assistant/pref-chat. The frontend calls it through the
 // Next.js proxy; the backend serves it at /api/v1/assistant/pref-chat.

@@ -81,7 +81,16 @@ export function prefSummary(profile: Profile, t: (k: string) => string): string 
   const parts: { text: string; fromNote: boolean }[] = [];
   if (profile.prefClimate) parts.push({ text: climateLabel(profile.prefClimate, t), fromNote: false });
   if (profile.prefCountries?.length) parts.push({ text: profile.prefCountries.map((c) => t(`country.${c}`)).join(', '), fromNote: false });
-  if (profile.prefCountriesNote) parts.push({ text: profile.prefCountriesNote, fromNote: true });
+  // Round 23: the note is stored verbatim in the language the user
+  // typed it in (saveReason / profilePatchFromExtracted), while every
+  // other part renders through t() — so an English summary showed the
+  // raw Chinese note ("Cool · Switzerland · 环境很美·大学城·校园氛围
+  // · University town · campus vibe · Zurich"). The note is rendered
+  // through the active locale first (localiseCountryNote); the rest
+  // of the pipeline is unchanged.
+  const envLabel = profile.prefEnvironment ? environmentLabel(profile.prefEnvironment, t) : '';
+  const note = profile.prefCountriesNote ? localiseCountryNote(profile.prefCountriesNote, envLabel, t) : '';
+  if (note) parts.push({ text: note, fromNote: true });
   if (profile.prefEnvironment) parts.push({ text: environmentLabel(profile.prefEnvironment, t), fromNote: false });
   if (profile.prefCity) parts.push({ text: cityDisplayName(profile.prefCity, t), fromNote: false });
   if (profile.prefAfterGrad) parts.push({ text: afterGradLabel(profile.prefAfterGrad, t), fromNote: false });
@@ -150,6 +159,130 @@ export function prefSummary(profile: Profile, t: (k: string) => string): string 
     return kept.join('·');
   }).filter(Boolean);
   return final.join(' · ');
+}
+
+// --- Countries-note localisation (round 23) --------------------------
+// The note is the user's own words, stored verbatim in whatever
+// language they typed (saveReason in PrefChat, profilePatchFromExtracted
+// in chat.ts). The summary renders in the ACTIVE locale, so a note
+// stored in Chinese leaked verbatim into every other locale's summary
+// — and the Round 10/13 containment dedupe could not catch it, because
+// it compares the note against the label in the active locale's words.
+// Known reason phrases are therefore recognised in any of the 6
+// locales' wordings and rendered through the active locale's strings
+// (wizard.note* keys in frontend/messages/*.json — the table below
+// MUST mirror those files; test_r23_w3_pref_summary_locale.py pins
+// every canonical form against the messages files). A phrase that is
+// already in the active locale's language is kept verbatim — the
+// user's own wording is never rewritten ("环境优美" stays "环境优美"
+// in zh, never normalised to the key's canonical "环境很美"). A phrase
+// the table does not know is kept only when it is already in the
+// active locale's script family (CJK in zh, Arabic in ar, Latin in
+// en/es/fr/pt-BR); a foreign-script fragment can never be rendered
+// in-locale, so it is dropped from the summary. It stays stored, and
+// the chat still shows the user's own words — only the derived
+// one-line summary drops what it cannot render in the active locale.
+// Never a translation of a whole sentence: only the known phrases
+// above are recognised, nothing is machine-translated, nothing is
+// invented.
+
+const CJK_RE = /[\u2E80-\u9FFF\uF900-\uFAFF]/;
+const ARABIC_RE = /[\u0600-\u06FF]/;
+
+/** Known reason phrases: locale key + every locale's wording of it.
+ * `forms[locale][0]` is the canonical form and MUST equal
+ * messages/<locale>.json[key]; further entries are recognised
+ * variants of the same phrase in that locale. */
+export const NOTE_PHRASE_FORMS: { key: string; forms: Record<string, string[]> }[] = [
+  { key: 'wizard.noteBeautifulEnv', forms: {
+    en: ['Beautiful environment'],
+    'zh-CN': ['环境很美', '环境优美'],
+    es: ['Entorno hermoso'],
+    fr: ['Bel environnement'],
+    'pt-BR': ['Ambiente bonito'],
+    ar: ['بيئة جميلة'],
+  } },
+  { key: 'wizard.noteUniversityTown', forms: {
+    en: ['University town'],
+    'zh-CN': ['大学城'],
+    es: ['Ciudad universitaria'],
+    fr: ['Ville universitaire'],
+    'pt-BR': ['Cidade universitária'],
+    ar: ['مدينة جامعية'],
+  } },
+  { key: 'wizard.noteCampusVibe', forms: {
+    en: ['Campus vibe'],
+    'zh-CN': ['校园氛围'],
+    es: ['Ambiente de campus'],
+    fr: ['Ambiance campus'],
+    'pt-BR': ['Clima de campus'],
+    ar: ['أجواء الحرم الجامعي'],
+  } },
+];
+
+const scriptOf = (s: string): 'cjk' | 'arabic' | 'latin' =>
+  CJK_RE.test(s) ? 'cjk' : ARABIC_RE.test(s) ? 'arabic' : 'latin';
+
+/** Render a stored countries note in the active locale. `envLabel`
+ * is the already-localised environment label ('' when none): a note
+ * segment that was translated AND duplicates the label is dropped
+ * here, so the label itself survives as its own summary atom — the
+ * atom dedupe below would otherwise drop the shorter label and leave
+ * the note's joined form ("Beautiful environment·University
+ * town·Campus vibe") in its place. A segment already in the active
+ * locale is never stripped: the zh note keeps its pinned shape
+ * ("环境很美·大学城·校园氛围") and the label is dropped by the
+ * existing containment dedupe, exactly as before. */
+export function localiseCountryNote(
+  note: string,
+  envLabel: string,
+  t: (k: string) => string,
+): string {
+  const norm = (s: string) => s.toLowerCase().replace(/[·、，,；;。.\s]/g, '');
+  const envSegs = envLabel.split('·').map((s) => norm(s)).filter((s) => s.length >= 2);
+  // The active locale's script family, probed from a known localised
+  // string: zh renders CJK, ar renders Arabic, the rest Latin.
+  const localeScript = scriptOf(t('wizard.prefClimateCool'));
+  const out: string[] = [];
+  // Split on the storage join separators only ('·' current, '；'/';'
+  // legacy) — never on '、'/'，', which are sentence punctuation
+  // inside one reason (Round 14: "空气清新、湖光山色、安静宜居"
+  // stays one atom).
+  for (const seg of note.split(/[·；;]+/).map((s) => s.trim()).filter(Boolean)) {
+    let hit: { key: string; formLocale: string } | null = null;
+    for (const { key, forms } of NOTE_PHRASE_FORMS) {
+      for (const [formLocale, variants] of Object.entries(forms)) {
+        if (variants.some((v) => v.toLowerCase() === seg.toLowerCase())) {
+          hit = { key, formLocale };
+          break;
+        }
+      }
+      if (hit) break;
+    }
+    if (hit) {
+      const rendered = t(hit.key);
+      // The active locale is the one whose canonical form of this key
+      // equals the rendering; a segment from that locale is the
+      // user's own wording in the active language — keep it verbatim.
+      const activeForms = NOTE_PHRASE_FORMS.find((e) => e.key === hit.key)?.forms;
+      const renderingLocale = activeForms
+        ? Object.entries(activeForms).find(([, variants]) => variants[0] === rendered)?.[0]
+        : undefined;
+      if (renderingLocale && hit.formLocale === renderingLocale) {
+        out.push(seg);
+        continue;
+      }
+      // Translated: drop it when it only repeats the environment
+      // label, so the label survives as its own atom.
+      const rn = norm(rendered);
+      if (rn.length >= 2 && envSegs.some((e) => e.includes(rn) || rn.includes(e))) continue;
+      out.push(rendered);
+      continue;
+    }
+    // Unknown phrase: keep only in its own script family.
+    if (scriptOf(seg) === localeScript) out.push(seg);
+  }
+  return out.join('·');
 }
 
 /** Localised city name for chips and filters: `city.<slug>` when the

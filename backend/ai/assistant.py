@@ -99,7 +99,7 @@ _T: dict[str, dict[str, str]] = {
         "ask_deadline_unknown": "No verified application deadline for {program} in the data.",
         "rank_next": "No verified programme data for this institution yet — see its ranking detail page.",
         "rank_need_name": "Tell me which institution — I only look up the verified top 100.",
-        "ambiguous_programme": "I found two matching programmes: {names}. Tell me undergraduate or masters.",
+        "ambiguous_programme": "I found {count} matching programmes: {names}. Tell me undergraduate or masters.",
         "ambiguous_rank": "I found several matching institutions: {names}. Tell me which one.",
         "personal": "I don't collect names, phone numbers or email addresses — please don't send them here.",
         "personal_2": "You can start the eligibility check directly; no personal details are needed.",
@@ -147,7 +147,7 @@ _T: dict[str, dict[str, str]] = {
         "ask_deadline_unknown": "{program} 的申请截止日期在已核实的数据里查不到。",
         "rank_next": "这所学校还没有已核实的专业数据，先看它的排名详情页。",
         "rank_need_name": "请告诉我是哪所学校，我只查已核实的前 100 名。",
-        "ambiguous_programme": "我找到两个相关专业：{names}。请告诉我是本科还是硕士。",
+        "ambiguous_programme": "我找到 {count} 个相关专业：{names}。请告诉我是本科还是硕士。",
         "ambiguous_rank": "我找到多所相关学校：{names}。请说具体是哪一所。",
         "personal": "我不收集姓名、电话、邮箱等个人信息，请不要在这里发送。",
         "personal_2": "直接开始资格检查就行，不需要提供这些信息。",
@@ -195,7 +195,7 @@ _T: dict[str, dict[str, str]] = {
         "ask_deadline_unknown": "No hay un plazo verificado para {program} en los datos.",
         "rank_next": "Aún no hay datos verificados de programas para esta universidad; consulta su página de rankings.",
         "rank_need_name": "Dime qué universidad; solo consulto el top 100 verificado.",
-        "ambiguous_programme": "Encontré dos programas: {names}. Dime si es grado o máster.",
+        "ambiguous_programme": "Encontré {count} programas: {names}. Dime si es grado o máster.",
         "ambiguous_rank": "Encontré varias universidades: {names}. Dime cuál.",
         "personal": "No recopilo nombres, teléfonos ni correos; no los envíes aquí.",
         "personal_2": "Puedes iniciar la comprobación directamente; no se necesitan datos personales.",
@@ -243,7 +243,7 @@ _T: dict[str, dict[str, str]] = {
         "ask_deadline_unknown": "Aucune date limite vérifiée pour {program} dans les données.",
         "rank_next": "Pas encore de données de programme vérifiées pour cette université ; voir sa page de classement.",
         "rank_need_name": "Dites-moi quelle université ; je ne consulte que le top 100 vérifié.",
-        "ambiguous_programme": "J'ai trouvé deux programmes : {names}. Dites-moi licence ou master.",
+        "ambiguous_programme": "J'ai trouvé {count} programmes : {names}. Dites-moi licence ou master.",
         "ambiguous_rank": "J'ai trouvé plusieurs universités : {names}. Précisez laquelle.",
         "personal": "Je ne collecte ni nom, ni téléphone, ni e-mail ; ne les envoyez pas ici.",
         "personal_2": "Vous pouvez lancer la vérification directement ; aucune donnée personnelle n'est nécessaire.",
@@ -291,7 +291,7 @@ _T: dict[str, dict[str, str]] = {
         "ask_deadline_unknown": "Não há prazo verificado para {program} nos dados.",
         "rank_next": "Ainda não há dados verificados de programas para esta universidade; veja a página de rankings.",
         "rank_need_name": "Diga qual universidade; só consulto o top 100 verificado.",
-        "ambiguous_programme": "Encontrei dois programas: {names}. Diga se é graduação ou mestrado.",
+        "ambiguous_programme": "Encontrei {count} programas: {names}. Diga se é graduação ou mestrado.",
         "ambiguous_rank": "Encontrei várias universidades: {names}. Diga qual delas.",
         "personal": "Não coleto nomes, telefones nem e-mails; não os envie aqui.",
         "personal_2": "Você pode iniciar a verificação diretamente; não são necessários dados pessoais.",
@@ -339,7 +339,7 @@ _T: dict[str, dict[str, str]] = {
         "ask_deadline_unknown": "لا يوجد موعد نهائي موثّق لـ{program} في البيانات.",
         "rank_next": "لا توجد بيانات برامج موثّقة لهذه الجامعة بعد؛ اطّلع على صفحة التصنيف الخاصة بها.",
         "rank_need_name": "أخبرني باسم الجامعة؛ أبحث فقط في أفضل 100 جامعة موثّقة.",
-        "ambiguous_programme": "وجدت برنامجين مطابقين: {names}. أخبرني: بكالوريوس أم ماجستير؟",
+        "ambiguous_programme": "وجدت {count} برامج مطابقة: {names}. أخبرني: بكالوريوس أم ماجستير؟",
         "ambiguous_rank": "وجدت عدة جامعات مطابقة: {names}. حدّد أيّها تقصد.",
         "personal": "لا أجمع الأسماء أو أرقام الهواتف أو البريد الإلكتروني؛ لا ترسلها هنا.",
         "personal_2": "يمكنك بدء فحص الأهلية مباشرة؛ لا حاجة لأي بيانات شخصية.",
@@ -947,6 +947,170 @@ def _institution_strings(program: dict) -> list[str]:
     return out
 
 
+def _program_institution_id(program: dict | None) -> str | None:
+    """Institution id for a verified programme (v2 programmes carry
+    none — resolve via the mapping)."""
+    if program is None:
+        return None
+    from app.data import V2_PROGRAM_INSTITUTION
+    return (program.get("institution_id")
+            or V2_PROGRAM_INSTITUTION.get(program.get("id", "")))
+
+
+def _institution_strings_for(inst_id: str) -> set[str]:
+    """Every name string that identifies an institution: its alias
+    keys, its rankings official name and its Chinese name."""
+    out: set[str] = set()
+    for alias, iid in _INSTITUTION_ALIASES.items():
+        if iid == inst_id:
+            out.add(alias)
+    for inst in RANKINGS.get("institutions", []):
+        if inst.get("id") == inst_id:
+            for key in ("official_name", "name_zh"):
+                name = (inst.get(key) or "").strip().lower()
+                if name:
+                    out.add(name)
+    return out
+
+
+# Words that carry no degree meaning, stripped when extracting the
+# degree phrase a question names ("what is the tuition fee for ..."
+# leaves "computer science"; "…计算机本科的学费是多少？" leaves
+# "计算机"). Degree words themselves — science, computer, data,
+# engineering — are never in this list.
+_DEGREE_PHRASE_STRIP_WORDS = frozenset(
+    _FEE_WORDS + _IELTS_WORDS + _DEADLINE_WORDS + _RANK_WORDS
+    + _UG_WORDS + _TM_WORDS + (
+        "undergraduate", "undergraduates", "masters", "postgraduate",
+        "postgraduates", "graduate", "graduates",
+        # Round 23 (W5): "What are Oxford's tuition fees?" left the
+        # phrase "are fees" — "fees" is the plural of a fee word and
+        # "are" is filler — so a bare institution+fee question
+        # matched no programme at all. Filler verbs / pronouns and
+        # plural fee words carry no degree meaning either.
+        "are", "were", "was", "been", "be", "am", "have", "has", "had",
+        "will", "would", "can", "could", "should", "may", "might",
+        "i", "you", "we", "they", "it", "its", "this", "that",
+        "these", "those", "there", "here", "want", "wants", "know",
+        "like", "need", "get", "find", "show", "list", "give",
+        "what", "is", "the", "for", "of", "in", "and", "how", "much",
+        "does", "do", "tell", "me", "about", "please", "a", "an", "to",
+        "which", "programme", "program", "programmes", "programs",
+        "course", "courses", "degree", "school", "university",
+        "college", "institute", "qué", "cuál", "cuánto", "cuesta",
+        "el", "la", "los", "las", "de", "un", "una", "quel", "quelle",
+        "combien", "le", "les", "des", "du", "une", "quanto", "custa",
+        "o", "a", "os", "as", "do", "da", "um", "uma", "كم", "ما",
+        "هو", "هي",
+    ))
+_DEGREE_PHRASE_STRIP_SUBSTRINGS = (
+    "学费", "雅思", "要求", "申请", "截止", "什么时候", "费用", "多少钱",
+    "告诉", "请问", "本科", "硕士", "学士", "大学", "学院", "学校",
+    "的", "是", "吗", "多少", "什么", "哪个", "哪一", "怎么", "如何",
+)
+
+
+def _degree_phrase(message: str, inst_id: str) -> str | None:
+    """The degree phrase a question names, after removing the
+    institution's own name strings and every non-degree word — or
+    None when the question names no degree at all ("What is the fee
+    for ETH Zurich?"). Latin tokens are dropped word by word; CJK
+    runs are stripped of level / fee / particle substrings, so
+    "计算机本科的学费" becomes "计算机"."""
+    msg = _norm(message or "")
+    for s in sorted(_institution_strings_for(inst_id),
+                    key=len, reverse=True):
+        if s:
+            msg = msg.replace(s, " ")
+    msg = re.sub(r"[^\w\u4e00-\u9fff]+", " ", msg)
+    for sub in _DEGREE_PHRASE_STRIP_SUBSTRINGS:
+        msg = msg.replace(sub, " ")
+    # A token is filler when it IS a strip word, or when it starts
+    # with one ("fees" is the plural of "fee", "masters" of "master",
+    # "tuitions" of "tuition") — a bare institution+fee question
+    # must leave no phrase at all, not a bogus one.
+    def _filler(token: str) -> bool:
+        if token in _DEGREE_PHRASE_STRIP_WORDS:
+            return True
+        return any(len(w) >= 3 and token.startswith(w)
+                   for w in _DEGREE_PHRASE_STRIP_WORDS)
+    tokens = [t for t in msg.split() if len(t) > 1 and not _filler(t)]
+    phrase = " ".join(tokens).strip()
+    return phrase or None
+
+
+def _degree_name_matches(program: dict | None, phrase: str) -> bool:
+    """A programme's verified degree name contains the phrase — as
+    one string ("computer science" in "Bachelor of Science in
+    Computer Science", "计算机" in "计算机科学理学学士"), or with
+    every whitespace token of the phrase inside a single degree
+    name. A phrase no degree name contains never matches."""
+    if program is None or not phrase:
+        return False
+    names = _degree_name_strings(program)
+    if any(phrase in name for name in names):
+        return True
+    tokens = phrase.split()
+    if len(tokens) > 1:
+        return any(all(tok in name for tok in tokens) for name in names)
+    return False
+
+
+def _filter_by_level_words(pids: list[str], message: str) -> list[str]:
+    """Candidates restricted to the level the message's level words
+    name (undergraduate / taught_masters), or unchanged when the
+    message names none. Unlike the old institution branches, a level
+    that matches nothing filters to [] — never a cross-level guess."""
+    if any(w in message for w in _UG_WORDS):
+        level = "undergraduate"
+    elif any(w in message for w in _TM_WORDS):
+        level = "taught_masters"
+    else:
+        return list(pids)
+    return [pid for pid in pids
+            if (_lookup_program(pid) or {}).get("degree_level") == level]
+
+
+def _match_institution(message: str, inst_id: str,
+                       scope_ids=None) -> list[str]:
+    """Programmes of ONE institution that a question refers to.
+
+    Round 23 (W5): an institution token present in the question
+    constrains the match to that institution in every branch — a
+    question about ETH can never again answer with Peking,
+    Tsinghua or Toronto programmes, and a degree that institution
+    does not offer (ETH Medicine) matches nothing, so the answer
+    is the honest unknown instead of a substitute. Order:
+    exact degree name (in any locale) -> degree phrase from the
+    message matched inside the degree name ("computer science"
+    reaches ETH's BSc and MSc, whose full names never appear in
+    the message) -> no degree named: the institution's own
+    programmes (the v2 set when the institution has one, else its
+    promoted expansion set — the old branches' behaviour, kept so
+    a bare "UCL雅思要求" still lists UCL's two programmes).
+    A caller scope narrows the pool first. Level words filter
+    every branch; the wizard track filters at the caller."""
+    pool_ids = (list(scope_ids) if scope_ids else
+                [p["id"] for p in list(PROGRAMS.values())
+                 + list(EXPANSION_MATCHABLE.values())])
+    pool = [pid for pid in pool_ids
+            if _program_institution_id(_lookup_program(pid)) == inst_id]
+    titled = _match_by_display_title(message, pool)
+    if titled:
+        return _filter_by_level_words(titled, message)
+    phrase = _degree_phrase(message, inst_id)
+    if phrase:
+        matched = [pid for pid in pool
+                   if _degree_name_matches(_lookup_program(pid), phrase)]
+        return _filter_by_level_words(matched, message)
+    for keyword, pids in _INSTITUTION_PROGRAMMES.items():
+        if keyword in message:
+            own = [pid for pid in pids if pid in pool]
+            if own:
+                return _filter_by_level_words(own, message)
+    return _filter_by_level_words(pool, message)
+
+
 def _match_by_display_title(message: str, pool_ids) -> list[str]:
     """Programmes in ``pool_ids`` whose verified degree name (official
     English name or any localised name) appears in the message.
@@ -957,7 +1121,18 @@ def _match_by_display_title(message: str, pool_ids) -> list[str]:
     "苏黎世联邦理工"); with no institution token the shared name stays
     ambiguous and all hits are returned. [] when no degree name
     appears at all. Only verified catalogue data is consulted, never
-    a guessed translation."""
+    a guessed translation.
+
+    Round 23 (W5): when an institution token IS present, the
+    narrowing never falls back to the unfiltered hits — the old
+    ``narrowed or hits`` returned Peking / Tsinghua / Toronto for
+    an ETH question, because ETH's full degree name ("Bachelor of
+    Science in Computer Science") is not a substring of the short
+    phrase "computer science" in the message while those three
+    programmes' official name is exactly "Computer Science". The
+    phrase itself is matched by ``_match_institution``; this
+    function only ever returns programmes the message's full degree
+    name names, narrowed to the named institution."""
     hits: list[str] = []
     for pid in pool_ids:
         prog = _lookup_program(pid)
@@ -970,6 +1145,8 @@ def _match_by_display_title(message: str, pool_ids) -> list[str]:
     narrowed = [pid for pid in hits
                 if any(s in message
                        for s in _institution_strings(_lookup_program(pid)))]
+    if _institution_by_alias(message) is not None:
+        return narrowed
     return narrowed or hits
 
 
@@ -982,10 +1159,25 @@ def _match_programmes(message: str, scope_ids=None, track=None) -> list[str]:
     when the same degree name is shared catalogue-wide. ``track`` is
     the wizard track (undergraduate / taught_masters): every branch's
     result is filtered by it, so an undergraduate profile can never
-    match an MSc programme. Either may be None (the old behaviour)."""
+    match an MSc programme. Either may be None (the old behaviour).
+
+    Round 23 (W5): a message naming an institution goes through
+    ``_match_institution`` — the institution token constrains every
+    branch, and a degree phrase the institution does not offer
+    matches nothing (honest unknown, never a substitute from
+    another institution). Without an institution token the old
+    branches run unchanged: programme aliases, then display titles
+    (a shared short name such as "Computer Science" stays
+    ambiguous across institutions), then the v2 institution
+    keywords."""
     for alias, pid in _PROGRAM_ALIASES.items():
         if alias in message:
             return _filter_by_track([pid], track)
+    # Round 23 (W5): institution token first — see _match_institution.
+    inst_id = _institution_by_alias(message)
+    if inst_id is not None:
+        return _filter_by_track(
+            _match_institution(message, inst_id, scope_ids), track)
     # Round 22 (W2): the card's own localised display title. The pool
     # is the visible batch when one is in scope, else the whole
     # verified catalogue — a degree name that is unique in the pool
@@ -1010,20 +1202,6 @@ def _match_programmes(message: str, scope_ids=None, track=None) -> list[str]:
             matched = [pid for pid in pids
                        if PROGRAMS[pid].get("degree_level") == level]
             return _filter_by_track(matched or list(pids), track)
-    # Expansion (round 6): an institution alias the v2 branches did not
-    # cover — that institution's promoted programmes, filtered by level
-    # words the same way (at most the institution's promoted set).
-    inst_id = _institution_by_alias(message)
-    if inst_id:
-        level = None
-        if any(w in message for w in _UG_WORDS):
-            level = "undergraduate"
-        elif any(w in message for w in _TM_WORDS):
-            level = "taught_masters"
-        pids = [p["id"] for p in EXPANSION_MATCHABLE.values()
-                if p.get("institution_id") == inst_id
-                and (level is None or p.get("degree_level") == level)]
-        return _filter_by_track(pids, track)
     return []
 
 
@@ -1162,7 +1340,11 @@ def ask(message: str, locale: str = "en", track: str | None = None) -> dict:
         if len(pids) > 1:
             names = "、".join(program_display_name(_lookup_program(pid))
                               for pid in pids)
-            return _ask_result([_fmt("ambiguous_programme", loc, names=names)], loc)
+            # Round 23 (W5): the count word comes from the same list
+            # that is rendered — the template used to hard-code "two"
+            # while the list held three (or ten) programmes.
+            return _ask_result([_fmt("ambiguous_programme", loc,
+                                     count=len(pids), names=names)], loc)
 
     # Round 9 (R3): a country QUESTION ("瑞士有哪些好学校？") is
     # answered from that country's own verified programmes and

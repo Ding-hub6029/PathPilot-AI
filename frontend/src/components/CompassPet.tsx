@@ -408,13 +408,19 @@ function devilProfileFor(p: Profile): Record<string, unknown> | null {
 }
 
 export function CompassPet() {
-  const { t, tf, locale, profile } = useApp();
+  const { t, tf, locale, profile, dataClearNonce } = useApp();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
-  /** Devil's advocate (round 11): when on, free-text turns are sent
-   * with mode=devil + the saved preferences, and the reply renders
-   * with the devil boundary line + distinct style. */
+  /** Devil's advocate (round 11; round 23 W4: one-shot): when on,
+   * the NEXT free-text turn only is sent with mode=devil + the saved
+   * preferences, and the reply renders with the devil boundary line
+   * + distinct style. onSend switches the toggle off as that turn
+   * is sent, so a later unrelated question is always a normal
+   * answer — the toggle used to stay on until tapped again, so
+   * every later question (e.g. "苏黎世的气候怎么样？") got the
+   * devil conflict reply instead of an answer to the question.
+   * Turning it off before asking restores normal replies at once. */
   const [devilMode, setDevilMode] = useState(false);
   /** Round 14: whether there is anything to challenge — the toggle
    * renders exactly when devilProfileFor(profile) is non-null, i.e.
@@ -666,6 +672,34 @@ export function CompassPet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  /** Round 23 W2 — clear-data must clear the pet's memory too
+   * (re-test task 17): clearData bumps dataClearNonce and wipes
+   * pp-profile, but CompassPet is mounted once in the root layout
+   * and never remounts, and its conversation (messages / answers /
+   * step) lives in local useState — so the stale prefNote + choice
+   * turns ("本科", "瑞士") survived the clear and the prefNote
+   * re-rendered against the now-empty profile as
+   * "我还记得你的偏好：，不用再问一遍啦～" with an empty slot.
+   * Watch the nonce (same pattern as the wizard, round 18) and reset
+   * the live conversation at once; if the panel is open, re-greet
+   * immediately against the empty profile (the [open] effect above
+   * only fires on open, not on a messages reset). Devil mode goes
+   * off too: it can only be switched on while saved preferences
+   * exist, and there are none left to challenge. The ref seeds at
+   * mount: a clear from BEFORE this mount is already reflected in
+   * the mounted state, so only a bump since mount resets. */
+  const clearNonceRef = useRef(dataClearNonce);
+  useEffect(() => {
+    if (dataClearNonce === clearNonceRef.current) return;
+    clearNonceRef.current = dataClearNonce;
+    setMessages([]);
+    setAnswers({});
+    setStep(0);
+    setDevilMode(false);
+    if (openRef.current) greet();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataClearNonce]);
+
   /** Round 20: one shared model-status probe for the footer. Round 21
    * W1: the probe asks for a FRESH verdict (?fresh=1 — the backend
    * /ai/status cache is 60 s, per-process, shared by every user, and
@@ -889,13 +923,17 @@ export function CompassPet() {
   /** Conversation history for /assistant/chat: the live model turns so
    * far (user question + the model's own lines), oldest first, last 6
    * entries. Offline turns are never included — their lines are not
-   * model answers. `before` limits to turns before an index (used by
-   * the locale re-fetch, so a turn never quotes itself). */
+   * model answers. Round 23 W4: devil's-advocate turns are never
+   * included either — their challenge lines are not the context a
+   * later normal question should be answered from, or the devil
+   * voice leaks into unrelated answers through the history. `before`
+   * limits to turns before an index (used by the locale re-fetch, so
+   * a turn never quotes itself). */
   const buildHistory = (turns: ChatTurn[], before?: number): ChatHistoryTurn[] => {
     const out: ChatHistoryTurn[] = [];
     turns.forEach((m, i) => {
       if (before !== undefined && i >= before) return;
-      if (m.kind !== 'ask' || !m.reply || !isModelReply(m.reply)) return;
+      if (m.kind !== 'ask' || m.devil || !m.reply || !isModelReply(m.reply)) return;
       out.push({ role: 'user', content: m.message });
       out.push({ role: 'assistant', content: m.reply.lines.join(' ') });
     });
@@ -1075,7 +1113,18 @@ export function CompassPet() {
     switch (turn.kind) {
       case 'prompt':
         return { lines: [t(turn.key)] };
-      case 'prefNote':
+      case 'prefNote': {
+        // Round 23 W2: a prefNote turn renders at render time from
+        // the CURRENT profile, so a turn built before a clear used
+        // to render pet.greetingKnown with an empty {prefs} once the
+        // profile was gone — "我还记得你的偏好：，不用再问一遍啦～"
+        // with a dangling colon, in every locale. When nothing is
+        // remembered, fall back to the normal first greeting instead
+        // of claiming preferences that no longer exist. (The nonce
+        // effect above normally clears the turn outright; this is
+        // defence in depth for any stale turn that still renders.)
+        const summary = prefSummary(profile, t);
+        if (!hasPreferences(profile) || !summary) return { lines: [t('pet.greeting')] };
         // The saved wizard preferences, in the user's own words —
         // rendered at render time from the current profile, so a
         // locale switch never leaves a stale-language bubble.
@@ -1083,7 +1132,8 @@ export function CompassPet() {
         // visible on the page itself, so the greeting acknowledges
         // the saved preferences without restating the whole list
         // (pet.greetingKnownShort has no {prefs}).
-        return { lines: [pathname === '/results' ? t('pet.greetingKnownShort') : tf('pet.greetingKnown', { prefs: prefSummary(profile, t) })] };
+        return { lines: [pathname === '/results' ? t('pet.greetingKnownShort') : tf('pet.greetingKnown', { prefs: summary })] };
+      }
       case 'choice':
         return { lines: [choiceLabel(turn)] };
       case 'freeText':
@@ -1347,6 +1397,15 @@ export function CompassPet() {
     // in the new conversation.
     const conv = convRef.current;
     beginPatientCall();
+    // Round 23 W4 — one-shot devil: the toggle applies to at most
+    // THIS turn. Capture it now and switch it off as the turn is
+    // sent, so a later question — including one typed while this
+    // turn is still in flight — is a normal answer. Every devil
+    // marker below uses the per-turn capture, never the sticky
+    // state (which used to stay on until tapped again and hijack
+    // every later free-text question with mode=devil).
+    const isDevilTurn = devilMode;
+    if (isDevilTurn) setDevilMode(false);
     // Round 15, F2: one turn is bounded to ~20 s by fetchJsonChat
     // (lib/api.ts) — a slow abort falls back at once instead of
     // re-issuing the whole turn for another 40 s.
@@ -1361,16 +1420,18 @@ export function CompassPet() {
       setAiLive(false);
       const rank = rankOffline(text);
       if (rank) doCelebrate();
-      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, devil: devilMode, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(text) });
+      push({ kind: 'ask', message: text, reply: null, replyLocale: null, offline: true, devil: isDevilTurn, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(text) });
     };
     const hasAsked = messages.some((m) => m.kind === 'ask');
     const context = !hasAsked ? savedPrefsContext(profile) : null;
     const sentMessage = context ? `${text}\n${context}` : text;
-    // Devil's advocate (round 11): the saved preferences travel as a
-    // structured profile with mode=devil, so the backend challenges
-    // them with engine-computed conflicts; without a profile the
-    // backend derives what it can from the message itself.
-    const devilProf = devilMode ? devilProfileFor(profile) : null;
+    // Devil's advocate (round 11; round 23 W4: one-shot — see the
+    // capture above): the saved preferences travel as a structured
+    // profile with mode=devil, so the backend challenges them with
+    // engine-computed conflicts; without a profile the backend
+    // derives what it can from the message itself. Only this turn
+    // carries mode=devil — the toggle is already off again.
+    const devilProf = isDevilTurn ? devilProfileFor(profile) : null;
     try {
       const r = await fetchJsonChat<ChatReply>('/api/assistant/chat', {
         method: 'POST',
@@ -1391,7 +1452,7 @@ export function CompassPet() {
           setTimedOut(false);
           setAiLive(false);
           if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
-          push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: true, devil: devilMode, offlineRankId: null, offlineCountry: null });
+          push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: true, devil: isDevilTurn, offlineRankId: null, offlineCountry: null });
           return;
         }
         setTimedOut(false);
@@ -1404,7 +1465,7 @@ export function CompassPet() {
       noteTurnVerdict();
       setAiLive(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
-      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, devil: devilMode, offlineRankId: null, offlineCountry: null });
+      push({ kind: 'ask', message: text, reply: r, replyLocale: requestLocale, offline: false, devil: isDevilTurn, offlineRankId: null, offlineCountry: null });
     } catch (err) {
       setWaking(false);
       if (convRef.current === conv) {

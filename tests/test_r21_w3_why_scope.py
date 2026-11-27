@@ -150,21 +150,26 @@ def test_deictic_fee_question_batch_scope_names_programmes(monkeypatch):
 
 
 def test_named_eth_fee_narrowed_by_scope(monkeypatch):
-    # Naming ETH matches TWO undergraduate siblings (CS BSc and CSE
-    # BSc), so the template alone answers "ambiguous". When exactly
-    # one of them is in view, the scope disambiguates to its fee.
+    # Round 23 (W5): the degree phrase "计算机" now resolves this
+    # question to the one Computer Science BSc on its own — "计算科学"
+    # (CSE) does not contain "计算机" and "本科" drops the MSc — so
+    # the bare question already states the verified fee line and no
+    # scope disambiguation is needed any more. The scope paths still
+    # state the same fee line, never the old ambiguous line.
     bare = _answer_no_key(monkeypatch, ETH_FEE_ZH, "zh-CN")
-    assert "两个相关专业" in "\n".join(bare["lines"])
+    assert "CHF 4,380" in "\n".join(bare["lines"])
+    assert "两个相关专业" not in "\n".join(bare["lines"])
     scoped = _answer_no_key(monkeypatch, ETH_FEE_ZH, "zh-CN",
                             program_ids=[ETH_CS])
     joined = "\n".join(scoped["lines"])
     assert "CHF 4,380" in joined
     assert "两个相关专业" not in joined
-    # Both siblings in scope: still ambiguous — and the ambiguous
-    # line already names them, so it stands unchanged.
+    # Both siblings in scope: still the same fee line — the template
+    # already answered, so the scope leaves it unchanged.
     both = _answer_no_key(monkeypatch, ETH_FEE_ZH, "zh-CN",
                           program_ids=[ETH_CS, ETH_CSE])
-    assert "两个相关专业" in "\n".join(both["lines"])
+    assert "CHF 4,380" in "\n".join(both["lines"])
+    assert "两个相关专业" not in "\n".join(both["lines"])
 
 
 def test_ielts_fact_via_scope(monkeypatch):

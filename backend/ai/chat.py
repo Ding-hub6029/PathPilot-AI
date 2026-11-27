@@ -249,6 +249,18 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
         if top_programme and top_programme not in pids:
             _add(_enriched_programme_sources(top_programme))
             pids.append(top_programme)
+    # Round 23 W4: a climate question naming a city (no class word)
+    # retrieves that city's own verified climate source, so the
+    # normal template can state its actual class instead of the
+    # blanket unknown. _add dedupes by source id, so a city the
+    # class evidence (or the devil path) already added is not
+    # repeated; the city source alone joins — no programme is added
+    # to pids, so suggestion / scope behaviour is untouched.
+    if _asks_about_climate(message or ""):
+        named_city = _detect_climate_city(message or "")
+        if named_city:
+            _add([_climate_source(named_city,
+                                  _city_programme_count(named_city))])
     if countries:
         # Round 7 fix (live bug 2026-11-26): a country-selection turn
         # with no climate wish retrieved NO evidence at all, so the
@@ -414,6 +426,59 @@ def _detect_climate_class(message: str) -> str | None:
             if i >= 0 and (best is None or i < best[0]):
                 best = (i, cls)
     return best[1] if best else None
+
+
+# Round 23 W4: a climate question naming a city but no climate class
+# ("苏黎世的气候怎么样？") retrieved nothing — _detect_climate_class
+# needs a class word, and _detect_country knows countries, not cities —
+# so the normal template answered the blanket unknown while the devil
+# path (scoped to the profile's countries/climate) answered with the
+# conflict line. A question that asks about climate and names a
+# climate-table city now retrieves that city's own verified climate
+# source, so the normal path states its actual class through the
+# existing evidence_cities_line replacement. Only the named city, and
+# only for a climate question — a general question naming the city
+# ("苏黎世有什么好玩的？") retrieves nothing extra.
+_CLIMATE_QUESTION_WORDS = ("气候", "天气", "climate", "clima", "climat",
+                          "météo", "meteo", "weather", "مناخ", "طقس")
+
+
+def _asks_about_climate(message: str) -> bool:
+    """True when a message asks about climate/weather (any locale)."""
+    msg = _norm(message or "")
+    return any(w in msg for w in _CLIMATE_QUESTION_WORDS)
+
+
+def _detect_climate_city(message: str) -> str | None:
+    """Canonical climate-table city a message names, or None. Matches
+    the canonical English name and the localised names in
+    _CITY_NAMES (e.g. 苏黎世 -> Zurich), longest first so a longer
+    city name wins over a shorter word inside it; short Latin names
+    match on word boundaries only, as _detect_country does."""
+    msg = _norm(message or "")
+    names: dict[str, str] = {}
+    for city in CLIMATE:
+        names.setdefault(city.lower(), city)
+        for loc_name in _CITY_NAMES.get(city, {}).values():
+            names.setdefault(loc_name.lower(), city)
+    for alias, city in sorted(names.items(), key=lambda kv: -len(kv[0])):
+        if alias.isascii() and len(alias) <= 4:
+            if re.search(r"(?<![a-z])" + re.escape(alias) + r"(?![a-z])", msg):
+                return city
+        elif alias in msg:
+            return city
+    return None
+
+
+def _city_programme_count(city: str) -> int:
+    """Verified programmes in a climate-table city (all levels/fields),
+    counted the same way as the climate evidence — the count the
+    climate source carries."""
+    n = 0
+    for program in list(PROGRAMS.values()) + list(EXPANSION_PROGRAMS.values()):
+        if _table_city(program.get("city")) == city:
+            n += 1
+    return n
 
 
 def _table_city(city: str | None) -> str | None:
@@ -1608,8 +1673,22 @@ def _template_result(template: dict, sources: list[Source],
         country = country_evidence_line(sources, locale)
         if cities is not None and unknown_first:
             lines[0] = cities
+            # Round 23 W4: the cities line states verified facts, so
+            # it needs its own evidence link — the climate source's
+            # URL (previously the replaced line carried no link at
+            # all, since only the prog/scope/rank/sugg branches set
+            # `replaced`). The template's own evidence_url still wins
+            # when it has one.
+            if evidence_url is None:
+                evidence_url = next((s.url for s in sources
+                                     if s.id.startswith("climate:")
+                                     and s.url), None)
         elif country is not None and unknown_first:
             lines[0] = country
+            if evidence_url is None:
+                evidence_url = next((s.url for s in sources
+                                     if s.id.startswith("country:")
+                                     and s.url), None)
     if replaced and evidence_url is None:
         # The replaced line states verified facts, so it needs a real
         # official link: the first retrieved source that has one (the

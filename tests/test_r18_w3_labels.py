@@ -130,8 +130,11 @@ def test_pet_uses_short_greeting_on_results():
 
 def test_full_greeting_kept_off_results():
     # Elsewhere the opening bubble still states the full summary once.
+    # Round 23 W2: the summary is now computed once into `summary`
+    # (the prefNote case falls back to pet.greeting when it is empty),
+    # so the assertion matches the shared variable, not the inline call.
     src = _pet_src()
-    assert "tf('pet.greetingKnown', { prefs: prefSummary(profile, t) })" in src
+    assert "tf('pet.greetingKnown', { prefs: summary })" in src
 
 
 # ---------------------------------------------------------------------------

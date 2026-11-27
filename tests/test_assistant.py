@@ -170,7 +170,8 @@ def test_ask_rank_not_in_top_100_is_honest():
 def test_ask_ambiguous_programme_asks_which():
     r = ask("UCL雅思要求", "zh-CN")
     assert r["program_id"] is None
-    assert "两个相关专业" in r["lines"][0]
+    # Round 23 (W5): the count word is the rendered count (2).
+    assert "2 个相关专业" in r["lines"][0]
 
 
 def test_ask_no_programme_no_invented_fact():
