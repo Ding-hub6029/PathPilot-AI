@@ -30,8 +30,12 @@ Fix (generation site + checker enforcement):
   ``allowed_differences`` (the engine-computed pairwise differences
   for the turn). Any difference statement — in a claim, in the
   summary, or in an action explanation — whose number is not in that
-  set is rejected and the caller falls back to the template, which
-  never states a difference. ``allowed_differences=None`` (explain.py
+  set is rejected and the caller falls back to the template.
+  (Round 17 W2: the template now states the ENGINE-COMPUTED
+  difference itself — ``相差3项`` for the audit case — so the two
+  tests below that pinned "the template never states a difference"
+  were updated to pin the correct difference instead. The template
+  still never states a WRONG difference.) ``allowed_differences=None`` (explain.py
   and normal chat) keeps the old behaviour: no difference checking.
 
 Audit profile (the verification profile for this round): China Gaokao,
@@ -122,16 +126,20 @@ def test_devil_climate_conflict_carries_engine_difference_14_11():
     assert _devil_allowed_differences(conflicts) == frozenset({3})
 
 
-def test_devil_template_never_states_a_difference():
-    """The deterministic template lists each count on its own — the
-    sentence that was wrong cannot come from here."""
+def test_devil_template_states_engine_difference_14_11():
+    """Round 17 W2 supersedes the Round 16 pin ("the template never
+    states a difference"): the deterministic template now states the
+    ENGINE-COMPUTED difference — 14 − 11 = 3 — so the comparison is
+    not missing when the model is down. The sentence that was wrong
+    still cannot come from here: only the engine's 3 may appear."""
     conflicts = devil_conflicts(AUDIT_PROFILE, AUDIT_MESSAGE)
     from ai.chat import _devil_template_result
     sources, _texts, _c = _evidence_for(AUDIT_PROFILE, AUDIT_MESSAGE)
     result = _devil_template_result(conflicts, sources, "zh-CN")
     joined = "\n".join(result["lines"])
     assert "14" in joined and "11" in joined
-    assert "相差" not in joined and "之差" not in joined
+    assert "相差3项" in joined
+    assert "相差1项" not in joined
     assert difference_errors(joined, frozenset({3})) == []
 
 
@@ -256,7 +264,10 @@ def test_mock_model_wrong_difference_falls_back_to_template(monkeypatch):
     assert result["ai_status"] == "unavailable"
     assert result["model"] is None
     joined = "\n".join(result["lines"])
-    assert "相差" not in joined
+    # Round 17 W2: the fallback template itself now states the
+    # engine-computed difference (3), never the model's wrong 1.
+    assert "相差3项" in joined
+    assert "相差1项" not in joined
     assert "14" in joined and "11" in joined
 
 
@@ -294,6 +305,9 @@ def test_model_envelope_carries_engine_difference(monkeypatch):
            mode="devil", profile=AUDIT_PROFILE)
     conflicts = captured["envelope"]["devil_conflicts"]
     assert conflicts[0]["count_difference"] == 3
-    assert "3 programmes" in conflicts[0]["detail"]
+    # Round 17 W2: the English conflict line itself states the
+    # difference ("3 more verified programmes"), so the envelope no
+    # longer appends a second "Verified difference …" sentence.
+    assert "3 more verified programmes" in conflicts[0]["detail"]
     assert "14 programmes" in conflicts[0]["detail"]
     assert "11 programmes" in conflicts[0]["detail"]

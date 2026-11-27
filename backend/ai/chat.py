@@ -1450,6 +1450,46 @@ _DEVIL_T: dict[str, dict[str, str]] = {
 }
 
 
+# Round 17 (W2): the offline template states the engine-computed
+# difference too. Re-test task 11 found the template listing 14 and
+# 11 with NO difference at all — the comparison answer was missing
+# in the common model-down case. The sentence below uses ONLY the
+# engine-computed ``count_difference`` carried on the conflict (the
+# top-two difference, set in ``devil_conflicts``); the template never
+# subtracts. It names the top two listed cities (``_country_cities``
+# sorts count desc, so cities[0]/cities[1] are the two largest) and
+# is omitted when there is no usable difference (missing key, a
+# single city, or a 0 tie — the listed counts already show the tie).
+# Localised in all six locales; the en/zh wordings match the
+# ``stated_differences`` patterns in grounding.py (``3 more`` /
+# ``相差3项``), so the stated number is checkable against the allowed
+# set. The other locales have no difference pattern in the checker
+# yet (pre-existing gap, noted in /tmp/r17-w2-decisions.md) — the
+# sentence is still engine-sourced there, never invented.
+_DEVIL_DIFFERENCE = {
+    "en": "{city1} has {n} more verified programmes than {city2}.",
+    "zh-CN": "{city1}与{city2}相差{n}项。",
+    "es": "{city1} tiene {n} programas verificados más que {city2}.",
+    "fr": "{city1} compte {n} programmes vérifiés de plus que {city2}.",
+    "pt-BR": "{city1} tem {n} programas verificados a mais que {city2}.",
+    "ar": "{city1} لديها {n} برامج موثّقة أكثر من {city2}.",
+}
+
+
+def _devil_difference_sentence(conflict: dict, loc: str) -> str:
+    """Localised difference sentence for a climate conflict, or ""
+    when the engine supplied no positive difference to state."""
+    diff = conflict.get("count_difference")
+    cities = conflict.get("cities") or []
+    if (not isinstance(diff, int) or isinstance(diff, bool)
+            or diff <= 0 or len(cities) < 2):
+        return ""
+    template = _DEVIL_DIFFERENCE.get(loc) or _DEVIL_DIFFERENCE["en"]
+    return template.format(
+        city1=localised_city_name(cities[0][0], loc),
+        city2=localised_city_name(cities[1][0], loc), n=diff)
+
+
 _DEVIL_COUNTRY_CODES: frozenset | None = None
 
 
@@ -1634,10 +1674,20 @@ def devil_conflict_line(conflict: dict, locale: str = "en") -> str:
         cities = sep.join(item_t.format(
             city=localised_city_name(c, loc), cls=words[cls], n=n)
             for c, cls, n in conflict["cities"][:3])
-        return t["climate"].format(
+        line = t["climate"].format(
             prefix=t["prefix"], wanted=wanted,
             country=country_display_name(conflict["country"], loc),
             cities=cities)
+        # Round 17 (W2): the template states the engine-computed
+        # difference (top two city counts) in the same line, so the
+        # comparison is not missing when the model is down. The
+        # sentence comes from _devil_difference_sentence, which reads
+        # only conflict["count_difference"] — never a subtraction here.
+        diff_sentence = _devil_difference_sentence(conflict, loc)
+        if diff_sentence:
+            sep = "" if loc == "zh-CN" else " "
+            line = f"{line}{sep}{diff_sentence}"
+        return line
     if kind == "no_programmes":
         return t["no_programmes"].format(
             prefix=t["prefix"],
@@ -1676,7 +1726,9 @@ def _devil_template_result(conflicts: list[dict], sources: list[Source],
     """Deterministic template fallback for devil mode: the conflict
     lines (at most 3, conclusion first) or the honest no-clash line
     when nothing conflicts, plus the eligibility-check offer when
-    there is room. Never a model answer, never an invented clash."""
+    there is room. A climate line states the engine-computed
+    difference between the two largest city counts (Round 17 W2).
+    Never a model answer, never an invented clash."""
     if conflicts:
         lines = [devil_conflict_line(c, locale) for c in conflicts[:3]]
     else:
@@ -1815,14 +1867,14 @@ def answer(message: str, locale: str = "en",
         # difference between the two largest city counts
         # (``count_difference``): the model may state ONLY that
         # difference, never one it subtracted itself — and the checker
-        # enforces it against _devil_allowed_differences below.
+        # enforces it against _devil_allowed_differences below. The
+        # English conflict line already states the difference
+        # (Round 17 W2: devil_conflict_line appends the
+        # engine-computed count_difference), so no second difference
+        # sentence is appended here.
         envelope["devil_conflicts"] = [
             {"kind": c["kind"], "evidence_ids": c["evidence_ids"],
-             "detail": devil_conflict_line(c, "en")
-             + (f" Verified difference between the two largest city "
-                f"counts: {c['count_difference']} programmes."
-                if c["kind"] == "climate"
-                and c.get("count_difference") is not None else ""),
+             "detail": devil_conflict_line(c, "en"),
              "count_difference": c.get("count_difference")}
             for c in conflicts]
     messages = [{"role": "user", "content": json.dumps(envelope, ensure_ascii=False)}]

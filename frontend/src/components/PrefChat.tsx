@@ -14,7 +14,7 @@ import {
   appendCountryNote, countKnownPrefs, effectiveNextPref, extractedSummary, firstMissingPref, isModelPrefReply,
   isPrefKnown, knownFromProfile, markTurnOffline, mergeExtracted, mergeKnownWithExtracted, normaliseCountryNote,
   parsePrefChatState, prefChatFingerprint, prefQuestionNameKey, prefTurnBubbles, profilePatchFromExtracted,
-  answerTurnWhy, skipTurnWhy,
+  answerTurnWhy, skipTurnWhy, splitWhyConfirmedCountries,
   serializePrefChatState, shouldAskCountryWhy, whyAnchoredTurnId, whyFollowupFromExtracted,
   PREF_QUESTIONS,
   type ChatHistoryTurn, type ChatReply, type ParseReply,
@@ -668,7 +668,13 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const enterGuidedMode = (base?: Profile) => {
     setMode('guided');
     setAiOffline(true);
-    setPendingExtract(null);
+    // Round 17, P0: the pending extraction is KEPT across the drop —
+    // discarding it here is exactly how a stated country was silently
+    // lost (re-test task 11: Switzerland sat unconfirmed in the
+    // pending extraction when the model dropped, and this line threw
+    // it away). The confirm bubble is re-offered in the guided branch
+    // below, so the user can still confirm or dismiss it there; a
+    // drop never silently drops what the model understood.
     setWaking(false);
     setAwaitingReason(null);
     setQIndex(firstUnanswered(base ?? profile));
@@ -872,11 +878,13 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   };
 
   /** Retry the model-led chat from the guided fallback: the failed
-   * message (if any) is re-sent so the user's words are not dropped. */
+   * message (if any) is re-sent so the user's words are not dropped.
+   * Round 17, P0: the pending extraction is KEPT — the re-send's
+   * extraction folds into it (setPendingExtractMerged) instead of
+   * the retry silently discarding what the model already understood. */
   const retryModelChat = () => {
     setMode('model');
     setAiOffline(false);
-    setPendingExtract(null);
     setWaking(false);
     const text = failedText;
     setFailedText(null);
@@ -944,9 +952,35 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const saveReason = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
+    // Round 17, P0: answering the WHY about a country IS implicit
+    // confirmation of that country — the user just elaborated on why
+    // they want it, so the pending extraction's countries for this
+    // WHY land in the Profile NOW, in the same update as the note
+    // (one updateProfile call: the note is computed once, so the two
+    // values can never clobber each other). A drop after this can no
+    // longer lose the country (re-test task 11: the confirm was never
+    // tapped, the model dropped, and the pending extraction was
+    // discarded with Switzerland still in it). Only the WHY's
+    // countries land — anything else the pending extraction holds (a
+    // later climate answer, the reason note) stays pending for the
+    // confirm bubble, which keeps offering it.
+    const whyCountries = awaitingReason?.countries ?? [];
+    const { confirmedCountries, remaining } = splitWhyConfirmedCountries(
+      pendingExtract?.extracted, whyCountries);
     // Round 14, P2a: the note is one summary atom — append joined
     // with '·', never with a separator prefSummary splits on.
-    updateProfile({ prefCountriesNote: appendCountryNote(profile.prefCountriesNote, trimmed) });
+    const patch: Partial<Profile> = {
+      prefCountriesNote: appendCountryNote(profile.prefCountriesNote, trimmed),
+    };
+    if (confirmedCountries.length) {
+      patch.prefCountries = [...new Set([...(profile.prefCountries ?? []), ...confirmedCountries])];
+    }
+    updateProfile(patch);
+    if (confirmedCountries.length) {
+      setPendingExtract((prev) => (prev
+        ? (remaining ? { extracted: remaining, rawText: prev.rawText } : null)
+        : prev));
+    }
     // Round 16: a WHY anchored to a turn is answered ON that turn —
     // the acknowledgement renders inside the turn's block, right
     // after the WHY question, never as a detached bottom bubble. A
@@ -1577,11 +1611,25 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
           );
         }
         if (bubble.kind === 'whyAnswer') {
+          // Round 17, P0: the WHY answer is the USER's own words — it
+          // renders as a normal cyan right-aligned user bubble,
+          // exactly like every other answer (re-test task 11: it was
+          // merged into the pet's white assistant bubble, "收到，记下
+          // 啦～" first line and the user's words second line in small
+          // grey, while the climate answer rendered normally). The
+          // acknowledgement is a separate assistant line after it,
+          // never a container that swallows the user's words.
           return (
-            <div key={`pref-${turn.id}-why-answer`} className="flex justify-start">
-              <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
-                <p>{t('wizard.chatOpThanks')}</p>
-                <p className="mt-1 text-sm text-navy/70">{bubble.answer}</p>
+            <div key={`pref-${turn.id}-why-answer`} className="space-y-3">
+              <div className="flex justify-end">
+                <div className="max-w-[90%] rounded-2xl bg-teal px-4 py-3 text-white">
+                  <p>{bubble.answer}</p>
+                </div>
+              </div>
+              <div className="flex justify-start">
+                <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
+                  <p>{t('wizard.chatOpThanks')}</p>
+                </div>
               </div>
             </div>
           );
@@ -1904,6 +1952,32 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 {t('wizard.chatPrefRetry')}
               </button>
             </div>
+
+            {/* Round 17, P0: a pending extraction survives the drop
+                (enterGuidedMode no longer discards it), so its
+                confirm bubble is re-offered HERE in the guided branch
+                — the same bubble as the model branch, same buttons.
+                Without it the confirm vanished with the model and the
+                stated preference was silently lost (re-test task 11).
+                Confirming applies it; dismissing is the user's own
+                choice, never a silent loss. */}
+            {pendingExtract && (
+              <div className="space-y-3">
+                <div className="flex justify-start">
+                  <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber anim-fade-up">
+                    <p>{tf('wizard.chatParseConfirm', { summary: extractedSummary(pendingExtract.extracted, t) })}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={confirmExtract} className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">
+                    {t('wizard.chatParseYes')}
+                  </button>
+                  <button type="button" onClick={dismissExtract} className="btn-press rounded-full border border-navy/30 bg-white px-4 py-2 text-sm font-semibold">
+                    {t('wizard.chatParseNo')}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* History: one pet question + the user's answer + the pet's
                 view, per answered question. Everything renders from the

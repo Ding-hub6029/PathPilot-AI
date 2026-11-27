@@ -700,6 +700,37 @@ export function mergeExtracted(oldE: PrefExtracted, newE: PrefExtracted): PrefEx
   return out;
 }
 
+/**
+ * Round 17, P0 — answering the WHY about a country is implicit
+ * confirmation of that country. Split a pending (unconfirmed)
+ * extraction into the countries the WHY answer confirms and the
+ * rest, which stays pending for the confirm bubble. The user just
+ * elaborated on WHY they want that country — they cannot
+ * meaningfully answer "what does Switzerland's scenery mean to you"
+ * while rejecting Switzerland — so those countries land in the
+ * Profile with the WHY answer instead of waiting for a confirm tap
+ * that a later model drop can kill (re-test task 11: the confirm was
+ * never tapped, the model dropped, enterGuidedMode discarded the
+ * pending extraction, and Switzerland was silently lost while the
+ * WHY free text masqueraded as the country answer). Only the WHY's
+ * countries are confirmed here — anything else the pending
+ * extraction holds (a later climate answer, the reason note) stays
+ * in `remaining` for the confirm bubble. Pure: nothing is applied,
+ * the caller applies `confirmedCountries` and keeps `remaining`.
+ * `remaining` is null when nothing is left to confirm.
+ */
+export function splitWhyConfirmedCountries(
+  extracted: PrefExtracted | undefined,
+  whyCountries: string[],
+): { confirmedCountries: string[]; remaining: PrefExtracted | null } {
+  const confirmedCountries = (extracted?.countries ?? []).filter((c) => whyCountries.includes(c));
+  const restCountries = (extracted?.countries ?? []).filter((c) => !whyCountries.includes(c));
+  const remaining: PrefExtracted = { ...(extracted ?? {}) };
+  if (restCountries.length) remaining.countries = restCountries;
+  else delete remaining.countries;
+  return { confirmedCountries, remaining: Object.keys(remaining).length ? remaining : null };
+}
+
 // --- Desktop-pet known-steps (round 7, Fix B) -------------------------------
 // The pet's guided flow (degree -> country -> budget) must skip what
 // the wizard already learned, and must never claim "no preferences"
