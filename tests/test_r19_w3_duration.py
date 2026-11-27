@@ -22,6 +22,19 @@ untouched — the English string is the verified source value):
   like IELTS elsewhere; only the surrounding words are localised
   ("3 years (180 ECTS)" -> "3 年（180 ECTS）" in zh-CN).
 
+Round 20, worker W2 — the nit above is now resolved the other way
+round: the two ETH BSc keys said "credits"/"学分" while the UZH key
+said "ECTS", so the step-8 cards were inconsistent. The standard is
+ECTS for both: ETH's own MSc records in the same repo quote ETH's
+official admission requirement of "at least 180 ECTS" for a
+bachelor's degree and give ETH MSc durations as "(4 semesters,
+120 ECTS)", and the other Swiss BSc (EPFL AI) is "3 years
+(180 ECTS)". Only the unit wording changed (180 unchanged); the
+two ETH keys now read ECTS in all 6 locales. The generic fallback
+is untouched — "credits" stays a real unit there (NUS "160
+credits", NTU "30 academic credits") and the synthetic-credits
+fallback expectations below still pin credits -> 学分.
+
 Nit 5 (judgement, NOT fixed — see /tmp/r19-w3-decisions.md): the
 Switzerland + cool flow shows the country and climate questions a
 second time. Root cause is twofold and neither half is a one-line
@@ -55,13 +68,13 @@ FORMAT = ROOT / "frontend" / "src" / "lib" / "format.ts"
 SWISS_STEP8 = ["eth-cs-bsc-2027", "eth-cse-bsc-2027", "zurich-informatics-bsc-2027"]
 
 EXPECTED_ZH = {
-    "eth-cs-bsc-2027": "3 年（180 学分）",
-    "eth-cse-bsc-2027": "3 年（180 学分）",
+    "eth-cs-bsc-2027": "3 年（180 ECTS）",
+    "eth-cse-bsc-2027": "3 年（180 ECTS）",
     "zurich-informatics-bsc-2027": "3 年（180 ECTS）",
 }
 EXPECTED_EN = {
-    "eth-cs-bsc-2027": "3 years (180 credits)",
-    "eth-cse-bsc-2027": "3 years (180 credits)",
+    "eth-cs-bsc-2027": "3 years (180 ECTS)",
+    "eth-cse-bsc-2027": "3 years (180 ECTS)",
     "zurich-informatics-bsc-2027": "3 years (180 ECTS)",
 }
 
@@ -195,7 +208,7 @@ def test_step8_swiss_cards_localised_in_french(tmp_path):
     by_id = _expansion_by_id()
     cases = [(pid, by_id[pid]["duration"], "fr") for pid in SWISS_STEP8]
     got = _run_format_duration(tmp_path, cases)
-    assert got[("eth-cs-bsc-2027", "fr")] == "3 ans (180 crédits)"
+    assert got[("eth-cs-bsc-2027", "fr")] == "3 ans (180 ECTS)"
     assert got[("zurich-informatics-bsc-2027", "fr")] == "3 ans (180 ECTS)"
 
 

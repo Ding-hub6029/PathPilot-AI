@@ -466,10 +466,15 @@ export function CompassPet() {
    * not a turn. */
   const chatOpts = { onRetry: patientOnRetry };
   /** Whether the live model answered recently: true after a model
-   * reply (ai_status "available"), false after a failure or a
-   * template-only reply, null before the first check. The footer
-   * reports this honestly — it never claims AI answers it has not
-   * seen. */
+   * reply (ai_status "available") or a fresh open-probe that said
+   * available, false after a failure or a template-only reply, null
+   * while the current open's verdict is still unconfirmed. The
+   * footer reports this honestly — it never claims AI answers it
+   * has not seen. Round 20: the verdict is re-confirmed on every
+   * panel open (and when devil mode is switched on), never carried
+   * over from an earlier open — the gateway flaps, so a stale
+   * `true` used to keep the footer claiming "AI 回答" while the
+   * model was actually down. */
   const [aiLive, setAiLive] = useState<boolean | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -660,20 +665,77 @@ export function CompassPet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  /** One cheap status read when the panel opens, so the footer states
-   * the truth about the model before any chat is claimed as AI. The
-   * patient fetch retries while the backend wakes (round 7, Fix A):
-   * offline is declared only after the ~90s budget is spent, and the
-   * waking line shows while a retry is in flight. */
-  useEffect(() => {
-    if (!open || aiLive !== null) return;
-    setWaking(false);
+  /** Round 20: one shared model-status probe for the footer. It reads
+   * /api/ai/status (patient fetch: retries while the backend wakes)
+   * and applies the verdict with the same semantics everywhere — a
+   * live verdict clears the offline flag, a down verdict sets it —
+   * so the footer never shows a stale claim in either direction. A
+   * probe superseded by a newer one (re-open, devil enable, retry)
+   * is ignored via the sequence ref, so a slow answer cannot
+   * overwrite a fresher verdict. Callers set `waking` first (the
+   * open/devil paths show the checking line, the retry button shows
+   * the waking line); both outcomes clear it here. */
+  const probeSeqRef = useRef(0);
+  const probeAiStatus = () => {
+    const seq = ++probeSeqRef.current;
     beginPatientCall();
     fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: patientOnRetry })
-      .then((s) => { setWaking(false); setTimedOut(false); setAiLive(s.ai_status === 'available'); if (s.ai_status !== 'available') setOffline(true); })
-      .catch(() => { setWaking(false); setTimedOut(retryFiredRef.current); setAiLive(false); setOffline(true); });
+      .then((s) => {
+        if (probeSeqRef.current !== seq) return;
+        setWaking(false);
+        setTimedOut(false);
+        const live = s.ai_status === 'available';
+        setAiLive(live);
+        setOffline(!live);
+      })
+      .catch(() => {
+        if (probeSeqRef.current !== seq) return;
+        setWaking(false);
+        setTimedOut(retryFiredRef.current);
+        setAiLive(false);
+        setOffline(true);
+      });
+  };
+
+  /** One cheap status read EVERY time the panel opens, so the footer
+   * states the truth about the model before any chat is claimed as
+   * AI. Round 20: the old guard (`aiLive !== null`) ran this probe
+   * only once per session — but CompassPet is mounted once in the
+   * root layout and never remounts, so an `available` verdict from
+   * an earlier open (the gateway flaps on a minutes timescale) kept
+   * the footer claiming "AI 回答" on later opens while the model was
+   * actually down, until a failed turn corrected it. Re-opening now
+   * resets aiLive to unknown (the footer shows the neutral checking
+   * line) and re-probes; "AI 回答" appears only after this open's
+   * confirmed available verdict. The patient fetch retries while
+   * the backend wakes (round 7, Fix A): offline is declared only
+   * after the ~90s budget is spent, and the waking line shows while
+   * a retry is in flight. */
+  useEffect(() => {
+    if (!open) return;
+    setWaking(false);
+    setAiLive(null);
+    probeAiStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  /** Round 20: enabling devil mode re-verifies the model too — the
+   * toggle does not reopen the panel, so without this a stale
+   * `available` verdict from an earlier open would still be the
+   * footer's claim when the user starts challenging in devil mode.
+   * Only the false→true transition re-probes; toggling off, or
+   * re-opening with devil already on, is covered by the open
+   * effect above. */
+  const devilWasOnRef = useRef(false);
+  useEffect(() => {
+    const wasOn = devilWasOnRef.current;
+    devilWasOnRef.current = devilMode;
+    if (!open || !devilMode || wasOn) return;
+    setWaking(false);
+    setAiLive(null);
+    probeAiStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, devilMode]);
 
   /** Re-check the backend after an offline verdict (footer retry):
    * the instance may have woken since the last check. A live status
@@ -681,16 +743,7 @@ export function CompassPet() {
    * again; a failed check keeps it offline. */
   const retryStatus = () => {
     setWaking(true);
-    beginPatientCall();
-    fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: patientOnRetry })
-      .then((s) => {
-        setWaking(false);
-        setTimedOut(false);
-        const live = s.ai_status === 'available';
-        setAiLive(live);
-        setOffline(!live);
-      })
-      .catch(() => { setWaking(false); setTimedOut(retryFiredRef.current); setAiLive(false); setOffline(true); });
+    probeAiStatus();
   };
 
   useEffect(() => {
