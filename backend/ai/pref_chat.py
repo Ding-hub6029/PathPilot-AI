@@ -71,6 +71,7 @@ from ai.chat import (_clean_history, _detect_climate_class,
 from ai.grounding import Source
 from ai.prompts import PROMPT_VERSION, pref_chat_system
 from ai.provider import ProviderAdapter, ProviderError
+from app.ai_status_cache import model_skip_cached
 from app.data import EXPANSION_PROGRAMS, PROGRAMS, RANKINGS
 
 # Failure-class diagnostics only (no message, history, extracted data
@@ -363,7 +364,94 @@ _PLACE_CITY_WORDS: frozenset[str] = frozenset({
 # a city, no enum is read from a synonym, and the note is the user's
 # own words (the part after "因为" when present, else the whole
 # sentence when it says more than the country name alone).
+#
+# Round 26 W1: the country-only rule left every other answer to be
+# dropped by a timeout too — re-test task 20 (2026-11-27): the
+# environment answer "大学城" came back extracted={} after a ~15 s
+# model wait, so the frontend's only preservation was its local
+# mapper keyed on the question the turn answered, and the answer was
+# lost when that question context was wrong. The deterministic
+# extraction now also maps the answer to the FIRST still-missing
+# preference — the question the chat is actually asking — from the
+# same exact-match synonym lists the frontend's local mapper uses
+# (mapLocalAnswer in PrefChat.tsx): climate via _detect_climate_class
+# (with the frontend's negation guard), the other enums via
+# _DET_ENUM_SYNONYMS, salary as a number + GBP/SGD/USD currency, and
+# a city as the user's own words. Only the first missing preference
+# is ever mapped: the chat asks one question at a time, and a free
+# question ("瑞士有哪些好学校？") must never be misread as an answer
+# to a later question. A question is never mapped as an answer, and
+# a kind of place ("大学城" when the city is what's missing) is never
+# recorded as a city — the same place-word rule validate_extracted
+# applies to the model.
 # ---------------------------------------------------------------------------
+
+# Negation guard for the climate wish (frontend mapLocalAnswer):
+# "不喜欢冷" must not map to cool.
+_CLIMATE_NEGATION_RE = re.compile(r"不喜欢|不要|不想|讨厌|don't like|don't want")
+
+# Enum synonyms (value, synonyms) per preference, mirroring the
+# frontend's local mapper chip labels + synonym lists. ASCII words
+# match on word boundaries ("low" must not fire inside "follow");
+# CJK words match as substrings (see _det_includes).
+_DET_ENUM_SYNONYMS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
+    "environment": (
+        ("big_city", ("big city", "大城市", "繁华", "热闹", "buzzing")),
+        ("small_city", ("small city", "小城市")),
+        ("campus", ("campus", "校园", "大学城")),
+        ("quiet_town", ("quiet", "安静", "小镇", "乡村", "peaceful")),
+    ),
+    "afterGrad": (
+        ("stay", ("stay", "留下", "留下来", "定居", "留在")),
+        ("return_home", ("return home", "go back", "回国", "回国发展")),
+        ("hometown", ("hometown", "家乡")),
+        ("undecided", ("undecided", "not sure", "不知道", "还没想好", "没决定")),
+    ),
+    "pressure": (
+        ("low", ("take it easy", "relaxed", "轻松", "低压", "佛系")),
+        ("medium", ("moderate", "适中", "中等")),
+        ("high", ("intensity", "intense", "高压", "高强度")),
+    ),
+    "teaching": (
+        ("lecture", ("lecture", "讲座", "大课")),
+        ("seminar", ("seminar", "研讨", "讨论")),
+        ("hands_on", ("hands-on", "practice", "实践", "动手")),
+    ),
+}
+
+# Question markers: a message carrying one is a question (or a
+# recommendation request), never an answer — the city branch refuses
+# it. Mirrors the frontend's looksLikeQuestion markers + English
+# question words.
+_DET_QUESTION_MARKERS: tuple[str, ...] = (
+    "?", "？", "吗", "么", "哪", "什么", "怎么", "为什么", "为何",
+    "是否", "能不能", "可以吗", "有吗", "推荐", "建议", "怎样", "如何",
+    "多久", "多少",
+)
+_DET_QUESTION_WORDS_EN = re.compile(
+    r"\b(what|which|how|why|when|where|is there|are there|any|"
+    r"recommend|suggest|do you|can you|could you|should i|would you)\b",
+    re.IGNORECASE)
+
+
+def _det_includes(haystack: str, word: str) -> bool:
+    """Frontend includesWord, mirrored: ASCII words match on word
+    boundaries; CJK (and hyphenated) words match as substrings."""
+    if re.fullmatch(r"[a-z][a-z ]*", word):
+        return re.search(r"\b" + word.replace(" ", r"\s+") + r"\b",
+                         haystack) is not None
+    return word in haystack
+
+
+def _det_looks_like_question(message: str) -> bool:
+    """True when a message is a question, not an answer."""
+    text = (message or "").strip()
+    if not text:
+        return False
+    if any(m in text for m in _DET_QUESTION_MARKERS):
+        return True
+    return _DET_QUESTION_WORDS_EN.search(text) is not None
+
 
 def _deterministic_extract(message: str, known: dict | None = None) -> dict:
     """(countries, note) understood from one message without a model.
@@ -390,9 +478,12 @@ def _deterministic_extract(message: str, known: dict | None = None) -> dict:
         tail = re.split(r"[，。！？；,.;!?]", msg[m.end():])[0].strip()
         if tail:
             reason = tail
-    if reason is None and country:
+    if reason is None and country and not _det_looks_like_question(msg):
         # Lowercased copy: the alias table is lowercase, so a
         # capitalised "Switzerland" still strips for this check.
+        # Round 26 W1: a question naming a country ("瑞士有哪些好学校？")
+        # is not a reason for that country — without this guard its
+        # whole text landed in the note.
         remainder = msg.lower()
         for alias, code in _country_names().items():
             if code == country:
@@ -408,6 +499,41 @@ def _deterministic_extract(message: str, known: dict | None = None) -> dict:
         note = _clean_note(reason)
         if note is not None:
             out["note"] = note
+    # Round 26 W1 — the answer to the FIRST still-missing preference
+    # (the question the chat is actually asking), matched without a
+    # model so a timeout can never drop it. Only that one preference
+    # is ever mapped, and only from an exact chip label / listed
+    # synonym — a free question is never mapped as an answer (the
+    # city branch refuses question markers), and a kind of place is
+    # never recorded as a city.
+    nxt = first_missing(known)
+    if nxt == "climate":
+        if not _CLIMATE_NEGATION_RE.search(msg):
+            cls = _detect_climate_class(msg)
+            if cls is not None:
+                out["climate"] = cls
+    elif nxt in _DET_ENUM_SYNONYMS:
+        lowered = msg.lower()
+        for value, synonyms in _DET_ENUM_SYNONYMS[nxt]:
+            if any(_det_includes(lowered, s) for s in synonyms):
+                out[nxt] = value
+                break
+    elif nxt == "salary":
+        m = re.search(r"(\d+(?:\.\d+)?)\s*(GBP|SGD|USD)?", msg,
+                      re.IGNORECASE)
+        if m:
+            amount = float(m.group(1))
+            if amount > 0:
+                currency = (m.group(2).upper() if m.group(2)
+                            else (known.get("salaryCurrency") or "GBP"))
+                out["salary"] = {
+                    "amount": int(amount) if amount.is_integer() else amount,
+                    "currency": currency}
+    elif nxt == "city":
+        if not _det_looks_like_question(msg):
+            city = msg.strip()
+            if city and _norm_place_word(city) not in _PLACE_CITY_WORDS:
+                out["city"] = city
     return out
 
 
@@ -618,6 +744,19 @@ def pref_answer(message: str, locale: str = "en",
 
     evidence_texts = _evidence_texts(sources, pids)
     missing_before = missing_prefs(clean_known)
+    # Round 26 W1 — fail-fast parity with ai.chat.answer: when the
+    # gateway is already known down (the breaker is open, or a probe
+    # said "unavailable" within its 60 s TTL — model_skip_cached),
+    # skip the model attempt and return the template + deterministic
+    # extraction at once, instead of spending the 15 s budget proving
+    # the gateway is still down. pref_chat never consulted this gate
+    # before: the pet chat (ai.chat) and /simulate did, so a known-down
+    # gateway cost every pref-chat turn the full 15 s while the same
+    # question in the pet chat answered in ~1 s. A cold cache with a
+    # closed breaker still attempts as before: the first slow failure
+    # after the gateway dies is inherent (the /simulate residual).
+    if model_skip_cached():
+        return fallback()
     envelope = {
         "task": "pref-chat",
         "prompt_version": PROMPT_VERSION,
@@ -668,9 +807,16 @@ def pref_answer(message: str, locale: str = "en",
     # Round 10: the deterministic extraction fills in a country / a
     # reason the model missed (never overrides what the model did
     # extract), so a silent model gap cannot drop the user's words.
+    # Round 26 W1: the same fill-in covers the enums (climate,
+    # environment, afterGrad, pressure, teaching) — a model that
+    # answers "大学城" with an empty extraction, or with city="大学城"
+    # (dropped by validate_extracted's place-word rule), no longer
+    # drops the environment answer. Salary / city stay fallback-only:
+    # the model is the authority for those when it is up.
     extracted = validate_extracted(parsed.get("extracted"))
     det = _deterministic_extract(msg, clean_known)
-    for key in ("countries", "note"):
+    for key in ("countries", "note", "climate", "environment",
+                "afterGrad", "pressure", "teaching"):
         if key not in extracted and key in det:
             extracted[key] = det[key]
     merged = merge_known(clean_known, extracted)

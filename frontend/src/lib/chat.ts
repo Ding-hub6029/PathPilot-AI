@@ -243,14 +243,18 @@ export interface PendingDisambiguation {
  * either answers the fee or asks again with fresh candidates), a
  * new question, or a re-ask turn (which carries the same candidates
  * and keeps it live). Choice/prompt turns in between do not decide
- * anything; they cannot follow an ambiguous ask through the UI.
+ * anything; they cannot follow an ambiguous ask through the UI —
+ * except a level-chip answer, which IS the follow-up: since round
+ * 26 (W4) onChip stores it as a structured `choice` turn (step 0),
+ * so a trailing choice ends the pending state instead of
+ * resurrecting the level chips until the follow-up ask lands.
  */
 export function pendingDisambiguation(
   turns: readonly DisambiguationTurnLike[],
 ): PendingDisambiguation | null {
   for (let i = turns.length - 1; i >= 0; i--) {
     const t = turns[i];
-    if (t.kind !== 'ask' && t.kind !== 'freeText') continue;
+    if (t.kind !== 'ask' && t.kind !== 'freeText' && t.kind !== 'choice') continue;
     if (t.kind === 'ask' && t.reply
       && (t.reply.candidates?.length ?? 0) >= 2 && t.message) {
       return {

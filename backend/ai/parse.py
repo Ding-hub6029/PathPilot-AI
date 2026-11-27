@@ -43,6 +43,7 @@ from ai.assistant import contains_personal_data
 from ai.chat import _parse_model_json
 from ai.prompts import PROMPT_VERSION, parse_system
 from ai.provider import ProviderAdapter, ProviderError
+from app.ai_status_cache import model_skip_cached
 
 # ---------------------------------------------------------------------------
 # Shared validation + conversion to a StudentProfile-shaped dict
@@ -549,7 +550,14 @@ def parse_profile(text: str, locale: str = "en",
     parser = "regex"
     ai_status = "unavailable"
     raw: dict | None = None
-    if provider.available:
+    # Round 26 W1 — fail-fast parity with ai.chat.answer: when the
+    # gateway is already known down (model_skip_cached: breaker open,
+    # or a probe said "unavailable" within its 60 s TTL), skip the
+    # 12 s model attempt and go straight to the regex parse. The
+    # guided pref-chat queue calls this for every free-text answer,
+    # so without the gate a known-down gateway cost each re-answer
+    # the full budget after the pref-chat turn had already paid it.
+    if provider.available and not model_skip_cached():
         envelope = {"task": "parse", "prompt_version": PROMPT_VERSION,
                     "locale": loc, "text": text}
         try:

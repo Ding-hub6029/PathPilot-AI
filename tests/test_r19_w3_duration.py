@@ -506,15 +506,13 @@ def test_r22_no_swiss_bsc_card_lacks_ects(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_nit5_offline_climate_answer_not_extracted_by_backend(monkeypatch):
-    """Pinned diagnosis, not a bug fix: with no model, the offline
-    extractor understands countries + note only, so "凉爽" extracts
-    to {} and the template reply re-asks climate (next_question
-    stays 'climate'). The frontend preserves the answer locally
-    (mapFailedPrefAnswer understands "凉爽") and the guided queue
-    advances to environment, so no re-answer is forced — that is why
-    the repeat is accepted (see /tmp/r19-w3-decisions.md). If the
-    offline extractor is ever extended to enums, update this test
-    deliberately."""
+    """Pinned diagnosis, updated by Round 26 W1: the offline extractor
+    was extended to enums (the deliberate extension this test's old
+    docstring anticipated), so "凉爽" now extracts to
+    {climate: cool} and the template reply advances to environment
+    instead of re-asking climate. The frontend's local preservation
+    (mapFailedPrefAnswer understands "凉爽") is now a second layer,
+    not the only one."""
     from ai.pref_chat import pref_answer
     from ai.provider import ProviderAdapter
 
@@ -525,6 +523,6 @@ def test_nit5_offline_climate_answer_not_extracted_by_backend(monkeypatch):
     result = pref_answer("凉爽", "zh-CN",
                          known={"countries": ["CH"], "note": "环境优美"},
                          provider=provider)
-    assert result["extracted"] == {}, result["extracted"]
-    assert result["next_question"] == "climate", result["next_question"]
+    assert result["extracted"] == {"climate": "cool"}, result["extracted"]
+    assert result["next_question"] == "environment", result["next_question"]
     assert result["ai_status"] == "unavailable"

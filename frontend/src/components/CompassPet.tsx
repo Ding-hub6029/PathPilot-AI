@@ -1394,7 +1394,7 @@ export function CompassPet() {
     if (pendingNow) {
       const level = value as Degree;
       void sendAskTurn({
-        displayText: t(level === 'undergraduate' ? 'pet.q1ug' : 'pet.q1tm'),
+        levelChoice: level,
         baseMessage: disambiguationFollowupMessage(pendingNow.question, level, locale),
         askMessage: pendingNow.question,
         programIds: pendingNow.candidates,
@@ -1451,8 +1451,19 @@ export function CompassPet() {
    * Everything else — the devil one-shot, the template-offline
    * fallback, the conversation guard — is identical for both. */
   interface SendAskArgs {
-    /** Bubble text for the user's turn. */
-    displayText: string;
+    /** Bubble text for the user's turn. Omitted when `levelChoice`
+        is set — the bubble is then the structured choice turn
+        below, localised at render time (see choiceLabel). */
+    displayText?: string;
+    /** Round 26 (W4): a level-chip answer to a pending
+        disambiguation, stored as the level — never as the
+        localised label baked in at tap time. Before, onChip passed
+        `displayText: t('pet.q1tm')`, so the bubble froze as
+        "Taught masters" and stayed English after a language
+        switch, while the onboarding step-0 choice bubble next to
+        it re-localised via choiceLabel. A structured choice turn
+        renders through the same choiceLabel path. */
+    levelChoice?: Degree;
     /** The question, before the saved-preferences context is
         appended (normal path only). */
     baseMessage: string;
@@ -1469,8 +1480,9 @@ export function CompassPet() {
   }
 
   const sendAskTurn = async (args: SendAskArgs) => {
-    const { displayText, baseMessage, askMessage, programIds, devilTurn } = args;
-    push({ kind: 'freeText', text: displayText });
+    const { displayText, levelChoice, baseMessage, askMessage, programIds, devilTurn } = args;
+    if (levelChoice) push({ kind: 'choice', step: 0, value: levelChoice });
+    else push({ kind: 'freeText', text: displayText ?? '' });
     setBusy(true);
     turnInFlightRef.current = true;
     setWaking(false);

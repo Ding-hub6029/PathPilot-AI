@@ -249,6 +249,15 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
     envelope only, which answer() builds from the raw message.
     """
     message = _strip_saved_prefs_context(message)
+    # (Round 26, W3) Rank intent, decided once from the stripped
+    # message: the scope loop below only offers ranking sources to
+    # the model when the question actually asks about ranks. A fee
+    # question used to receive ETH's QS/THE/ARWU facts alongside the
+    # fee facts, and the model could answer the fee question with
+    # the rankings line — nothing pinned the answer type to the
+    # question's intent (re-test task 20: the same fee question
+    # asked a 5th time came back as the rankings line).
+    _wants_rank = any(w in _norm(message or "") for w in _RANK_WORDS)
     track = _clean_track(track)
     scope_ids = _clean_program_ids(program_ids)
     template = assistant_ask(message, locale, track=track)
@@ -375,10 +384,11 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
     # of ``pids`` (see the docstring): they are context, not a match.
     for pid in scope_ids:
         _add(_enriched_programme_sources(pid))
-        own = _verified_programme(pid) or {}
-        iid = own.get("institution_id") or V2_PROGRAM_INSTITUTION.get(pid)
-        if iid:
-            _add(ranking_sources(iid))
+        if _wants_rank:
+            own = _verified_programme(pid) or {}
+            iid = own.get("institution_id") or V2_PROGRAM_INSTITUTION.get(pid)
+            if iid:
+                _add(ranking_sources(iid))
     # (AI visibility layer, W5) Ranking-overview intent: a question
     # about one provider's top 100 with no single institution named
     # ("Explain the QS 2027 ranking") has no rank lookup to answer
@@ -1589,6 +1599,41 @@ def _devil_allowed_differences(conflicts: list[dict]) -> frozenset[int]:
     return frozenset(diffs)
 
 
+def _model_lines_match_intent(lines: list[str], template: dict,
+                              message: str, locale: str) -> bool:
+    """True when a validated model reply answers the fact type the
+    question asks about (Round 26, W3 — defence in depth behind the
+    intent-gated catalogue in _retrieve).
+
+    Fee/IELTS/deadline/rank intents are read exactly as ask() reads
+    them. A reply that states a different fact type (e.g. the ranks
+    for a fee question) fails, so the deterministic template answers
+    instead. Unknown-intent questions always pass, and the check only
+    fires when the template itself resolved a programme with a fee —
+    so an ambiguous or fee-unknown question is unaffected and the
+    Oxford-style multi-programme model answers (Round 6 pin) are
+    untouched. First pass covers the fee intent only.
+
+    The comparison is on the fee FIGURE (digits, commas stripped),
+    not on the full fee_text string: fee_text carries a qualifier
+    suffix ("GBP 48,600 per year (overseas)") that a correctly
+    grounded model line ("... overseas tuition is GBP 48,600 per
+    year.") does not repeat, and the exact-substring form wrongly
+    rejected it (test_ai_chat mock-grounded tests).
+    """
+    msg = _norm(_strip_saved_prefs_context(message or ""))
+    if any(w in msg for w in _FEE_WORDS) and template.get("program_id"):
+        prog = _verified_programme(template["program_id"])
+        fr = program_fee_range(prog) if prog else None
+        if fr is not None:
+            figures = [n.replace(",", "")
+                       for n in re.findall(r"\d[\d,]*", fee_text(fr, locale))]
+            if figures:
+                joined = "\n".join(lines).replace(",", "")
+                return any(fig in joined for fig in figures)
+    return True
+
+
 # ---------------------------------------------------------------------------
 # Rendering a validated payload into at most 3 lines, conclusion first
 # ---------------------------------------------------------------------------
@@ -2219,6 +2264,60 @@ def _candidates_route_to_template(candidates: list[str] | None) -> bool:
     return sorted(levels) == ["taught_masters", "undergraduate"]
 
 
+def _level_followup_template_route(template: dict, message: str,
+                                  program_ids: list[str] | None) -> bool:
+    """True when this turn is a level answer to a two-candidate,
+    one-per-level disambiguation that the template already resolved
+    to a single programme — so the template's verified fact line is
+    the turn's one route, never the model (Round 26 W2).
+
+    Root cause of re-test task 20 (2026-11-27): after the ambiguous
+    list ("I found 2 matching programmes … Tell me undergraduate
+    or masters."), the follow-up ("…Computer Science? masters",
+    scoped to the two candidates) resolves in the template's own
+    ``ask()`` to exactly ONE programme — so ``_template_result``
+    carries NO ``candidates`` (candidates are only set on the
+    ambiguous branch itself, or on the scope's own which-one line,
+    and ``_scope_line`` returns early once the template has a
+    ``program_id``). ``_candidates_route_to_template`` therefore
+    saw ``None`` and the turn went to the model whenever the
+    gateway was not already known down: ~15 s of model budget
+    (plus the frontend retry, ~30 s in the browser) and a
+    model-worded fee line that varied run to run — while the
+    undergraduate tap on the same flow answered instantly whenever
+    the breaker / probe cache happened to be in the known-down
+    state. The asymmetry was breaker-state luck, not a code-path
+    difference: with a healthy mock both levels attempt the model
+    (repro /tmp/r26w2-repro2.py: calls=1, ai_status=available,
+    "Tuition fee: CHF 4,380 per year." for both).
+
+    The shape recognised here is deliberately narrow, so no other
+    routing changes: the template resolved to one programme, the
+    message names that programme's level (``_detect_level`` — the
+    same UG/TM words the matcher uses, en + zh), the resolved
+    programme is in the caller-supplied scope, and the scope holds
+    programmes of BOTH levels (the disambiguation pair — a shown
+    batch of 3 that still holds both levels counts, so the locale
+    re-fetch of the same turn routes the same way). A fresh
+    single-match question (no scope, or a single-level scope)
+    keeps the model-first routing, exactly as before."""
+    pid = template.get("program_id")
+    if not pid:
+        return False
+    prog = _verified_programme(pid)
+    if prog is None:
+        return False
+    level = _detect_level(_strip_saved_prefs_context(message or ""))
+    if level is None or prog.get("degree_level") != level:
+        return False
+    scope = _clean_program_ids(program_ids)
+    if pid not in scope:
+        return False
+    levels = {(_verified_programme(s) or {}).get("degree_level")
+              for s in scope}
+    return "undergraduate" in levels and "taught_masters" in levels
+
+
 def answer(message: str, locale: str = "en",
            history: list[dict] | None = None,
            provider: ProviderAdapter | None = None,
@@ -2350,6 +2449,14 @@ def answer(message: str, locale: str = "en",
         template_result = fallback()
         if _candidates_route_to_template(template_result.get("candidates")):
             return template_result
+        # Round 26 (W2): the level follow-up to a two-candidate,
+        # one-per-level disambiguation — the template already
+        # resolved it to one programme (see
+        # _level_followup_template_route), so it carries no
+        # candidates for the check above and would otherwise go to
+        # the model whenever the gateway is not known down.
+        if _level_followup_template_route(template, msg, program_ids):
+            return template_result
     if model_skip_cached():
         return fallback()
 
@@ -2443,6 +2550,12 @@ def answer(message: str, locale: str = "en",
             logger.info("assistant/chat devil output cited no conflict evidence")
             return fallback()
     lines = _render_lines(parsed, loc, sources)
+    if not is_devil and not _model_lines_match_intent(lines, template, msg, loc):
+        # Round 26, W3: a fee question answered with the ranks (or
+        # any other fact type) is not a grounded answer to the
+        # question asked — the verified template answers instead.
+        logger.info("assistant/chat model output mismatched question intent")
+        return fallback()
     # Defence in depth: a rendered line must never carry a raw URL, a
     # probability/guarantee, or key material — if it does, fall back.
     joined_lines = "\n".join(lines)

@@ -49,6 +49,18 @@ export function joinList(items: readonly string[], locale: string): string {
   return items.join(listSeparator(locale));
 }
 
+/** Round 26 (W4): a parenthesised note after a name — "Zurich
+ * (Four seasons)" / "苏黎世（四季分明）". Parenthesis style follows
+ * the locale, the same rule localiseDurationParen uses below:
+ * full-width （） with no space in zh-CN, half-width () with a
+ * space everywhere else (en/es/fr/pt-BR/ar). The PrefChat climate
+ * no-match line hard-coded the full-width form in every locale, so
+ * an English bubble read "Zurich （Four seasons）". */
+export function parenNote(name: string, note: string, locale: string): string {
+  const cjk = locale === 'zh-CN';
+  return `${name}${cjk ? '（' : ' ('}${note}${cjk ? '）' : ')'}`;
+}
+
 const MONTHS_EN = [
   'january', 'february', 'march', 'april', 'may', 'june',
   'july', 'august', 'september', 'october', 'november', 'december',

@@ -451,18 +451,37 @@ def test_single_level_ambiguity_keeps_model_first(monkeypatch):
     assert r["lines"]
 
 
-def test_followup_still_uses_model_when_up(monkeypatch):
-    """The rule stops at the disambiguation: the follow-up (one
-    programme, no candidates) still goes to the model when the
-    gateway is up, and the model answers the fee line from the
-    verified catalogue."""
+def test_followup_uses_template_when_up(monkeypatch):
+    """Round 26 (W2) SUPERSEDES the old pin below: the follow-up
+    (one programme, no candidates) NO LONGER goes to the model
+    when the gateway is up. Re-test task 20 showed the follow-up
+    taking the slow AI path (~30 s in the browser, wording varying
+    run to run) whenever the gateway was not already known down,
+    while the undergraduate tap on the same flow answered
+    instantly — breaker-state luck, not a code path. The template
+    already resolved the follow-up to one programme, so its
+    verified fee line is now the one route in every gateway state:
+    zero model calls, the exact template line. (The old test,
+    test_followup_still_uses_model_when_up, asserted calls == 1
+    and ai_status == "available" here.)"""
     calls = {"n": 0}
     provider = _mock_provider(monkeypatch, _eth_fee_handler(calls))
+    t0 = time.monotonic()
     r = answer(_followup(Q_EN, "undergraduate"), "en", provider=provider,
                program_ids=ETH_CANDIDATES)
-    assert calls["n"] == 1
-    assert r["ai_status"] == "available"
-    assert "CHF 4,380" in "\n".join(r["lines"])
+    assert time.monotonic() - t0 < 1
+    assert calls["n"] == 0, "a level follow-up must not call the model"
+    assert r["ai_status"] == "unavailable"
+    assert r["lines"][0] == (
+        "ETH Zurich — Bachelor of Science in Computer Science "
+        "tuition: CHF 4,380 per year.")
+    r = answer(_followup(Q_EN, "masters"), "en", provider=provider,
+               program_ids=ETH_CANDIDATES)
+    assert calls["n"] == 0, "a masters follow-up must not call the model"
+    assert r["ai_status"] == "unavailable"
+    assert r["lines"][0] == (
+        "ETH Zurich — MSc in Computer Science "
+        "tuition: CHF 4,380 per year.")
 
 
 def test_devil_excluded_from_disambiguation_rule(monkeypatch):

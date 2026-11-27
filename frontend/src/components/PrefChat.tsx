@@ -9,7 +9,7 @@ import {
   normaliseClimatePref, prefSummary,
 } from '../lib/preferences';
 import { allPrograms, fetchJson, fetchJsonChat } from '../lib/api';
-import { joinList } from '../lib/format';
+import { joinList, parenNote } from '../lib/format';
 import {
   isModelReply, looksLikeQuestion,
   appendCountryNote, countKnownPrefs, effectiveNextPref, extractedSummary, firstMissingPref, isModelPrefReply,
@@ -303,6 +303,19 @@ export function mapFailedPrefAnswer(
   // No question context: only a country mention is safe to map.
   const mapped = mapLocalAnswer('countries', trimmed, t, profile);
   if (mapped) return { patch: mapped, verbatim: trimmed };
+  // Round 26 W1: a timeout with no question context (the model
+  // considered the chat done, or the question was skipped) must not
+  // drop an exact enum answer — "大学城" is unambiguously the campus
+  // environment and "很冷" is unambiguously cool, whatever the
+  // question was. The same exact-match discipline as the guided
+  // queue (mapLocalAnswer): only a chip label / listed synonym ever
+  // maps. Free text never becomes a city here — with no question
+  // context that would be a guess — and a question is never mapped
+  // (checked above).
+  for (const eq of ['climate', 'environment', 'afterGrad', 'pressure', 'teaching'] as const) {
+    const enumMapped = mapLocalAnswer(eq, trimmed, t, profile);
+    if (enumMapped) return { patch: enumMapped, verbatim: trimmed };
+  }
   return null;
 }
 
@@ -1097,7 +1110,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
             return { key: levelKey ? 'wizard.chatOpClimateCityLevel' : 'wizard.chatOpClimateCity', vars, mood: 'celebrate' };
           }
           const cities = countryCitiesWithClimate(codes, allPrograms());
-          const desc = joinList(cities.map(({ city, climate }) => (climate ? `${cityDisplayName(city, t)}（${climateLabel(climate, t)}）` : cityDisplayName(city, t))), locale);
+          const desc = joinList(cities.map(({ city, climate }) => (climate ? parenNote(cityDisplayName(city, t), climateLabel(climate, t), locale) : cityDisplayName(city, t))), locale);
           if (desc) {
             return { key: 'wizard.chatOpClimateNoMatch', vars: { want: climateName, cities: desc }, mood: 'empathise' };
           }

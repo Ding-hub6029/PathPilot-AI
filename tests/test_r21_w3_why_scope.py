@@ -117,7 +117,11 @@ def test_scope_sources_join_catalogue():
     _, sources, _ = _retrieve(STEP8_QUESTION, "zh-CN",
                               program_ids=[ETH_CS])
     assert any(s.id.startswith(f"src:{ETH_CS}:") for s in sources)
-    assert any(s.id == "rank:qs:eth-zurich" for s in sources)
+    # Round 26, W3: this is a fee + IELTS question with no rank
+    # word, so the scope's ranking sources no longer join the
+    # catalogue — the model must answer the fee/IELTS facts, not
+    # drift to the rankings line (re-test task 20). The programme
+    # sources above are the Round 21 pin and still join.
     # ... while the scope stays out of the matched pids, so the
     # suggestion pick and the ranking overview keep gating on a real
     # match (a scope must never stop a suggestion question getting

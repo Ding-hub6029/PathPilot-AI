@@ -187,18 +187,19 @@ def test_r17_second_turn_after_country_lands_model_up(monkeypatch):
 
 
 def test_r17_second_turn_after_country_lands_no_key(monkeypatch):
-    """Step 2 offline: the WHY still does not re-fire for CH, and the
-    deterministic order keeps climate as the open question — the
-    offline path cannot read "凉快一点" as a climate enum, so the
-    question stays open and the frontend's guided fallback maps it
-    locally (that is the known offline behaviour, not a re-ask of
-    the country)."""
+    """Step 2 offline: the WHY still does not re-fire for CH. Round 26
+    W1 extended the offline extractor to enums, so the backend now
+    reads "凉快一点" as a climate enum itself (extracted
+    {climate: cool}, next question environment) — the old pin that
+    the offline path cannot read it (extracted {}, question stays
+    open, frontend guided fallback maps it locally) is superseded
+    by that deliberate extension."""
     r = pref_answer("凉快一点", "zh-CN", known=KNOWN_AFTER_WHY,
                     provider=_no_key_provider(monkeypatch))
     assert r["ai_status"] == "unavailable"
-    assert r["extracted"] == {}
+    assert r["extracted"] == {"climate": "cool"}
     assert r["why_followup"] is None
-    assert r["next_question"] == "climate"
+    assert r["next_question"] == "environment"
 
 
 # ---------------------------------------------------------------------------
