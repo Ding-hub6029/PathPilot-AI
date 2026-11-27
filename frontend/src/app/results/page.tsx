@@ -23,6 +23,7 @@ import { useBackendStatus } from '../../lib/backendStatus';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
 import { SimulatePanel } from '../../components/SimulatePanel';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
+import { formatDuration } from '../../lib/format';
 
 type Filter = 'all' | 'met' | 'notmet' | 'unknown';
 
@@ -392,6 +393,13 @@ export default function ResultsPage() {
               <article key={r.programId} className="card-lift rounded-2xl border border-navy/10 bg-white p-5 card-surface">
                 <p className="text-sm font-semibold text-teal">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
                 <h2 className="mt-1 text-lg font-bold" ref={vtRef(`program-title-${p.id}`)}>{displayProgramName(p, locale)}</h2>
+                {/* Round 21: the card never rendered a duration — the
+                    only duration on the page lived on the wizard step-8
+                    cards (RecChat comment) and the detail page. The
+                    fee / IELTS figures here come from the per-rule
+                    RuleRows, so duration is not a rule and never
+                    appeared. Same formatDuration path as step 8. */}
+                <p className="mt-1 text-sm text-navy/70">{formatDuration(p, t, locale)}</p>
                 {prefHints(profile, p, t).length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {prefHints(profile, p, t).map((h) => (

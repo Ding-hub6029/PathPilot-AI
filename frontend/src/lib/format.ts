@@ -104,7 +104,12 @@ function localiseDurationParen(
   return `${cjk ? '（' : '('}${parts.join(cjk ? '，' : ', ')}${cjk ? '）' : ')'}`;
 }
 
-export function formatDuration(program: Program, t: (key: string) => string, locale = 'en'): string {
+/** Round 21: the parameter is Pick<Program, 'id' | 'duration'>, not
+ * Program — the function only reads those two fields, and the
+ * institution page's expansion cards (ExpansionProgram) must reuse
+ * this same path instead of rendering their raw duration. No caller
+ * changes: every Program still satisfies the narrower type. */
+export function formatDuration(program: Pick<Program, 'id' | 'duration'>, t: (key: string) => string, locale = 'en'): string {
   const key = `program.duration.${program.id}`;
   const v = t(key);
   if (v !== key) return v;

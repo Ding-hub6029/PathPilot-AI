@@ -269,6 +269,120 @@ def test_format_duration_call_sites_pass_locale():
 
 
 # ---------------------------------------------------------------------------
+# Round 21, worker W2 — /results cards showed no duration at all
+# ---------------------------------------------------------------------------
+
+def test_r21_results_card_renders_duration_via_format_duration():
+    """P1 root cause, pinned: the /results card JSX never called
+    formatDuration (nor formatProgramLine) — the only duration on the
+    page lived on the wizard step-8 cards (RecChat comment) and the
+    detail page, while the fee / IELTS figures here come from the
+    per-rule RuleRows, so duration (not a rule) never appeared. The
+    card now renders formatDuration(p, t, locale) under the title,
+    on the same `p` the card already resolves from mergePrograms()."""
+    results = (ROOT / "frontend" / "src" / "app" / "results" / "page.tsx").read_text(encoding="utf-8")
+    assert "import { formatDuration } from '../../lib/format';" in results
+    assert "{formatDuration(p, t, locale)}" in results
+
+
+def test_r21_institution_cards_render_duration():
+    """Same gap on the institution page, two shapes: the v2 list
+    showed no duration at all, and the expansion card rendered the
+    raw English value (` · ${p.duration}` — "3 years (180 credits)"
+    in zh-CN). Both now go through the shared formatDuration path."""
+    inst = (ROOT / "frontend" / "src" / "app" / "institutions" / "[id]" / "page.tsx").read_text(encoding="utf-8")
+    assert "import { formatDuration } from '../../../lib/format';" in inst
+    assert inst.count("formatDuration(p, t, locale)") == 2  # v2 list + expansion card
+    assert "{formatDuration(p, t, locale)}" in inst
+    assert "` · ${formatDuration(p, t, locale)}`" in inst
+    assert "` · ${p.duration}`" not in inst
+    # The comparison columns on /results (WhyNot CompareView) had the
+    # same gap — no duration in the column headers.
+    whynot = (ROOT / "frontend" / "src" / "components" / "WhyNot.tsx").read_text(encoding="utf-8")
+    assert "import { formatDuration } from '../lib/format';" in whynot
+    assert "{formatDuration(program, t, locale)}" in whynot
+
+
+def test_r21_no_programme_card_renders_raw_duration():
+    """No .tsx anywhere renders a raw duration interpolation any more
+    (the institution expansion card was the only one; api.ts data
+    mappings and format.ts itself are not renders)."""
+    for path in (ROOT / "frontend" / "src").rglob("*.tsx"):
+        text = path.read_text(encoding="utf-8")
+        assert "${p.duration}" not in text, path
+        assert "{p.duration}" not in text, path
+        assert "${program.duration}" not in text, path
+        assert "{program.duration}" not in text, path
+
+
+def test_r21_format_duration_accepts_expansion_programme_shape():
+    """The shared path is reused, not duplicated: formatDuration's
+    parameter is Pick<Program, 'id' | 'duration'>, so an
+    ExpansionProgram ({id, duration, ...} — no feeItems etc.)
+    type-checks as an argument (proven by `npx tsc --noEmit` over
+    the institution page, which passes one directly)."""
+    src = FORMAT.read_text(encoding="utf-8")
+    assert "formatDuration(program: Pick<Program, 'id' | 'duration'>" in src
+
+
+_NODE_DATAFLOW_HARNESS = r"""
+const api = require(OUT + '/api.js');
+const fmt = require(OUT + '/format.js');
+const fs = require('fs');
+const ids = ['eth-cs-bsc-2027', 'eth-cse-bsc-2027', 'zurich-informatics-bsc-2027'];
+const merged = api.mergePrograms([]);
+const out = [];
+for (const id of ids) {
+  const p = merged.find((x) => x.id === id);
+  if (!p) { out.push({ id, missing: true }); continue; }
+  for (const locale of ['zh-CN', 'en']) {
+    const msgs = JSON.parse(fs.readFileSync(FE + '/messages/' + locale + '.json', 'utf-8'));
+    const t = (k) => (k in msgs ? msgs[k] : k);
+    out.push({ id, locale, duration: p.duration, rendered: fmt.formatDuration(p, t, locale) });
+  }
+}
+console.log(JSON.stringify(out));
+"""
+
+
+def test_r21_duration_reaches_results_card_for_swiss_three(tmp_path):
+    """Data-flow end of the P1: the real compiled api.ts —
+    expansionToProgram carries `duration` verbatim and mergePrograms
+    includes all three Swiss ids — feeds the real formatDuration, and
+    the value the /results card now renders is exactly
+    "3 年（180 ECTS）" / "3 years (180 ECTS)". This is the value the
+    card component receives: the card resolves `p` from the same
+    mergePrograms(livePrograms) list (see the call-site test above)."""
+    outdir = tmp_path / "r21_dataflow"
+    fe = ROOT / "frontend"
+    res = subprocess.run(
+        ["npx", "tsc", "src/lib/api.ts", "src/lib/format.ts",
+         "--module", "commonjs", "--target", "es2020",
+         "--outDir", str(outdir), "--skipLibCheck", "--esModuleInterop",
+         "--resolveJsonModule"],
+        cwd=str(fe), capture_output=True, text=True, timeout=180)
+    assert res.returncode == 0, res.stdout + res.stderr
+    harness = tmp_path / "r21_dataflow_harness.js"
+    harness.write_text(
+        _NODE_DATAFLOW_HARNESS
+        .replace("OUT", repr(str(outdir)))
+        .replace("FE", repr(str(fe))), encoding="utf-8")
+    env = {"PATH": os.environ["PATH"], "NODE_PATH": str(fe / "node_modules")}
+    node = subprocess.run(
+        ["node", str(harness)],
+        capture_output=True, text=True, timeout=120, env=env)
+    assert node.returncode == 0, node.stdout + node.stderr
+    rows = json.loads(node.stdout)
+    assert len(rows) == 6, rows
+    by_key = {(r["id"], r["locale"]): r for r in rows}
+    for pid in SWISS_STEP8:
+        assert not by_key[(pid, "zh-CN")].get("missing"), pid
+        assert by_key[(pid, "zh-CN")]["duration"], pid  # raw value reaches the card
+        assert by_key[(pid, "zh-CN")]["rendered"] == EXPECTED_ZH[pid], (pid, by_key[(pid, "zh-CN")])
+        assert by_key[(pid, "en")]["rendered"] == EXPECTED_EN[pid], (pid, by_key[(pid, "en")])
+
+
+# ---------------------------------------------------------------------------
 # Nit 5 — judgement lock-in (backend half of the diagnosis)
 # ---------------------------------------------------------------------------
 

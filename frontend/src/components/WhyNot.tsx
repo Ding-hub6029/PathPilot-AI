@@ -7,6 +7,7 @@ import { displayProgramInstitutionName } from '../lib/rankings';
 import { StatusChip } from './StatusChip';
 import { RuleRow } from './RuleRow';
 import { GaokaoPanel } from './GaokaoPanel';
+import { formatDuration } from '../lib/format';
 
 /**
  * Why-not explanations + rule-by-rule comparison (Day 3, W2).
@@ -634,6 +635,10 @@ export function CompareView({ results, programs }: { results: MatchResult[]; pro
               <>
                 <p className="text-xs font-semibold text-teal">{displayProgramInstitutionName(program.institution, locale)} · {program.country}</p>
                 <p className="mt-0.5 text-sm font-bold">{displayProgramName(program, locale)}</p>
+                {/* Round 21: the comparison columns showed no duration
+                    either (same /results gap) — same formatDuration
+                    path as the cards above. */}
+                <p className="mt-0.5 text-xs text-navy/60">{formatDuration(program, t, locale)}</p>
               </>
             )}
             {families.map((fam) => {

@@ -112,7 +112,10 @@ export function RecChat({
       if (!turn.reply || turn.replyLocale === locale) return;
       fetchJson<ChatReply>('/api/assistant/chat', {
         method: 'POST',
-        body: JSON.stringify({ message: turn.question, locale }),
+        // Round 21 (W3): scope the re-ask to the cards in view, so a
+        // deictic "this programme" question is answered from those
+        // programmes' verified facts instead of "查不到".
+        body: JSON.stringify({ message: turn.question, locale, program_ids: shown.map((r) => r.programId) }),
       }).then((fresh) => {
         if (!isModelReply(fresh)) {
           // Round 10: keep a template re-fetch as an offline turn instead
@@ -228,7 +231,13 @@ export function RecChat({
     try {
       const r = await fetchJsonChat<ChatReply>('/api/assistant/chat', {
         method: 'POST',
-        body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6) }),
+        // Round 21 (W3): scope the question to the cards in view —
+        // the user is asking about one of these. Without it a
+        // deictic "this programme" / "这个专业" question matched
+        // nothing and got the blanket "查不到", while the same
+        // question on the programme detail page (which carries the
+        // "Programme id" marker) got the verified fee answer.
+        body: JSON.stringify({ message: text, locale: requestLocale, history: history.slice(-6), program_ids: shown.map((r) => r.programId) }),
       }, { onRetry: () => setWaking(true) });
       setWaking(false);
       if (!isModelReply(r)) {

@@ -12,6 +12,7 @@ import { ExpansionProgram } from '../../../lib/types';
 import { crestFor, monogramFor } from '../../../lib/crests';
 import { ViewTransitionLink } from '../../../components/ViewTransitionLink';
 import { vtRef } from '../../../lib/viewTransition';
+import { formatDuration } from '../../../lib/format';
 
 /**
  * Institution detail page (Day 3 expansion, FR15/FR16).
@@ -84,7 +85,11 @@ function ExpansionProgramCard({ p, locale }: { p: ExpansionProgram; locale: stri
       <p className="font-bold" dir="auto">{expansionDisplayName(p, locale)}</p>
       <p className="mt-1 text-sm text-navy/60">
         {t(DEGREE_LABEL_KEYS[p.degreeLevel] ?? 'cases.filterTm')}
-        {p.duration ? ` · ${p.duration}` : ''}
+        {/* Round 21: raw p.duration rendered unlocalised English here
+            ("3 years (180 credits)") in every locale. Same shared
+            formatDuration path as the browse / step-8 cards; the
+            widened signature accepts an ExpansionProgram directly. */}
+        {p.duration ? ` · ${formatDuration(p, t, locale)}` : ''}
         {p.start ? ` · ${p.start}` : ''}
       </p>
       <p className="mt-1 text-sm text-navy/75">
@@ -246,6 +251,10 @@ export default function InstitutionDetail({ params }: { params: { id: string } }
                     </ViewTransitionLink>
                   </p>
                   <p className="mt-1 text-sm text-navy/60">{displayProgramInstitutionName(p.institution, locale)} · {displayCountryCode(p.country, p.country, t)}</p>
+                  {/* Round 21: the v2 list showed no duration at all
+                      (same gap as /results) — same formatDuration
+                      path as the step-8 / browse cards. */}
+                  <p className="mt-1 text-sm text-navy/70">{formatDuration(p, t, locale)}</p>
                   <Link href="/wizard" className="btn-press mt-3 inline-block rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">{t('home.ctaWizard')}</Link>
                 </li>
               ))}

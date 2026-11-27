@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
 import type { Profile } from '../lib/types';
 import { fetchJson, fetchJsonChat, fetchJsonPatient, modelAvailability, allPrograms, findProgram } from '../lib/api';
+import { checkingDelayMs, footerAiLineKey, freshAiVerdict, type AiStatusPayload } from '../lib/aiStatus';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, isModelReply, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
@@ -665,35 +666,83 @@ export function CompassPet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  /** Round 20: one shared model-status probe for the footer. It reads
-   * /api/ai/status (patient fetch: retries while the backend wakes)
-   * and applies the verdict with the same semantics everywhere — a
-   * live verdict clears the offline flag, a down verdict sets it —
-   * so the footer never shows a stale claim in either direction. A
-   * probe superseded by a newer one (re-open, devil enable, retry)
-   * is ignored via the sequence ref, so a slow answer cannot
-   * overwrite a fresher verdict. Callers set `waking` first (the
-   * open/devil paths show the checking line, the retry button shows
-   * the waking line); both outcomes clear it here. */
+  /** Round 20: one shared model-status probe for the footer. Round 21
+   * W1: the probe asks for a FRESH verdict (?fresh=1 — the backend
+   * /ai/status cache is 60 s, per-process, shared by every user, and
+   * used to serve a cached "available" labelled probed:true, so the
+   * 13:22 first open claimed "AI 回答" from a verdict primed at 13:21
+   * while the gateway had already flapped) and applies it ONLY
+   * through freshAiVerdict (lib/aiStatus.ts): "available" counts as
+   * live only when probed===true, i.e. this open's own probe ran;
+   * an available-but-unprobed claim is unconfirmed — it keeps the
+   * checking line and re-probes fresh (bounded), then falls back to
+   * offline, the safe direction. A probe superseded by a newer one
+   * (re-open, devil enable, retry) is ignored via the sequence ref,
+   * so a slow answer cannot overwrite a fresher verdict. Open/devil
+   * probes also hold the checking state visible for at least
+   * AI_CHECKING_MIN_MS (the warm-cache probe used to resolve in a
+   * fraction of a second, so the checking line was never perceived);
+   * the retry path keeps its waking line instead. Callers set
+   * `waking` first (the open/devil paths show the checking line, the
+   * retry button shows the waking line); both outcomes clear it here. */
   const probeSeqRef = useRef(0);
-  const probeAiStatus = () => {
+  const probeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  /** Unconfirmed-verdict re-probes used by the CURRENT probe only;
+   * reset on every fresh (non-retry) probe start below. */
+  const unconfirmedRetriesRef = useRef(0);
+  const probeAiStatus = (opts?: { minChecking?: boolean; unconfirmedRetry?: boolean }) => {
     const seq = ++probeSeqRef.current;
+    if (probeTimerRef.current) {
+      clearTimeout(probeTimerRef.current);
+      probeTimerRef.current = undefined;
+    }
+    if (!opts?.unconfirmedRetry) unconfirmedRetriesRef.current = 0;
     beginPatientCall();
-    fetchJsonPatient<{ ai_status?: string }>('/api/ai/status', {}, { onRetry: patientOnRetry })
+    const startedAt = Date.now();
+    const minChecking = opts?.minChecking ?? false;
+    const applyVerdict = (verdict: boolean | null) => {
+      if (probeSeqRef.current !== seq) return;
+      if (verdict === null) {
+        // Available but unprobed: never claim AI on it. One bounded
+        // fresh re-probe (the backend normally never returns this
+        // for ?fresh=1); after that, offline — the safe direction,
+        // with the footer retry available to re-check.
+        if (unconfirmedRetriesRef.current < 2) {
+          unconfirmedRetriesRef.current += 1;
+          probeTimerRef.current = setTimeout(
+            () => probeAiStatus({ minChecking, unconfirmedRetry: true }), 2000);
+        } else {
+          setWaking(false);
+          setAiLive(false);
+          setOffline(true);
+        }
+        return;
+      }
+      setWaking(false);
+      setTimedOut(false);
+      setAiLive(verdict);
+      setOffline(!verdict);
+    };
+    const applyDown = () => {
+      if (probeSeqRef.current !== seq) return;
+      setWaking(false);
+      setTimedOut(retryFiredRef.current);
+      setAiLive(false);
+      setOffline(true);
+    };
+    const applyAfterMinChecking = (fn: () => void) => {
+      const delay = minChecking ? checkingDelayMs(Date.now() - startedAt) : 0;
+      if (delay > 0) probeTimerRef.current = setTimeout(fn, delay);
+      else fn();
+    };
+    fetchJsonPatient<AiStatusPayload>('/api/ai/status?fresh=1', {}, { onRetry: patientOnRetry })
       .then((s) => {
         if (probeSeqRef.current !== seq) return;
-        setWaking(false);
-        setTimedOut(false);
-        const live = s.ai_status === 'available';
-        setAiLive(live);
-        setOffline(!live);
+        applyAfterMinChecking(() => applyVerdict(freshAiVerdict(s)));
       })
       .catch(() => {
         if (probeSeqRef.current !== seq) return;
-        setWaking(false);
-        setTimedOut(retryFiredRef.current);
-        setAiLive(false);
-        setOffline(true);
+        applyAfterMinChecking(applyDown);
       });
   };
 
@@ -707,7 +756,11 @@ export function CompassPet() {
    * actually down, until a failed turn corrected it. Re-opening now
    * resets aiLive to unknown (the footer shows the neutral checking
    * line) and re-probes; "AI 回答" appears only after this open's
-   * confirmed available verdict. The patient fetch retries while
+   * confirmed available verdict. Round 21 W1: the re-probe is a
+   * FRESH one (?fresh=1, see probeAiStatus) — a cached "available"
+   * from minutes earlier, primed by any caller, never produces the
+   * claim — and the checking line is held visible for at least
+   * AI_CHECKING_MIN_MS. The patient fetch retries while
    * the backend wakes (round 7, Fix A): offline is declared only
    * after the ~90s budget is spent, and the waking line shows while
    * a retry is in flight. */
@@ -715,7 +768,16 @@ export function CompassPet() {
     if (!open) return;
     setWaking(false);
     setAiLive(null);
-    probeAiStatus();
+    probeAiStatus({ minChecking: true });
+    // A delayed verdict must not land after the panel closed (or
+    // after a newer probe superseded it — the seq guard covers that
+    // too); clear the pending timer on close/unmount.
+    return () => {
+      if (probeTimerRef.current) {
+        clearTimeout(probeTimerRef.current);
+        probeTimerRef.current = undefined;
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -733,7 +795,7 @@ export function CompassPet() {
     if (!open || !devilMode || wasOn) return;
     setWaking(false);
     setAiLive(null);
-    probeAiStatus();
+    probeAiStatus({ minChecking: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, devilMode]);
 
@@ -896,6 +958,16 @@ export function CompassPet() {
   }, [locale, messages]);
 
   const toggle = (next: boolean) => {
+    if (next) {
+      // Round 21 W1: reset the footer verdict BEFORE the panel
+      // paints. Effects run after the first paint, so resetting
+      // aiLive only in the open effect left one frame showing the
+      // previous open's "AI 回答" (CompassPet never remounts, so a
+      // stale true survived in state across opens in one session).
+      setAiLive(null);
+      setOffline(false);
+      setWaking(false);
+    }
     setOpen(next);
     try {
       if (next) {
@@ -1476,11 +1548,7 @@ export function CompassPet() {
               <span>
                 {waking
                   ? tf('pet.wakingElapsed', { seconds: wakingElapsed })
-                  : offline || aiLive === false
-                    ? timedOut ? t('pet.offlineTimeout') : t('pet.offline')
-                    : aiLive === true
-                      ? t('pet.aiLive')
-                      : t('pet.aiChecking')}
+                  : t(footerAiLineKey({ offline, timedOut, aiLive }))}
               </span>
               {/* Round 8: the retry stays available after sending a
                   message (it used to disappear while waking) — it is

@@ -357,7 +357,7 @@ def health():
 
 
 @app.get("/api/v1/ai/status")
-def ai_status():
+def ai_status(fresh: bool = False):
     """AI integration status (Day 3). Never exposes the key value — only
     whether one is configured, which provider/model is selected, and the
     prompt version. With no key this reports ai_status="unavailable" and
@@ -384,6 +384,22 @@ def ai_status():
     # "unavailable" at once instead of re-probing — see below.
     # (This is a plain comment, not the docstring: the docstring is
     # the OpenAPI description, and docs/openapi.json must match it.)
+    # Round 21 W1 — a cached verdict must never be mislabelled as a
+    # fresh probe, and a caller that needs a verdict for THIS moment
+    # must be able to ask for one:
+    # - a cached serve returns "probed": False + "cache_age_s": the
+    #   2026-11-27 13:22 re-test showed the footer claiming "AI 回答"
+    #   on first open from a cached "available" primed at 13:21 by
+    #   another caller's probe, while the gateway had already flapped
+    #   (the probe is only a 1-token chat, weaker than a real turn).
+    #   The old code returned dict(cached), whose "probed": True was
+    #   from probe time, so no caller could tell fresh from stale.
+    # - ?fresh=1 bypasses the cache read and probes live now (the
+    #   breaker-open fast path below still applies: the breaker is
+    #   fresher evidence of down). Fresh results refresh the cache.
+    #   The plain cached path is unchanged for the simulate gate and
+    #   the frontend warm loop — same ai_status values, only the
+    #   labelling is honest.
     adapter = ProviderAdapter()
     info = adapter.describe()
     base = {"ai_status": info["ai_status"], "provider": info["provider"],
@@ -395,8 +411,12 @@ def ai_status():
         return {**base, "probed": False}
     with _ai_status_lock:
         cached = _AI_STATUS_CACHE["payload"]
-        if cached is not None and time.monotonic() - _AI_STATUS_CACHE["at"] < _AI_STATUS_TTL_S:
-            return dict(cached)
+        cache_age = (time.monotonic() - _AI_STATUS_CACHE["at"]
+                     if cached is not None else None)
+        if (not fresh and cached is not None
+                and time.monotonic() - _AI_STATUS_CACHE["at"] < _AI_STATUS_TTL_S):
+            return {**cached, "probed": False,
+                    "cache_age_s": round(cache_age, 1) if cache_age is not None else None}
         # Round 18 W2 — answer from the breaker instead of re-probing:
         # when the circuit breaker is open, a slow model failure
         # happened within the last 180 s, so the gateway is already
@@ -417,12 +437,14 @@ def ai_status():
         # breaker is fresher evidence than the old probe.
         if gateway_breaker_open():
             if cached is not None and cached.get("ai_status") == "unavailable":
-                return dict(cached)
-            return {**base, "ai_status": "unavailable", "probed": False}
+                return {**cached, "probed": False,
+                        "cache_age_s": round(cache_age, 1) if cache_age is not None else None}
+            return {**base, "ai_status": "unavailable", "probed": False,
+                    "cache_age_s": None}
         live = adapter.probe_live()
         payload = {**base,
                    "ai_status": "available" if live else "unavailable",
-                   "probed": True}
+                   "probed": True, "cache_age_s": 0.0}
         _AI_STATUS_CACHE["at"] = time.monotonic()
         _AI_STATUS_CACHE["payload"] = payload
         return dict(payload)

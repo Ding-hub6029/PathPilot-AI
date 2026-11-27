@@ -79,6 +79,14 @@ class ChatRequest(BaseModel):
     #  budget_period: per_year|total, city: str}.
     mode: Literal["normal", "devil"] = "normal"
     profile: dict | None = None
+    # Caller-supplied programme scope (Round 21, W3): the programme
+    # cards the user is looking at (RecChat's visible batch). Verified
+    # ids only — ai.chat drops anything outside the verified
+    # catalogue — so a deictic "this programme" question is answered
+    # from those programmes' verified facts instead of the blanket
+    # unknown. Never a programme the user named; the template's own
+    # match still wins there.
+    program_ids: list[str] = Field(default_factory=list, max_length=10)
 
     @field_validator("message")
     @classmethod
@@ -192,10 +200,12 @@ async def assistant_chat_endpoint(request: Request):
 
     Request: ``{message (1..500 chars), locale="en",
     history: [{role, content}] (max 10 turns, each content max 500),
-    mode: "normal"|"devil", profile: {...}}`` — mode "devil" (round 11)
+    mode: "normal"|"devil", profile: {...},
+    program_ids: [verified programme ids in view]}`` — mode "devil" (round 11)
     challenges the stated preferences in ``profile`` with
     engine-computed conflicts; see ``ai.chat`` for the grounding and
-    fallback rules.
+    fallback rules. ``program_ids`` (round 21, W3) scopes a deictic
+    "this programme" question to the cards the user is looking at.
     Response: ``{lines (at most 3, conclusion first), evidence_url,
     ai_status, model, sources: [{id, url, title}]}`` — devil replies
     additionally carry ``mode: "devil"`` and ``conflicts: [kinds]``.
@@ -213,7 +223,8 @@ async def assistant_chat_endpoint(request: Request):
     return await asyncio.to_thread(
         chat_answer, req.message, req.locale,
         [turn.model_dump() for turn in req.history],
-        provider=get_provider(), mode=req.mode, profile=req.profile)
+        provider=get_provider(), mode=req.mode, profile=req.profile,
+        program_ids=req.program_ids)
 
 
 @router.post("/assistant/pref-chat")

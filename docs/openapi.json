@@ -674,6 +674,18 @@
       "get": {
         "description": "AI integration status (Day 3). Never exposes the key value \u2014 only\nwhether one is configured, which provider/model is selected, and the\nprompt version. With no key this reports ai_status=\"unavailable\" and\nevery AI endpoint falls back to the rules/template behaviour.",
         "operationId": "ai_status_api_v1_ai_status_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "fresh",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Fresh",
+              "type": "boolean"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -682,6 +694,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Ai Status"
@@ -726,7 +748,7 @@
     },
     "/api/v1/assistant/chat": {
       "post": {
-        "description": "Free-text question to \u5c0f\u7f57\u76d8.\n\nRequest: ``{message (1..500 chars), locale=\"en\",\nhistory: [{role, content}] (max 10 turns, each content max 500),\nmode: \"normal\"|\"devil\", profile: {...}}`` \u2014 mode \"devil\" (round 11)\nchallenges the stated preferences in ``profile`` with\nengine-computed conflicts; see ``ai.chat`` for the grounding and\nfallback rules.\nResponse: ``{lines (at most 3, conclusion first), evidence_url,\nai_status, model, sources: [{id, url, title}]}`` \u2014 devil replies\nadditionally carry ``mode: \"devil\"`` and ``conflicts: [kinds]``.",
+        "description": "Free-text question to \u5c0f\u7f57\u76d8.\n\nRequest: ``{message (1..500 chars), locale=\"en\",\nhistory: [{role, content}] (max 10 turns, each content max 500),\nmode: \"normal\"|\"devil\", profile: {...},\nprogram_ids: [verified programme ids in view]}`` \u2014 mode \"devil\" (round 11)\nchallenges the stated preferences in ``profile`` with\nengine-computed conflicts; see ``ai.chat`` for the grounding and\nfallback rules. ``program_ids`` (round 21, W3) scopes a deictic\n\"this programme\" question to the cards the user is looking at.\nResponse: ``{lines (at most 3, conclusion first), evidence_url,\nai_status, model, sources: [{id, url, title}]}`` \u2014 devil replies\nadditionally carry ``mode: \"devil\"`` and ``conflicts: [kinds]``.",
         "operationId": "assistant_chat_endpoint_api_v1_assistant_chat_post",
         "responses": {
           "200": {

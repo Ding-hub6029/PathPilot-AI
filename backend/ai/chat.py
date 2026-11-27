@@ -27,7 +27,11 @@ Model path (only when a provider is configured):
   page entry asks about. The template fallback states the
   ranking-overview top 3 / the exact programme's verified fee / the
   suggestion pick's fee deterministically when the template itself
-  has no better answer, instead of the generic unknown;
+  has no better answer, instead of the generic unknown; plus — since
+  round 21 (W3) — a caller-supplied programme scope (the cards the
+  user is looking at), so a deictic "this programme" question is
+  answered from those programmes' verified facts instead of the
+  blanket unknown;
 - the model sees ONLY those retrieved sources, as an evidence catalogue
   in a JSON envelope (``{task: "chat", prompt_version, locale, message,
   history, evidence_catalog}``); its structured JSON output is validated
@@ -54,7 +58,8 @@ import time
 
 from ai.assistant import (LOCALES, _DEADLINE_WORDS, _FEE_WORDS,
                           _IELTS_WORDS, _RANK_WORDS, _TM_WORDS, _UG_WORDS,
-                          _match_programmes, _money, _norm, _qs_rank, _t,
+                          _fmt, _ielts_fact, _match_programmes, _money,
+                          _norm, _qs_rank, _t,
                           ask as assistant_ask, check_no_forbidden,
                           contains_personal_data, country_display_name,
                           country_programmes, fee_text,
@@ -151,7 +156,8 @@ def _enriched_programme_sources(program_id: str) -> list[Source]:
 
 def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
               climate_class: str | None = None,
-              country_programmes: bool = False):
+              country_programmes: bool = False,
+              program_ids: list[str] | None = None):
     """(template ask() result, retrieved sources, programme ids).
 
     Retrieval reuses the template assistant: its ``ask()`` already does
@@ -160,6 +166,17 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
     ``ask()`` returns no single programme. Gaokao keywords add the
     verified Gaokao-route facts for the matched programme (or the
     general routes when no programme matched).
+
+    ``program_ids`` (Round 21, W3) is caller-supplied scope — the
+    programme cards the user is looking at (RecChat's visible batch).
+    Those programmes' verified sources join the catalogue so a deictic
+    "this programme" question can be answered from the same verified
+    facts the detail page's "Programme id" marker retrieves. The scope
+    ids are deliberately NOT added to the returned ``pids``: the
+    suggestion pick and the ranking overview below gate on "no
+    programme matched", and scope is context, not a match — adding it
+    there would stop a suggestion question in the same chat from ever
+    getting its pick.
 
     ``countries`` scopes the climate evidence to those countries (the
     pref-chat flow, round 7): when set, no other country's city is
@@ -277,6 +294,18 @@ def _retrieve(message: str, locale: str, *, countries: list[str] | None = None,
             pids.append(id_pid)
         own = _verified_programme(id_pid) or {}
         iid = own.get("institution_id") or V2_PROGRAM_INSTITUTION.get(id_pid)
+        if iid:
+            _add(ranking_sources(iid))
+    # (Round 21, W3) Caller-supplied programme scope: the visible
+    # cards' verified sources join the catalogue — the same enriched
+    # sources the "Programme id" intent above brings — so the model
+    # path and the template fallback can answer a deictic "this
+    # programme" question from verified facts. The scope ids stay out
+    # of ``pids`` (see the docstring): they are context, not a match.
+    for pid in _clean_program_ids(program_ids):
+        _add(_enriched_programme_sources(pid))
+        own = _verified_programme(pid) or {}
+        iid = own.get("institution_id") or V2_PROGRAM_INSTITUTION.get(pid)
         if iid:
             _add(ranking_sources(iid))
     # (AI visibility layer, W5) Ranking-overview intent: a question
@@ -868,6 +897,166 @@ def _programme_fact_line(program_id: str, locale: str) -> str | None:
     return line_t.format(name=name, fee=fee_text(fr, locale))
 
 
+# ---------------------------------------------------------------------------
+# Caller-supplied programme scope (Round 21, W3)
+#
+# Root cause of the step-8 / detail-page inconsistency (re-test task
+# 15): the SAME question — "What is the fee and IELTS requirement
+# for this programme, and is it a good fit for me?" — got the
+# verified fee line on the programme detail page but the blanket
+# "这个我从已核实的数据里查不到，不知道。" in the step-8 (RecChat)
+# chat. The detail page scopes its question with the explicit
+# "Programme id <id>" marker, so _retrieve brings that programme's
+# verified sources and _template_result states its fee. RecChat sent
+# only {message, locale, history}: no programme was ever in scope,
+# so a deictic "this programme" / "这个专业" question matched nothing
+# — _match_programmes needs a name or alias in the text — and the
+# template honestly answered unknown. The verified fee facts existed
+# all along; the chat retrieval simply never queried them.
+#
+# The fix: callers that show programme cards (RecChat) pass the
+# visible cards' ids as ``program_ids``. The ids are caller context,
+# not user text — they only fill the gap the template itself leaves:
+# they never override a programme the template already answered, and
+# they never answer a question that is not about a programme fact
+# (or a why-not question naming one). When the scope holds several
+# programmes and the question names none of them, the refusal names
+# them and asks which one, instead of the blanket unknown.
+# ---------------------------------------------------------------------------
+
+def _clean_program_ids(program_ids) -> list[str]:
+    """Verified programme ids from caller-supplied scope: v2 +
+    matchable expansion only, deduped, order preserved, at most 10.
+    An unknown id is dropped, never a guess."""
+    out: list[str] = []
+    for pid in program_ids or []:
+        if not isinstance(pid, str):
+            continue
+        pid = pid.strip()
+        if (pid and pid not in out
+                and (pid in PROGRAMS or pid in EXPANSION_MATCHABLE)):
+            out.append(pid)
+        if len(out) >= 10:
+            break
+    return out
+
+
+def _scope_fact_line(program_id: str, message: str, locale: str) -> str | None:
+    """One deterministic fact line for one in-scope programme, in the
+    same wording the template assistant uses for a named programme
+    (fee first, then IELTS, then deadline — the same order as
+    ``assistant.ask``). Only verified data, never a guess."""
+    prog = _verified_programme(program_id)
+    if prog is None:
+        return None
+    name = program_display_name(prog)
+    msg = _norm(message or "")
+    if any(w in msg for w in _FEE_WORDS):
+        return _programme_fact_line(program_id, locale)
+    if any(w in msg for w in _IELTS_WORDS):
+        fact = _ielts_fact(prog, locale)
+        if fact is None:
+            return _fmt("ask_ielts_unknown", locale, program=name)
+        return _fmt("ask_ielts", locale, program=name, fact=fact)
+    if any(w in msg for w in _DEADLINE_WORDS):
+        deadline = prog.get("application_deadline")
+        if not deadline:
+            return _fmt("ask_deadline_unknown", locale, program=name)
+        return _fmt("ask_deadline", locale, program=name, deadline=deadline)
+    return None
+
+
+_WHICH_ONE_LINES = {
+    "en": "Which one do you mean — {names}? Name one and I'll answer from its verified data.",
+    "zh-CN": "你问的是其中哪一门——{names}？说一门，我按它已核实的数据回答。",
+    "es": "¿A cuál te refieres: {names}? Nombra uno y responderé con sus datos verificados.",
+    "fr": "Duquel parlez-vous — {names} ? Nommez-en un et je répondrai à partir de ses données vérifiées.",
+    "pt-BR": "A qual você se refere — {names}? Nomeie um e responderei com os dados verificados dele.",
+    "ar": "أي برنامج تقصد — {names}؟ سمِّ واحدًا وسأجيب من بياناته الموثّقة.",
+}
+
+_WHY_REFUSAL_LINES = {
+    "en": "You mean {names} — but why it isn't met needs a rule-by-rule check of your background, and this chat doesn't have that evaluation.",
+    "zh-CN": "你问的是{names}——但它为什么不达标，要按你的背景逐项核对规则，聊天里没有这份逐项评估。",
+    "es": "Te refieres a {names}, pero saber por qué no se cumple exige revisar tus antecedentes regla por regla, y este chat no tiene esa evaluación.",
+    "fr": "Vous parlez de {names}, mais dire pourquoi ce n'est pas satisfait exige de vérifier votre profil règle par règle, et ce chat n'a pas cette évaluation.",
+    "pt-BR": "Você se refere a {names}, mas saber por que não foi atendido exige conferir seu perfil regra por regra, e este chat não tem essa avaliação.",
+    "ar": "تقصد {names} — لكن معرفة سبب عدم الاستيفاء تتطلب فحص خلفيتك قاعدةً قاعدة، وهذه المحادثة لا تملك ذلك التقييم.",
+}
+
+# Why-not words (a "why isn't it met" question). The refusal below
+# only fires for these — a bare "why" ("为什么瑞士？") names no
+# programme failure and keeps the honest generic unknown.
+_WHY_WORDS = ("为什么", "为何", "为啥", "why")
+_WHY_NOT_MET_WORDS = ("不达标", "达不到", "没通过", "不通过", "不符合",
+                      "not met", "why not", "why isn't", "why doesn't",
+                      "why is it not", "fail")
+
+
+def _scope_names_line(candidates: list[str], locale: str,
+                      lines: dict[str, str]) -> str:
+    """Programme display names for a scope line: at most 3, joined
+    with the locale's list separator."""
+    names = [program_display_name(_verified_programme(pid))
+             for pid in candidates[:3]]
+    sep = "、" if locale == "zh-CN" else ", "
+    line_t = lines.get(locale) or lines["en"]
+    return line_t.format(names=sep.join(names))
+
+
+def _scope_line(scope_ids: list[str], message: str, lines: list[str],
+                template: dict, locale: str) -> str | None:
+    """Deterministic first line for a question about a programme the
+    caller has in scope, or None when the scope must not answer it.
+
+    - Fact question (fee / IELTS / deadline) + exactly one candidate
+      programme in scope -> that programme's verified fact line (the
+      same line the detail page's marker path states).
+    - Fact question + several candidates and the template said unknown
+      -> a which-one line naming them, not the blanket unknown.
+    - Why-not question about an in-scope programme -> a specific
+      refusal naming the programme(s) and the missing piece (the
+      rule-by-rule evaluation is not in this chat). The question
+      genuinely has no verified answer here; only the refusal gets
+      specific.
+    - Anything else (rank / climate / suggestion / country question,
+      or the template already answered a programme) -> None: the
+      scope never hijacks those, and never overrides a template
+      answer. ``candidates`` narrows the template's own alias match
+      to the scope: naming ETH matches two undergraduate siblings,
+      so the scope disambiguates only when exactly one of them is
+      in view."""
+    msg = _norm(message or "")
+    if not scope_ids or template.get("program_id") is not None:
+        return None
+    matched = _match_programmes(msg)
+    if matched:
+        candidates = [pid for pid in matched if pid in scope_ids]
+        if not candidates:
+            return None
+    else:
+        candidates = list(scope_ids)
+    unknown_first = bool(lines) and lines[0] == _t(locale, "unknown")
+    # The template's ambiguous-programme line is only reachable when
+    # the message carries no rank word (the rank branch answers
+    # first in assistant.ask); without that guard a rank+fee
+    # question's rank answer would be replaced by a fee line.
+    ambiguous = len(matched) > 1 and not any(
+        w in msg for w in _RANK_WORDS)
+    if any(w in msg for w in _FEE_WORDS + _IELTS_WORDS + _DEADLINE_WORDS):
+        if len(candidates) == 1 and (unknown_first or ambiguous):
+            return _scope_fact_line(candidates[0], message, locale)
+        if len(candidates) > 1 and unknown_first:
+            return _scope_names_line(candidates, locale, _WHICH_ONE_LINES)
+        return None
+    if (any(w in msg for w in _WHY_WORDS)
+            and any(w in msg for w in _WHY_NOT_MET_WORDS)
+            and unknown_first):
+        return _scope_names_line(candidates, locale, _WHY_REFUSAL_LINES)
+    return None
+
+
+
 _SUGGEST_PERIOD_WORDS = {
     "en": {"per_year": "per year", "total": "in total"},
     "zh-CN": {"per_year": "每年", "total": "总计"},
@@ -1316,7 +1505,8 @@ def _resolve_evidence_url(payload: dict, sources: list[Source]) -> str | None:
 
 def _template_result(template: dict, sources: list[Source],
                      locale: str = "en", *, programme_id: str | None = None,
-                     message: str = "") -> dict:
+                     message: str = "",
+                     scope_program_ids: list[str] | None = None) -> dict:
     """Template answer, with the generic "I don't know" first line
     replaced by what the retrieved evidence actually shows when
     climate sources were retrieved (round 7 fix: the model being
@@ -1331,11 +1521,23 @@ def _template_result(template: dict, sources: list[Source],
     line — the overview question deliberately names none of them),
     the suggestion pick's line — then the climate / country
     lines as before. Only the first line is ever replaced.
+
+    Round 21 (W3): ``scope_program_ids`` — the caller-supplied
+    programme scope (RecChat's visible cards) — sits between the
+    marker line and the ranking line: a fact question about an
+    in-scope programme gets that programme's verified fact line (the
+    same line the detail page states), several in-scope programmes
+    get the which-one line, and a why-not question about an in-scope
+    programme gets the specific refusal naming it. Rank / climate /
+    suggestion / country questions are never touched by the scope.
     """
     lines = list(template["lines"])
     prog_line = (_programme_fact_line(programme_id, locale)
                  if programme_id else None)
     rank_line = ranking_overview_line(sources, locale)
+    scope_line = (_scope_line(_clean_program_ids(scope_program_ids),
+                              message, lines, template, locale)
+                  if scope_program_ids else None)
     sugg_line: str | None = None
     if message:
         sugg_pid = _suggest_pick(message)
@@ -1347,6 +1549,9 @@ def _template_result(template: dict, sources: list[Source],
     if (prog_line is not None and lines
             and template.get("program_id") != programme_id):
         lines[0] = prog_line
+        replaced = True
+    elif scope_line is not None and lines:
+        lines[0] = scope_line
         replaced = True
     elif rank_line is not None and lines:
         # The overview sources only join when the template named no
@@ -1790,7 +1995,8 @@ def _devil_template_result(conflicts: list[dict], sources: list[Source],
 def answer(message: str, locale: str = "en",
            history: list[dict] | None = None,
            provider: ProviderAdapter | None = None,
-           mode: str = "normal", profile: dict | None = None) -> dict:
+           mode: str = "normal", profile: dict | None = None,
+           program_ids: list[str] | None = None) -> dict:
     """Answer one free-text question for 小罗盘.
 
     Returns ``{lines, evidence_url, ai_status, model, sources}``:
@@ -1799,6 +2005,13 @@ def answer(message: str, locale: str = "en",
     link); ``ai_status`` is ``"available"`` only when a validated model
     output was actually used; ``model`` is ``"provider/model"`` or None;
     ``sources`` is the retrieved evidence catalogue.
+
+    ``program_ids`` (Round 21, W3) is caller-supplied scope — the
+    programme cards the user is looking at (RecChat's visible batch).
+    A deictic "this programme" question is answered from those
+    programmes' verified facts instead of the blanket unknown; see
+    ``_scope_line``. Devil's advocate ignores it (its profile is the
+    scope there).
 
     Devil's advocate (``mode="devil"``): the same retrieval + grounding,
     but the answer challenges the user's stated preferences (from
@@ -1844,7 +2057,9 @@ def answer(message: str, locale: str = "en",
             # clashes.
             return _devil_template_result(conflicts, sources, loc)
     else:
-        template, sources, pids = _retrieve(msg, loc, country_programmes=True)
+        template, sources, pids = _retrieve(
+            msg, loc, country_programmes=True,
+            program_ids=_clean_program_ids(program_ids))
         conflicts = []
     sources_out = [{"id": s.id, "url": s.url, "title": s.title} for s in sources]
 
@@ -1853,7 +2068,8 @@ def answer(message: str, locale: str = "en",
             return _devil_template_result(conflicts, sources, loc)
         return _template_result(template, sources, loc,
                                 programme_id=_detect_programme_id(msg),
-                                message=msg)
+                                message=msg,
+                                scope_program_ids=_clean_program_ids(program_ids))
 
     # (c) No key: the template assistant is the honest answer.
     if not provider.available:
