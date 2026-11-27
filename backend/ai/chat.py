@@ -73,6 +73,7 @@ from ai.grounding import (FORBIDDEN_PATTERNS, Source,
 from ai.locale_sep import join_list
 from ai.prompts import PROMPT_VERSION, chat_system, devil_advocate_system
 from ai.provider import ProviderAdapter, ProviderError
+from app.ai_status_cache import model_skip_cached
 from app.data import (CLIMATE, DATA_DIR, EXPANSION_MATCHABLE,
                       EXPANSION_PROGRAMS, PROGRAMS, RANKINGS,
                       V2_PROGRAM_INSTITUTION)
@@ -2171,6 +2172,53 @@ def _devil_template_result(conflicts: list[dict], sources: list[Source],
 # Public entry point
 # ---------------------------------------------------------------------------
 
+def _candidates_route_to_template(candidates: list[str] | None) -> bool:
+    """True when the template's candidate-carrying reply is the
+    turn's one route, never the model (Round 25 W1 — decided once
+    per turn from the retrieval result, before any gateway
+    contact). Two shapes, and only these two:
+
+    - Exactly one candidate: the caller-supplied scope already
+      resolved the question to one programme and the template
+      states its verified fact (the scope's fact line — see
+      _scope_line; ask()'s own ambiguous branch only ever sets
+      candidates with 2+ ids, so a single candidate can only be
+      the resolved scope). There is nothing left to disambiguate
+      and the model could only restate the same fee — the
+      step-7 fee verifications are exactly this shape (Round 25
+      W2 pins it: 0 transport calls, instant verified fee line).
+    - Exactly two candidates, one undergraduate and one
+      taught_masters: a level answer uniquely resolves the
+      disambiguation ("undergraduate" / "masters", 本科 / 硕士),
+      so the template list is the deterministic route — the ETH
+      fee flow (re-test task 19: the same question flipped
+      between a direct model answer and the list run to run).
+
+    Any other shape keeps the model-first routing: one level only
+    (the three undergraduate Computer Science programmes), or
+    several programmes per level ("What are Oxford's tuition
+    fees?" matches six across fields and levels) — the level
+    question cannot resolve those, so the template list would
+    strand the user in a re-ask loop instead of answering (a
+    Round 6 pin: the model answers Oxford's fees from the
+    verified programme evidence). An id outside the verified
+    catalogue never routes to the template either — the model is
+    attempted as before."""
+    if not candidates:
+        return False
+    if len(candidates) == 1:
+        return True
+    if len(candidates) != 2:
+        return False
+    levels = []
+    for pid in candidates:
+        prog = _verified_programme(pid)
+        if prog is None:
+            return False
+        levels.append(prog.get("degree_level"))
+    return sorted(levels) == ["taught_masters", "undergraduate"]
+
+
 def answer(message: str, locale: str = "en",
            history: list[dict] | None = None,
            provider: ProviderAdapter | None = None,
@@ -2257,6 +2305,53 @@ def answer(message: str, locale: str = "en",
                                 message=msg,
                                 scope_program_ids=_clean_program_ids(program_ids),
                                 track=track)
+
+    # Round 25 W1 — deterministic routing, decided once per turn
+    # from the retrieval result, before any gateway contact:
+    #
+    # (1) A turn whose template reply carries candidates in one of
+    # the two shapes _candidates_route_to_template recognises —
+    # exactly one candidate (the scope already resolved it and the
+    # template states its verified fact), or exactly two
+    # candidates, one per level (a level answer uniquely resolves
+    # the disambiguation) — is answered by the template, never by
+    # the model. The disambiguation is a clarification only the
+    # user can answer — which of the two levels they mean — not a
+    # knowledge gap the model can fill: while the gateway was up
+    # the model answered such a question directly (skipping the
+    # list), and while it was down or slow the turn fell back to
+    # the list after the full model budget, so the same ETH fee
+    # question flipped between the two behaviours run to run
+    # (re-test task 19). The template list is now the one route in
+    # every gateway state, with or without a saved profile, in
+    # every locale — and it is instant, because no model call is
+    # ever attempted for it. The narrowing is deliberate: for any
+    # other ambiguity the level question cannot resolve it — one
+    # level only (three undergraduate Computer Science
+    # programmes), or several programmes per level ("What are
+    # Oxford's tuition fees?" matches six programmes across fields
+    # and levels) — so those turns keep the model-first routing
+    # (a Round 6 pin: the model answers Oxford's fees from the
+    # verified programme evidence). Devil's advocate is excluded
+    # too: its challenge is the point of the turn, and its
+    # no-conflict path already returns the template.
+    # (2) When the gateway is already known down — the breaker is
+    # open, or a probe said "unavailable" within its 60 s TTL
+    # (model_skip_cached: the /simulate fail-fast, moved out of
+    # app.main into app.ai_status_cache in this round so this
+    # endpoint can consult it) — the model attempt is skipped and
+    # the template answers at once, instead of spending the 15 s
+    # budget proving the gateway is still down. A cold cache with
+    # a closed breaker still attempts as before: the first slow
+    # failure after the gateway dies is inherent (the /simulate
+    # residual, DECISIONS #267) — after it, the breaker keeps
+    # later turns fast for 180 s.
+    if not is_devil:
+        template_result = fallback()
+        if _candidates_route_to_template(template_result.get("candidates")):
+            return template_result
+    if model_skip_cached():
+        return fallback()
 
     # (c) No key: the template assistant is the honest answer.
     if not provider.available:

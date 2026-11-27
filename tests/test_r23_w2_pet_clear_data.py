@@ -94,8 +94,11 @@ def test_clear_nonce_effect_resets_conversation_state():
 def test_clear_nonce_effect_regreets_when_panel_is_open():
     # The [open] effect only fires on open, so a reset while the panel
     # is open must re-greet immediately — otherwise the open panel
-    # would sit empty until the next open.
-    assert "if (openRef.current) greet();" in _pet_src()
+    # would sit empty until the next open. Round 25 W3: the same
+    # branch now also re-probes the footer verdict fresh, so the greet
+    # sits inside a block with the probe rather than a one-liner.
+    effect = _pet_src().split("const clearNonceRef")[1].split("}, [dataClearNonce]);")[0]
+    assert re.search(r"if \(openRef\.current\) \{\s*greet\(\);", effect), effect
 
 
 def test_clear_nonce_effect_depends_on_the_nonce_only():

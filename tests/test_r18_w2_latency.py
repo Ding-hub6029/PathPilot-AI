@@ -402,6 +402,15 @@ def test_devil_attempts_model_again_after_breaker_expires_healthy(gateway):
     gateway.mode = "healthy-json"
     provider_mod._gateway_down_until = time.monotonic() - 1
     assert not gateway_breaker_open()
+    # Round 25 W1: the test simulates 180 s passing (breaker
+    # cooldown elapsed), so the 60 s probe cache must have expired
+    # too — a fresh "unavailable" verdict is a known-down verdict
+    # the chat path now honours (model_skip_cached, the /simulate
+    # parity), and in real time the cache always expires 120 s
+    # before the breaker does. Without ageing it here the setup is
+    # a state that cannot occur, and the turn correctly stays
+    # template-only on the fresh verdict instead of re-attempting.
+    app_main._AI_STATUS_CACHE["at"] = time.monotonic() - 181
     posts_before = gateway.posts()
     r, elapsed = _timed(_devil)
     assert r.status_code == 200, r.text

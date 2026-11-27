@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useApp, type Locale } from '../lib/store';
 import { MatchResult, Program, type FeeItem, type Profile } from '../lib/types';
 import { fetchJson, fetchJsonChat } from '../lib/api';
-import { isModelReply, scopedProgrammeDisplay, scopedProgrammeMessage, stripProgrammeMarker, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
+import { detectLevelWord, disambiguationFollowupMessage, isModelReply, looksLikeQuestion, scopedProgrammeDisplay, scopedProgrammeMessage, stripProgrammeMarker, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import {
   catalogueCountInCountry, cityDisplayName, climateLabel, countryAlternatives,
   fieldDisplayLabel, missingPrefCountries, sortRecsByPreference, trackDisplayLabel,
@@ -230,7 +230,7 @@ export function RecChat({
    * "Programme id <id>." marker here, so the backend stays scoped
    * while the bubble stays clean. A retry (`existingId`) re-sends
    * the stored `sent`, so the scoping survives a retry too. */
-  const askModel = async (text: string, existingId?: number, sentOverride?: string) => {
+  const askModel = async (text: string, existingId?: number, sentOverride?: string, programIdsOverride?: string[]) => {
     setAiBusy(true);
     setWaking(false);
     setMood('think');
@@ -263,7 +263,11 @@ export function RecChat({
         // Round 23: send `sent` — the exact message, with the
         // "Programme id" marker when a chip scoped the question —
         // never the display label.
-        body: JSON.stringify({ message: sent, locale: requestLocale, history: history.slice(-6), program_ids: shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
+        // Round 25 (W1): a caller-supplied programme scope
+        // overrides the visible batch — the level-answer follow-up
+        // below scopes to the disambiguation's candidates, not to
+        // whatever batch is on screen.
+        body: JSON.stringify({ message: sent, locale: requestLocale, history: history.slice(-6), program_ids: programIdsOverride ?? shown.map((r) => r.programId), track: profile.track ? profile.track : undefined }),
       }, { onRetry: () => setWaking(true) });
       setWaking(false);
       if (!isModelReply(r)) {
@@ -301,6 +305,28 @@ export function RecChat({
     if (!text || aiBusy) return;
     setInput('');
     setLastQuestion(text);
+    // Round 25 (W1): a typed level word answering the template's
+    // ambiguous reply — the LATEST ask turn's reply carries 2+
+    // candidates — re-asks the ORIGINAL question + the level word,
+    // scoped to the candidates: the same follow-up the pet sends
+    // (lib/chat.ts disambiguationFollowupMessage), instead of a
+    // bare level word the backend honestly answers unknown with.
+    // Only the latest ask turn counts: once its follow-up is
+    // answered (a reply with no candidates) the disambiguation is
+    // over, and a later level word is just text again. And only a
+    // bare level word qualifies — looksLikeQuestion excludes a new
+    // question that merely mentions a level ("What is the
+    // undergraduate fee for Oxford?"). The backend now answers
+    // ambiguous turns from the template even when the model is up,
+    // so this path is reachable whenever the model is up too, not
+    // only while it is down.
+    const lastAsk = [...aiTurns].reverse().find((x) => x.reply);
+    const pendingAsk = lastAsk && (lastAsk.reply?.candidates?.length ?? 0) >= 2 ? lastAsk : null;
+    const levelWord = pendingAsk ? detectLevelWord(text) : null;
+    if (pendingAsk && levelWord && !looksLikeQuestion(text)) {
+      await askModel(text, undefined, disambiguationFollowupMessage(pendingAsk.sent ?? pendingAsk.question, levelWord, locale), pendingAsk.reply?.candidates ?? []);
+      return;
+    }
     const lower = text.toLowerCase();
     // Country? Match the localised name, the English name, or the code
     // of any country present in the verified recommendations.

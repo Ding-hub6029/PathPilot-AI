@@ -669,6 +669,14 @@ export function CompassPet() {
     try {
       if (sessionStorage.getItem('pp-pet-dismissed') === '1') return;
     } catch { /* ignore */ }
+    // Round 25 W3: reset the footer verdict BEFORE the panel paints
+    // — this path calls setOpen directly (never toggle(true)), so it
+    // bypassed the Round 21 W1 pre-paint reset and the open effect's
+    // reset runs only after the first paint, leaving one frame with
+    // the previous open's "AI 回答". Same reset as toggle(true).
+    setAiLive(null);
+    setOffline(false);
+    setWaking(false);
     setOpen(true);
     try { sessionStorage.setItem('pp-pet-open', '1'); } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -694,7 +702,17 @@ export function CompassPet() {
    * off too: it can only be switched on while saved preferences
    * exist, and there are none left to challenge. The ref seeds at
    * mount: a clear from BEFORE this mount is already reflected in
-   * the mounted state, so only a bump since mount resets. */
+   * the mounted state, so only a bump since mount resets.
+   * Round 25 W3 — the footer verdict goes too (re-test task 19):
+   * aiLive / offline is evidence about the model from BEFORE the
+   * clear, and the open effect never re-runs on a clear (open does
+   * not change), so without this the panel re-greeted against the
+   * empty profile while the footer kept claiming "AI 回答" from a
+   * pre-clear `true` until the first post-clear turn overwrote it.
+   * A clear is a fresh session for the footer, exactly like an
+   * open: reset to unknown (neutral checking line) and re-probe
+   * fresh while the panel is open; when closed the reset alone is
+   * enough — the next open re-probes anyway. */
   const clearNonceRef = useRef(dataClearNonce);
   useEffect(() => {
     if (dataClearNonce === clearNonceRef.current) return;
@@ -703,7 +721,13 @@ export function CompassPet() {
     setAnswers({});
     setStep(0);
     setDevilMode(false);
-    if (openRef.current) greet();
+    setAiLive(null);
+    setOffline(false);
+    setWaking(false);
+    if (openRef.current) {
+      greet();
+      probeAiStatus({ minChecking: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataClearNonce]);
 

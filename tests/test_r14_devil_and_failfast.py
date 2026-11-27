@@ -483,8 +483,11 @@ def test_pet_restores_on_results_with_prefs_unless_dismissed():
     effect = src.split("pathname !== '/results'")[1].split("}, [pathname")[0]
     assert "canDevil" in effect
     assert "setOpen(true)" in effect
-    # It never steals input focus on a page load (no toggle(true)).
-    assert "toggle(true)" not in effect
+    # It never steals input focus on a page load (no toggle(true) CALL).
+    # Round 25 W3: the effect's comment now mentions toggle(true) by
+    # name, so strip line comments before checking for the call.
+    code = re.sub(r"//.*", "", effect)
+    assert "toggle(true)" not in code
     # An explicit close records the dismiss; opening clears it.
     toggle_fn = src.split("const toggle = ")[1].split("const closeForNavigation")[0]
     assert "sessionStorage.setItem('pp-pet-dismissed', '1')" in toggle_fn

@@ -22,7 +22,6 @@ from __future__ import annotations
 import asyncio
 import base64
 import copy
-import threading
 import time
 import uuid
 from decimal import Decimal
@@ -98,56 +97,19 @@ def reset_rate_limits() -> None:
 
 
 # --- /ai/status live-probe cache (Round 14) --------------------------------
-# The probe exercises the gateway (see ai_status below), so its result
-# is cached for 60 s: at most one tiny probe per minute per backend
-# process, shared by every user. reset_ai_status_cache() exists so
-# tests can isolate probes; it is not an endpoint.
-_AI_STATUS_TTL_S = 60.0
-_AI_STATUS_CACHE: dict = {"at": 0.0, "payload": None}
-_ai_status_lock = threading.Lock()
-
-
-def reset_ai_status_cache() -> None:
-    """Clear the cached /ai/status probe result (test isolation only)."""
-    with _ai_status_lock:
-        _AI_STATUS_CACHE["at"] = 0.0
-        _AI_STATUS_CACHE["payload"] = None
-
-
-def _model_skip_cached() -> bool:
-    """True when a model attempt would be wasted (Round 16 W3).
-
-    The circuit breaker (ai.provider) only opens after a slow model
-    failure, and the frontend's /ai/status read only gates the
-    explain flag it sends — neither helps when the frontend's verdict
-    is stale but the backend already knows: a probe that said
-    "unavailable" within its 60 s TTL, or a breaker tripped by
-    another endpoint's slow failure. In that case the simulate
-    handler skips the model attempt and the template renders in
-    engine time instead of spending the 15 s model budget proving
-    the gateway is still down (re-test task 10: 18 s to a template
-    while the probe said "available" — the probe then only checked
-    GET /models; it now confirms on the chat path, and this check
-    makes the handler honour its verdict).
-
-    Non-blocking: if a probe is in flight right now the lock is
-    held and this returns False (attempt as before) instead of
-    waiting on the probe. No cached verdict (cold cache) also means
-    attempt as before — the probe refreshes on /ai/status reads.
-    """
-    if gateway_breaker_open():
-        return True
-    if not _ai_status_lock.acquire(blocking=False):
-        return False
-    try:
-        payload = _AI_STATUS_CACHE["payload"]
-        if payload is None:
-            return False
-        if time.monotonic() - _AI_STATUS_CACHE["at"] >= _AI_STATUS_TTL_S:
-            return False
-        return payload.get("ai_status") == "unavailable"
-    finally:
-        _ai_status_lock.release()
+# The cache + the known-down verdict live in app.ai_status_cache
+# (Round 25 W1): app.router_chat cannot import app.main (main mounts
+# the router — a circular import), so POST /assistant/chat could
+# never consult the verdict and every turn paid the full model
+# budget proving the gateway was still down. main.py re-exports
+# the names, so app.main._AI_STATUS_CACHE /
+# reset_ai_status_cache keep working (the endpoint below writes the
+# same dict object, and the existing tests keep mutating it).
+from app.ai_status_cache import (_AI_STATUS_CACHE, _AI_STATUS_TTL_S,
+                                 _ai_status_lock, model_skip_cached,
+                                 reset_ai_status_cache)
+# Back-compat: the private name this function used to carry here.
+_model_skip_cached = model_skip_cached
 
 
 def _client_ip(request: Request) -> str:
@@ -1287,12 +1249,12 @@ async def simulate(request: Request):
         if body.get("explain") is True:
             # Round 16 W3: when the gateway is already known down
             # (breaker open, or a fresh probe said "unavailable" —
-            # see _model_skip_cached) the model attempt is skipped
-            # BEFORE the AI-bucket check: a template-only call makes
-            # no model call, so it must not consume the 10/min AI
-            # budget, and the numbers still render instead of a 429
-            # while the model is down.
-            if _model_skip_cached():
+            # see model_skip_cached, app.ai_status_cache) the model
+            # attempt is skipped BEFORE the AI-bucket check: a
+            # template-only call makes no model call, so it must not
+            # consume the 10/min AI budget, and the numbers still
+            # render instead of a 429 while the model is down.
+            if model_skip_cached():
                 provider = None
             else:
                 # Same per-user key as the middleware (Round 13): the
