@@ -1395,7 +1395,7 @@ _DEVIL_LEVELS = ("undergraduate", "taught_masters")
 _DEVIL_T: dict[str, dict[str, str]] = {
     "en": {
         "prefix": "Another angle: ",
-        "climate": "{prefix}you want a {wanted} climate, but in {country} the verified data lists {cities} — no {wanted}-class city there.",
+        "climate": "{prefix}you want a {wanted} climate, but in {country} the verified data lists {cities} — no {wanted}-class city there. Climate is only a preference — it never decides eligibility, it only orders results.",
         "no_programmes": "{prefix}the verified catalogue lists no {level} programme in {country} yet, so that combination has no verified route.",
         "budget": "{prefix}the cheapest verified {level} programme in {country} costs {fee} — above your {currency} {amount} {period} budget.",
         "no_conflict": "I checked your preferences against the verified data and found no clash — nothing here contradicts itself.",
@@ -1404,7 +1404,7 @@ _DEVIL_T: dict[str, dict[str, str]] = {
     },
     "zh-CN": {
         "prefix": "换个角度看：",
-        "climate": "{prefix}你想要{wanted}气候，但已核实的数据里，{country}列出的城市是{cities}，其中没有{wanted}气候的城市。",
+        "climate": "{prefix}你想要{wanted}气候，但已核实的数据里，{country}列出的城市是{cities}，其中没有{wanted}气候的城市。气候只是偏好，不影响资格，只影响排序。",
         "no_programmes": "{prefix}已核实的目录里，{country}还没有{level}专业，这个组合没有已核实的路线。",
         "budget": "{prefix}{country}最便宜的已核实{level}专业学费是{fee}，高于你{currency} {amount}{period}的预算。",
         "no_conflict": "我按已核实的数据核对了你的偏好，没有发现冲突。",
@@ -1413,7 +1413,7 @@ _DEVIL_T: dict[str, dict[str, str]] = {
     },
     "es": {
         "prefix": "Otra mirada: ",
-        "climate": "{prefix}quieres un clima {wanted}, pero en {country} los datos verificados listan {cities} — ninguna ciudad de clase {wanted}.",
+        "climate": "{prefix}quieres un clima {wanted}, pero en {country} los datos verificados listan {cities} — ninguna ciudad de clase {wanted}. El clima es solo una preferencia: nunca decide la elegibilidad, solo ordena los resultados.",
         "no_programmes": "{prefix}el catálogo verificado aún no lista ningún programa de {level} en {country}; esa combinación no tiene ruta verificada.",
         "budget": "{prefix}el programa verificado de {level} más barato en {country} cuesta {fee}, por encima de tu presupuesto de {currency} {amount} {period}.",
         "no_conflict": "Revisé tus preferencias con los datos verificados y no encontré contradicciones.",
@@ -1422,7 +1422,7 @@ _DEVIL_T: dict[str, dict[str, str]] = {
     },
     "fr": {
         "prefix": "Autre angle : ",
-        "climate": "{prefix}vous voulez un climat {wanted}, mais en {country} les données vérifiées listent {cities} — aucune ville de classe {wanted}.",
+        "climate": "{prefix}vous voulez un climat {wanted}, mais en {country} les données vérifiées listent {cities} — aucune ville de classe {wanted}. Le climat n'est qu'une préférence : il ne décide jamais de l'éligibilité, il ne fait qu'ordonner les résultats.",
         "no_programmes": "{prefix}le catalogue vérifié ne liste encore aucun programme de {level} en {country} ; cette combinaison n'a pas de route vérifiée.",
         "budget": "{prefix}le programme vérifié de {level} le moins cher en {country} coûte {fee}, au-dessus de votre budget de {currency} {amount} {period}.",
         "no_conflict": "J'ai vérifié vos préférences avec les données vérifiées : aucune contradiction.",
@@ -1431,7 +1431,7 @@ _DEVIL_T: dict[str, dict[str, str]] = {
     },
     "pt-BR": {
         "prefix": "Outro ângulo: ",
-        "climate": "{prefix}você quer um clima {wanted}, mas em {country} os dados verificados listam {cities} — nenhuma cidade de classe {wanted}.",
+        "climate": "{prefix}você quer um clima {wanted}, mas em {country} os dados verificados listam {cities} — nenhuma cidade de classe {wanted}. O clima é só uma preferência: nunca decide a elegibilidade, só ordena os resultados.",
         "no_programmes": "{prefix}o catálogo verificado ainda não lista nenhum programa de {level} em {country}; essa combinação não tem rota verificada.",
         "budget": "{prefix}o programa verificado de {level} mais barato em {country} custa {fee}, acima do seu orçamento de {currency} {amount} {period}.",
         "no_conflict": "Conferi suas preferências com os dados verificados e não encontrei contradições.",
@@ -1440,7 +1440,7 @@ _DEVIL_T: dict[str, dict[str, str]] = {
     },
     "ar": {
         "prefix": "من زاوية أخرى: ",
-        "climate": "{prefix}تريد مناخًا {wanted}، لكن البيانات الموثّقة في {country} تدرج {cities} — ولا مدينة من فئة {wanted}.",
+        "climate": "{prefix}تريد مناخًا {wanted}، لكن البيانات الموثّقة في {country} تدرج {cities} — ولا مدينة من فئة {wanted}. المناخ مجرد تفضيل — لا يقرر الأهلية أبدًا، بل يرتّب النتائج فقط.",
         "no_programmes": "{prefix}لا يدرج الكتالوج الموثّق أي برنامج {level} في {country} بعد؛ هذا المزيج بلا مسار موثّق.",
         "budget": "{prefix}أرخص برنامج {level} موثّق في {country} تكلفته {fee} — أعلى من ميزانيتك البالغة {currency} {amount} {period}.",
         "no_conflict": "راجعت تفضيلاتك مع البيانات الموثّقة ولم أجد أي تعارض.",

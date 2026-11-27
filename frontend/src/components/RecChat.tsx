@@ -364,7 +364,12 @@ export function RecChat({
             <div key={`missing-${code}`} className="flex justify-start">
               <div className="max-w-[90%] rounded-2xl bg-amber/15 px-4 py-3 shadow-sm ring-1 ring-amber/40 anim-fade-up">
                 <p className="font-bold">{tf('results.noCountryTitle', { country: t(`country.${code}`) })}</p>
-                <p className="mt-1 text-sm text-navy/75">{tf('results.noCountryNote', { country: t(`country.${code}`), level, field })}</p>
+                {/* Round 18: the note needs {total} in all 6 locales —
+                    the old call never passed it, so the raw "{total}"
+                    reached the user. Total = the evaluated list for
+                    this field/track, the same number the sentence
+                    counts ("已为你评估的 {total} 个课程中"). */}
+                <p className="mt-1 text-sm text-navy/75">{tf('results.noCountryNote', { country: t(`country.${code}`), level, field, total: (recs ?? []).length })}</p>
                 {catalogueCount > 0 ? (
                   <>
                     <p className="mt-2 text-sm">{tf('results.noCountryCatalogue', { count: catalogueCount, country: t(`country.${code}`), level })}</p>
@@ -382,7 +387,12 @@ export function RecChat({
                     </ul>
                   </>
                 ) : (
-                  <p className="mt-2 text-sm text-navy/75">{t('results.noCountryNone')}</p>
+                  /* Round 18: noCountryNone needs {country} in all 6
+                     locales — the old t() call never interpolated, so
+                     the raw "{country}" reached the user whenever the
+                     verified catalogue held no programme in that
+                     country at all. */
+                  <p className="mt-2 text-sm text-navy/75">{tf('results.noCountryNone', { country: t(`country.${code}`) })}</p>
                 )}
               </div>
             </div>

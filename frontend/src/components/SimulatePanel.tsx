@@ -9,6 +9,7 @@ import {
   toggleSimulateSelection,
   type MultiSimulateResponse,
 } from '../lib/simulate';
+import { MODEL_AVAILABILITY_WARM_MS, warmModelAvailability } from '../lib/api';
 import { isRateLimitedError } from '../lib/plans';
 
 /**
@@ -69,6 +70,32 @@ export function SimulatePanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [rateLimited, setRateLimited] = useState(false);
+
+  // Round 18 W2 — keep the model-availability verdict warm while the
+  // results page is open, so the "开始推演" click never pays a fresh
+  // probe: simulateMulti gates explain on modelAvailability(), whose
+  // frontend cache (60 s) and the backend's probe cache (60 s) both
+  // expired between the parent's 10:18 check and the tester's 10:23
+  // click in the 2026-11-27 re-test, and the click then spent ~7 s
+  // on a fresh probe (flapping gateway) before the ~2.5 s engine
+  // run. Warming on mount, every 45 s and on window focus keeps both
+  // caches fresh and re-trips the backend breaker while the gateway
+  // stays down, so the click path is engine time only. Background
+  // only: at most one tiny /ai/status read per minute, and the
+  // verdict is shared with the pet's devil path (same backend
+  // breaker), so a warm here also keeps devil replies fast. The
+  // interval stops on unmount; a backgrounded tab's throttled
+  // timers are covered by the focus warm on return.
+  useEffect(() => {
+    warmModelAvailability();
+    const timer = setInterval(warmModelAvailability, MODEL_AVAILABILITY_WARM_MS);
+    const onFocus = () => warmModelAvailability();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, []);
 
   // Candidates the profile cannot offer (e.g. no IELTS on file): shown
   // disabled with a reason, never silently hidden — the user sees what

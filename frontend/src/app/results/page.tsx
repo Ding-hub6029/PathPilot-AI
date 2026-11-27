@@ -295,7 +295,11 @@ export default function ResultsPage() {
         return (
           <section key={`missing-${code}`} className="mt-4 rounded-2xl border border-amber/40 bg-amber/10 p-5" aria-labelledby={`missing-${code}-title`}>
             <h2 id={`missing-${code}-title`} className="text-lg font-bold">{tf('results.noCountryTitle', { country: t(`country.${code}`) })}</h2>
-            <p className="mt-1 text-sm text-navy/80">{tf('results.noCountryNote', { country: t(`country.${code}`), level, field })}</p>
+            {/* Round 18: the note needs {total} in all 6 locales —
+                the old call never passed it, so the raw "{total}"
+                reached the user. Total = the evaluated results on
+                this page. */}
+            <p className="mt-1 text-sm text-navy/80">{tf('results.noCountryNote', { country: t(`country.${code}`), level, field, total: data.results.length })}</p>
             {catalogueCount > 0 ? (
               <>
                 <p className="mt-2 text-sm">{tf('results.noCountryCatalogue', { count: catalogueCount, country: t(`country.${code}`), level })}</p>
@@ -313,7 +317,11 @@ export default function ResultsPage() {
                 </ul>
               </>
             ) : (
-              <p className="mt-2 text-sm text-navy/80">{t('results.noCountryNone')}</p>
+              /* Round 18: noCountryNone needs {country} in all 6
+                 locales — the old t() call never interpolated, so the
+                 raw "{country}" reached the user. Same fix as the
+                 RecChat copy of this notice. */
+              <p className="mt-2 text-sm text-navy/80">{tf('results.noCountryNone', { country: t(`country.${code}`) })}</p>
             )}
           </section>
         );

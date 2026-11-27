@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
 import type { Profile } from '../lib/types';
-import { fetchJson, fetchJsonChat, fetchJsonPatient, allPrograms, findProgram } from '../lib/api';
+import { fetchJson, fetchJsonChat, fetchJsonPatient, modelAvailability, allPrograms, findProgram } from '../lib/api';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, isModelReply, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
@@ -906,6 +906,11 @@ export function CompassPet() {
         + distinct style, never as a verdict. Only set when a devil
         reply is actually shown in the current locale. */
     devil?: boolean;
+    /** Round 18 (W3): the devil reply is an offline template answer
+        (turn.offline) — the boundary must then be the offline one
+        (devil.offlineBoundary), never the live "AI-generated" line,
+        or the same bubble claims both AI generation and offline mode. */
+    devilOffline?: boolean;
   } => {
     // Round 8: an offline turn whose call timed out after the patient
     // budget says so plainly, instead of a bare "offline".
@@ -917,7 +922,11 @@ export function CompassPet() {
         // The saved wizard preferences, in the user's own words —
         // rendered at render time from the current profile, so a
         // locale switch never leaves a stale-language bubble.
-        return { lines: [tf('pet.greetingKnown', { prefs: prefSummary(profile, t) })] };
+        // Round 18 (W3): on /results the full summary is already
+        // visible on the page itself, so the greeting acknowledges
+        // the saved preferences without restating the whole list
+        // (pet.greetingKnownShort has no {prefs}).
+        return { lines: [pathname === '/results' ? t('pet.greetingKnownShort') : tf('pet.greetingKnown', { prefs: prefSummary(profile, t) })] };
       case 'choice':
         return { lines: [choiceLabel(turn)] };
       case 'freeText':
@@ -993,6 +1002,9 @@ export function CompassPet() {
             evidenceUrl: turn.reply.evidence_url,
             nextSteps: { wizard: '/wizard', program: links.program, institution: links.institution },
             devil: turn.devil,
+            // Round 18 (W3): an offline devil turn wears the offline
+            // boundary, never the live "AI-generated" one.
+            devilOffline: turn.devil && turn.offline,
           };
         }
         if (turn.reply) return { lines: [t('pet.thinking')] };
@@ -1065,6 +1077,17 @@ export function CompassPet() {
         offlineFee: off?.fee ?? null, offlineFit: off?.fit ?? null,
       });
     };
+    // Round 18 W2: when the model is KNOWN down, go offline at once
+    // instead of burning the 15 s model budget: the offline catalogue
+    // is exactly what a template reply produces here, and skipping
+    // the call also unblocks the input ~15 s sooner. 'available' /
+    // 'unknown' proceed as before. The verdict is usually cached
+    // (SimulatePanel warms it every 45 s), so this is ~ms.
+    if ((await modelAvailability()) === 'unavailable') {
+      setTimedOut(false);
+      goOffline();
+      return;
+    }
     try {
       const r = await fetchJsonChat<ChatReply>('/api/assistant/chat', {
         method: 'POST',
@@ -1274,8 +1297,13 @@ export function CompassPet() {
           </div>
           {/* Saved preferences, in the user's own words: the pet remembers
               what the wizard learned, but never invents a programme fact
-              from them — suggestions still use only verified data. */}
-          {hasPreferences(profile) && (
+              from them — suggestions still use only verified data.
+              Round 18 (W3): hidden on /results, where the results page
+              itself already shows the full summary (its own edit link,
+              results.prefEdit, is on that page) — otherwise the summary
+              appears three times on the page: results page + this strip
+              + the pet.greetingKnown opening bubble. */}
+          {hasPreferences(profile) && pathname !== '/results' && (
             <div className="flex items-center justify-between gap-2 bg-amber/15 px-3 py-2 text-xs text-navy">
               <p className="min-w-0 truncate">{tf('pet.prefSaved', { prefs: prefSummary(profile, t) })}</p>
               <Link href="/wizard" onClick={closeForNavigation} className="btn-press shrink-0 rounded-full bg-white px-2.5 py-1 font-semibold text-navy ring-1 ring-navy/10">{t('results.prefEdit')}</Link>
@@ -1290,7 +1318,7 @@ export function CompassPet() {
                   <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${isUser ? 'bg-teal text-white' : rendered.devil ? 'bg-amber/10 text-navy shadow-sm ring-2 ring-amber' : 'bg-white text-navy shadow-sm ring-1 ring-navy/5'}`}>
                     {rendered.devil && (
                       <>
-                        <p className="text-[11px] font-bold leading-tight text-navy/70">{t('devil.boundary')}</p>
+                        <p className="text-[11px] font-bold leading-tight text-navy/70">{t(rendered.devilOffline ? 'devil.offlineBoundary' : 'devil.boundary')}</p>
                         <div className="my-1.5 border-t border-amber" aria-hidden="true" />
                       </>
                     )}

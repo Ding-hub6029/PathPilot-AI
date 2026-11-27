@@ -380,6 +380,8 @@ def ai_status():
     # to probe). A failed probe also trips the provider circuit
     # breaker, so the model paths behind it fail fast to their
     # templates instead of each spending 15 s on a doomed attempt.
+    # Round 18 W2: while that breaker is open a stale cache answers
+    # "unavailable" at once instead of re-probing — see below.
     # (This is a plain comment, not the docstring: the docstring is
     # the OpenAPI description, and docs/openapi.json must match it.)
     adapter = ProviderAdapter()
@@ -395,6 +397,28 @@ def ai_status():
         cached = _AI_STATUS_CACHE["payload"]
         if cached is not None and time.monotonic() - _AI_STATUS_CACHE["at"] < _AI_STATUS_TTL_S:
             return dict(cached)
+        # Round 18 W2 — answer from the breaker instead of re-probing:
+        # when the circuit breaker is open, a slow model failure
+        # happened within the last 180 s, so the gateway is already
+        # known down and a fresh probe would only re-prove it at up
+        # to ~10 s (GET /models 3 s + the 1-token chat confirmation
+        # 7 s on a hanging gateway). That cost used to land on the
+        # foreground click path — simulate's modelAvailability gate
+        # and the pet's status check — whenever the 60 s probe cache
+        # had expired, even though the breaker already knew the
+        # answer (measured 7.14 s for a stale-cache status read with
+        # the breaker open, vs ~0 s for the cached read). The breaker
+        # (180 s) outlives the probe cache (60 s), so this only fires
+        # while the failure is recent; once the breaker expires the
+        # next read probes again (bypassing the breaker) and clears
+        # it on success, so a real recovery is still detected — the
+        # template-only lag after recovery is at most one cooldown.
+        # A stale cached "available" never short-circuits: the
+        # breaker is fresher evidence than the old probe.
+        if gateway_breaker_open():
+            if cached is not None and cached.get("ai_status") == "unavailable":
+                return dict(cached)
+            return {**base, "ai_status": "unavailable", "probed": False}
         live = adapter.probe_live()
         payload = {**base,
                    "ai_status": "available" if live else "unavailable",

@@ -1518,6 +1518,30 @@ export function resetModelAvailabilityCache(): void {
   _aiStatusInFlight = null;
 }
 
+/** How often the results page re-reads the verdict while it is open
+ * (Round 18 W2). 45 s is inside the 60 s frontend cache TTL, so a
+ * warm is a no-op when the verdict is fresh and a single shared
+ * /ai/status read otherwise — the backend probe cache (60 s) and the
+ * frontend cache (60 s) both stay fresh, and a failed probe
+ * re-trips the backend circuit breaker (180 s) while the gateway
+ * stays down. The 2026-11-27 10:19–10:24 re-test showed why this
+ * matters: both 60 s caches had expired between the parent's 10:18
+ * check and the 10:23 simulate click, so the click paid a fresh
+ * ~7 s probe before the engine even started. Warming is background
+ * only — at most one tiny status read per minute, and a failed probe
+ * costs server thread time, never user-visible latency. */
+export const MODEL_AVAILABILITY_WARM_MS = 45_000;
+
+/** Warm the shared model-availability verdict (Round 18 W2): read
+ * /ai/status through modelAvailability() and drop the result. The
+ * call dedupes concurrent callers and honours the 60 s cache, so it
+ * is cheap when the verdict is fresh; it never rejects. Call on
+ * mount, on an interval, and on window focus — never on the click
+ * path itself, where the verdict must already be warm. */
+export function warmModelAvailability(): void {
+  void modelAvailability().catch(() => undefined);
+}
+
 /** Options for matchProfile: onRetry fires before each patient retry,
  * so the caller can show a "waking the backend" state instead of an
  * offline claim while the free Render instance wakes. */

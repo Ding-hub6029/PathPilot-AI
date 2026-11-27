@@ -41,6 +41,17 @@ interface AppState {
    * banner/modal state (e.g. WelcomeBanner) can close themselves at
    * once instead of waiting for a manual close. */
   bannerClearNonce: number;
+  /** Bumps every time clearData runs (same pattern as
+   * bannerClearNonce): components holding wizard/chat position in
+   * local state — the wizard step, which useState only initialises
+   * at mount — reset themselves at once instead of sitting on a
+   * stale step for a profile that no longer exists (round 18). */
+  dataClearNonce: number;
+  /** True once the saved locale/profile have been read from
+   * localStorage (round 18): child effects run before the
+   * provider's hydration effect, so a page that matches on mount
+   * must wait for this instead of reading the empty profile. */
+  hydrated: boolean;
 }
 
 const Ctx = createContext<AppState | null>(null);
@@ -50,6 +61,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfileState] = useState<Profile>(emptyProfile);
   const [hydrated, setHydrated] = useState(false);
   const [bannerClearNonce, setBannerClearNonce] = useState(0);
+  const [dataClearNonce, setDataClearNonce] = useState(0);
 
   useEffect(() => {
     try {
@@ -83,7 +95,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // "欢迎回来！你的资格检查已完成" until manually closed. Bump the
     // nonce so it closes itself at once.
     setBannerClearNonce((n) => n + 1);
-    try { localStorage.removeItem('pp-profile'); localStorage.removeItem('pp-check-done'); } catch { /* ignore */ }
+    // Round 18, P0/P1: clearing only the form values left the wizard
+    // sitting on its (stale) step — "开始资格检查" landed straight on
+    // the step-8 empty state. The stored step and the pref-chat
+    // position go too, and dataClearNonce tells the mounted wizard
+    // to reset its live step state at once (useState only
+    // initialises at mount, so removing the key alone is not enough
+    // while the page stays mounted).
+    setDataClearNonce((n) => n + 1);
+    try { localStorage.removeItem('pp-profile'); localStorage.removeItem('pp-check-done'); localStorage.removeItem('pp-wizard-step'); localStorage.removeItem('pp-prefchat'); } catch { /* ignore */ }
   };
   const t = (key: string) => MESSAGES[locale][key] ?? MESSAGES.en[key] ?? key;
   const tf = (key: string, vars?: Record<string, string | number>) => {
@@ -94,9 +114,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return s;
   };
 
-  const value = useMemo(() => ({ locale, setLocale, t, tf, profile, setProfile, updateProfile, clearData, bannerClearNonce }),
+  const value = useMemo(() => ({ locale, setLocale, t, tf, profile, setProfile, updateProfile, clearData, bannerClearNonce, dataClearNonce, hydrated }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [locale, profile, bannerClearNonce]);
+    [locale, profile, bannerClearNonce, dataClearNonce, hydrated]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

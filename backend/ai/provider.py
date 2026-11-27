@@ -53,7 +53,21 @@ SUPPORTED_PROVIDERS = ("openai", "deepseek", "gemini")
 # probe is what re-tests liveness) and clears it on success. The
 # state is module-level, not per-adapter: adapters are constructed
 # fresh per request, but the gateway is one shared service.
-GATEWAY_BREAKER_COOLDOWN_S = 60.0
+#
+# Round 18 W2: the cooldown (180 s) deliberately OUTLIVES the 60 s
+# /ai/status probe cache (app.main _AI_STATUS_TTL_S). With equal
+# 60 s lifetimes both expired together, so the first user action
+# after a minute of quiet paid the full 15 s model budget again —
+# the 2026-11-27 10:19–10:24 re-test (parent's 10:18 check was fast
+# on warm caches; the 10:23 clicks were not). Now a failed probe
+# re-trips the breaker for another 180 s, and the frontend warms
+# /ai/status every 45 s while the results page is open
+# (SimulatePanel), so the breaker stays tripped for as long as the
+# gateway stays down and the next turn is instant. Recovery is
+# still detected: the probe bypasses the breaker, so the first probe
+# after the cooldown expires clears it on success — the template-only
+# lag after a real recovery is at most one cooldown.
+GATEWAY_BREAKER_COOLDOWN_S = 180.0
 _GATEWAY_BREAKER_LOCK = threading.Lock()
 _gateway_down_until = 0.0
 

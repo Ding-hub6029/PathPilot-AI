@@ -58,7 +58,7 @@ function NumField({ label, value, onChange, step = '0.1', min, max }: { label: s
 }
 
 export default function WizardPage() {
-  const { t, locale, profile, setProfile, updateProfile } = useApp();
+  const { t, locale, profile, setProfile, updateProfile, hydrated, dataClearNonce } = useApp();
   const router = useRouter();
   // Round 15, P1: the step is restored from localStorage on mount
   // (see loadWizardStep) and persisted on every change below, so
@@ -130,6 +130,26 @@ export default function WizardPage() {
   /** Round 8: the step-7 match is retrying while the backend wakes —
    * RecChat shows the waking line instead of a bare spinner. */
   const [recWaking, setRecWaking] = useState(false);
+
+  // Round 18, P0/P1: clearData removes the stored step and bumps
+  // dataClearNonce, but this page stays mounted — useState only
+  // initialises at mount — so without this the wizard sat on the
+  // step-8 empty state after "清除我的数据", and the tester had to
+  // click Back step by step to step 1. Watch the nonce and reset
+  // the live step (and the stale recommendations) at once. The ref
+  // seeds at mount: a clear from BEFORE this mount is already
+  // reflected in the mounted state (loadWizardStep read the
+  // post-clear storage), so only a bump since mount resets.
+  const clearNonceRef = useRef(dataClearNonce);
+  useEffect(() => {
+    if (dataClearNonce === clearNonceRef.current) return;
+    clearNonceRef.current = dataClearNonce;
+    setStep(0);
+    setRecs(null);
+    setRecLoading(false);
+    setRecWaking(false);
+    setError('');
+  }, [dataClearNonce]);
 
   const stepLabel = (i: number) =>
     i === 0 ? t('wizard.stepCurriculum') : i === 1 ? t('wizard.trackTitle') : i === 2 ? t('wizard.stepField') : i === 3 ? t('wizard.stepAcademic') : i === 4 ? t('wizard.stepLanguage') : i === 5 ? t('wizard.stepBudget') : i === 6 ? t('wizard.stepPreferences') : t('wizard.stepRecommend');
@@ -250,8 +270,23 @@ export default function WizardPage() {
   // probabilities anywhere — only MET / NOT_MET / UNKNOWN.
   // targetProgramIds is synced to the FULL evaluated list so the results
   // page shows every match without the user having to tick anything.
+  // Round 18, P0 — direct re-entry: on a fresh load with the stored
+  // step 7, this effect used to run BEFORE the store hydrated the
+  // saved profile from localStorage (child effects run before the
+  // provider's hydration effect — the same race Round 13 fixed on
+  // the programme page). It saw profile.track === '', so candidates
+  // was [] and it set recs to [] — and, with deps [step] only, never
+  // re-ran after hydration — so step 8 rendered the false
+  // no-Switzerland notice plus the empty state. The effect now waits
+  // for hydration and re-runs once the saved profile is in; `hydrated`
+  // flips false -> true exactly once, so the normal step 6 -> 7 path
+  // still matches exactly once and an intake-year edit on step 7 does
+  // not re-trigger the match. The cancelled flag stops a match that
+  // is still in flight when the user leaves step 7 (or clears their
+  // data) from writing stale recs / targetProgramIds afterwards.
   useEffect(() => {
-    if (step !== 7) return;
+    if (step !== 7 || !hydrated) return;
+    let cancelled = false;
     const candidates = programs.filter((p) => p.degreeLevel === profile.track && p.matchable !== false && profile.field && programMatchesField(p, profile.field));
     if (candidates.length === 0) { setRecs([]); updateProfile({ targetProgramIds: [] }); return; }
     setRecLoading(true);
@@ -260,19 +295,22 @@ export default function WizardPage() {
     const sortRecs = (rs: MatchResult[]) => sortRecsByPreference(rs, programs, profile);
     matchProfile({ ...profile, targetProgramIds: ids }, { onRetry: () => setRecWaking(true) })
       .then((res) => {
+        if (cancelled) return;
         const sorted = sortRecs(res.results);
         setRecs(sorted);
         updateProfile({ targetProgramIds: sorted.map((r) => r.programId) });
       })
       .catch(() => {
+        if (cancelled) return;
         const local = evaluateLocal(profile, ids);
         const sorted = sortRecs(local.results);
         setRecs(sorted);
         updateProfile({ targetProgramIds: sorted.map((r) => r.programId) });
       })
       .finally(() => { setRecLoading(false); setRecWaking(false); });
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  }, [step, hydrated]);
 
   const progress = ((step + 1) / STEPS.length) * 100;
 

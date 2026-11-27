@@ -262,7 +262,7 @@ def test_probe_slow_but_healthy_chat_still_available(gateway):
     """A gateway that answers the chat path in 2 s is alive: the 5 s
     confirmation budget must not turn a slow-but-healthy gateway
     into a false "unavailable" (which would template-only every
-    model path for 60 s)."""
+    model path for 180 s)."""
     gateway.mode = "slow-chat"
     r, elapsed = _status()
     assert r.status_code == 200, r.text
@@ -399,7 +399,7 @@ def test_simulate_first_call_on_flapping_gateway_burns_15s_residual(gateway):
     probe cache is cold — the first simulate on a flapping gateway
     still spends the full 15 s model budget before the template.
     No probe can guarantee the gateway state at click time; the
-    breaker then protects every later call for 60 s (asserted by
+    breaker then protects every later call for 180 s (asserted by
     the fast second call). If this bound ever grows, the 15 s cap
     itself moved."""
     gateway.mode = "flap"
