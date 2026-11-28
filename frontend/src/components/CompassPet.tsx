@@ -7,7 +7,7 @@ import type { ExpansionProgram, Profile } from '../lib/types';
 import { fetchJsonChat, modelAvailability, allPrograms, findProgram } from '../lib/api';
 import { aiVerdictLineKey, beginAiTurn, endAiTurn, getAiVerdict, noteAiTurnVerdict, probeAiVerdict, resetAiVerdict, useAiVerdict } from '../lib/aiVerdict';
 import { useElapsed } from '../lib/useElapsed';
-import { deriveChatLinks, detectLevelWord, disambiguationFollowupMessage, disambiguationLevels, isModelReply, looksLikeQuestion, pendingDisambiguation, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
+import { deriveChatLinks, detectLevelWord, disambiguationFollowupMessage, disambiguationLevels, isModelReply, looksLikeQuestion, pendingDisambiguation, petBudgetBand, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
 import { PROGRAMS, displayProgramTitle } from '../lib/programs';
 import { EXPANSION_PROGRAMS } from '../lib/expansion';
@@ -144,7 +144,12 @@ type ChatTurn =
   | { kind: 'freeText'; text: string }
   | {
       kind: 'suggest';
-      degree: Degree; country: Country; band: Band;
+      degree: Degree; country: Country;
+      /** Round 32, H2b: null when the budget is a saved amount in a
+          country with no band table (e.g. CH) — no band was chosen
+          and none is claimed. The render never reads the band (the
+          live reply's lines, or the offline programme + fee/fit). */
+      band: Band | null;
       /** Live backend payload + the locale it was answered in. */
       reply: ChatReply | null;
       replyLocale: Locale | null;
@@ -244,7 +249,7 @@ interface OfflineSuggestion {
   fit: 'within' | 'above' | null;
 }
 
-function suggestOffline(degree: Degree, country: Country, band: Band): OfflineSuggestion | null {
+function suggestOffline(degree: Degree, country: Country, band: Band | null): OfflineSuggestion | null {
   if (country === 'GB' || country === 'SG') {
     const candidates = PROGRAMS.filter((p) => p.degreeLevel === degree && p.country === country);
     if (!candidates.length) return null;
@@ -256,7 +261,11 @@ function suggestOffline(degree: Degree, country: Country, band: Band): OfflineSu
     }).filter((x) => x.item !== null);
     if (!withFee.length) return null;
     withFee.sort((a, b) => (a.item as { amount: number }).amount - (b.item as { amount: number }).amount);
-    const ceiling = BAND_CEILING[`${degree}-${country}`][band];
+    // Round 32, H2b: a null band (saved amount, no band table) means
+    // no ceiling — the same as the 'high' band. Only reachable for
+    // no-table countries, which take the branch below; the guard
+    // keeps this branch total if it ever sees one.
+    const ceiling = band === null ? null : BAND_CEILING[`${degree}-${country}`][band];
     const within = withFee.filter((x) => ceiling === null || (x.item as { amount: number }).amount <= ceiling);
     const picked = within[0] ?? withFee[0];
     const item = picked.item as { amount: number; currency: string; period: string };
@@ -449,7 +458,7 @@ function devilProfileFor(p: Profile): Record<string, unknown> | null {
 }
 
 export function CompassPet() {
-  const { t, tf, locale, profile, dataClearNonce, updateProfile, refreshChecklist } = useApp();
+  const { t, tf, locale, profile, dataClearNonce, profileReplaceNonce, updateProfile, refreshChecklist } = useApp();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -643,6 +652,14 @@ export function CompassPet() {
           answersNext.budget = knownSteps.band;
           msgs.push({ kind: 'choice', step: 2, value: knownSteps.band, degree: knownSteps.degree, country: knownSteps.country });
           stepNext = 3;
+        } else if (typeof profile.budget === 'number') {
+          // Round 32, H2b: a saved budget amount in a country with
+          // no band table (e.g. CH) — the amount is already known
+          // (the summary card shows it), so the band question must
+          // not be asked. No step-2 choice turn: no band was ever
+          // chosen, and the amount is already visible in the
+          // summary. The suggestion goes ahead with a null band.
+          stepNext = 3;
         } else {
           msgs.push({ kind: 'prompt', key: 'pet.q3' });
           stepNext = 2;
@@ -657,7 +674,7 @@ export function CompassPet() {
     setMessages(msgs);
     setStep(stepNext);
     setAnswers(answersNext);
-    if (stepNext === 3 && knownSteps.degree && knownSteps.country && knownSteps.band) {
+    if (stepNext === 3 && knownSteps.degree && knownSteps.country) {
       void askSuggest(knownSteps.degree, knownSteps.country, knownSteps.band);
     }
   };
@@ -771,6 +788,40 @@ export function CompassPet() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataClearNonce]);
 
+  /** Round 32, H3 — the same reset on a wholesale profile replace
+   * (re-test 28): loading a sample went through setProfile, which
+   * never bumped dataClearNonce, so the pet kept the old
+   * conversation ("Undergraduate", "Switzerland" choice bubbles)
+   * while the profile card showed the sample's (missing)
+   * preferences. setProfile now bumps profileReplaceNonce
+   * (lib/store.tsx) and this effect — same reset body as the
+   * clear-data effect above, same ref-seeded-at-mount shape —
+   * resets the conversation and re-greets against the NEW profile.
+   * A SEPARATE effect (not a second dep on the clear effect) on
+   * purpose, twice over: (1) the wizard's dataClearNonce effect
+   * resets its step to 0, which would fight the wizard sample
+   * load's own setStep(7) if the replace bumped that nonce; (2)
+   * the Round 23 W2 / Round 25 W3 / Round 30 F3 pins slice the
+   * clear effect by its `}, [dataClearNonce]);` close, which this
+   * leaves byte-identical. Patch edits (updateProfile) bump
+   * neither nonce, so an edit mid-chat keeps the conversation. */
+  const replaceNonceRef = useRef(profileReplaceNonce);
+  useEffect(() => {
+    if (profileReplaceNonce === replaceNonceRef.current) return;
+    replaceNonceRef.current = profileReplaceNonce;
+    setMessages([]);
+    setAnswers({});
+    setStep(0);
+    setDevilMode(false);
+    resetAiVerdict();
+    setWaking(false);
+    if (openRef.current) {
+      greet();
+      runProbe({ minChecking: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileReplaceNonce]);
+
   /** Round 29, E5 — the probe itself now lives in the shared store
    * (lib/aiVerdict.ts: one FRESH ?fresh=1 read, applied only
    * through freshAiVerdict, with the Round 22 turn-guard, the
@@ -876,9 +927,13 @@ export function CompassPet() {
    * the backend answers in the requested locale. GB/SG bands carry
    * their ceiling (per year, except SG taught masters which is a
    * total); other countries have no band table, so no ceiling is
-   * stated and the backend picks the cheapest verified programme. */
-  const suggestMessageFor = (degree: Degree, country: Country, band: Band): string => {
-    const ceilingEntry = BAND_CEILING[`${degree}-${country}`]?.[band];
+   * stated and the backend picks the cheapest verified programme.
+   * Round 32, H2b: a null band means a saved amount in such a
+   * country — the message states the amount (with the wizard's
+   * period) instead of a band, so no band is ever claimed.
+   */
+  const suggestMessageFor = (degree: Degree, country: Country, band: Band | null): string => {
+    const ceilingEntry = band === null ? undefined : BAND_CEILING[`${degree}-${country}`]?.[band];
     const currency = country === 'GB' ? 'GBP' : country === 'SG' ? 'SGD' : null;
     const ceiling = ceilingEntry != null && currency
       ? {
@@ -888,7 +943,10 @@ export function CompassPet() {
         }
       : null;
     const countryNameEn = (enMessages as Record<string, string>)[`country.${country}`] ?? country;
-    return suggestMessage(degree, country, countryNameEn, band, ceiling);
+    const savedBudget = band === null && typeof profile.budget === 'number'
+      ? { amount: profile.budget, currency: profile.budgetCurrency || 'GBP' }
+      : null;
+    return suggestMessage(degree, country, countryNameEn, band, ceiling, savedBudget);
   };
 
   /** Country code a free-text question asks about, from the country
@@ -1317,7 +1375,12 @@ export function CompassPet() {
    * as the model's evidence. A template-only reply (ai_status not
    * "available") is NOT stored as an answer — the turn falls back to
    * the labelled offline catalogue instead. */
-  const askSuggest = async (degree: Degree, country: Country, band: Band) => {
+  // Round 32, H2b: band is null when the budget is a saved amount in
+  // a country with no band table (e.g. CH) — no band was chosen and
+  // none is claimed; the model message states the saved amount
+  // instead (see suggestMessageFor), and the offline catalogue
+  // ignores the band for such countries.
+  const askSuggest = async (degree: Degree, country: Country, band: Band | null) => {
     if (!hasVerifiedProgrammes(country)) {
       // Defensive: the Q2 branch already answers this without calling
       // the backend, so this is unreachable in the normal flow.
@@ -1431,6 +1494,40 @@ export function CompassPet() {
       const degree = value as Degree;
       setAnswers((a) => ({ ...a, degree }));
       push({ kind: 'choice', step: 0, value });
+      // Round 32, H2: the saved profile may already hold the
+      // country (exactly one saved) and the budget band for this
+      // degree — skip the questions that are already answered
+      // instead of asking them again. Same skip as greet()'s
+      // petKnownSteps path, re-checked now that the degree is
+      // known: greet() could not derive the band while the degree
+      // was still open, and this branch used to push pet.q2
+      // unconditionally.
+      const savedCountries = profile.prefCountries ?? [];
+      const savedCountry = savedCountries.length === 1 ? savedCountries[0] : null;
+      const savedBand = petBudgetBand(degree, savedCountry, profile.budget, BAND_CEILING);
+      if (savedCountry) {
+        setAnswers((a) => ({ ...a, country: savedCountry }));
+        push({ kind: 'choice', step: 1, value: savedCountry });
+        if (savedBand) {
+          setAnswers((a) => ({ ...a, budget: savedBand }));
+          push({ kind: 'choice', step: 2, value: savedBand, degree, country: savedCountry });
+          setStep(3);
+          void askSuggest(degree, savedCountry, savedBand);
+          return;
+        }
+        if (typeof profile.budget === 'number') {
+          // Round 32, H2b: saved amount, no band table (e.g. CH) —
+          // same skip as greet(): the amount is known, so no
+          // budget question. The suggestion goes ahead with a null
+          // band; no step-2 choice turn, no band ever chosen.
+          setStep(3);
+          void askSuggest(degree, savedCountry, null);
+          return;
+        }
+        push({ kind: 'prompt', key: 'pet.q3' });
+        setStep(2);
+        return;
+      }
       push({ kind: 'prompt', key: 'pet.q2' });
       setStep(1);
     } else if (step === 1) {
@@ -1438,8 +1535,31 @@ export function CompassPet() {
       setAnswers((a) => ({ ...a, country }));
       push({ kind: 'choice', step: 1, value });
       if (hasVerifiedProgrammes(country)) {
-        push({ kind: 'prompt', key: 'pet.q3' });
-        setStep(2);
+        // Round 32, H2: the budget may already be saved — derive
+        // its band for this degree + country instead of asking the
+        // budget question again. This is the re-test 28 case: the
+        // profile card showed a saved budget (50000 GBP) yet the
+        // pet still asked "Roughly what is your budget?" — greet()
+        // could not derive the band while the country was still
+        // open (petKnownSteps needs degree AND a single country),
+        // and this branch never re-checked it once the country
+        // was answered, so it pushed pet.q3 unconditionally.
+        const savedBand = petBudgetBand(answers.degree as Degree, country, profile.budget, BAND_CEILING);
+        if (savedBand) {
+          setAnswers((a) => ({ ...a, budget: savedBand }));
+          push({ kind: 'choice', step: 2, value: savedBand, degree: answers.degree as Degree, country });
+          setStep(3);
+          void askSuggest(answers.degree as Degree, country, savedBand);
+        } else if (typeof profile.budget === 'number') {
+          // Round 32, H2b: saved amount, no band table (e.g. CH) —
+          // same skip as greet(): the amount is known, so no budget
+          // question. The suggestion goes ahead with a null band.
+          setStep(3);
+          void askSuggest(answers.degree as Degree, country, null);
+        } else {
+          push({ kind: 'prompt', key: 'pet.q3' });
+          setStep(2);
+        }
       } else {
         // No verified programme in this country yet: say so honestly
         // and stop asking — a budget question here would have nothing

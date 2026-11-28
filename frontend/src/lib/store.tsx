@@ -49,6 +49,18 @@ interface AppState {
    * at mount — reset themselves at once instead of sitting on a
    * stale step for a profile that no longer exists (round 18). */
   dataClearNonce: number;
+  /** Bumps every time setProfile replaces the WHOLE profile
+   * (sample load, own-file import — Round 32, H3): the pet's
+   * conversation belongs to the replaced profile, so CompassPet
+   * resets on this nonce exactly like on dataClearNonce. A
+   * separate nonce from dataClearNonce on purpose: the wizard
+   * also subscribes to dataClearNonce and resets its step to 0,
+   * which would fight the wizard sample load's own setStep(7)
+   * (the effect runs after the commit and would win). Patch
+   * edits via updateProfile do NOT bump this — they keep the
+   * conversation. clearData does NOT bump this either: it uses
+   * setProfileState directly and already bumps dataClearNonce. */
+  profileReplaceNonce: number;
   /** True once the saved locale/profile have been read from
    * localStorage (round 18): child effects run before the
    * provider's hydration effect, so a page that matches on mount
@@ -79,6 +91,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [bannerClearNonce, setBannerClearNonce] = useState(0);
   const [dataClearNonce, setDataClearNonce] = useState(0);
+  const [profileReplaceNonce, setProfileReplaceNonce] = useState(0);
   // Restyle 2: the follow-up checklist, persisted like the profile.
   const [checklist, setChecklistState] = useState<ChecklistItem[]>([]);
 
@@ -115,7 +128,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [profile, hydrated]);
 
   const setLocale = (l: Locale) => setLocaleState(l);
-  const setProfile = (p: Profile) => setProfileState(p);
+  // Round 32, H3: setProfile is a WHOLESALE replace (sample load
+  // in page.tsx:55 / wizard/page.tsx:263, own-file import in
+  // wizard/page.tsx:283) — the pet conversation tied to the old
+  // profile must reset, so bump profileReplaceNonce here. The
+  // reset fires on the actual load, after any confirm dialog:
+  // the homepage / wizard sample-confirm dialogs call loadSample /
+  // applySample only from onConfirm, and trySample / loadSample
+  // only set the pending flag on open (page.tsx:59-65, 322;
+  // wizard/page.tsx:253-267, 687).
+  const setProfile = (p: Profile) => { setProfileState(p); setProfileReplaceNonce((n) => n + 1); };
   // Restyle 2: flip one checklist step; re-derive from profile +
   // verified programmes, preserving done flags by id.
   const toggleChecklistItem = (id: string) =>
@@ -159,9 +181,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return s;
   };
 
-  const value = useMemo(() => ({ locale, setLocale, t, tf, profile, setProfile, updateProfile, clearData, bannerClearNonce, dataClearNonce, hydrated, checklist, toggleChecklistItem, refreshChecklist }),
+  const value = useMemo(() => ({ locale, setLocale, t, tf, profile, setProfile, updateProfile, clearData, bannerClearNonce, dataClearNonce, profileReplaceNonce, hydrated, checklist, toggleChecklistItem, refreshChecklist }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [locale, profile, bannerClearNonce, dataClearNonce, hydrated, checklist]);
+    [locale, profile, bannerClearNonce, dataClearNonce, profileReplaceNonce, hydrated, checklist]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

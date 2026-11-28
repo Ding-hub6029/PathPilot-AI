@@ -290,6 +290,34 @@ body { background: #F7F5F0; color: #0B1F3A; }
    line-mask entrance (see .line-mask rules above). */
 .display-hero { font-family: var(--font-display), system-ui, sans-serif; font-style: normal; font-size: clamp(3.2rem, 9.5vw, 6.4rem); line-height: .98; letter-spacing: -.02em; font-weight: 700; text-shadow: 0 0 32px rgba(242,165,65,.35), 0 2px 24px rgba(255,255,255,.12); }
 
+/* Round 32 H1: Arabic hero title garbled (re-test 28) — the ar title
+   ("اعثر على طريقك إلى الجامعة المناسبة") rendered with words
+   overlapping multiple times, basically unreadable; en/zh were fine,
+   and re-test 27 (Round 31, Space Grotesk) was clean, so this is a
+   Restyle 2 regression. Root cause is the whole cluster of
+   Arabic-hostile properties on this one element, not a single one:
+   (a) NEGATIVE letter-spacing (-.03em on the h1, -.02em on the span)
+   pulls each Arabic glyph back over the previous glyph's exit stroke
+   and breaks cursive joining — the same class of break as the Round
+   30 F4 oblique, which is why F4's font-style: normal pin alone did
+   not save it; (b) line-height .98 stacks the title's ~3 wrapped
+   lines (up to 6.4rem in the 7-column hero) with almost no leading,
+   so tall Arabic ascenders/diacritics collide with the line above
+   and words from adjacent lines overlap; (c) the .line-mask reveal
+   (translateY(110%) inside overflow:hidden) replays on every locale
+   switch, so the title is repeatedly caught mid-reveal. There is NO
+   JS per-word/per-line splitting anywhere — the h1 holds one text
+   node (page.tsx:86) — so there is nothing to "unsplit"; the fix is
+   to neutralise the cluster for RTL only. Scoped with [dir="rtl"]
+   (store.tsx sets documentElement.dir = 'rtl' for ar, the same
+   convention as the other [dir="rtl"] rules in this file), so the
+   LTR design is pixel-identical. font-style: normal is NOT repeated
+   here — it is already pinned on both base rules and must stay so. */
+[dir="rtl"] .hero-display,
+[dir="rtl"] .display-hero { letter-spacing: 0; }
+[dir="rtl"] .display-hero { font-family: system-ui, sans-serif; line-height: 1.3; text-shadow: none; }
+[dir="rtl"] h1.hero-display.line-mask > span { animation: none; }
+
 /* Aureon eyebrow: small caps with a `//` prefix (visual only, no
    copy change — the prefix is CSS, not an i18n string). */
 .hero-eyebrow::before { content: "// "; color: #F2A541; }

@@ -75,7 +75,10 @@ def _pref_note_case(src: str) -> str:
 def test_pet_subscribes_to_data_clear_nonce():
     src = _pet_src()
     assert "dataClearNonce" in src, "CompassPet must read the clear nonce from the store"
-    assert "const { t, tf, locale, profile, dataClearNonce, updateProfile, refreshChecklist } = useApp();" in src
+    # Round 32, H3: the destructure also carries profileReplaceNonce
+    # (the wholesale-replace nonce); the clear-nonce subscription
+    # itself is unchanged.
+    assert "const { t, tf, locale, profile, dataClearNonce, profileReplaceNonce, updateProfile, refreshChecklist } = useApp();" in src
 
 
 def test_clear_nonce_effect_resets_conversation_state():

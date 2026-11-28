@@ -143,17 +143,30 @@ export interface BudgetCeiling {
  * keys on) + budget band + ceiling when the band has one. Built only
  * from the user's own guided answers — no programme is named, so the
  * model suggests from the verified evidence the backend retrieves.
+ * Round 32, H2b: a null band means a saved budget amount in a
+ * country with no band table (e.g. CH) — the message then states the
+ * saved amount (with the period the wizard itself assigns:
+ * undergraduate per year, taught masters total — see
+ * wizard.budgetHint) instead of a band, so no band is ever claimed.
+ * The backend parses "GBP 50,000 per year" as a ceiling
+ * (backend/ai/chat.py _CEILING_RE), so the pick still respects it.
  */
 export function suggestMessage(
   degree: DegreeLevel,
   countryCode: string,
   countryNameEn: string,
-  band: BudgetBand,
+  band: BudgetBand | null,
   ceiling: BudgetCeiling | null,
+  savedBudget?: { amount: number; currency: string } | null,
 ): string {
   const level = degree === 'undergraduate' ? 'undergraduate' : 'taught masters';
+  const budgetLine = band !== null
+    ? `Budget band: ${band}.`
+    : savedBudget
+      ? `Budget: ${savedBudget.currency} ${savedBudget.amount.toLocaleString('en-US')} ${degree === 'undergraduate' ? 'per year' : 'total'}.`
+      : '';
   const base = `Recommend a ${level} programme in ${countryNameEn} ` +
-    `(country code ${countryCode}). Budget band: ${band}.`;
+    `(country code ${countryCode}).${budgetLine ? ` ${budgetLine}` : ''}`;
   if (!ceiling) return base;
   return `${base} Budget: under ${ceiling.currency} ` +
     `${ceiling.amount.toLocaleString('en-US')} ${ceiling.period}.`;
@@ -1133,6 +1146,31 @@ export interface PetKnownSteps {
 }
 
 /**
+ * Round 32, H2 — the budget band for one degree + country + saved
+ * budget, GB/SG only (their ceilings are the only band tables that
+ * exist). Pure, so the pet's question flow can re-derive it whenever
+ * the degree and country become known — at greet time AND after the
+ * user answers a still-open question mid-flow — instead of only
+ * once, inside petKnownSteps, where a missing country (or degree)
+ * used to discard an already-saved budget for the whole session.
+ * Null when any input is missing or no band table exists for the
+ * degree-country pair.
+ */
+export function petBudgetBand(
+  degree: DegreeLevel | null,
+  country: string | null,
+  budget: number | '' | undefined,
+  ceilings: Record<string, Record<BudgetBand, number | null>>,
+): BudgetBand | null {
+  if (!degree || !country || typeof budget !== 'number') return null;
+  const table = ceilings[`${degree}-${country}`];
+  if (!table) return null;
+  if (table.low !== null && budget <= table.low) return 'low';
+  if (table.mid !== null && budget <= table.mid) return 'mid';
+  return 'high';
+}
+
+/**
  * What the pet's guided flow already knows from the saved wizard
  * profile. `ceilings` is the GB/SG band table (BAND_CEILING in
  * CompassPet): low when the budget is at or under the low ceiling,
@@ -1147,15 +1185,7 @@ export function petKnownSteps(
     profile.track === 'undergraduate' || profile.track === 'taught_masters' ? profile.track : null;
   const countries = profile.prefCountries ?? [];
   const country = countries.length === 1 ? countries[0] : null;
-  let band: BudgetBand | null = null;
-  if (degree && country && typeof profile.budget === 'number') {
-    const table = ceilings[`${degree}-${country}`];
-    if (table) {
-      if (table.low !== null && profile.budget <= table.low) band = 'low';
-      else if (table.mid !== null && profile.budget <= table.mid) band = 'mid';
-      else band = 'high';
-    }
-  }
+  const band = petBudgetBand(degree, country, profile.budget, ceilings);
   return { degree, country, band };
 }
 
