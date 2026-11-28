@@ -1,7 +1,10 @@
 'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp, LOCALES } from '../lib/store';
+import { hasProfileData } from '../lib/sampleConfirm';
+import { SampleConfirmDialog } from '../components/SampleConfirmDialog';
 import { usePrograms } from '../lib/usePrograms';
 import { allPrograms } from '../lib/api';
 import { useBackendStatus } from '../lib/backendStatus';
@@ -27,8 +30,14 @@ import { NEWS_ITEMS, POLICY_ITEMS } from '../lib/news';
 import { SCHOOL_REVIEWS } from '../lib/reviews';
 
 export default function HomePage() {
-  const { t, tf, locale, setProfile } = useApp();
+  const { t, tf, locale, profile, setProfile } = useApp();
   const { programs, loading: programsLoading } = usePrograms();
+  // Round 31, G2: the sample replaces the WHOLE profile, so a filled
+  // profile must confirm first — one click used to wipe the wizard
+  // fields and all 8 preference answers with no warning. The pending
+  // choice is kept until the dialog confirms, so Confirm loads
+  // exactly the card the user tapped (UG vs PG).
+  const [pendingSample, setPendingSample] = useState<'ug' | 'pg' | null>(null);
   // Round 11, F7: the homepage showed no backend status at all while
   // rankings / browse / results all show the settled line from this
   // one shared hook (round 9, R9) — same pattern, same strings.
@@ -40,9 +49,17 @@ export default function HomePage() {
   // (user feedback 2026-11-25). The hero keeps its line-mask/fade-up
   // entrances; nothing covers it anymore.
 
-  const trySample = (which: 'ug' | 'pg') => {
+  const loadSample = (which: 'ug' | 'pg') => {
     setProfile(which === 'ug' ? sampleUndergrad : sampleMasters);
     router.push('/results');
+  };
+
+  const trySample = (which: 'ug' | 'pg') => {
+    // Round 31, G2: with user data filled in, ask first — the sample
+    // overwrites the profile wholesale. With nothing filled (or only
+    // a sample loaded) it stays one click, no dialog.
+    if (hasProfileData(profile)) { setPendingSample(which); return; }
+    loadSample(which);
   };
 
   return (
@@ -317,6 +334,12 @@ export default function HomePage() {
         </ul>
       </section>
     </div>
+    {/* Round 31, G2: confirm before the sample overwrites a filled profile. */}
+    <SampleConfirmDialog
+      open={pendingSample !== null}
+      onConfirm={() => { const which = pendingSample; setPendingSample(null); if (which) loadSample(which); }}
+      onCancel={() => setPendingSample(null)}
+    />
     </>
   );
 }

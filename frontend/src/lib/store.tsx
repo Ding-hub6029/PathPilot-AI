@@ -7,6 +7,7 @@ import fr from '../../messages/fr.json';
 import ptBR from '../../messages/pt-BR.json';
 import ar from '../../messages/ar.json';
 import { Profile, emptyProfile } from '../lib/types';
+import { applyProfilePatch } from '../lib/profile';
 
 export type Locale = 'en' | 'zh-CN' | 'es' | 'fr' | 'pt-BR' | 'ar';
 export const LOCALES: { code: Locale; label: string }[] = [
@@ -87,7 +88,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const setLocale = (l: Locale) => setLocaleState(l);
   const setProfile = (p: Profile) => setProfileState(p);
-  const updateProfile = (patch: Partial<Profile>) => setProfileState((prev) => ({ ...prev, ...patch }));
+  // Round 31 G3: any user edit clears the synthetic-sample marker
+  // (applyProfilePatch forces the marker off), so the "Synthetic
+  // sample" banner only shows while the synthetic sample IS the
+  // active profile. Loading a sample goes through setProfile, not
+  // here, so a freshly loaded sample keeps its banner.
+  const updateProfile = (patch: Partial<Profile>) => setProfileState((prev) => applyProfilePatch(prev, patch));
   const clearData = () => {
     setProfileState(emptyProfile);
     // Round 11, F6: the WelcomeBanner keeps its own open/closed state

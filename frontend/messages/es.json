@@ -979,5 +979,8 @@
  "wizard.trackTitle": "Tipo de titulación",
  "wizard.trackUndergrad": "Grado",
  "wizard.trackUndergradDesc": "Títulos de grado, p. ej., BSc en Informática",
- "wizard.usaNote": "Nota: Imperial publica un estándar de AP; UCL no publica ninguna equivalencia estadounidense para estos programas, por lo que esa comprobación se marcará como desconocida."
+ "wizard.usaNote": "Nota: Imperial publica un estándar de AP; UCL no publica ninguna equivalencia estadounidense para estos programas, por lo que esa comprobación se marcará como desconocida.",
+ "sample.confirmTitle": "¿Reemplazar tus respuestas con el perfil de ejemplo?",
+ "sample.confirmBody": "Cargar el perfil de ejemplo reemplaza lo que has introducido, incluidas tus respuestas de preferencias. No se puede deshacer.",
+ "sample.confirmReplace": "Reemplazar con el ejemplo"
 }

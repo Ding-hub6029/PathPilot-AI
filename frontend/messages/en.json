@@ -979,5 +979,8 @@
  "wizard.trackTitle": "Degree type",
  "wizard.trackUndergrad": "Undergraduate",
  "wizard.trackUndergradDesc": "Bachelor's degrees, e.g. Computer Science BSc",
- "wizard.usaNote": "Note: Imperial publishes an AP standard; UCL publishes no US equivalence for these programmes, so that check will be marked unknown."
+ "wizard.usaNote": "Note: Imperial publishes an AP standard; UCL publishes no US equivalence for these programmes, so that check will be marked unknown.",
+ "sample.confirmTitle": "Replace your answers with the sample profile?",
+ "sample.confirmBody": "Loading the sample profile replaces what you have entered, including your preference answers. This cannot be undone.",
+ "sample.confirmReplace": "Replace with sample"
 }

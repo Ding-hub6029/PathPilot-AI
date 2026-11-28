@@ -979,5 +979,8 @@
  "wizard.trackTitle": "Type de diplôme",
  "wizard.trackUndergrad": "Licence",
  "wizard.trackUndergradDesc": "Diplômes de licence, p. ex. BSc en informatique",
- "wizard.usaNote": "Remarque : Imperial publie une norme AP ; UCL ne publie aucune équivalence américaine pour ces programmes, cette vérification sera donc marquée inconnue."
+ "wizard.usaNote": "Remarque : Imperial publie une norme AP ; UCL ne publie aucune équivalence américaine pour ces programmes, cette vérification sera donc marquée inconnue.",
+ "sample.confirmTitle": "Remplacer vos réponses par le profil d'exemple ?",
+ "sample.confirmBody": "Charger le profil d'exemple remplace ce que vous avez saisi, y compris vos réponses de préférences. Cette action est irréversible.",
+ "sample.confirmReplace": "Remplacer par l'exemple"
 }

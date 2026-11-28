@@ -137,7 +137,9 @@ def test_locale_key_parity_after_duration_keys():
     # the offline pref-chat fallback) — parity holds.
     # Round 30 F5: +1 common.languages (stats-strip "Languages"
     # label) — parity holds.
-    assert len(base) == 981, len(base)
+    # Round 31 G2: +3 sample.confirm* keys (confirm dialog before
+    # the sample profile overwrites a filled profile) — parity holds.
+    assert len(base) == 984, len(base)
     for locale in LOCALES:
         assert sets[locale] == base, (locale, sets[locale] ^ base)
 

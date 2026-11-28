@@ -7,6 +7,9 @@ import { evaluateLocal, matchProfile, mergePrograms, MODEL_AVAILABILITY_WARM_MS,
 import { programMatchesField } from '../../lib/fields';
 import { sortRecsByPreference } from '../../lib/preferences';
 import { sampleUndergrad, sampleMasters, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
+import { hasProfileData } from '../../lib/sampleConfirm';
+import { SampleConfirmDialog } from '../../components/SampleConfirmDialog';
+import { mergeImportedProfile } from '../../lib/profile';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
 import { PrefChat } from '../../components/PrefChat';
 import { RecChat } from '../../components/RecChat';
@@ -78,6 +81,8 @@ export default function WizardPage() {
   const { programs: livePrograms } = usePrograms({ enabled: step >= 6 });
   const programs = useMemo(() => mergePrograms(livePrograms), [livePrograms]);
   const [error, setError] = useState('');
+  // Round 31, G2: true while the sample-overwrite dialog is open.
+  const [pendingSample, setPendingSample] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   /**
    * P0 (re-test task 6) — the step advance is URGENT, not a
@@ -246,6 +251,14 @@ export default function WizardPage() {
   };
 
   const loadSample = () => {
+    // Round 31, G2: the sample replaces the WHOLE profile — with user
+    // data filled in (wizard fields and/or pref-chat answers), ask
+    // first. With nothing filled it stays one click, no dialog.
+    if (hasProfileData(profile)) { setPendingSample(true); return; }
+    applySample();
+  };
+
+  const applySample = () => {
     const s = profile.track === 'taught_masters' ? sampleMasters : sampleUndergrad;
     setProfile({ ...s });
     setStep(7);
@@ -262,7 +275,12 @@ export default function WizardPage() {
   const importProfile = (f: File) => {
     const r = new FileReader();
     r.onload = () => {
-      try { const p = JSON.parse(String(r.result)) as Profile; setProfile({ ...profile, ...p }); } catch { setError(t('common.error')); }
+      // Round 31 G3: the banner follows the imported file's own
+      // marker — the old `{ ...profile, ...p }` spread kept the
+      // marker from a loaded sample when the imported file had no
+      // such field, so the banner stayed after the user replaced
+      // the sample with their own profile.
+      try { const p = JSON.parse(String(r.result)) as Profile; setProfile(mergeImportedProfile(profile, p)); } catch { setError(t('common.error')); }
     };
     r.readAsText(f);
   };
@@ -663,6 +681,12 @@ export default function WizardPage() {
         <input ref={fileRef} type="file" accept="application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) importProfile(f); }} />
       </div>
       <p className="mt-6 rounded-lg bg-white/70 p-3 text-sm text-navy/80" role="note">{t('home.disclaimer')}</p>
+      {/* Round 31, G2: confirm before the sample overwrites a filled profile. */}
+      <SampleConfirmDialog
+        open={pendingSample}
+        onConfirm={() => { setPendingSample(false); applySample(); }}
+        onCancel={() => setPendingSample(false)}
+      />
     </div>
   );
 }

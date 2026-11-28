@@ -447,7 +447,26 @@ _DET_QUESTION_MARKERS: tuple[str, ...] = (
     "多久", "多少",
 )
 _DET_QUESTION_WORDS_EN = re.compile(
-    r"\b(what|which|how|why|when|where|is there|are there|any|"
+    # Round 31 G1: the English question words only mark a question
+    # when they OPEN the message (matched with ``match``, not
+    # ``search``). Matched anywhere, "where" inside a relative clause
+    # — "Stay in the country where I study", the en afterGrad Stay
+    # chip label — read as a question, so the Round 29 E4 guided
+    # route was bypassed and the turn paid the full model budget
+    # (~15 s backend timeout, ~18 s frontend attempt) on a hanging
+    # gateway: re-test 26, Q6 stalled 25–27 s on the second run
+    # (cold breaker / probe cache) after answering instantly on the
+    # first (warm caches). A genuine question still opens with its
+    # question word ("What is the fee?", "Where should I study?")
+    # or carries a "?" / CJK marker anywhere (checked in
+    # _det_looks_like_question), so those still take the model path.
+    # Residual: a question word mid-clause without punctuation
+    # ("tell me what take it easy means") can now read as an answer
+    # — the confirm bubble is the safety net there (nothing is
+    # applied until the user confirms the extraction). The
+    # frontend's looksLikeQuestion (lib/chat.ts) carries the same
+    # rule, same reason.
+    r"(what|which|how|why|when|where|is there|are there|any|"
     r"recommend|suggest|do you|can you|could you|should i|would you)\b",
     re.IGNORECASE)
 
@@ -462,13 +481,16 @@ def _det_includes(haystack: str, word: str) -> bool:
 
 
 def _det_looks_like_question(message: str) -> bool:
-    """True when a message is a question, not an answer."""
+    """True when a message is a question, not an answer.
+
+    The CJK markers and "?" match anywhere; the English question
+    words match only at the start of the message (Round 31 G1)."""
     text = (message or "").strip()
     if not text:
         return False
     if any(m in text for m in _DET_QUESTION_MARKERS):
         return True
-    return _DET_QUESTION_WORDS_EN.search(text) is not None
+    return _DET_QUESTION_WORDS_EN.match(text) is not None
 
 
 def _deterministic_extract(message: str, known: dict | None = None) -> dict:

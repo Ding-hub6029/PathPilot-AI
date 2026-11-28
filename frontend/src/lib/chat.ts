@@ -99,8 +99,20 @@ const QUESTION_MARKERS = [
   '是否', '能不能', '可以吗', '有吗', '推荐', '建议', '怎样', '如何',
   '多久', '多少',
 ];
+/**
+ * Round 31 G1: the English question words only mark a question when
+ * they OPEN the message. Matched anywhere, "where" inside a relative
+ * clause — "Stay in the country where I study", the en afterGrad
+ * Stay chip label — read as a question, so a typed/pasted guided
+ * answer went to the model (askModel) instead of /profile/parse +
+ * the local mapping and froze the input for the whole model budget
+ * on a hanging gateway. Same rule as the backend's
+ * _det_looks_like_question (ai/pref_chat.py). A genuine question
+ * still opens with its question word or carries a "?" / CJK marker
+ * anywhere (checked above).
+ */
 const QUESTION_WORDS_EN =
-  /\b(what|which|how|why|when|where|is there|are there|any|recommend|suggest|do you|can you|could you|should i|would you)\b/i;
+  /^(what|which|how|why|when|where|is there|are there|any|recommend|suggest|do you|can you|could you|should i|would you)\b/i;
 
 /**
  * True when free text is a question (or a request for a recommendation),

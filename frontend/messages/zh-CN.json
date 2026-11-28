@@ -979,5 +979,8 @@
  "wizard.trackTitle": "学位类型",
  "wizard.trackUndergrad": "本科",
  "wizard.trackUndergradDesc": "学士学位，例如计算机科学理学士",
- "wizard.usaNote": "注意：帝国理工公布了 AP 标准；UCL 未公布这些课程的美国成绩对等标准，相关检查将标记为未知。"
+ "wizard.usaNote": "注意：帝国理工公布了 AP 标准；UCL 未公布这些课程的美国成绩对等标准，相关检查将标记为未知。",
+ "sample.confirmTitle": "要用示例资料替换你已填写的内容吗？",
+ "sample.confirmBody": "加载示例资料会替换你已填写的内容，包括偏好问答，且无法撤销。",
+ "sample.confirmReplace": "替换为示例"
 }

@@ -470,8 +470,8 @@ def test_r29_w1_backend_wording_pin():
 
 
 def test_r29_w1_locale_keys():
-    """981 keys in every locale file (980 at Round 29 + Round 30's
-    common.languages), the
+    """984 keys in every locale file (981 at Round 30 + Round 31
+    G2's three sample.confirm* keys), the
     same key set in all 6, and every key E1/E2/E3 renders through
     exists in all 6."""
     msgs = {
@@ -479,7 +479,7 @@ def test_r29_w1_locale_keys():
         for loc in LOCALES
     }
     base = set(msgs["en"])
-    assert len(base) == 981, len(base)
+    assert len(base) == 984, len(base)
     for loc in LOCALES:
         assert set(msgs[loc]) == base, (loc, set(msgs[loc]) ^ base)
     for key in (

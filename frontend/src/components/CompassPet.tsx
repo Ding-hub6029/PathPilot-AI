@@ -990,6 +990,31 @@ export function CompassPet() {
   } => {
     // Round 8: an offline turn whose call timed out after the patient
     // budget says so plainly, instead of a bare "offline".
+    // Round 31, G4: the offline LEAD line is a claim about the
+    // CURRENT AI state, so its presence follows the shared verdict
+    // (`offline`, from useAiVerdict()) — exactly like the footer,
+    // which renders aiVerdictLineKey(aiVerdict) — never the stored
+    // per-turn `turn.offline` flag on its own. That flag is the
+    // turn's history (which content to show: template reply, rank
+    // lookup, directory, offline catalogue); the lead is the state.
+    // Before, a turn answered offline kept its "Offline — showing
+    // the built-in catalogue…" lead after a later probe flipped the
+    // verdict live (the flaky 1-token probe returns fresh
+    // "available" while real turns fail, and a probe started after
+    // the turn verdict is not blocked by the Round 22 guard; a
+    // panel re-open resets + re-probes too), so the footer claimed
+    // "AI answers" while the panel claimed offline at the same
+    // moment (re-test 26, gateway down the whole run, 0 model-led
+    // turns). Now both read the same verdict: the lead shows only
+    // while the verdict is offline, in either direction. A live
+    // model reply never gains the lead (turn.offline is false for
+    // it); the devil boundary is untouched — it labels the reply's
+    // provenance, pinned by Round 18 W3
+    // (devilOffline: turn.devil && turn.offline). Corner: an
+    // offline turn with no other content renders an empty bubble
+    // once the verdict goes live, rather than a stale offline
+    // claim — that needs a failed turn with no rank or country
+    // match, then a live probe.
     const offlineLine = timedOut ? t('pet.offlineTimeout') : t('pet.offline');
     switch (turn.kind) {
       case 'prompt':
@@ -1052,10 +1077,10 @@ export function CompassPet() {
           };
         }
         if (turn.offline) {
-          if (!turn.offlineProgramId) return { lines: [offlineLine] };
+          if (!turn.offlineProgramId) return { lines: offline ? [offlineLine] : [] };
           const program = findProgram(turn.offlineProgramId);
           const lines = [
-            offlineLine,
+            ...(offline ? [offlineLine] : []),
             program ? displayProgramTitle(program, locale) : turn.offlineProgramId,
           ];
           if (turn.offlineFee && (turn.offlineFee.period === 'per year' || turn.offlineFee.period === 'total')) {
@@ -1085,7 +1110,7 @@ export function CompassPet() {
           // "offline" with nothing after it.
           // Round 19 (W1): a devil turn already discloses via the
           // boundary above (devil.offlineBoundary) — drop the body offline line.
-          const lines = turn.offline && !turn.devil ? [offlineLine, ...turn.reply.lines] : turn.reply.lines;
+          const lines = turn.offline && offline && !turn.devil ? [offlineLine, ...turn.reply.lines] : turn.reply.lines;
           return {
             lines,
             evidenceUrl: turn.reply.evidence_url,
@@ -1102,7 +1127,7 @@ export function CompassPet() {
           const rank = rankOffline(turn.message);
           if (rank) {
             return {
-              lines: [offlineLine, ...rank.lines],
+              lines: offline ? [offlineLine, ...rank.lines] : [...rank.lines],
               evidenceUrl: rank.evidenceUrl,
               nextSteps: { wizard: '/wizard', institution: `/institutions/${rank.institutionId}` },
             };
@@ -1113,11 +1138,11 @@ export function CompassPet() {
           const dir = turn.offlineCountry ? directoryOffline(turn.offlineCountry) : null;
           if (dir) {
             return {
-              lines: [offlineLine, ...dir.lines],
+              lines: offline ? [offlineLine, ...dir.lines] : [...dir.lines],
               nextSteps: { wizard: '/wizard', institution: `/institutions/${dir.firstId}` },
             };
           }
-          return { lines: [offlineLine] };
+          return { lines: offline ? [offlineLine] : [] };
         }
         return { lines: [t('pet.thinking')] };
       }
