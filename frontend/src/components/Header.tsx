@@ -25,13 +25,16 @@ export default function Header() {
           ['/rankings', 'nav.rankings'],
           ['/report', 'nav.report'],
         ] as const
-      ).map(([href, key]) => (
+      ).map(([href, key], i) => (
         <Link
           key={href}
           href={href}
           aria-current={isActive(href) ? 'page' : undefined}
           className={`link-underline rounded px-2 py-1 hover:bg-white/10${isActive(href) ? ' nav-active' : ''}`}
         >
+          {/* Restyle 2026-11-28: numbered nav (video: 创作 01 / 关于 02)
+              — small amber index before each label, visual only. */}
+          <span className="nav-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
           {t(key)}
         </Link>
       ))}

@@ -9,7 +9,10 @@ module.exports = {
         amber: { DEFAULT: '#F2A541', dark: '#C77F1A' },
         paper: '#F7F5F0',
       },
-      fontFamily: { sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'] },
+      fontFamily: {
+        sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['var(--font-display)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+      },
     },
   },
   plugins: [],

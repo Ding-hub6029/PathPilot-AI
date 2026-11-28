@@ -269,6 +269,47 @@ body { background: #F7F5F0; color: #0B1F3A; }
 .reveal { opacity: 0; transform: translateY(14px); transition: opacity .7s var(--ease-reveal), transform .7s var(--ease-reveal); }
 .reveal-visible { opacity: 1; transform: translateY(0); }
 
+/* ---- Restyle 2026-11-28: high-end AI design language ----
+   Direction: product-as-hero, navy dark, ONE amber accent, type-led,
+   restrained motion (Linear/Vercel-grade, not generic purple AI
+   slop). Palette unchanged: navy #0B1F3A / teal #0E7C7B / amber
+   #F2A541 / paper #F7F5F0. No new hues, no new copy, no logic
+   changes — CSS/Tailwind and layout polish only. */
+
+/* Display face on every display heading (Space Grotesk via
+   next/font, --font-display; CJK/Arabic fall back to system). */
+.hero-display { font-family: var(--font-display), system-ui, sans-serif; }
+
+/* Hero display: oversized viewport-scaled type, extra-bold, tight
+   tracking, slight oblique slant (the Xiaohongshu template's slanted
+   display type), soft amber-white glow. The h1 span keeps its
+   line-mask entrance + gradient flow (see .line-mask rules above). */
+.display-hero { font-family: var(--font-display), system-ui, sans-serif; font-size: clamp(3.2rem, 9.5vw, 6.4rem); line-height: .98; letter-spacing: -.04em; font-weight: 700; font-style: oblique 6deg; text-shadow: 0 0 32px rgba(242,165,65,.35), 0 2px 24px rgba(255,255,255,.12); }
+
+/* Numbered nav (video: 创作 01 / 关于 02): small amber index before
+   each label. */
+.nav-num { font-family: var(--font-display), system-ui, sans-serif; font-size: .62rem; font-weight: 700; letter-spacing: .08em; color: #F2A541; margin-inline-end: .3rem; vertical-align: super; font-variant-numeric: tabular-nums; }
+
+/* Hard 1px border card (Vercel tactile brutalism): edge from the
+   border, not from a shadow. */
+.card-hard { border: 1px solid rgba(11,31,58,.22); background: #fff; }
+.card-hard:hover { border-color: rgba(242,165,65,.65); }
+
+/* Black programme card (video: black bg, thin light border,
+   oversized bold number). */
+.card-black { border: 1px solid rgba(255,255,255,.16); background: #0B1F3A; color: #fff; }
+.card-black:hover { border-color: rgba(242,165,65,.6); }
+/* Oversized index number on a black card: display face, amber,
+   tabular figures. Decorative (aria-hidden in markup). */
+.card-num { font-family: var(--font-display), system-ui, sans-serif; font-size: 2.6rem; line-height: 1; font-weight: 700; letter-spacing: -.03em; color: #F2A541; font-variant-numeric: tabular-nums; }
+
+/* Stat number: display face, tabular figures so the count-up does
+   not jitter horizontally. */
+.stat-num { font-family: var(--font-display), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+
+/* RTL: a directional arrow glyph mirrors. */
+[dir="rtl"] .arrow-rtl { transform: scaleX(-1); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   /* No route line, no shared-element morph: a plain page change. */

@@ -1,15 +1,18 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useApp } from '../lib/store';
+import { useApp, LOCALES } from '../lib/store';
 import { usePrograms } from '../lib/usePrograms';
+import { allPrograms } from '../lib/api';
 import { useBackendStatus } from '../lib/backendStatus';
 import { sampleUndergrad, sampleMasters } from '../lib/types';
 import { formatProgramLine } from '../lib/format';
 import { displayProgramName } from '../lib/programs';
-import { displayProgramInstitutionName } from '../lib/rankings';
+import { displayProgramInstitutionName, RANKING_INSTITUTIONS } from '../lib/rankings';
 import { RANKING_PROVIDERS } from '../lib/rankings';
 import { WelcomeBanner } from '../components/WelcomeBanner';
+import { Reveal } from '../components/Reveal';
+import { StatCounter } from '../components/StatCounter';
 import { TimelinePanel } from '../components/TimelinePanel';
 import { CaseCard } from '../components/CaseCard';
 import { NewsCard } from '../components/NewsCard';
@@ -64,14 +67,28 @@ export default function HomePage() {
         </div>
         <div className="relative md:col-span-7">
           <p className="microcopy anim-fade-up text-amber">{t('tagline')}</p>
-          <h1 className="hero-display line-mask mt-3"><span className="grad-flow-text" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
+          <h1 className="hero-display line-mask mt-3"><span className="display-hero grad-flow-text" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
           <p className="anim-fade-up stagger-2 mt-4 max-w-md text-white/85">{t('home.heroSub')}</p>
-          <div className="anim-fade-up stagger-3 mt-6 flex flex-wrap gap-3">
+          {/* Hero prompt bar (restyle 2026-11-28): the eligibility check
+              is the hero — a prompt-styled entry to /wizard. A link, not
+              an input: nothing typed is lost, and the label reuses the
+              pet's existing placeholder key (no new copy). The arrow
+              mirrors in RTL via .arrow-rtl. */}
+          <Link href="/wizard" aria-label={t('home.ctaWizard')} className="anim-fade-up stagger-3 mt-6 flex items-center gap-3 rounded-full border border-white/25 bg-white/10 px-4 py-2.5 text-white/85 backdrop-blur transition hover:border-amber/70 hover:bg-white/15">
+            <svg width="18" height="18" viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
+              <circle cx="16" cy="16" r="14" fill="none" stroke="#F2A541" strokeWidth="2" />
+              <path d="M16 6 L19 16 L16 26 L13 16 Z" fill="#F2A541" />
+              <path d="M6 16 L16 13 L26 16 L16 19 Z" fill="#0E7C7B" />
+            </svg>
+            <span className="min-w-0 flex-1 truncate text-start text-sm sm:text-base">{t('pet.placeholder')}</span>
+            <span className="btn-press flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber text-lg font-bold text-navy" aria-hidden="true"><span className="arrow-rtl inline-block">→</span></span>
+          </Link>
+          <div className="anim-fade-up stagger-4 mt-6 flex flex-wrap gap-3">
             <Link href="/wizard" className="btn-press glow-amber rounded-full bg-amber px-5 py-2.5 font-semibold text-navy">{t('home.ctaWizard')}</Link>
             <button type="button" onClick={() => trySample('ug')} className="btn-press rounded-full border border-white/50 px-5 py-2.5 font-semibold">{t('home.ctaSample')}</button>
           </div>
-          <p className="anim-fade-up stagger-4 mt-5 rounded-lg bg-white/10 p-3 text-sm text-white/90" role="note">{t('home.disclaimer')}</p>
-          <p className="anim-fade-up stagger-4 mt-4">
+          <p className="anim-fade-up stagger-5 mt-5 rounded-lg bg-white/10 p-3 text-sm text-white/90" role="note">{t('home.disclaimer')}</p>
+          <p className="anim-fade-up stagger-5 mt-4">
             <span className="microcopy text-white/50">{t('home.heroKicker')}</span>
           </p>
         </div>
@@ -101,6 +118,27 @@ export default function HomePage() {
             </g>
           </svg>
         </div>
+      </section>
+
+      {/* Evidence numbers (restyle 2026-11-28): live counts from the
+          data — programmes, universities, success cases, languages —
+          counted up on scroll. No hard-coded figures, no new copy. */}
+      <section className="mt-8">
+        <Reveal>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {([
+              [allPrograms().length, t('home.programsTitle')],
+              [RANKING_INSTITUTIONS.length, t('institutions.title')],
+              [SUCCESS_CASES.length, t('cases.title')],
+              [LOCALES.length, t('common.language')],
+            ] as const).map(([value, label]) => (
+              <div key={label} className="card-hard card-lift rounded-2xl p-5">
+                <p className="text-4xl font-bold text-navy"><StatCounter value={value} /></p>
+                <p className="mt-1 text-sm font-semibold text-navy/60">{label}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       {/* Success cases first (user 2026-11-25): the homepage top shows
@@ -201,30 +239,34 @@ export default function HomePage() {
             const frac = Math.min(srcCount, 5) / 5;
             const dash = 97.4 * (1 - frac);
             return (
-            <article key={p.id} className={`card-lift anim-fan stagger-${(i % 4) + 1} rounded-2xl border border-navy/10 bg-white p-5 card-surface md:col-span-6`} style={{ '--fan-rot': `${((i % 4) - 1.5) * 1.2}deg` } as React.CSSProperties}>
+            <article key={p.id} className={`card-lift anim-fan stagger-${(i % 4) + 1} card-black rounded-2xl p-5 md:col-span-6`} style={{ '--fan-rot': `${((i % 4) - 1.5) * 1.2}deg` } as React.CSSProperties}>
+              {/* Restyle 2026-11-28: black card (video: black bg, thin
+                  light border, oversized bold number). The number is
+                  decorative; the ring keeps its aria-label. */}
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-teal">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
-                  {/* Shared element (research move 4): this title morphs
-                      into the programme detail header on navigation. */}
-                  <h3 className="mt-1 text-lg font-bold" ref={vtRef(`program-title-${p.id}`)}>{displayProgramName(p, locale)}</h3>
-                </div>
+                <span className="card-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                 <span className="flex shrink-0 flex-col items-center" aria-label={`${srcCount} ${t('program.sources')}`}>
                   <svg width="40" height="40" viewBox="0 0 36 36" aria-hidden="true">
-                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#0B1F3A" strokeOpacity=".12" strokeWidth="4" />
+                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#F7F5F0" strokeOpacity=".2" strokeWidth="4" />
                     <circle className="anim-ring" cx="18" cy="18" r="15.5" fill="none" stroke="#F2A541" strokeWidth="4" strokeLinecap="round" transform="rotate(-90 18 18)" style={{ '--ring-dash': dash } as React.CSSProperties} />
-                    <text x="18" y="22" textAnchor="middle" fontSize="11" fontWeight="800" fill="#0B1F3A">{srcCount}</text>
+                    <text x="18" y="22" textAnchor="middle" fontSize="11" fontWeight="800" fill="#F7F5F0">{srcCount}</text>
                   </svg>
-                  <span className="microcopy mt-0.5 text-navy/50">{t('program.sources')}</span>
+                  <span className="microcopy mt-0.5 text-white/50">{t('program.sources')}</span>
                 </span>
               </div>
-              <p className="mt-2 text-sm text-navy/75">
+              <div className="mt-3 min-w-0">
+                <p className="text-sm font-semibold text-amber">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
+                {/* Shared element (research move 4): this title morphs
+                    into the programme detail header on navigation. */}
+                <h3 className="mt-1 text-lg font-bold" ref={vtRef(`program-title-${p.id}`)}>{displayProgramName(p, locale)}</h3>
+              </div>
+              <p className="mt-2 text-sm text-white/75">
                 {formatProgramLine(p, t, locale)}
                 {p.ucasCode ? ` · UCAS ${p.ucasCode}` : ''}
               </p>
               <div className="mt-4 flex gap-2">
                 <ViewTransitionLink href={`/programs/${p.id}`} className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">{t('results.viewDetail')}</ViewTransitionLink>
-                <button type="button" onClick={() => trySample(p.degreeLevel === 'undergraduate' ? 'ug' : 'pg')} className="btn-press rounded-full border border-navy/30 px-4 py-2 text-sm font-semibold">
+                <button type="button" onClick={() => trySample(p.degreeLevel === 'undergraduate' ? 'ug' : 'pg')} className="btn-press rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white">
                   {t('home.ctaSample')} · <span className="text-xs font-normal">({t('common.synthetic')})</span>
                 </button>
               </div>
@@ -252,7 +294,7 @@ export default function HomePage() {
         <h2 id="home-src-title" className="line-mask text-2xl font-bold"><span>{t('home.sourcesTitle')}</span></h2>
         <ul className="mt-4 space-y-2">
           {RANKING_PROVIDERS.map((p) => (
-            <li key={p.id} className="rounded-2xl border border-navy/10 bg-white p-4 text-sm shadow-sm">
+            <li key={p.id} className="card-hard rounded-2xl p-4 text-sm">
               <p className="font-bold">{p.name} · <span dir="ltr">{p.edition_label}</span></p>
               <p className="mt-1">
                 <a href={p.entry_url} target="_blank" rel="noreferrer" className="font-semibold text-teal-dark underline">{t('rankings.officialTable')}</a>
