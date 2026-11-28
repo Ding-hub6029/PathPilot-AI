@@ -135,7 +135,9 @@ def test_locale_key_parity_after_duration_keys():
     # Round 29 W1: +1 wizard.prefFallbackUnknown (the backend
     # template's generic "unknown" line, re-localised at render for
     # the offline pref-chat fallback) — parity holds.
-    assert len(base) == 980, len(base)
+    # Round 30 F5: +1 common.languages (stats-strip "Languages"
+    # label) — parity holds.
+    assert len(base) == 981, len(base)
     for locale in LOCALES:
         assert sets[locale] == base, (locale, sets[locale] ^ base)
 

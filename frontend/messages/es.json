@@ -113,6 +113,7 @@
  "common.export": "Exportar perfil JSON",
  "common.import": "Importar perfil JSON",
  "common.language": "Idioma",
+ "common.languages": "Idiomas",
  "common.loading": "Cargando…",
  "common.next": "Siguiente",
  "common.offline": "Sin conexión",

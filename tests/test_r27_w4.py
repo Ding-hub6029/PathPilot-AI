@@ -151,22 +151,22 @@ _AUDIT_PREFS = {
     "prefCity": "苏黎世", "prefPressure": "medium",
 }
 _AUDIT_WANT = {
-    "en": "Cool · Switzerland · Beautiful environment · University town · campus vibe · Zurich · Moderate",
-    "zh-CN": "凉爽 · 瑞士 · 环境优美 · 大学城·校园氛围 · 苏黎世 · 适中",
+    "en": "Switzerland · Beautiful environment · Cool · University town · campus vibe · Zurich · Moderate",
+    "zh-CN": "瑞士 · 环境优美 · 凉爽 · 大学城·校园氛围 · 苏黎世 · 适中",
 }
 
 _PREF_CASES = [
     # (name, locale, profile patch, expected summary)
     ("en: stored-localised city localises like a canonical one",
      "en", {**_AUDIT_PREFS, "prefCountriesNote": ""},
-     "Cool · Switzerland · University town · campus vibe · Zurich · Moderate"),
+     "Switzerland · Cool · University town · campus vibe · Zurich · Moderate"),
     ("zh: stored-localised city stays Chinese",
      "zh-CN", {**_AUDIT_PREFS, "prefCountriesNote": ""},
-     "凉爽 · 瑞士 · 大学城·校园氛围 · 苏黎世 · 适中"),
+     "瑞士 · 凉爽 · 大学城·校园氛围 · 苏黎世 · 适中"),
     ("en: canonical stored city renders the same",
      "en", {"prefCountries": ["CH"], "prefClimate": "cool", "prefEnvironment": "campus",
             "prefCity": "Zurich", "prefPressure": "medium"},
-     "Cool · Switzerland · University town · campus vibe · Zurich · Moderate"),
+     "Switzerland · Cool · University town · campus vibe · Zurich · Moderate"),
     ("en: unknown typed city stays the user's own spelling",
      "en", {"prefCountries": ["CH"], "prefCity": "苏州"},
      "Switzerland · 苏州"),

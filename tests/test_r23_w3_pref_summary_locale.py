@@ -57,12 +57,12 @@ _AUDIT_PREFS = {
 }
 
 _AUDIT_WANT = {
-    "en": "Cool · Switzerland · Beautiful environment · University town · campus vibe · Zurich",
-    "zh-CN": "凉爽 · 瑞士 · 环境很美·大学城·校园氛围 · 苏黎世",
-    "es": "Fresco · Suiza · Entorno hermoso · Ciudad universitaria · ambiente de campus · Zurich",
-    "fr": "Frais · Suisse · Bel environnement · Ville universitaire · ambiance campus · Zurich",
-    "pt-BR": "Fresco · Suíça · Ambiente bonito · Cidade universitária · clima de campus · Zurich",
-    "ar": "بارد · سويسرا · بيئة جميلة · مدينة جامعية · أجواء الحرم الجامعي · Zurich",
+    "en": "Switzerland · Beautiful environment · Cool · University town · campus vibe · Zurich",
+    "zh-CN": "瑞士 · 环境很美·大学城·校园氛围 · 凉爽 · 苏黎世",
+    "es": "Suiza · Entorno hermoso · Fresco · Ciudad universitaria · ambiente de campus · Zurich",
+    "fr": "Suisse · Bel environnement · Frais · Ville universitaire · ambiance campus · Zurich",
+    "pt-BR": "Suíça · Ambiente bonito · Fresco · Cidade universitária · clima de campus · Zurich",
+    "ar": "سويسرا · بيئة جميلة · بارد · مدينة جامعية · أجواء الحرم الجامعي · Zurich",
 }
 
 # (name, locale, pref patch, expected summary) — single-locale cases.

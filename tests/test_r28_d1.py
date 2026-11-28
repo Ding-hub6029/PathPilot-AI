@@ -347,10 +347,8 @@ def test_r28_d1_no_refetch_and_stored_contract():
 
 
 def test_r28_d1_locale_keys_unchanged():
-    """No locale keys are added by THIS fix: 980 keys in every locale
-    file (977 at Round 28 + the Round 29 W3 worker's two keys —
-    results.aiOffline and wizard.chatPrefAiBack — + the Round 29 W1
-    worker's wizard.prefFallbackUnknown), the same key set
+    """No locale keys are added by THIS fix: 981 keys in every locale
+    file (980 at Round 29 + the Round 30 common.languages key), the same key set
     in all 6, and every key this fix renders through exists in
     all 6."""
     msgs = {
@@ -358,7 +356,7 @@ def test_r28_d1_locale_keys_unchanged():
         for loc in LOCALES
     }
     base = set(msgs["en"])
-    assert len(base) == 980, len(base)
+    assert len(base) == 981, len(base)
     for loc in LOCALES:
         assert set(msgs[loc]) == base, (loc, set(msgs[loc]) ^ base)
     for key in (

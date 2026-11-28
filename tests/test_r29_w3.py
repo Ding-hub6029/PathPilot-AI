@@ -62,9 +62,8 @@ Covers, with no API key and no network:
   the full set + guards the persist write; the results banner
   gates "Live backend connected" on the shared AI verdict;
 - locale keys: results.aiOffline + wizard.chatPrefAiBack exist
-  in all 6 locales (980 keys total = 977 at Round 28 + these
-  two + the Round 29 W1 worker's wizard.prefFallbackUnknown),
-  non-empty, same set in all 6.
+  in all 6 locales (981 keys total = 980 at Round 29 + Round 30
+  F5's common.languages), non-empty, same set in all 6.
 
 Run: .venv/bin/pytest -q -p no:cacheprovider tests/test_r29_w3.py
 """
@@ -183,6 +182,12 @@ function checkTrue(name, cond) { check(name, !!cond, true); }
   const p11 = probeAiVerdict({ budgetMs: 1500 });
   beginAiTurn();
   check('probe dropped while a turn is in flight', await p11, { verdict: 'checking', timedOut: false });
+  // Round 30, F3: endAiTurn() re-arms a probe when the verdict is
+  // still unknown (the dropped probe left the footer on checking
+  // with nothing scheduled to re-probe) — script its response so
+  // the re-arm consumes this one, not a later section's. The
+  // resetAiVerdict() below invalidates it before it can land.
+  scripted.push(okJson({ ai_status: 'unavailable', probed: true }));
   endAiTurn();
   check('verdict stays checking after the dropped probe', getAiVerdict(), { verdict: 'checking', timedOut: false });
   resetAiVerdict();
@@ -310,7 +315,7 @@ function checkTrue(name, cond) { check(name, !!cond, true); }
   const msgs = {};
   for (const loc of locales) msgs[loc] = JSON.parse(fs.readFileSync(path.join(__MSG__, loc + '.json'), 'utf8'));
   const base = new Set(Object.keys(msgs.en));
-  check('locale key count is 980 (977 + W3 x2 + W1 x1)', base.size, 980);
+  check('locale key count is 981 (977 + W3 x2 + W1 x1 + R30 x1)', base.size, 981);
   for (const loc of locales) {
     check(loc + ' key set matches en', JSON.stringify(Object.keys(msgs[loc]).sort()), JSON.stringify([...base].sort()));
     check(loc + ' results.aiOffline present', typeof msgs[loc]['results.aiOffline'], 'string');

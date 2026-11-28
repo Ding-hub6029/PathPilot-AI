@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
 import type { Profile } from '../lib/types';
 import { fetchJsonChat, modelAvailability, allPrograms, findProgram } from '../lib/api';
-import { aiVerdictLineKey, beginAiTurn, endAiTurn, noteAiTurnVerdict, probeAiVerdict, resetAiVerdict, useAiVerdict } from '../lib/aiVerdict';
+import { aiVerdictLineKey, beginAiTurn, endAiTurn, getAiVerdict, noteAiTurnVerdict, probeAiVerdict, resetAiVerdict, useAiVerdict } from '../lib/aiVerdict';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, detectLevelWord, disambiguationFollowupMessage, disambiguationLevels, isModelReply, looksLikeQuestion, pendingDisambiguation, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
@@ -677,7 +677,13 @@ export function CompassPet() {
     // store — the wizard and the results banner read the same
     // verdict, so they reset with it instead of keeping a stale
     // claim of their own.
-    resetAiVerdict();
+    // Round 30, F3: reset only a settled verdict — useAiVerdict's
+    // auto-probe effect runs before this effect, so when the
+    // verdict is already unknown it has started the probe and
+    // resetting here would orphan it (a second live probe
+    // serializing on the backend lock). A settled verdict is
+    // still reset before the paint, as above.
+    if (getAiVerdict().verdict !== 'checking') resetAiVerdict();
     setWaking(false);
     setOpen(true);
     try { sessionStorage.setItem('pp-pet-open', '1'); } catch { /* ignore */ }
@@ -780,7 +786,21 @@ export function CompassPet() {
     // checking line too until this open's verdict lands. The
     // shared probe dedupes concurrent callers, so a probe the
     // results page already started is joined, not repeated.
-    resetAiVerdict();
+    // Round 30, F3: reset ONLY a settled verdict. useAiVerdict's
+    // auto-probe effect is registered before this effect, so by
+    // the time this runs it has already started the open's probe
+    // whenever the verdict was unknown — resetting here orphaned
+    // that probe (resetAiVerdict nulls inFlight without aborting
+    // its fetch) and started a second live probe, and the two
+    // serialized on the backend's /ai/status lock at ~7 s each
+    // on a hanging gateway, so the footer took ~14 s+ to settle
+    // instead of one probe's ~7 s. Every open already resets
+    // before this effect when there IS a stale verdict to clear
+    // (toggle(true) pre-paint, the /results restore before
+    // setOpen); on a fresh mount the verdict cannot be settled
+    // yet, so skipping the reset here loses nothing — runProbe
+    // joins the probe that is already in flight.
+    if (getAiVerdict().verdict !== 'checking') resetAiVerdict();
     runProbe({ minChecking: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -798,7 +818,12 @@ export function CompassPet() {
     devilWasOnRef.current = devilMode;
     if (!open || !devilMode || wasOn) return;
     setWaking(false);
-    resetAiVerdict();
+    // Round 30, F3: same guard as the open effect above — when
+    // the verdict is already unknown (the open probe still in
+    // flight) resetting here would orphan it and start a second
+    // live probe; runProbe joins the one already running. A
+    // settled verdict is still reset, so devil mode re-verifies.
+    if (getAiVerdict().verdict !== 'checking') resetAiVerdict();
     runProbe({ minChecking: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, devilMode]);

@@ -138,7 +138,7 @@ check('P2a WHY summary has exactly 4 atoms',
 // Round 13 dedupe still holds with the ·-joined note.
 const audit = prefs.prefSummary({ ...emptyProfile, ...JSON.parse(process.argv[2]) }, tZh);
 check('P2a audit summary unchanged',
-  audit, '凉爽 · 瑞士 · 环境优美 · 大学城·校园氛围 · 苏黎世 · 留在留学国家 · 60000 GBP · 适中 · 小班研讨');
+  audit, '瑞士 · 环境优美 · 凉爽 · 大学城·校园氛围 · 苏黎世 · 留在留学国家 · 60000 GBP · 适中 · 小班研讨');
 check('P2a audit 校园氛围 exactly once',
   (audit.match(/校园氛围/g) || []).length, 1);
 

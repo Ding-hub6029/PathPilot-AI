@@ -118,13 +118,30 @@ export interface ProbeAiOptions {
    * fetchJsonPatient's 90 s; tests pass a small budget so a
    * failing probe settles fast instead of retrying for 90 s. */
   budgetMs?: number;
+  /** Per-attempt timeout override — production default is
+   * fetchJsonPatient's 25 s; tests pass a small timeout so a
+   * hanging probe aborts fast instead of waiting out 25 s. */
+  attemptTimeoutMs?: number;
 }
 
 /** The one shared probe. Concurrent callers share the single
  * in-flight read; a call while no probe is in flight starts a
  * fresh one. Resolves with the settled shared state — which may
  * be the unchanged state when the probe verdict was dropped by
- * the turn guard (the turn's own verdict lands when it ends). */
+ * the turn guard (the turn's own verdict lands when it ends).
+ *
+ * Round 30, F3: the probe fetch is a status read, not a turn —
+ * a slow abort (the per-attempt timer fired, e.g. the read queued
+ * behind other live probes on the backend lock) is final
+ * (`retryOnTimeout: false`, the fetchJsonChat rule from Round 15
+ * F2). Re-issuing a slow probe only re-queues it behind the
+ * still-running probes and stacks 25 s aborts inside the 90 s
+ * budget, so the footer sat on "Checking the AI connection…"
+ * for 30–60 s with no waking line (the useAiVerdict auto-probe
+ * passes no onRetry). A fast failure (backend waking: connection
+ * refused / 502 / 503 / 504) still retries inside the budget —
+ * that is the cold-start wake, and it is cheap. A slow abort
+ * settles offline with timedOut, and the footer retry re-checks. */
 export function probeAiVerdict(opts?: ProbeAiOptions): Promise<AiVerdictState> {
   if (inFlight) return inFlight;
   const seq = ++probeSeq;
@@ -143,17 +160,23 @@ export function probeAiVerdict(opts?: ProbeAiOptions): Promise<AiVerdictState> {
       let payload: AiStatusPayload;
       try {
         payload = await fetchJsonPatient<AiStatusPayload>('/api/ai/status?fresh=1', {},
-          { onRetry, ...(opts?.budgetMs !== undefined ? { budgetMs: opts.budgetMs } : {}) });
-      } catch {
+          { onRetry, retryOnTimeout: false,
+            ...(opts?.budgetMs !== undefined ? { budgetMs: opts.budgetMs } : {}),
+            ...(opts?.attemptTimeoutMs !== undefined ? { attemptTimeoutMs: opts.attemptTimeoutMs } : {}) });
+      } catch (err) {
         // The status read itself failed (backend asleep /
         // unreachable): that says the model cannot be reached, so
-        // offline — the safe direction. The patient fetch already
-        // retried while the backend woke; a retry that fired means
-        // the budget was spent, i.e. a timeout, not a fast refusal.
+        // offline — the safe direction. A retry that fired means
+        // the budget was spent, and a slow abort (the per-attempt
+        // timer fired — fetchJsonPatient throws AbortError for it,
+        // and retryOnTimeout: false makes it final above) means
+        // the read waited out its whole attempt: either way the
+        // footer says "timed out", not bare "offline".
         if (minChecking) await sleep(checkingDelayMs(Date.now() - startedAt));
         if (probeSeq !== seq) return cached;
         if (!applies()) return cached;
-        const next: AiVerdictState = { verdict: 'offline', timedOut: retryFired };
+        const next: AiVerdictState = { verdict: 'offline',
+          timedOut: retryFired || (err as { name?: string } | null)?.name === 'AbortError' };
         emit(next);
         return next;
       }
@@ -197,9 +220,22 @@ export function beginAiTurn(): void {
 
 /** A turn ended without noting a verdict (its reply was ignored —
  * e.g. superseded by a restart): it is no longer in flight, so a
- * later probe verdict may apply. */
+ * later probe verdict may apply.
+ *
+ * Round 30, F3: it must also re-arm a probe when the verdict is
+ * still unknown. A probe verdict dropped by the turn guard (the
+ * turn was in flight when it resolved) leaves the store on
+ * 'checking' with no probe in flight and nothing scheduled to
+ * re-probe — useAiVerdict only fires on a verdict change — so a
+ * turn that ends WITHOUT noting a verdict used to strand the
+ * footer on "Checking the AI connection…" until the next explicit
+ * probe (panel re-open, devil enable, footer retry, clear-data).
+ * A turn that DID note a verdict already settled the store, so
+ * this is a no-op on the normal path; and a probe still in flight
+ * is joined, not repeated. */
 export function endAiTurn(): void {
   turnInFlight = false;
+  if (cached.verdict === 'checking' && !inFlight) void probeAiVerdict();
 }
 
 /** A real chat turn's verdict — the strongest evidence about the

@@ -113,6 +113,7 @@
  "common.export": "تصدير الملف الشخصي JSON",
  "common.import": "استيراد الملف الشخصي JSON",
  "common.language": "اللغة",
+ "common.languages": "اللغات",
  "common.loading": "جارٍ التحميل…",
  "common.next": "التالي",
  "common.offline": "دون اتصال",

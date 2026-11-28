@@ -284,7 +284,7 @@ body { background: #F7F5F0; color: #0B1F3A; }
    tracking, slight oblique slant (the Xiaohongshu template's slanted
    display type), soft amber-white glow. The h1 span keeps its
    line-mask entrance + gradient flow (see .line-mask rules above). */
-.display-hero { font-family: var(--font-display), system-ui, sans-serif; font-size: clamp(3.2rem, 9.5vw, 6.4rem); line-height: .98; letter-spacing: -.04em; font-weight: 700; font-style: oblique 6deg; text-shadow: 0 0 32px rgba(242,165,65,.35), 0 2px 24px rgba(255,255,255,.12); }
+.display-hero { font-family: var(--font-display), system-ui, sans-serif; font-size: clamp(3.2rem, 9.5vw, 6.4rem); line-height: .98; letter-spacing: -.04em; font-weight: 700; text-shadow: 0 0 32px rgba(242,165,65,.35), 0 2px 24px rgba(255,255,255,.12); }
 
 /* Numbered nav (video: 创作 01 / 关于 02): small amber index before
    each label. */

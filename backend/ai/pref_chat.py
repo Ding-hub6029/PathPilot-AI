@@ -769,6 +769,16 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     is also carried on model-path results (see ``pref_answer``),
     where the structured block is attached on a climate turn too.
 
+    Round 30 F1: when this turn's deterministic extraction recorded
+    a preference (``extracted`` non-empty), the generic unknown pair
+    is dropped — the turn was understood, so "I can't find that"
+    would be false. When the extraction genuinely failed
+    (``extracted`` == {}) the pair stays: that is the honest "I
+    don't know" case. The drop is scoped to the pair itself (see
+    the code below): any other template line — a cities line, a
+    country line, a specific unknown such as ``fee_unknown`` — is
+    never removed by it.
+
     Round 16: when ``why`` is present, the WHY follow-up is the
     turn's question and the next-question line is WITHHELD from
     ``lines`` (same rule as the model path — see
@@ -778,6 +788,12 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     nxt = first_missing(known)
     done = nxt is None
     lines = list(template["lines"][:2])
+    # Round 30 F1: whether the template carried the generic unknown
+    # pair, captured BEFORE the cities/country replacement below
+    # rewrites lines[0] — the replacement can leave unknown_2
+    # behind on its own (a climate turn's [cities, unknown_2]).
+    unknown_pair = (_t(locale, "unknown"), _t(locale, "unknown_2"))
+    had_unknown_pair = lines == list(unknown_pair)
     placed_cities = False
     if not force_no_url:
         cities = evidence_cities_line(sources, locale)
@@ -801,6 +817,27 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
                     placed_cities = True
             elif country is not None:
                 lines = [country]
+    # Round 30 F1: when this turn's deterministic extraction recorded
+    # a preference, the turn was understood — the generic unknown pair
+    # ("I can't find that in the verified data" + "start the
+    # eligibility check") must not be emitted: it claims the answer
+    # was not found, which is false when the value was just recorded
+    # (re-test 24 item a / re-test 25: every guided answer —
+    # environment, city, afterGrad, salary, pressure, teaching —
+    # repeated the pair even though the value bubble showed). Only
+    # the pair is dropped, and only when the template actually
+    # carried it: a specific unknown (fee_unknown,
+    # ask_ielts_unknown, ...) is never a member of the pair and
+    # stays, and when the extraction genuinely failed
+    # (extracted == {}) the pair stays exactly as before — that is
+    # the honest "I don't know" case. The question line below is
+    # still appended, so a guided turn now answers with the question
+    # alone (on a WHY turn, with no lines at all — the WHY is the
+    # turn's question); the frontend renders a turn with empty reply
+    # lines as its offline line + question bubble (prefTurnBubbles
+    # emits the question bubble "even with empty lines").
+    if extracted and had_unknown_pair:
+        lines = [line for line in lines if line not in unknown_pair]
     if nxt is not None and why is None:
         lines.append(_question_line(nxt, locale))
     result: dict = {"lines": lines[:3],

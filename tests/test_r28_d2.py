@@ -68,8 +68,12 @@ LOCALES = ["en", "zh-CN", "es", "fr", "pt-BR", "ar"]
 
 # The re-test 22 turn, verbatim: cold (no-key) pref_answer for "凉爽"
 # with Switzerland known. The stored zh lines below are the
-# pre-change output, byte for byte — the backend change must not alter
-# `lines` on a climate-relevant turn.
+# pre-Round-30 output, byte for byte — a stored-reply fixture for the
+# node harness below (old snapshots keep their stored lines). Round 30
+# F1 (#307) drops the leftover unknown_2 line from the LIVE backend
+# output on a turn whose extraction succeeded, so the live lines are
+# now [_ZH_LINES[0], _ZH_LINES[2]]; see
+# test_cold_climate_turn_lines_drop_leftover_unknown2.
 _ZH_LINES = [
     "已核实的数据里有这些城市：苏黎世（四季分明，14 个项目，全部学位/方向）、洛桑（四季分明，11 个项目，全部学位/方向）。",
     "可以开始资格检查，逐项核对你的背景。",
@@ -106,16 +110,17 @@ def test_cold_climate_turn_carries_structured_block(monkeypatch):
     assert r["next_question"] == "environment"
 
 
-def test_cold_climate_turn_lines_byte_identical(monkeypatch):
-    """The backend change must not alter the rendered fallback lines
-    on a climate-relevant turn: byte-identical to the pre-change
-    (re-test 22) output."""
+def test_cold_climate_turn_lines_drop_leftover_unknown2(monkeypatch):
+    """Round 30 F1 (#307) supersedes the old byte-identical pin: on a
+    climate turn whose extraction succeeded, the leftover unknown_2
+    line ("可以开始资格检查…") is dropped — the cities line and the
+    next-question line are unchanged."""
     import sys
     sys.path.insert(0, str(BACKEND))
     from ai.pref_chat import pref_answer
     r = pref_answer("凉爽", "zh-CN", known={"countries": ["CH"]},
                     provider=_no_key_provider(monkeypatch))
-    assert r["lines"] == _ZH_LINES
+    assert r["lines"] == [_ZH_LINES[0], _ZH_LINES[2]]
 
 
 def test_turn_with_no_climate_sources_carries_no_block(monkeypatch):
@@ -134,8 +139,11 @@ def test_turn_with_no_climate_sources_carries_no_block(monkeypatch):
 def test_non_climate_turn_does_not_repeat_cities_block(monkeypatch):
     """Scoping (re-test 22's 6-times repetition): once climate is
     already known, a later non-climate answer ("大学城" -> campus)
-    no longer re-places the cities line — the generic unknown line
-    stays and no block is attached."""
+    no longer re-places the cities line and no block is attached.
+    Round 30 F1 (#307): the generic unknown pair is also dropped now
+    that the answer was recorded, so the turn answers with the next
+    question line alone — the old pin of the misleading unknown line
+    here was the F1 defect itself."""
     import sys
     sys.path.insert(0, str(BACKEND))
     from ai.pref_chat import pref_answer
@@ -145,7 +153,7 @@ def test_non_climate_turn_does_not_repeat_cities_block(monkeypatch):
     assert r["ai_status"] == "unavailable"
     assert "evidence_cities" not in r
     assert "climate_wanted" not in r
-    assert r["lines"][0] == "这个我从已核实的数据里查不到，不知道。"
+    assert r["lines"] == ["有没有你心仪的城市？"]
     assert r["next_question"] == "city"
 
 

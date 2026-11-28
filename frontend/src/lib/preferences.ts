@@ -76,11 +76,24 @@ export function hasPreferences(profile: Profile): boolean {
  * the campus label "大学城校园氛围") is dropped instead of rendered
  * twice — the results-page summary had the same tautology as the
  * PrefChat confirmation bubble. */
-export function prefSummary(profile: Profile, t: (k: string) => string, locale?: string): string {
-  // One entry per preference, tagged when it came from the free-text
-  // countries note: only note atoms may lose a single segment (below).
+/** The summary's parts in the canonical question order — countries,
+ * reason (the countries note), climate, environment, city, afterGrad,
+ * salary, pressure, teaching (Round 30 F2): the wizard asks the 8
+ * questions in this order, so the one-line summary must read back in
+ * the same order. `prefSummary` used to push climate first (the
+ * re-test 24 summary read "凉爽 · 瑞士 · 环境优美 · …" — climate
+ * before the country it qualifies), because the pushes were written
+ * in field order, not question order. One entry per preference,
+ * tagged when it came from the free-text countries note: only note
+ * atoms may lose a single segment (see prefSummary). Pure; the
+ * stored Profile is never mutated — the order is fixed here, at
+ * composition time only. */
+export function prefSummaryParts(
+  profile: Profile,
+  t: (k: string) => string,
+  locale?: string,
+): { text: string; fromNote: boolean }[] {
   const parts: { text: string; fromNote: boolean }[] = [];
-  if (profile.prefClimate) parts.push({ text: climateLabel(profile.prefClimate, t), fromNote: false });
   if (profile.prefCountries?.length) parts.push({ text: joinList(profile.prefCountries.map((c) => t(`country.${c}`)), locale ?? 'en'), fromNote: false });
   // Round 23: the note is stored verbatim in the language the user
   // typed it in (saveReason / profilePatchFromExtracted), while every
@@ -92,12 +105,18 @@ export function prefSummary(profile: Profile, t: (k: string) => string, locale?:
   const envLabel = profile.prefEnvironment ? environmentLabel(profile.prefEnvironment, t) : '';
   const note = profile.prefCountriesNote ? localiseCountryNote(profile.prefCountriesNote, envLabel, t) : '';
   if (note) parts.push({ text: note, fromNote: true });
+  if (profile.prefClimate) parts.push({ text: climateLabel(profile.prefClimate, t), fromNote: false });
   if (profile.prefEnvironment) parts.push({ text: environmentLabel(profile.prefEnvironment, t), fromNote: false });
   if (profile.prefCity) parts.push({ text: cityDisplayName(profile.prefCity, t), fromNote: false });
   if (profile.prefAfterGrad) parts.push({ text: afterGradLabel(profile.prefAfterGrad, t), fromNote: false });
   if (profile.prefSalary !== '' && profile.prefSalary !== undefined) parts.push({ text: `${profile.prefSalary} ${profile.prefSalaryCurrency ?? ''}`.trim(), fromNote: false });
   if (profile.prefPressure) parts.push({ text: pressureLabel(profile.prefPressure, t), fromNote: false });
   if (profile.prefTeaching) parts.push({ text: teachingLabel(profile.prefTeaching, t), fromNote: false });
+  return parts;
+}
+
+export function prefSummary(profile: Profile, t: (k: string) => string, locale?: string): string {
+  const parts = prefSummaryParts(profile, t, locale);
   const norm = (s: string) => s.toLowerCase().replace(/[·、，,；;。.\s]/g, '');
   // Round 13: the Round 10 whole-part containment dedupe regressed
   // because a part can itself hold TWO values. The countries note is

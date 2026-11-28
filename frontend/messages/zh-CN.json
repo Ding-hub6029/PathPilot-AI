@@ -113,6 +113,7 @@
  "common.export": "导出资料 JSON",
  "common.import": "导入资料 JSON",
  "common.language": "语言",
+ "common.languages": "语言",
  "common.loading": "加载中…",
  "common.next": "下一步",
  "common.offline": "离线",

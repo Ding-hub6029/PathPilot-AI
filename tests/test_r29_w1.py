@@ -470,8 +470,8 @@ def test_r29_w1_backend_wording_pin():
 
 
 def test_r29_w1_locale_keys():
-    """980 keys in every locale file (977 at Round 28 + Round 29
-    W3's two keys + this worker's wizard.prefFallbackUnknown), the
+    """981 keys in every locale file (980 at Round 29 + Round 30's
+    common.languages), the
     same key set in all 6, and every key E1/E2/E3 renders through
     exists in all 6."""
     msgs = {
@@ -479,10 +479,11 @@ def test_r29_w1_locale_keys():
         for loc in LOCALES
     }
     base = set(msgs["en"])
-    assert len(base) == 980, len(base)
+    assert len(base) == 981, len(base)
     for loc in LOCALES:
         assert set(msgs[loc]) == base, (loc, set(msgs[loc]) ^ base)
     for key in (
+        "common.languages",
         "wizard.prefFallbackUnknown", "pet.suggestUnknown2",
         "wizard.prefFallbackCitiesLine", "wizard.prefFallbackCityItem",
         "wizard.chatOpClimateNoMatch", "wizard.chatOpThanks",

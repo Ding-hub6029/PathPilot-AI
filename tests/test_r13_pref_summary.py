@@ -53,7 +53,7 @@ _SUMMARY_CASES = [
     # (name, pref patch, expected summary)
     ("audit profile: 校园氛围 exactly once",
      _AUDIT_PREFS,
-     "凉爽 · 瑞士 · 环境优美 · 大学城·校园氛围 · 苏黎世 · 留在留学国家 · 60000 GBP · 适中 · 小班研讨"),
+     "瑞士 · 环境优美 · 凉爽 · 大学城·校园氛围 · 苏黎世 · 留在留学国家 · 60000 GBP · 适中 · 小班研讨"),
     ("note identical to the campus label is dropped",
      {"prefCountries": ["CH"], "prefCountriesNote": "大学城·校园氛围", "prefEnvironment": "campus"},
      "瑞士 · 大学城·校园氛围"),
@@ -74,7 +74,7 @@ _SUMMARY_CASES = [
      "瑞士 · 想去看看雪山 · 大学城·校园氛围"),
     ("multi-country list keeps its ', ' join",
      {"prefCountries": ["CH", "GB"], "prefClimate": "cool"},
-     "凉爽 · 瑞士, 英国"),
+     "瑞士, 英国 · 凉爽"),
     ("no preferences, empty summary",
      {},
      ""),

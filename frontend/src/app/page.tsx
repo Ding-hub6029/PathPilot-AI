@@ -130,7 +130,7 @@ export default function HomePage() {
               [allPrograms().length, t('home.programsTitle')],
               [RANKING_INSTITUTIONS.length, t('institutions.title')],
               [SUCCESS_CASES.length, t('cases.title')],
-              [LOCALES.length, t('common.language')],
+              [LOCALES.length, t('common.languages')],
             ] as const).map(([value, label]) => (
               <div key={label} className="card-hard card-lift rounded-2xl p-5">
                 <p className="text-4xl font-bold text-navy"><StatCounter value={value} /></p>

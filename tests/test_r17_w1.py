@@ -319,7 +319,7 @@ const summary = prefs.prefSummary(profileAfterDrop, tZh);
 check('flow: summary contains Switzerland',
   summary.includes('瑞士'), true);
 check('flow: summary is the full preference string, WHY text as the reason',
-  summary, '凉爽 · 瑞士 · 喜欢湖光山色·空气清新·安静宜居');
+  summary, '瑞士 · 喜欢湖光山色·空气清新·安静宜居 · 凉爽');
 // Step-8 recommendations: preferred countries first
 // (sortRecsByPreference); Gaokao academic UNKNOWN everywhere, so all
 // four recs are PARTIAL_UNKNOWN and the preference decides the top.
@@ -347,7 +347,7 @@ const summaryLost = prefs.prefSummary(profileLost, tZh);
 check('before: summary with the country lost has no Switzerland',
   summaryLost.includes('瑞士'), false);
 check('before: summary with the country lost shows the WHY text as the country slot',
-  summaryLost, '凉爽 · 喜欢湖光山色·空气清新·安静宜居');
+  summaryLost, '喜欢湖光山色·空气清新·安静宜居 · 凉爽');
 check('before: top 2 with the country lost are Alberta and ANU (the reported symptom)',
   prefs.sortRecsByPreference(recs, programs, profileLost).slice(0, 2).map((r) => r.programId),
   ['alberta-cs-ai-bsc-2027', 'anu-computing-bachelor-2027']);
