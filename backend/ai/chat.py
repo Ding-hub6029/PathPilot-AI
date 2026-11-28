@@ -2166,6 +2166,64 @@ def devil_conflict_line(conflict: dict, locale: str = "en") -> str:
     return ""
 
 
+# Round 29 W2 (E3): the preference-only sentence, per locale — the
+# exact tail of the devil climate template (``_DEVIL_T[loc]
+# ["climate"]``): climate is a preference only, ordering not
+# eligibility. Kept as its own table so the pref-chat post-validation
+# can test for it without re-parsing the template; tests/test_r29_w2.py
+# pins every entry verbatim against ``_DEVIL_T``, so either side
+# drifting fails loudly. No invented translations: each entry is
+# copied from the template it must match.
+_CLIMATE_PREFERENCE_ONLY: dict[str, str] = {
+    "en": "Climate is only a preference — it never decides eligibility, it only orders results.",
+    "zh-CN": "气候只是偏好，不影响资格，只影响排序。",
+    "es": "El clima es solo una preferencia: nunca decide la elegibilidad, solo ordena los resultados.",
+    "fr": "Le climat n'est qu'une préférence : il ne décide jamais de l'éligibilité, il ne fait qu'ordonner les résultats.",
+    "pt-BR": "O clima é só uma preferência: nunca decide a elegibilidade, só ordena os resultados.",
+    "ar": "المناخ مجرد تفضيل — لا يقرر الأهلية أبدًا، بل يرتّب النتائج فقط.",
+}
+
+
+def climate_no_match_line(wanted: str | None, country: str | None,
+                          sources: list[Source], locale: str = "en"
+                          ) -> str | None:
+    """One deterministic line for a climate no-match turn: the wanted
+    class, the chosen country's listed cities with their ACTUAL
+    classes + verified programme counts, the no-match, and the
+    preference-only sentence — built from ``_DEVIL_T[loc]["climate"]``
+    with an empty prefix (the devil's "Another angle:" lead-in is
+    not this turn's voice) and the first letter capitalised. The
+    cities/counts come from ``evidence_cities_items`` (the same
+    parsing as ``evidence_cities_line``), never model text.
+
+    None when there is no no-match to state: no wanted class, no
+    country, no climate evidence, or a listed city HAS the wanted
+    class (a match needs no correction). Used by the pref-chat
+    model-path post-validation (Round 29 W2, E3); the devil path
+    keeps its own line (``devil_conflict_line``, with prefix +
+    difference sentence)."""
+    loc = locale if locale in _DEVIL_T else "en"
+    if not isinstance(wanted, str) or wanted not in _CLASS_WORDS["en"]:
+        return None
+    if not isinstance(country, str) or not country.strip():
+        return None
+    items = evidence_cities_items(sources)
+    if not items:
+        return None
+    if any(it["climate"] == wanted for it in items):
+        return None
+    words = _CLASS_WORDS.get(loc) or _CLASS_WORDS["en"]
+    item_t = _CITY_ITEM.get(loc) or _CITY_ITEM["en"]
+    cities = join_list(
+        (item_t.format(city=localised_city_name(it["city"], loc),
+                       cls=words[it["climate"]], n=it["count"])
+         for it in items), loc)
+    line = _DEVIL_T[loc]["climate"].format(
+        prefix="", wanted=words[wanted],
+        country=country_display_name(country, loc), cities=cities)
+    return line[:1].upper() + line[1:] if line else line
+
+
 def _ensure_devil_sources(conflicts: list[dict],
                           sources: list[Source]) -> list[Source]:
     """Every evidence id a conflict cites must be present in the

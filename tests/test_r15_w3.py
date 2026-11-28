@@ -231,10 +231,14 @@ def _hanging_gateway(monkeypatch):
 
 
 def test_r15_hanging_gateway_pref_chat_answers_within_budget(_hanging_gateway):
-    """Round 15 F2 (backend): a hanging gateway must not produce a
-    1–2 min first pref-chat reply — one turn is a single 15 s model
-    call, then the template. The second turn fails fast on the
-    circuit breaker, and the pet chat shares it."""
+    """Round 15 F2 (backend) superseded by Round 29 E4 (#302): guided
+    pref-chat turns no longer call the model at all — extraction +
+    template, decided before any gateway contact — so a hanging
+    gateway cannot slow them. The 15 s single-model-call budget now
+    applies only to free-form pet chat: its first call pays one
+    budget, then the breaker fails fast. This test pins the new
+    shape: guided turns fast with correct extraction, pet chat pays
+    one 15 s budget, then fails fast."""
     body = {"message": "瑞士", "locale": "zh-CN", "known": {}, "history": []}
     t0 = time.monotonic()
     r = client.post("/api/v1/assistant/pref-chat", json=body)
@@ -242,15 +246,15 @@ def test_r15_hanging_gateway_pref_chat_answers_within_budget(_hanging_gateway):
     assert r.status_code == 200, r.text
     assert r.json()["ai_status"] == "unavailable"
     assert len(r.json()["lines"]) >= 1  # template fallback, not a hang
-    assert first_s < 22, f"hanging gateway: first pref-chat turn took {first_s:.1f}s"
-    assert first_s > 10, f"first turn suspiciously fast ({first_s:.1f}s): the 15 s model timeout did not run"
+    assert "CH" in r.json().get("extracted", {}).get("countries", []), r.json()
+    assert first_s < 2, f"guided turn must not pay a model budget: took {first_s:.1f}s"
 
     t0 = time.monotonic()
     r2 = client.post("/api/v1/assistant/pref-chat", json=body)
     second_s = time.monotonic() - t0
     assert r2.status_code == 200, r2.text
     assert r2.json()["ai_status"] == "unavailable"
-    assert second_s < 5, f"breaker did not fail fast: second turn took {second_s:.1f}s"
+    assert second_s < 2, f"second guided turn took {second_s:.1f}s"
 
     t0 = time.monotonic()
     r3 = client.post("/api/v1/assistant/chat",
@@ -258,7 +262,16 @@ def test_r15_hanging_gateway_pref_chat_answers_within_budget(_hanging_gateway):
     third_s = time.monotonic() - t0
     assert r3.status_code == 200, r3.text
     assert r3.json()["ai_status"] == "unavailable"
-    assert third_s < 5, f"pet chat did not share the breaker: took {third_s:.1f}s"
+    assert third_s < 22, f"pet chat first call took {third_s:.1f}s"
+    assert third_s > 10, f"pet chat suspiciously fast ({third_s:.1f}s): the 15 s model timeout did not run"
+
+    t0 = time.monotonic()
+    r4 = client.post("/api/v1/assistant/chat",
+                     json={"message": "瑞士有哪些好学校？", "locale": "zh-CN", "history": []})
+    fourth_s = time.monotonic() - t0
+    assert r4.status_code == 200, r4.text
+    assert r4.json()["ai_status"] == "unavailable"
+    assert fourth_s < 5, f"breaker did not fail fast: second pet call took {fourth_s:.1f}s"
 
 
 def test_r15_plan_template_label_all_locales():

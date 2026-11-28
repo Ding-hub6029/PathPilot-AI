@@ -50,6 +50,22 @@ frontend asks it after the WHY is answered or skipped. ``done`` is
 True exactly when all 8 preferences are known (merged known +
 extracted).
 
+Round 29 W2 (E4): a message that answers the first still-missing
+preference — a guided answer, not a question — no longer attempts
+the model at all: it takes the deterministic route (the
+deterministic extraction + the template fallback) in engine time,
+in every gateway state, and returns ``ai_status="unavailable"``.
+The model is attempted only for non-guided turns (a free question
+mid-flow, a greeting, an answer the deterministic extraction cannot
+read). Round 29 W2 (E3): on a climate no-match turn the model
+reply's lines are post-validated to carry the cities line with
+programme counts and the no-match + preference-only sentences
+(``_pin_climate_no_match``), and the result carries ``climate_turn``
+(True exactly on a climate turn) plus the R28 D2 structured block
+(``evidence_cities`` + ``climate_wanted``) on a climate turn on
+both paths — the frontend's dedupe signal for the cities line,
+which is still placed on the countries turn as well.
+
 Nothing is logged or stored: no message, history or key ever leaves
 this call except inside the provider request itself.
 """
@@ -62,12 +78,14 @@ import time
 
 from ai.assistant import (LOCALES, _t, ask as assistant_ask,
                           check_no_forbidden, contains_personal_data)
-from ai.chat import (_clean_history, _detect_climate_class,
+from ai.chat import (_CLASS_WORDS, _CLIMATE_PREFERENCE_ONLY,
+                     _clean_history, _detect_climate_class,
                      _detect_country, _country_names, _evidence_texts,
                      _parse_model_json, _render_lines,
                      _resolve_evidence_url, _retrieve,
-                     _validate_chat_payload, country_evidence_line,
-                     evidence_cities_items, evidence_cities_line)
+                     _validate_chat_payload, climate_no_match_line,
+                     country_evidence_line, evidence_cities_items,
+                     evidence_cities_line, localised_city_name)
 from ai.grounding import Source
 from ai.prompts import PROMPT_VERSION, pref_chat_system
 from ai.provider import ProviderAdapter, ProviderError
@@ -620,6 +638,78 @@ def _render_pref_lines(payload: dict, locale: str, sources: list[Source],
     return body[:3]
 
 
+def _pin_climate_no_match(lines: list[str], *, wanted: str | None,
+                          country: str | None, sources: list[Source],
+                          locale: str, next_question: str | None,
+                          why: dict | None) -> list[str]:
+    """Round 29 W2 (E3) — deterministic post-validation for a climate
+    no-match turn on the MODEL path (the R26 W3 precedent:
+    deterministic post-validation pins the answer to the intent).
+
+    Re-test 23 (gateway up, model-led): the climate answer HAS the
+    no-match sentence but DROPS the "climate is only a preference,
+    it never decides eligibility, it only orders results" sentence
+    and drops the cities line with programme counts. The frontend
+    helper ``localisedFallbackLines`` only re-renders OFFLINE
+    replies, so a model reply must carry the sentences itself, in
+    this turn's locale — and only from deterministic templates
+    (``climate_no_match_line`` in ai.chat, built from ``_DEVIL_T``),
+    never model text.
+
+    When there is no no-match to state (``climate_no_match_line``
+    returns None — a match, no wanted class, no country, no
+    evidence), or the lines already carry BOTH the preference-only
+    sentence and the cities line, the lines are returned unchanged.
+    Otherwise the deterministic line replaces the last body line
+    that states a listed city (canonical or localised name) or the
+    wanted class word — the model's climate claim, searched from
+    the end so the summary (which may carry the user's reason)
+    is never the line replaced — or, when no body line states the
+    climate at all, it is inserted first and the body is capped so
+    the total stays within 3 lines with the next-question line
+    still last (2 body lines + question, or 3 body lines on a WHY
+    turn, where the question is withheld)."""
+    det_line = climate_no_match_line(wanted, country, sources, locale)
+    if det_line is None:
+        return lines
+    joined = "\n".join(lines)
+    pref_only = (_CLIMATE_PREFERENCE_ONLY.get(locale)
+                 or _CLIMATE_PREFERENCE_ONLY["en"])
+    cities_line = evidence_cities_line(sources, locale)
+    if pref_only in joined and cities_line is not None \
+            and cities_line in joined:
+        return lines
+    question = (_question_line(next_question, locale)
+                if next_question is not None and why is None else "")
+    body = ([line for line in lines if line != question]
+            if question else list(lines))
+    items = evidence_cities_items(sources)
+    names: set[str] = set()
+    for it in items:
+        names.add(it["city"])
+        names.add(localised_city_name(it["city"], locale))
+    words = _CLASS_WORDS.get(locale) or _CLASS_WORDS["en"]
+    wanted_word = words.get(wanted, "") if wanted else ""
+    target: int | None = None
+    for i in range(len(body) - 1, -1, -1):
+        if any(n in body[i] for n in names):
+            target = i
+            break
+    if target is None and wanted_word:
+        for i in range(len(body) - 1, -1, -1):
+            if wanted_word in body[i]:
+                target = i
+                break
+    max_body = 2 if question else 3
+    if target is not None:
+        body[target] = det_line
+    else:
+        body.insert(0, det_line)
+        body = body[:max_body]
+    out = body + ([question] if question else [])
+    return out[:3]
+
+
 def _fallback_result(template: dict, sources: list[Source], known: dict,
                      locale: str, *, force_no_url: bool = False,
                      extracted: dict | None = None,
@@ -643,13 +733,17 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     Round 28 D2: when the cities line IS placed, the result also
     carries the structured block ``evidence_cities`` (from
     ``evidence_cities_items``) and ``climate_wanted`` (the wanted
-    class, or None) — ONLY on the fallback (offline) result, never
-    on a model reply — so the frontend can re-render the cities line
+    class, or None) — so the frontend can re-render the cities line
     and the no-match sentence in the CURRENT locale after a language
     switch, instead of the stored request-locale string. The block
     is attached only when the cities line was actually placed into
     ``lines[0]``, so the helper's "block present ⟺ lines[0] is the
-    cities line" contract always holds.
+    cities line" contract always holds. Round 29 W2 (E3) attaches
+    the same block on a MODEL-path climate turn too (see
+    ``pref_answer``) — the frontend helper still returns null for
+    model replies today, but the block is the same shape, so the
+    helper can be extended to model replies without a backend
+    change.
 
     Round 28 D2 scoping: the cities line is placed only on a
     climate-relevant turn — this message states a climate class
@@ -661,6 +755,19 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     the generic unknown line stays, exactly as the template wrote
     it; the country line still fires only when there is no cities
     line at all, as before.
+
+    Round 29 W2 (E3): the result also carries ``climate_turn``
+    (bool, always present) — True exactly when THIS turn stated a
+    climate class (``climate_stated``) or just answered climate
+    (``extracted`` carries it). The cities line is still placed on
+    the countries turn (climate is the next question there — the
+    R28 D2 evidence-in-hand pin), so the identical cities line can
+    still appear on two consecutive turns in ``lines``; the marker
+    is the frontend's dedupe signal: render the cities line only
+    on the turn where ``climate_turn`` is True (the climate turn),
+    and suppress its re-render on the earlier turn. ``climate_turn``
+    is also carried on model-path results (see ``pref_answer``),
+    where the structured block is attached on a climate turn too.
 
     Round 16: when ``why`` is present, the WHY follow-up is the
     turn's question and the next-question line is WITHHELD from
@@ -702,7 +809,9 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
                     "sources": [{"id": s.id, "url": s.url, "title": s.title}
                                 for s in sources],
                     "extracted": extracted or {}, "next_question": nxt, "done": done,
-                    "why_followup": why}
+                    "why_followup": why,
+                    "climate_turn": bool(climate_stated
+                                         or "climate" in (extracted or {}))}
     if placed_cities:
         result["evidence_cities"] = evidence_cities_items(sources)
         result["climate_wanted"] = climate_wanted
@@ -720,19 +829,33 @@ def pref_answer(message: str, locale: str = "en",
     """One turn of the model-led preference conversation.
 
     Returns ``{lines, evidence_url, ai_status, model, sources,
-    extracted, next_question, done, why_followup}``: ``lines`` at most 3, conclusion
-    first, the next question as the last line while anything is still
-    missing — UNLESS the turn carries a WHY follow-up, in which case
-    the WHY is the turn's question, the next-question line is withheld
-    from ``lines`` and ``next_question`` names the deferred preference
-    (Round 16); ``extracted`` holds only the preferences understood from
-    THIS message, validated server-side; ``next_question`` is the
-    single most useful still-missing preference, or null when all 8
-    are known (``done`` True); ``why_followup`` is
+    extracted, next_question, done, why_followup, climate_turn}``:
+    ``lines`` at most 3, conclusion first, the next question as the
+    last line while anything is still missing — UNLESS the turn
+    carries a WHY follow-up, in which case the WHY is the turn's
+    question, the next-question line is withheld from ``lines`` and
+    ``next_question`` names the deferred preference (Round 16);
+    ``extracted`` holds only the preferences understood from THIS
+    message, validated server-side; ``next_question`` is the single
+    most useful still-missing preference, or null when all 8 are
+    known (``done`` True); ``why_followup`` is
     ``{"countries": [...], "note": <reason>}`` in the FIRST reply of
     a turn that records new countries (None otherwise) — the frontend
     renders it at once, never behind the confirm chip. ``ai_status``
     is ``"available"`` only when a validated model output was actually used.
+    Round 29 W2 (E4): a message that answers the first still-missing
+    preference — a guided answer, not a question — takes the
+    deterministic route (extraction + template, no model call) and
+    returns ``ai_status="unavailable"`` in engine time; the model is
+    attempted only for non-guided turns (a free question mid-flow, a
+    greeting, an answer the deterministic extraction cannot read).
+    ``climate_turn`` is True exactly when this turn stated a climate
+    class or just answered climate; on a climate turn the result
+    also carries ``evidence_cities`` + ``climate_wanted`` (the R28 D2
+    shape, on the model path too), and on a climate no-match turn
+    the model reply's lines are post-validated to carry the cities
+    line with programme counts and the no-match + preference-only
+    sentences (Round 29 W2, E3).
     """
     loc = locale if locale in LOCALES else "en"
     msg = message or ""
@@ -761,31 +884,69 @@ def pref_answer(message: str, locale: str = "en",
     sources_out = [{"id": s.id, "url": s.url, "title": s.title}
                    for s in sources]
 
-    # (c) No key: the template assistant is the honest answer, plus
+    # The deterministic extraction for this message (round 10 /
+    # round 26 W1): what can be matched WITHOUT a model — the answer
+    # to the FIRST still-missing preference (the question the chat is
+    # actually asking), plus a country named in the message and the
+    # user's reason in their own words. Computed once here and reused
+    # by the guided route, the no-key branch, the model-failure
+    # fallback, and the model-success fill-in below.
+    det = _deterministic_extract(msg, clean_known)
+    climate_stated = _detect_climate_class(msg) is not None
+
+    def fallback() -> dict:
+        # The deterministic result: the template + deterministic
+        # extraction, so the sentence is recorded and the next
+        # question advances past what it stated, instead of losing
+        # the turn — on a model failure, with no key, and (round 29
+        # W2, E4) on a guided answer (see below).
+        merged = merge_known(clean_known, det)
+        return _fallback_result(template, sources, merged, loc,
+                                extracted=det,
+                                why=why_followup(det, clean_known),
+                                climate_wanted=wanted,
+                                climate_stated=climate_stated)
+
+    # (c) Guided answer: the deterministic route, no model call
+    # (Round 29 W2, E4 — re-test 23 item c: the first preference
+    # answer took 13-30 s on the model path while the offline path
+    # answered in ~1-2 s). A guided answer is a message that answers
+    # the FIRST still-missing preference — the question the chat is
+    # asking — as the deterministic extraction reads it, and is not
+    # itself a question (a free question mid-flow, e.g. "瑞士有哪些
+    # 好学校？", keeps the model path below). The guided 8-question
+    # answers are deterministic (extract the answer + confirm + ask
+    # the next question) — the model adds nothing to them, and the
+    # fee flow was made deterministic the same way in R25/R26 (the
+    # template is the one route when the answer is already resolved).
+    # A short model budget is NOT the fix here: a healthy gateway
+    # answers a tiny chat in ~3.4 s (provider.py probe comment,
+    # measured 2026-11-27), so no budget under ~2 s could ever use
+    # the model when healthy, and any budget over ~2 s breaks the
+    # ~2 s bound when the gateway is slow — while httpx
+    # MockTransport ignores timeouts, so a budget could not even be
+    # verified honestly in tests. The deterministic route lands in
+    # engine time in every gateway state; ``ai_status`` is honestly
+    # "unavailable" (no validated model output was used), exactly as
+    # the fee template route reports it. Trade-off, stated plainly:
+    # a guided turn no longer gets the model's in-lines
+    # acknowledgement of the user's reason — the reason still rides
+    # in ``extracted.note`` and in ``why_followup`` (the frontend
+    # renders the WHY with it), which is the same wording the
+    # offline path already showed in re-test 23 round 1.
+    nxt_missing = first_missing(clean_known)
+    guided = (nxt_missing is not None and nxt_missing in det
+              and not _det_looks_like_question(msg))
+    if guided:
+        return fallback()
+
+    # (d) No key: the template assistant is the honest answer, plus
     # the deterministic extraction (round 10) so the user's words
     # are recorded even with no model at all.
     if not provider.available:
-        ext = _deterministic_extract(msg, clean_known)
-        merged = merge_known(clean_known, ext)
-        return _fallback_result(template, sources, merged, loc,
-                                extracted=ext,
-                                why=why_followup(ext, clean_known),
-                                climate_wanted=wanted,
-                                climate_stated=_detect_climate_class(msg) is not None)
+        return fallback()
 
-    # (d) Key present: model over the retrieved sources only.
-    def fallback() -> dict:
-        # Same deterministic extraction on a model failure: the
-        # sentence is recorded and the next question advances past
-        # what it stated, instead of losing the turn.
-        ext = _deterministic_extract(msg, clean_known)
-        merged = merge_known(clean_known, ext)
-        return _fallback_result(template, sources, merged, loc,
-                                extracted=ext,
-                                why=why_followup(ext, clean_known),
-                                climate_wanted=wanted,
-                                climate_stated=_detect_climate_class(msg) is not None)
-
+    # (e) Key present: model over the retrieved sources only.
     evidence_texts = _evidence_texts(sources, pids)
     missing_before = missing_prefs(clean_known)
     # Round 26 W1 — fail-fast parity with ai.chat.answer: when the
@@ -846,7 +1007,7 @@ def pref_answer(message: str, locale: str = "en",
         logger.info("pref_chat model output failed validation errors=%d",
                     len(errors))
         return fallback()
-    # (e) Server-side validation of the model's extraction + next
+    # (f) Server-side validation of the model's extraction + next
     # question — never trusted, always recomputed against merged known.
     # Round 10: the deterministic extraction fills in a country / a
     # reason the model missed (never overrides what the model did
@@ -858,7 +1019,6 @@ def pref_answer(message: str, locale: str = "en",
     # drops the environment answer. Salary / city stay fallback-only:
     # the model is the authority for those when it is up.
     extracted = validate_extracted(parsed.get("extracted"))
-    det = _deterministic_extract(msg, clean_known)
     for key in ("countries", "note", "climate", "environment",
                 "afterGrad", "pressure", "teaching"):
         if key not in extracted and key in det:
@@ -874,6 +1034,24 @@ def pref_answer(message: str, locale: str = "en",
     # the deferred preference.
     why = why_followup(extracted, clean_known)
     lines = _render_pref_lines(parsed, loc, sources, nxt, why)
+    # Round 29 W2 (E3): the climate pin — when this turn is a climate
+    # turn (it states a climate class, or just answered climate),
+    # the model reply must carry the cities line with programme
+    # counts AND the no-match + preference-only sentences (see
+    # _pin_climate_no_match). The structured block rides along in
+    # the same shape as the R28 D2 fallback block, so the frontend
+    # can re-render the cities line in the current locale if it
+    # extends its helper to model replies; ``climate_turn`` marks
+    # the turn for the frontend's cities-line dedupe (see
+    # _fallback_result).
+    climate_turn = bool(climate_stated or "climate" in extracted)
+    wanted_turn = (_detect_climate_class(msg)
+                   or extracted.get("climate"))
+    if climate_turn:
+        lines = _pin_climate_no_match(
+            lines, wanted=wanted_turn,
+            country=(scope[0] if scope else None), sources=sources,
+            locale=loc, next_question=nxt, why=why)
     # Defence in depth: a rendered line must never carry a raw URL, a
     # probability/guarantee, or key material — if it does, fall back.
     joined_lines = "\n".join(lines)
@@ -881,12 +1059,19 @@ def pref_answer(message: str, locale: str = "en",
             or "www." in joined_lines or check_no_forbidden(lines)
             or "sk-" in joined_lines.lower()):
         return fallback()
-    return {"lines": lines,
-            "evidence_url": _resolve_evidence_url(parsed, sources),
-            "ai_status": "available",
-            "model": f"{result.provider}/{result.model}",
-            "sources": sources_out,
-            "extracted": extracted,
-            "next_question": nxt,
-            "done": done,
-            "why_followup": why}
+    result: dict = {"lines": lines,
+                    "evidence_url": _resolve_evidence_url(parsed, sources),
+                    "ai_status": "available",
+                    "model": f"{result.provider}/{result.model}",
+                    "sources": sources_out,
+                    "extracted": extracted,
+                    "next_question": nxt,
+                    "done": done,
+                    "why_followup": why,
+                    "climate_turn": climate_turn}
+    if climate_turn:
+        items = evidence_cities_items(sources)
+        if items:
+            result["evidence_cities"] = items
+            result["climate_wanted"] = wanted_turn
+    return result

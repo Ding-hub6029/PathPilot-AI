@@ -9,22 +9,22 @@ Code: https://github.com/Ding-hub6029/PathPilot-AI
 Backend: https://pathpilot-ai-co9k.onrender.com (Render free tier — sleeps after
 15 min idle; open /api/v1/health first and wait ~1 min before recording or demoing).
 
-## Numbers used below — all verified in-repo as of 2026-11-26 01:50 CST
+## Numbers used below — all verified in-repo as of 2026-11-28 12:05 CST
 
-- 889 programmes across 148 institutions (QS top 100): 881 expansion
-  programmes, of which 588 are matchable by the rules engine and 293 are
+- 894 programmes across 148 institutions (QS top 100): 886 expansion
+  programmes, of which 593 are matchable by the rules engine and 293 are
   display-only (insufficient structured data — shown as unknown, never
   guessed), plus 8 deeply verified programmes with their own evaluators.
 - 8 deeply verified programmes (UK/SG, UG + taught masters) with 72 facts from
   29 official sources; the 881 expansion programmes come from official
   programme pages only.
 - Rankings: QS 2027 + THE 2027 + ARWU 2026 top 100 each = 300 entries.
-- 55 success cases (labelled netizen-shared, unverified, with source links),
-  18 school reviews, 11 news + 3 policy cards.
+- 41 applicants / 53 offers (labelled netizen-shared, unverified, with source links),
+  18 school reviews, 9 news link-outs + 3 policy cards.
 - 6 locales (EN, ZH-CN, ES, FR, PT-BR, AR with RTL).
 - Climate data for 80 cities; real-model chat (DeepSeek) with grounded answers,
   /explain, profile parsing, improvement plans, 12-case evaluation set.
-- Tests: 289 pytest passed; production build passes.
+- Tests: 904 pytest passed; production build passes.
 
 Do NOT claim in the submission: admission probabilities (the product gives
 none), full coverage of every programme of every school (expansion is
@@ -44,7 +44,7 @@ and says "unknown" when the evidence is not there.
 PathPilot AI is an evidence-based university selection assistant. Tell it your
 background — Gaokao, A-level, IB, SAT/AP, Singapore A-level or another route —
 and your preferences in a chat with 小罗盘 (Little Compass), and it recommends
-programmes from 889 programmes at 148 institutions (QS top 100), each checked
+programmes from 894 programmes at 148 institutions (QS top 100), each checked
 against official minimum requirements: academics, English, fees, deadlines.
 A real AI model (DeepSeek) powers the chat, explains every verdict with
 citations, parses a pasted background into a profile, and builds an
@@ -58,7 +58,7 @@ NOT_APPLICABLE), a Next.js frontend, and a verified-data pipeline: every fact
 carries its official source, excerpt and retrieval date. Expansion programmes
 are evaluated only on verified structured data through a generic evaluator.
 Climate preference (80 cities) reorders results — it never changes a verdict.
-289 automated tests pass; the backend runs on Render, the frontend on Vercel.
+904 automated tests pass; the backend runs on Render, the frontend on Vercel.
 
 **Challenges we ran into**
 Official requirements are scattered and sometimes contradictory; we refused to
@@ -72,6 +72,11 @@ Finish programme coverage beyond computer, business and engineering; add the
 action-comparison view; extend improvement plans to all expansion programmes.
 
 ## Video script — ~90 seconds (record on the phone, English narration)
+
+Superseded: the video is now recorded by Muse (screen-recording on the VM,
+60 fps, no black leader) with the full 3:12 English narration — see
+docs/VIDEO_NARRATION_SCRIPT.md and narration-full.srt (40 subtitle cues).
+The shot table below is the old 90-second phone plan, kept for reference.
 
 Warm-up first: open the backend health URL, wait for {"status":"ok"}, then
 start recording. Record in English UI (first-open default).

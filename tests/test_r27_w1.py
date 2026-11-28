@@ -68,8 +68,10 @@ Covers, with no API key and no network:
   mentions ``locale`` in any of them (so no switch can issue a
   backend call), no ``replyLocale === locale`` render gate
   remains, no ``fetchJson<`` re-fetch call remains in the three
-  chat components, the pet's ``setAiLive(true)`` occurs only in
-  the two real-turn paths (askSuggest, onSend), and AiEntry
+  chat components, the pet's ``noteAiTurnVerdict(true)`` occurs
+  only in the two real-turn paths (askSuggest, onSend — Round 29,
+  E5 moved the verdict into the shared store, so the call is
+  noteAiTurnVerdict, not setAiLive), and AiEntry
   still re-asks when the question itself changes (the context
   effect is kept — only the locale effect is deleted).
 
@@ -237,9 +239,12 @@ def test_r27_w1_pet_renders_stored_reply_and_footer_only_on_turns():
     assert pet.count("t('pet.thinking')") == 2
     assert "if (turn.reply) return { lines: [t('pet.thinking')] };" not in pet
     # The footer verdict is written only by real turns now: the two
-    # setAiLive(true) sites are askSuggest and onSend (the re-fetch
-    # effect's setOffline(false) + setAiLive(true) is gone).
-    assert pet.count("setAiLive(true)") == 2
+    # noteAiTurnVerdict(true) sites are askSuggest and onSend (the
+    # re-fetch effect's setOffline(false) + setAiLive(true) is gone;
+    # Round 29, E5 moved the verdict into the shared store, so the
+    # live-turn call is noteAiTurnVerdict(true), not setAiLive(true)).
+    assert pet.count("noteAiTurnVerdict(true)") == 2
+    assert "setAiLive(true)" not in pet
     # Turns still record the locale they were answered in.
     assert "replyLocale: requestLocale" in pet
 

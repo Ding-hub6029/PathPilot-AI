@@ -426,16 +426,32 @@ def test_pref_chat_personal_data_refusal_no_echo(monkeypatch):
 def test_pref_chat_switzerland_reason_kept(monkeypatch):
     # The 2026-11-26 live-test bug (2): "我想去瑞士，因为那边环境优美"
     # recorded just "瑞士". The reason must survive in `extracted`
-    # and be acknowledged in the reply, in the user's own words.
+    # and in the WHY follow-up, in the user's own words.
+    #
+    # Round 29 W2 (E4) supersede: a guided answer no longer attempts
+    # the model at all — it takes the deterministic route, so this
+    # turn is `ai_status="unavailable"` with the model never called,
+    # and the reason rides in `extracted.note` / `why_followup`
+    # (the frontend renders the WHY with it) rather than in the
+    # reply lines, exactly as the offline path already showed.
+    # The old pin ("环境优美" in `lines`, model available) is
+    # superseded by that deliberate routing change.
     captured: dict = {}
-    provider = _mock_provider(monkeypatch, _pref_handler(captured))
+    calls = {"n": 0}
+    base = _pref_handler(captured)
+
+    def counting(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        return base(request)
+
+    provider = _mock_provider(monkeypatch, counting)
     r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
                     provider=provider)
-    assert r["ai_status"] == "available"
-    assert r["model"] == "openai/test-model"
+    assert calls["n"] == 0, "guided turn must not call the model"
+    assert r["ai_status"] == "unavailable"
+    assert r["model"] is None
     assert r["extracted"]["countries"] == ["CH"]
     assert "环境优美" in r["extracted"]["note"]
-    assert "环境优美" in "\n".join(r["lines"])
     assert r["next_question"] == "climate"
     assert r["done"] is False
     # Round 16: the turn carries a WHY follow-up, so the WHY is the
@@ -445,10 +461,6 @@ def test_pref_chat_switzerland_reason_kept(monkeypatch):
     assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert _question_line("climate", "zh-CN") not in r["lines"]
     assert len(r["lines"]) <= 3
-    assert captured["envelope"]["task"] == "pref-chat"
-    assert captured["envelope"]["prompt_version"] == "ai-prompts-v1"
-    assert captured["envelope"]["known"]["countries"] == []
-    assert captured["envelope"]["missing"] == list(PREF_ORDER)
     # Live bug 2026-11-26 (Case 1): the turn retrieved ZERO sources, so
     # the model claimed no verifiable Swiss data existed. The
     # country-scoped retrieval must carry Zurich + Lausanne.
@@ -475,7 +487,17 @@ def test_pref_chat_ch_cool_scoped_climate_no_edinburgh(monkeypatch):
     assert all("four-season" in c["excerpt"] for c in climate)
     assert not any(c["id"] == "climate:edinburgh" for c in climate)
     joined = "\n".join(r["lines"])
-    assert "Zurich" in joined
+    # Round 29 W2 (E3): the model path no longer returns the mock's
+    # bare "Zurich: four-season climate." claim — the deterministic
+    # climate pin replaces it with the localised no-match line
+    # (cities with counts + both sentences), so the Chinese reply
+    # carries 苏黎世/洛桑 (not the English names — the Round 15
+    # localisation pin) plus the programme counts. The old pin
+    # ("Zurich" in the joined lines) is superseded by the pin.
+    assert "苏黎世" in joined and "洛桑" in joined
+    assert "Zurich" not in joined and "Lausanne" not in joined
+    assert "14" in joined and "11" in joined
+    assert "气候只是偏好，不影响资格，只影响排序。" in joined
     assert "Edinburgh" not in joined
     assert r["evidence_url"] is not None
     assert r["evidence_url"].startswith("https://en.wikipedia.org/wiki/")
@@ -526,10 +548,15 @@ def test_pref_chat_salary_extraction_needs_amount_and_currency(monkeypatch):
 
 
 def test_pref_chat_history_is_capped_at_six_turns(monkeypatch):
+    # Round 29 W2 (E4) supersede: the old message ("我想去瑞士") is
+    # now a guided answer and never reaches the model, so the
+    # history cap is pinned with a non-guided message instead — the
+    # cap itself (the model envelope carries at most 6 turns) is
+    # unchanged.
     captured: dict = {}
     provider = _mock_provider(monkeypatch, _pref_handler(captured))
     history = [{"role": "user", "content": f"question {i}"} for i in range(8)]
-    r = pref_answer("我想去瑞士", "zh-CN", known={}, history=history,
+    r = pref_answer("随便聊聊", "zh-CN", known={}, history=history,
                     provider=provider)
     assert r["ai_status"] == "available"
     assert len(captured["envelope"]["history"]) == 6
@@ -572,19 +599,31 @@ def test_pref_chat_endpoint_no_key(monkeypatch):
 
 
 def test_pref_chat_endpoint_mock_model(monkeypatch):
+    # Round 29 W2 (E4) supersede: the audit sentence is a guided
+    # answer, so the endpoint takes the deterministic route and the
+    # mock model is never called — the endpoint still returns the
+    # same contract shape (countries + reason recorded, next
+    # question climate), with ai_status "unavailable".
     captured: dict = {}
-    provider = _mock_provider(monkeypatch, _pref_handler(captured))
+    calls = {"n": 0}
+    base = _pref_handler(captured)
+
+    def counting(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        return base(request)
+
+    provider = _mock_provider(monkeypatch, counting)
     monkeypatch.setattr(router_chat, "get_provider", lambda: provider)
     r = client.post("/api/v1/assistant/pref-chat",
                     json={"message": "我想去瑞士，因为那边环境优美",
                           "locale": "zh-CN", "known": {}})
     assert r.status_code == 200
     body = r.json()
-    assert body["ai_status"] == "available"
-    assert body["model"] == "openai/test-model"
+    assert calls["n"] == 0
+    assert body["ai_status"] == "unavailable"
+    assert body["model"] is None
     assert body["extracted"]["countries"] == ["CH"]
     assert "环境优美" in body["extracted"]["note"]
-    assert "环境优美" in "\n".join(body["lines"])
     assert body["next_question"] == "climate"
     assert body["done"] is False
 
@@ -701,6 +740,14 @@ def test_pref_chat_model_place_word_city_dropped_next_is_city(monkeypatch):
     # environment=campus AND city="大学城", so the city question was
     # skipped entirely and Zurich was never recorded. The server must
     # drop the bogus city and ask the city next.
+    #
+    # Round 29 W2 (E4) supersede: "大学城" is now a guided answer
+    # (environment is the first missing preference), so the model is
+    # never attempted — the deterministic extraction itself maps it
+    # to campus and never records a city, so the same outcome holds
+    # on the deterministic route. The place-word rule itself is
+    # still pinned at the unit level by
+    # test_validate_extracted_drops_place_word_as_city.
     payload = {
         "summary": "明白，你更看重大学城那种校园氛围。",
         "claims": [{"text": "Zurich: four-season climate.",
@@ -713,7 +760,7 @@ def test_pref_chat_model_place_word_city_dropped_next_is_city(monkeypatch):
     r = pref_answer("大学城", "zh-CN",
                     known={"countries": ["CH"], "climate": "cool"},
                     provider=provider)
-    assert r["ai_status"] == "available"
+    assert r["ai_status"] == "unavailable"
     assert r["extracted"] == {"environment": "campus"}
     assert "city" not in r["extracted"]
     assert r["next_question"] == "city"
@@ -725,6 +772,13 @@ def test_pref_chat_model_empty_extraction_filled_deterministically(monkeypatch):
     # The model answered in valid JSON but extracted nothing from the
     # audit sentence; the deterministic fill-in must still record the
     # country and the reason instead of dropping the turn.
+    #
+    # Round 29 W2 (E4) supersede: the audit sentence is now a guided
+    # answer, so the model is never attempted and the deterministic
+    # route itself records country + reason. The model-path fill-in
+    # is still pinned by test_r26_w1's
+    # test_model_success_empty_extraction_filled_in (rewritten there
+    # for a non-guided message).
     payload = {
         "summary": "明白，瑞士记下了。",
         "claims": [{"text": "Zurich: four-season climate.",
@@ -736,7 +790,7 @@ def test_pref_chat_model_empty_extraction_filled_deterministically(monkeypatch):
     provider = _mock_provider(monkeypatch, _fixed_pref_handler(payload))
     r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
                     provider=provider)
-    assert r["ai_status"] == "available"
+    assert r["ai_status"] == "unavailable"
     assert r["extracted"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert r["next_question"] == "climate"
 
@@ -744,6 +798,12 @@ def test_pref_chat_model_empty_extraction_filled_deterministically(monkeypatch):
 def test_pref_chat_invalid_output_falls_back_after_one_call(monkeypatch):
     # Round 10: one model call per turn, no repair retry — an invalid
     # output falls back at once instead of paying for a second call.
+    #
+    # Round 29 W2 (E4) supersede: the old message ("我想去瑞士") is
+    # now a guided answer and never reaches the model, so the
+    # one-call pin uses a non-guided message instead — the call
+    # count itself (exactly one attempt, then the fallback) is
+    # unchanged.
     calls = {"n": 0}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -751,12 +811,12 @@ def test_pref_chat_invalid_output_falls_back_after_one_call(monkeypatch):
         return _openai_reply("this is not json at all")
 
     provider = _mock_provider(monkeypatch, handler)
-    r = pref_answer("我想去瑞士", "zh-CN", known={}, provider=provider)
+    r = pref_answer("随便聊聊", "zh-CN", known={}, provider=provider)
     assert r["ai_status"] == "unavailable"
     assert calls["n"] == 1, calls
-    # The deterministic extraction still records the country.
-    assert r["extracted"] == {"countries": ["CH"]}
-    assert r["next_question"] == "climate"
+    # Nothing could be matched without a model here.
+    assert r["extracted"] == {}
+    assert r["next_question"] == "countries"
 
 
 # ---------------------------------------------------------------------------
@@ -786,10 +846,15 @@ def test_pref_chat_why_followup_in_first_reply_model(monkeypatch):
     # The audit turn: "我想去瑞士，因为那边环境优美" must carry the
     # WHY follow-up in its FIRST reply — before any confirm tap —
     # while next_question still moves on to climate.
+    #
+    # Round 29 W2 (E4) supersede: the audit sentence is a guided
+    # answer, so the turn takes the deterministic route (model never
+    # called); the WHY still rides in the first reply there, exactly
+    # as the no-key and gateway-error variants already pin.
     provider = _mock_provider(monkeypatch, _pref_handler({}))
     r = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN", known={},
                     provider=provider)
-    assert r["ai_status"] == "available"
+    assert r["ai_status"] == "unavailable"
     assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert r["extracted"]["countries"] == ["CH"]
     assert r["next_question"] == "climate"

@@ -41,6 +41,16 @@ tests/test_r15_w3.py) plus source pins on the two fixed paths.
 The source pins FAIL on the pre-fix code (verified: the /tmp
 reproduction harness exited 1 before the fix, 0 after).
 
+Round 29, E5 note: the verdict moved out of CompassPet's local
+state into the shared store (frontend/src/lib/aiVerdict.ts) — the
+clear effect now calls resetAiVerdict(), the auto-restore path
+does the same before setOpen(true), and the footer reads
+useAiVerdict(). Sections 4-6 below pin that shared-store form;
+the behaviour they protect (reset to unknown on clear, reset
+before the /results auto-open, unknown initial verdict) is
+unchanged, and sections 1-3 / 7 still exercise the real
+footerAiLineKey + freshAiVerdict decision logic.
+
 Run: .venv/bin/pytest -q -p no:cacheprovider tests/test_r25_w3_footer_clear_data.py
 """
 from __future__ import annotations
@@ -110,31 +120,44 @@ check('zh aiLive text', zh['pet.aiLive'], 'AI 回答 · 只用已核实资料');
 // --- 4. Source pins: the clear-data effect must reset the verdict
 // and re-probe (fails on the pre-fix source, which reset only the
 // conversation and left aiLive/offline untouched).
+// Round 29, E5: the verdict no longer lives in CompassPet's local
+// state — the clear effect resets the SHARED store
+// (resetAiVerdict), so the wizard and the results banner reset
+// with the pet instead of keeping a stale claim of their own.
+// The pin therefore checks for the shared reset (and the absence
+// of any local verdict write in the effect), not setAiLive(null).
 const cStart = src.indexOf('Round 23 W2');
 const cEnd = src.indexOf('}, [dataClearNonce]);', cStart);
 const clearEffect = src.slice(cStart, cEnd);
 check('clear effect block found', cStart !== -1 && cEnd !== -1, true);
-check('clear effect resets aiLive to null', /setAiLive\s*\(\s*null\s*\)/.test(clearEffect), true);
-check('clear effect resets offline to false', /setOffline\s*\(\s*false\s*\)/.test(clearEffect), true);
+check('clear effect resets the shared verdict', /resetAiVerdict\s*\(\s*\)/.test(clearEffect), true);
+check('clear effect has no local verdict writes',
+  !/setAiLive\s*\(/.test(clearEffect) && !/setOffline\s*\(/.test(clearEffect) && !/setTimedOut\s*\(/.test(clearEffect), true);
 check('clear effect clears waking', /setWaking\s*\(\s*false\s*\)/.test(clearEffect), true);
 check('clear effect re-probes fresh while open',
-  /if\s*\(\s*openRef\.current\s*\)\s*\{[^}]*probeAiStatus\s*\(\s*\{\s*minChecking:\s*true\s*\}\s*\)/.test(clearEffect), true);
+  /if\s*\(\s*openRef\.current\s*\)\s*\{[^}]*runProbe\s*\(\s*\{\s*minChecking:\s*true\s*\}\s*\)/.test(clearEffect), true);
 
 // --- 5. Source pins: the /results auto-restore path must reset the
 // verdict BEFORE setOpen(true) (it bypasses toggle's Round 21 reset).
+// Round 29, E5: same shared-store form as section 4.
 const rStart = src.indexOf("pathname !== '/results'");
 const rEnd = src.indexOf('}, [pathname, canDevil, open]);', rStart);
 const restoreEffect = src.slice(rStart, rEnd);
 check('auto-restore effect block found', rStart !== -1 && rEnd !== -1, true);
 const openAt = restoreEffect.indexOf('setOpen(true)');
-check('auto-restore resets aiLive before setOpen',
-  restoreEffect.indexOf('setAiLive(null)') !== -1 && restoreEffect.indexOf('setAiLive(null)') < openAt, true);
-check('auto-restore resets offline before setOpen',
-  restoreEffect.indexOf('setOffline(false)') !== -1 && restoreEffect.indexOf('setOffline(false)') < openAt, true);
+check('auto-restore resets the shared verdict before setOpen',
+  restoreEffect.indexOf('resetAiVerdict()') !== -1 && restoreEffect.indexOf('resetAiVerdict()') < openAt, true);
+check('auto-restore has no local verdict writes',
+  !/setAiLive\s*\(/.test(restoreEffect) && !/setOffline\s*\(/.test(restoreEffect), true);
 
 // --- 6. Initial state: the verdict starts unknown, never affirmative.
-check('aiLive initial state is null',
-  /const \[aiLive, setAiLive\] = useState<boolean \| null>\(null\)/.test(src), true);
+// Round 29, E5: the verdict is the shared store's initial state
+// (checked in the harness below via getAiVerdict); CompassPet
+// holds no local aiLive state at all — it derives the footer
+// line from useAiVerdict().
+check('CompassPet reads the shared verdict', src.includes('useAiVerdict()'), true);
+check('CompassPet holds no local aiLive state',
+  !/const \[aiLive, setAiLive\]/.test(src), true);
 
 // --- 7. The tester sequence, replayed through the real footer logic.
 // State mirrors CompassPet's verdict state; transitions mirror the

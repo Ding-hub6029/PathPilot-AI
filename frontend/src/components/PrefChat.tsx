@@ -24,7 +24,8 @@ import {
   type PrefTurnBubble, type PrefTurnWhy,
 } from '../lib/chat';
 import { CompassFace, type PetMood } from './CompassPet';
-import { localisedReplyLines } from '../lib/prefFallbackLines';
+import { localisedReplyLines, scopeCitiesLines, hasFallbackCitiesBlock } from '../lib/prefFallbackLines';
+import { beginAiTurn, endAiTurn, noteAiTurnVerdict, useAiVerdict } from '../lib/aiVerdict';
 import { useElapsed } from '../lib/useElapsed';
 import enMessages from '../../messages/en.json';
 
@@ -504,7 +505,13 @@ interface PrefTurn {
 }
 
 export function PrefChat({ onDone }: { onDone: () => void }) {
-  const { t, tf, locale, profile, updateProfile } = useApp();
+  const { t, tf, locale, profile, updateProfile, dataClearNonce } = useApp();
+  /** Round 29, E5 — the AI verdict is the one shared store
+   * (lib/aiVerdict.ts), read here and by the pet footer and the
+   * results banner from the same verdict, so the wizard can never
+   * claim offline while the pet claims AI answers (or the reverse)
+   * at the same moment. */
+  const aiVerdict = useAiVerdict();
   // Round 14, P1: the persisted snapshot (if any) is read once, on
   // mount, and seeds the state below — leaving the wizard mid-way
   // and returning resumes the chat instead of resetting it to 0/8.
@@ -630,9 +637,33 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * before the store hydrates, `profile` is still the empty profile
    * — writing then would overwrite a restored blob with an
    * empty-profile fingerprint, so that write is skipped until the
-   * hydrated profile arrives. */
+   * hydrated profile arrives.
+   *
+   * Round 29, E6 — the clear-data guard (re-test task 23): the
+   * fingerprint guard above only protects a RESTORED snapshot
+   * (restoredFingerprintRef non-null). On a fresh run the
+   * conversation was built in-memory with no snapshot, so when
+   * clearData wiped pp-prefchat and emptied the profile, this
+   * effect re-saved the STALE in-memory turns under the empty
+   * profile's fingerprint — and returning to the preferences step
+   * resurrected the old conversation (Switzerland / "环境优美" /
+   * cool) from that blob. The wizard's step reset unmounts this
+   * component in the same flush, so the re-render that would
+   * overwrite the blob with the reset state never happens — the
+   * stale write is the last write. So this effect owns its own
+   * clear nonce: on a bump since mount it deletes the key and
+   * writes nothing, whatever state this render's closure holds.
+   * (The reset effect below owns a separate ref and resets the
+   * live state; the two refs never touch each other, so the guard
+   * holds whichever effect runs first in the commit.) */
   const restoredFingerprintRef = useRef(persistedSnapshot?.fingerprint ?? null);
+  const persistClearRef = useRef(dataClearNonce);
   useEffect(() => {
+    if (dataClearNonce !== persistClearRef.current) {
+      persistClearRef.current = dataClearNonce;
+      try { localStorage.removeItem(PREF_CHAT_KEY); } catch { /* ignore */ }
+      return;
+    }
     try {
       const fp = prefChatFingerprint(profile);
       const emptyFp = prefChatFingerprint(emptyProfile);
@@ -641,7 +672,50 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         { mode, turns, modelTurns, qIndex, skipped, serverNext, awaitingReason, verbatim, failedText, pendingExtract, confirmedNotes }, fp));
     } catch { /* ignore storage errors */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, turns, modelTurns, qIndex, skipped, serverNext, awaitingReason, verbatim, failedText, pendingExtract, confirmedNotes, profile]);
+  }, [mode, turns, modelTurns, qIndex, skipped, serverNext, awaitingReason, verbatim, failedText, pendingExtract, confirmedNotes, profile, dataClearNonce]);
+
+  /** Round 29, E6 — clear-data must clear the wizard chat too
+   * (re-test task 23): this component never subscribed to
+   * dataClearNonce, so clearing from the wizard page mid-flow left
+   * its whole in-memory conversation (turns, guided queue, pending
+   * extraction, confirmed notes, WHY state) untouched — and the
+   * persist effect above re-saved it under the empty profile, so
+   * returning to the preferences step restored the previous
+   * incomplete conversation. Clearing from the results page reset
+   * properly only because this component is not mounted there to
+   * re-save anything. On a bump, reset the full live set — the
+   * same set restart() clears, plus the in-flight / salary state
+   * restart leaves alone — and drop the stored snapshot, so
+   * nothing is restored afterwards. The ref seeds at mount: a
+   * clear from BEFORE this mount is already reflected in the
+   * mounted state, so only a bump since mount resets. */
+  const clearNonceRef = useRef(dataClearNonce);
+  useEffect(() => {
+    if (dataClearNonce === clearNonceRef.current) return;
+    clearNonceRef.current = dataClearNonce;
+    restoredFingerprintRef.current = null;
+    setMode('model');
+    setTurns([]);
+    setModelTurns([]);
+    setQIndex(0);
+    setSkipped([]);
+    setServerNext(undefined);
+    setPendingExtract(null);
+    setConfirmedNotes([]);
+    setFailedText(null);
+    setAwaitingReason(null);
+    setVerbatim({});
+    setInput('');
+    setPendingParse(null);
+    setAiOffline(false);
+    setThinking(false);
+    setWaking(false);
+    setModelSalary('');
+    setModelSalaryCur('GBP');
+    setMood('celebrate');
+    try { localStorage.removeItem(PREF_CHAT_KEY); } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataClearNonce]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -810,6 +884,14 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     const questionAtSend: PrefQId | null = nextQ as PrefQId | null;
     setThinking(true);
     setWaking(false);
+    // Round 29, E5: this turn's verdict goes to the SHARED store
+    // (lib/aiVerdict.ts) — a model reply here makes the pet footer
+    // live, a template-only reply or a failure makes it (and the
+    // results banner) offline, so the surfaces can never disagree
+    // about the model at the same moment. Every exit below notes
+    // exactly one verdict; the finally's endAiTurn only clears the
+    // in-flight flag if a path ever returns without noting.
+    beginAiTurn();
     const requestLocale = locale;
     // Round 16: the request's `known` folds in an unconfirmed
     // extraction, so answering the next question while a confirm is
@@ -848,6 +930,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         // over without replaying the sentence.
         if (r.extracted && Object.keys(r.extracted).length > 0) {
           setAiOffline(true);
+          noteAiTurnVerdict(false, { timedOut: false });
           setFailedText(null);
           setTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: true, pending: false } : x)));
           if (r.next_question !== undefined) setServerNext(r.next_question);
@@ -864,10 +947,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         }
         // P0-4: preserve the just-submitted answer across the
         // fallback switch instead of dropping it.
+        noteAiTurnVerdict(false, { timedOut: false });
         preserveFailedAnswer(trimmed, questionAtSend, turnId);
         return;
       }
       setAiOffline(false);
+      noteAiTurnVerdict(true);
       setFailedText(null);
       setTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: false, pending: false } : x)));
       if (r.next_question !== undefined) setServerNext(r.next_question);
@@ -882,12 +967,16 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         armWhyFromReply(r, requestKnown, turnId);
       }
       flashMood('celebrate');
-    } catch {
+    } catch (err) {
       setWaking(false);
+      // A slow abort is a timeout (the turn waited out its whole
+      // ~18 s budget); a fast failure is not.
+      noteAiTurnVerdict(false, { timedOut: (err as { name?: string } | null)?.name === 'AbortError' });
       // P0-4: preserve the just-submitted answer across the fallback
       // switch instead of dropping it.
       preserveFailedAnswer(trimmed, questionAtSend, turnId);
     } finally {
+      endAiTurn();
       setThinking(false);
     }
   };
@@ -1205,6 +1294,11 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const askModel = async (q: PrefQId, text: string) => {
     setThinking(true);
     setWaking(false);
+    // Round 29, E5: this turn's verdict goes to the SHARED store —
+    // see sendToPrefChat. Every exit below notes exactly one
+    // verdict; the finally's endAiTurn only clears the in-flight
+    // flag if a path ever returns without noting.
+    beginAiTurn();
     const requestLocale = locale;
     const turnId = nextTurnId();
     setModelTurns((prev) => [...prev, { id: turnId, q, question: text, reply: null, replyLocale: null, offline: false, pending: true }]);
@@ -1225,18 +1319,22 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
       setWaking(false);
       if (!isModelReply(r)) {
         setAiOffline(true);
+        noteAiTurnVerdict(false, { timedOut: false });
         // Round 10: keep the verified template lines (labelled
         // offline at render time) when the reply has any.
         setModelTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r.lines?.length ? r : null, replyLocale: r.lines?.length ? requestLocale : null, offline: true, pending: false } : x)));
         return;
       }
       setAiOffline(false);
+      noteAiTurnVerdict(true);
       setModelTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: r, replyLocale: requestLocale, offline: false, pending: false } : x)));
-    } catch {
+    } catch (err) {
       setWaking(false);
       setAiOffline(true);
+      noteAiTurnVerdict(false, { timedOut: (err as { name?: string } | null)?.name === 'AbortError' });
       setModelTurns((prev) => prev.map((x) => (x.id === turnId ? { ...x, reply: null, replyLocale: null, offline: true, pending: false } : x)));
     } finally {
+      endAiTurn();
       setThinking(false);
     }
   };
@@ -1351,9 +1449,15 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         // Round 15: bounded chat turn — see sendToPrefChat.
         onRetry: () => setWaking(true),
       });
-    } catch {
+    } catch (err) {
       setWaking(false);
       setAiOffline(true);
+      // Round 29, E5: a failed model-path call is real evidence
+      // the model cannot be reached right now — publish it to the
+      // shared store, so the pet footer and the results banner see
+      // it too. (A successful parse notes nothing: it does not by
+      // itself prove the chat model is up.)
+      noteAiTurnVerdict(false, { timedOut: (err as { name?: string } | null)?.name === 'AbortError' });
     }
     setThinking(false);
     setWaking(false);
@@ -1614,7 +1718,40 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * trailing question line left the reply bubble in prefTurnBubbles
    * so it re-localises through ASK_KEY instead of staying frozen
    * in the reply's locale. */
-  const renderPrefTurns = () => turns.map((turn) => (
+  const renderPrefTurns = () => {
+    // Round 29 E3: the cities line is scoped conversation-wide, so
+    // the reply lines are computed in two passes. Pass 1 localises
+    // every turn's reply bubble (localisedReplyLines); pass 2
+    // (scopeCitiesLines) keeps the cities line on the climate turn
+    // only, so it never repeats across adjacent turns (re-test 23
+    // round 1: it appeared verbatim on the countries turn AND the
+    // climate turn). Model turns never carry the evidence block, so
+    // they pass through untouched; a turn left with no lines still
+    // renders its offline line + question bubble below.
+    const replyLines = turns.map((turn) => {
+      const replyBubble = prefTurnBubbles(turn, awaitingReason)
+        .find((b) => b.kind === 'reply');
+      return replyBubble && replyBubble.kind === 'reply'
+        ? localisedReplyLines(replyBubble.lines, turn.reply, turn.offline, tf, locale)
+        : null;
+    });
+    const scopedReplyLines = scopeCitiesLines(turns.map((turn, i) => ({
+      lines: replyLines[i] ?? [],
+      carriesCitiesLine: hasFallbackCitiesBlock(turn.reply),
+      // Round 29 W2 (E3): the backend's `climate_turn` marker is
+      // the dedupe signal — True exactly when this turn stated a
+      // climate class or just answered climate, on both the
+      // fallback and the model path — so it is preferred when
+      // present. It catches a climate stated in words that the
+      // extraction did not record (the old extraction-only rule
+      // then kept the cities line on the earlier countries turn
+      // instead of this one). Old persisted snapshots carry no
+      // marker, so they fall back to the extraction, exactly as
+      // before. Model turns never carry the evidence block, so
+      // they are never carriers whatever the marker says.
+      answeredClimate: turn.reply?.climate_turn ?? !!turn.reply?.extracted?.climate,
+    })));
+    return turns.map((turn, turnIndex) => (
     <div key={`pref-${turn.id}`} className="space-y-3">
       {prefTurnBubbles(turn, awaitingReason).map((bubble) => {
         if (bubble.kind === 'user') {
@@ -1633,8 +1770,11 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
           // evidence block (D2) — bubble.lines already had the
           // trailing question line moved out by prefTurnBubbles (D1),
           // so the slice inside localisedReplyLines drops exactly
-          // the replaced prefix, never the question line.
-          const lines = localisedReplyLines(bubble.lines, turn.reply, turn.offline, tf, locale);
+          // the replaced prefix, never the question line. Round 29
+          // E3: `lines` here are the conversation-scoped lines
+          // computed above (scopeCitiesLines) — the cities line
+          // survives on the climate turn only.
+          const lines = scopedReplyLines[turnIndex];
           return (
             <div key={`pref-${turn.id}-reply`} className="flex justify-start">
               <div className={`${turn.pending ? 'think-shimmer ' : ''}max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5`}>
@@ -1678,6 +1818,17 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
           // grey, while the climate answer rendered normally). The
           // acknowledgement is a separate assistant line after it,
           // never a container that swallows the user's words.
+          // Round 29 E2: the acknowledgement carries the answer's
+          // value underneath "Got it, noted!", exactly like the
+          // confirmedNotes bubbles — before this it was a bare
+          // "Got it, noted!" with no value line, so the reason
+          // answer never became a value bubble (re-test 23 item a:
+          // the bubble for the reason answer was empty in both
+          // languages, while "Beautiful environment" only appeared
+          // in the summary line). The value renders through
+          // localisedConfirmedNote, so a known reason phrase
+          // re-localises ("环境优美" -> "Beautiful environment" in
+          // en) while free-text reasons stay verbatim.
           return (
             <div key={`pref-${turn.id}-why-answer`} className="space-y-3">
               <div className="flex justify-end">
@@ -1688,6 +1839,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
               <div className="flex justify-start">
                 <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
                   <p>{t('wizard.chatOpThanks')}</p>
+                  <p className="mt-1 text-sm text-navy/70">{localisedConfirmedNote(bubble.answer, t)}</p>
                 </div>
               </div>
             </div>
@@ -1718,7 +1870,8 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         );
       })}
     </div>
-  ));
+    ));
+  };
 
   /** Chips for the model-led next question. A tap sends the chip's
    * label as the user's message — the model, not the chip, decides
@@ -2019,10 +2172,18 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
             {renderPrefTurns()}
             {/* Guided queue (offline fallback): the pre-round-7 flow,
                 with data-driven city chips and country-scoped climate
-                opinions. The honest line + retry action sit on top. */}
+                opinions. The honest line + retry action sit on top.
+                Round 29, E5: the line is the SHARED verdict, never
+                this chat's own offline flag — when a pet turn has
+                since proved the model live, the banner says the AI
+                is back (with the retry below) instead of claiming
+                it is still down; while the verdict is unknown it
+                says checking, never offline. The per-turn offline
+                labels below are history for those turns, not a
+                current-status claim, so they stay as they are. */}
             <div className="flex justify-start">
               <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-amber">
-                <p>{t('wizard.chatPrefOffline')}</p>
+                <p>{aiVerdict.verdict === 'live' ? t('wizard.chatPrefAiBack') : aiVerdict.verdict === 'checking' ? t('pet.aiChecking') : t('wizard.chatPrefOffline')}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">

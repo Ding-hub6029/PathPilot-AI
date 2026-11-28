@@ -56,6 +56,10 @@ _EN_NO_MATCH = (
     "Cool climate. Climate is only a preference — it never decides "
     "eligibility, it only orders results. Want to try a different "
     "climate, or another country?")
+# Round 29 E1: the backend template's unknown_2 line, English
+# (backend/ai/assistant.py _T "unknown_2" — see test_r29_w1.py,
+# which pins it against the backend in all 6 locales).
+_EN_UNKNOWN2 = "Start the eligibility check to go through your background rule by rule."
 
 _STORED_ZH_TURN = {
     "id": 7,
@@ -108,12 +112,18 @@ _COMPOSED_CASES = [
      False, "en",
      _ZH_LINES[:2],
      ["user", "reply", "question"]),
-    ("no structured block (old snapshot): verbatim lines",
+    ("no structured block (old snapshot): cities line verbatim, "
+     "template unknown line localised (Round 29 E1)",
      {**_STORED_ZH_TURN,
       "reply": {k: v for k, v in _STORED_ZH_TURN["reply"].items()
                 if k not in ("evidence_cities", "climate_wanted")}},
      True, "en",
-     _ZH_LINES[:2],
+     # Round 29 E1 (deliberate change): without the block the cities
+     # line still cannot re-render, so it stays verbatim — but the
+     # second line is the backend template's unknown_2, which E1
+     # re-localises at render. The old expectation (_ZH_LINES[:2]
+     # verbatim) is superseded by tests/test_r29_w1.py.
+     [_ZH_LINES[0], _EN_UNKNOWN2],
      ["user", "reply", "question"]),
     ("offline flag false with a block present: verbatim (explicit gate)",
      _STORED_ZH_TURN, False, "en",
@@ -192,7 +202,8 @@ def test_r28_integration_composed_render(tmp_path):
     a stored zh offline climate turn renders in en as the English
     cities line + English no-match sentence, with the environment
     question as a separate bubble — and verbatim everywhere the
-    structured block is absent."""
+    structured block is absent, except the known template lines,
+    which Round 29 E1 re-localises (see the no-block case)."""
     outdir = tmp_path / "r28int_lib"
     res = subprocess.run(
         ["npx", "tsc", "src/lib/preferences.ts", "src/lib/chat.ts",
@@ -222,10 +233,14 @@ def test_r28_integration_composed_render(tmp_path):
 def test_r28_integration_wiring_present():
     """Source pin: renderPrefTurns routes the reply bubble's lines
     through localisedReplyLines (D1 bubble lines in, current locale
-    out) — the one place D1 and D2 compose."""
+    out) — the one place D1 and D2 compose. Round 29 E3 moved the
+    call into the two-pass scoping head (pass 1 computes the lines,
+    pass 2 scopes the cities line), so the pin follows the call
+    there; the reply branch now renders scopedReplyLines."""
     src = (ROOT / "frontend/src/components/PrefChat.tsx").read_text(encoding="utf-8")
-    assert ("localisedReplyLines(bubble.lines, turn.reply, turn.offline, tf, locale)"
+    assert ("localisedReplyLines(replyBubble.lines, turn.reply, turn.offline, tf, locale)"
             in src)
-    assert "import { localisedReplyLines } from '../lib/prefFallbackLines';" in src
+    assert "const lines = scopedReplyLines[turnIndex];" in src
+    assert "import { localisedReplyLines, scopeCitiesLines, hasFallbackCitiesBlock } from '../lib/prefFallbackLines';" in src
     helper = (ROOT / "frontend/src/lib/prefFallbackLines.ts").read_text(encoding="utf-8")
     assert "export function localisedReplyLines(" in helper

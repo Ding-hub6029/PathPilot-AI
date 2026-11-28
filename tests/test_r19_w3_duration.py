@@ -129,7 +129,13 @@ def test_locale_key_parity_after_duration_keys():
     # lines for the Gaokao-caused "0 meet" headline) — parity holds.
     # Round 28 D2: +2 wizard.prefFallback* keys (cities line + city
     # item for the localised offline-fallback re-render) — parity holds.
-    assert len(base) == 977, len(base)
+    # Round 29 W3: +2 keys (results.aiOffline for the results banner's
+    # AI-down line, wizard.chatPrefAiBack for the wizard's AI-back
+    # line) — parity holds.
+    # Round 29 W1: +1 wizard.prefFallbackUnknown (the backend
+    # template's generic "unknown" line, re-localised at render for
+    # the offline pref-chat fallback) — parity holds.
+    assert len(base) == 980, len(base)
     for locale in LOCALES:
         assert sets[locale] == base, (locale, sets[locale] ^ base)
 

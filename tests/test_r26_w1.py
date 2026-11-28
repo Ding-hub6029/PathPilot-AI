@@ -287,13 +287,22 @@ def test_pref_answer_timeout_keeps_answer_and_advances(monkeypatch):
 def test_model_success_empty_extraction_filled_in(monkeypatch):
     """A model that answers validly but extracts nothing no longer
     drops the answer either: the deterministic fill-in supplies the
-    environment, and the model output itself is still used."""
+    country / reason the model missed, and the model output itself
+    is still used.
+
+    Round 29 W2 (E4) supersede: the old message ("大学城") is now a
+    guided answer and never reaches the model, so the fill-in is
+    pinned with a non-guided message instead — a country named
+    mid-flow ("我想去英国，因为那边环境优美") while environment is
+    what's missing: the model extracts nothing, the fill-in adds
+    the new country + reason, and the next question stays
+    environment."""
     provider = _mock_provider(monkeypatch, _empty_extraction_handler)
-    r = pref_answer("大学城", "zh-CN", known=dict(KNOWN_CH_COOL),
-                    provider=provider)
+    r = pref_answer("我想去英国，因为那边环境优美", "zh-CN",
+                    known=dict(KNOWN_CH_COOL), provider=provider)
     assert r["ai_status"] == "available"
-    assert r["extracted"] == {"environment": "campus"}
-    assert r["next_question"] == "city"
+    assert r["extracted"] == {"countries": ["GB"], "note": "那边环境优美"}
+    assert r["next_question"] == "environment"
 
 
 # ---------------------------------------------------------------------------

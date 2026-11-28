@@ -400,25 +400,28 @@ def test_breaker_does_not_trip_on_fast_bad_reply(monkeypatch):
 # Pref level — the re-test 22 shape, end to end
 # ---------------------------------------------------------------------------
 
-def test_pref_first_slow_empty_fallback_second_turn_no_model_attempt(monkeypatch):
+def test_pref_guided_turns_skip_slow_gateway_entirely(monkeypatch):
     """Mocked gateway down (slow empty 200s), cold cache, closed
-    breaker — the re-test 22 shape. The FIRST pref turn pays the
-    model budget once (inherent — no latency asserted, only that
-    it returns the fallback with the answer recorded), the SECOND
-    pref turn returns the fallback without a model attempt: the
-    slow empty reply tripped the breaker, so model_skip_cached()
-    skips the call and the turn is engine time. Before this fix
-    the second turn paid the budget again (~15-25 s in the
-    browser)."""
+    breaker — the re-test 22 shape.
+
+    Round 29 W2 (E4) supersede: both turns are guided answers now,
+    so NEITHER attempts the model at all — the first turn no longer
+    pays the model budget once, and the breaker is never tripped by
+    a pref turn. (The breaker-trip behaviour itself is still pinned
+    at the adapter level in this file; the "second turn must not
+    touch the network" assertion below is now the whole story.)
+    Both turns return the fallback in engine time with the answer
+    recorded."""
     calls = {"n": 0}
     monkeypatch.setattr(provider_mod, "_BREAKER_MIN_LATENCY_S", 0.1)
     adapter = _adapter(monkeypatch, _slow_empty_reply(calls))
+    t0 = time.monotonic()
     first = pref_answer("我想去瑞士，因为那边环境优美", "zh-CN",
                         known={}, provider=adapter)
+    assert time.monotonic() - t0 < 1
     assert first["ai_status"] == "unavailable"
     assert first["extracted"].get("countries") == ["CH"]
-    assert calls["n"] == 1
-    assert gateway_breaker_open()
+    assert calls["n"] == 0, "guided turn must not touch the network"
 
     t0 = time.monotonic()
     second = pref_answer("我喜欢凉爽的地方", "zh-CN",
@@ -426,4 +429,4 @@ def test_pref_first_slow_empty_fallback_second_turn_no_model_attempt(monkeypatch
     assert time.monotonic() - t0 < 1
     assert second["ai_status"] == "unavailable"
     assert second["extracted"].get("climate") == "cool"
-    assert calls["n"] == 1, "second turn must not touch the network"
+    assert calls["n"] == 0, "second turn must not touch the network"

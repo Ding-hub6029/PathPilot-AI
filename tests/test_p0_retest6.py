@@ -232,13 +232,19 @@ def _chip_tap_handler(request: httpx.Request) -> httpx.Response:
         "usage": {}})
 
 
-def test_p03_chip_tap_model_up_extracts_country_no_invented_note(monkeypatch):
-    """Model-up path, chip tap "瑞士": countries=[CH], NO note key —
-    the backend never invents a reason. The reason is collected by
-    the frontend why-follow-up (P0-3), not by this call."""
+def test_p03_chip_tap_deterministic_extracts_country_no_invented_note(monkeypatch):
+    """Chip tap "瑞士": countries=[CH], NO note key — the backend
+    never invents a reason. The reason is collected by the frontend
+    why-follow-up (P0-3), not by this call.
+
+    Round 29 W2 (E4) supersede: a bare chip tap is a guided answer,
+    so the turn takes the deterministic route (model never called)
+    instead of the model-up path — the no-invented-note pin holds
+    on the deterministic extraction itself."""
     provider = _mock_provider(monkeypatch, _chip_tap_handler)
     r = pref_answer("瑞士", "zh-CN", known={}, provider=provider)
-    assert r["ai_status"] == "available"
+    assert r["ai_status"] == "unavailable"
+    assert r["model"] is None
     assert r["extracted"]["countries"] == ["CH"]
     assert "note" not in r["extracted"]
     assert r["next_question"] == "climate"

@@ -20,6 +20,7 @@ import { CompassFace } from '../../components/CompassPet';
 import { ViewTransitionLink } from '../../components/ViewTransitionLink';
 import { vtRef } from '../../lib/viewTransition';
 import { useBackendStatus } from '../../lib/backendStatus';
+import { useAiVerdict } from '../../lib/aiVerdict';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
 import { SimulatePanel } from '../../components/SimulatePanel';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
@@ -35,6 +36,14 @@ export default function ResultsPage() {
   // (lib/backendStatus) — never from this page's own match/fetch, so
   // this header can no longer contradict the rankings/browse footers.
   const backendStatus = useBackendStatus();
+  const aiVerdict = useAiVerdict();
+  // Round 29, E5: the AI verdict comes from the one shared store
+  // (lib/aiVerdict.ts) — the same verdict the pet footer and the
+  // wizard read. Backend reachable is NOT AI available, so the
+  // "Live backend connected" line renders only when the shared AI
+  // verdict is live; while it is unknown the banner says checking,
+  // and while it is offline the banner says the AI is down — never
+  // a backend-health signal rendered as an AI-available signal.
   // Round 6: lookups cover the merged list (live v2 + expansion mirror),
   // so expansion results resolve to a programme card.
   const programs = useMemo(() => mergePrograms(livePrograms), [livePrograms]);
@@ -172,7 +181,9 @@ export default function ResultsPage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="line-mask text-2xl font-bold"><span>{t('results.title')}</span></h1>
       {profile.sample && <p className="mt-2 inline-block rounded-lg bg-amber/25 px-3 py-1 text-sm font-semibold">{t('common.synthetic')}</p>}
-      {backendStatus === 'live' && <p className="mt-3 rounded-lg bg-teal/10 p-3 text-sm font-semibold text-teal-dark" role="status">{t('r9pages.backendLive')}</p>}
+      {backendStatus === 'live' && aiVerdict.verdict === 'live' && <p className="mt-3 rounded-lg bg-teal/10 p-3 text-sm font-semibold text-teal-dark" role="status">{t('r9pages.backendLive')}</p>}
+      {backendStatus === 'live' && aiVerdict.verdict === 'checking' && <p className="mt-3 rounded-lg bg-white/70 p-3 text-sm font-semibold text-navy/70" role="status">{t('pet.aiChecking')}</p>}
+      {backendStatus === 'live' && aiVerdict.verdict === 'offline' && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('results.aiOffline')}</p>}
       {backendStatus === 'checking' && <p className="mt-3 rounded-lg bg-white/70 p-3 text-sm font-semibold text-navy/70" role="status">{t('r9pages.backendChecking')}</p>}
       {backendStatus === 'offline' && <p className="mt-3 rounded-lg bg-amber/20 p-3 text-sm font-semibold" role="status">{t('common.offline')}: {t('results.offlineNote')}</p>}
       {/* Round 8: every count says what it counts — the filtered

@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
 import type { Profile } from '../lib/types';
-import { fetchJsonChat, fetchJsonPatient, modelAvailability, allPrograms, findProgram } from '../lib/api';
-import { checkingDelayMs, footerAiLineKey, freshAiVerdict, probeVerdictApplies, type AiStatusPayload } from '../lib/aiStatus';
+import { fetchJsonChat, modelAvailability, allPrograms, findProgram } from '../lib/api';
+import { aiVerdictLineKey, beginAiTurn, endAiTurn, noteAiTurnVerdict, probeAiVerdict, resetAiVerdict, useAiVerdict } from '../lib/aiVerdict';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, detectLevelWord, disambiguationFollowupMessage, disambiguationLevels, isModelReply, looksLikeQuestion, pendingDisambiguation, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
@@ -40,9 +40,10 @@ import enMessages from '../../messages/en.json';
  * Cold-start resilience (round 7, Fix A; round 8): the backend sleeps
  * after 15 min idle and takes ~50s+ to wake; a first call made while
  * it wakes used to fail fast and strand the pet offline for the
- * session. The status check still goes through fetchJsonPatient
- * (lib/api.ts) with up to ~90s of retries before offline is
- * declared, a "waking the backend" line with the elapsed seconds
+ * session. The status check goes through the one shared probe
+ * (lib/aiVerdict.ts, a patient read with up to ~90s of retries
+ * before offline is declared), a "waking the backend" line with
+ * the elapsed seconds
  * while a retry is in flight, and an explicit retry action in the
  * footer that stays available (disabled only while a check is
  * running) so the user can re-check after waking instead of being
@@ -447,7 +448,17 @@ export function CompassPet() {
   const [messages, setMessages] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
-  const [offline, setOffline] = useState(false);
+  /** Round 29, E5 — the AI verdict is no longer local state: it is
+   * the one shared verdict in lib/aiVerdict.ts, read here and by
+   * the wizard (PrefChat) and the results banner from the same
+   * store, so the three surfaces can never contradict each other.
+   * `offline` / `aiLive` / `timedOut` below are derivations of it,
+   * kept as locals only so the footer, the mood and the offline
+   * turn lines below read unchanged. */
+  const aiVerdict = useAiVerdict();
+  const offline = aiVerdict.verdict === 'offline';
+  const timedOut = aiVerdict.timedOut;
+  const aiLive: boolean | null = aiVerdict.verdict === 'live' ? true : aiVerdict.verdict === 'offline' ? false : null;
   /** The backend is being woken (a retry is in flight after the first
    * attempt failed): show the waking line, not the offline line. */
   const [waking, setWaking] = useState(false);
@@ -457,11 +468,6 @@ export function CompassPet() {
    * progress line — a bare "想想……" with no progress is what the
    * re-test flagged. */
   const busyElapsed = useElapsed(busy);
-  /** The last offline verdict came after the patient budget was spent
-   * (a retry fired) or a chat turn was cut by its own ~18 s timer
-   * (an AbortError from fetchJsonChat): the footer and the offline
-   * turns say "timed out", not a bare "offline". */
-  const [timedOut, setTimedOut] = useState(false);
   /** Whether any retry fired during the current patient call — set by
    * patientOnRetry, read when the call fails. */
   const retryFiredRef = useRef(false);
@@ -486,17 +492,6 @@ export function CompassPet() {
    * the 90 s patient budget — it watches the backend wake, it is
    * not a turn. */
   const chatOpts = { onRetry: patientOnRetry };
-  /** Whether the live model answered recently: true after a model
-   * reply (ai_status "available") or a fresh open-probe that said
-   * available, false after a failure or a template-only reply, null
-   * while the current open's verdict is still unconfirmed. The
-   * footer reports this honestly — it never claims AI answers it
-   * has not seen. Round 20: the verdict is re-confirmed on every
-   * panel open (and when devil mode is switched on), never carried
-   * over from an earlier open — the gateway flaps, so a stale
-   * `true` used to keep the footer claiming "AI 回答" while the
-   * model was actually down. */
-  const [aiLive, setAiLive] = useState<boolean | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   /** Bumped on every restart so late turn responses are ignored. */
@@ -588,11 +583,11 @@ export function CompassPet() {
     // Round 8: a restart clears any stuck busy/waking state — a
     // restart while a call was in flight used to leave the quick
     // replies hidden (chips render only when !busy) with no way back.
-    // The offline flag itself stays: it describes the backend, not
-    // this conversation, and the footer retry still re-checks it.
+    // The shared verdict itself stays (Round 29, E5): it describes
+    // the model, not this conversation, and the footer retry still
+    // re-checks it.
     setBusy(false);
     setWaking(false);
-    setTimedOut(false);
     // Round 7, Fix B: the guided flow skips what the wizard already
     // learned, and the opening turn acknowledges the saved preferences
     // instead of claiming there are none. Degree comes from
@@ -673,13 +668,16 @@ export function CompassPet() {
     try {
       if (sessionStorage.getItem('pp-pet-dismissed') === '1') return;
     } catch { /* ignore */ }
-    // Round 25 W3: reset the footer verdict BEFORE the panel paints
+    // Round 25 W3: reset the shared verdict BEFORE the panel paints
     // — this path calls setOpen directly (never toggle(true)), so it
     // bypassed the Round 21 W1 pre-paint reset and the open effect's
     // reset runs only after the first paint, leaving one frame with
     // the previous open's "AI 回答". Same reset as toggle(true).
-    setAiLive(null);
-    setOffline(false);
+    // Round 29, E5: the reset is resetAiVerdict() on the shared
+    // store — the wizard and the results banner read the same
+    // verdict, so they reset with it instead of keeping a stale
+    // claim of their own.
+    resetAiVerdict();
     setWaking(false);
     setOpen(true);
     try { sessionStorage.setItem('pp-pet-open', '1'); } catch { /* ignore */ }
@@ -716,7 +714,10 @@ export function CompassPet() {
    * A clear is a fresh session for the footer, exactly like an
    * open: reset to unknown (neutral checking line) and re-probe
    * fresh while the panel is open; when closed the reset alone is
-   * enough — the next open re-probes anyway. */
+   * enough — the next open re-probes anyway. Round 29, E5: the
+   * reset is resetAiVerdict() on the shared store, so the wizard
+   * and the results banner reset with the pet instead of keeping
+   * a stale claim of their own. */
   const clearNonceRef = useRef(dataClearNonce);
   useEffect(() => {
     if (dataClearNonce === clearNonceRef.current) return;
@@ -725,123 +726,29 @@ export function CompassPet() {
     setAnswers({});
     setStep(0);
     setDevilMode(false);
-    setAiLive(null);
-    setOffline(false);
+    resetAiVerdict();
     setWaking(false);
     if (openRef.current) {
       greet();
-      probeAiStatus({ minChecking: true });
+      runProbe({ minChecking: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataClearNonce]);
 
-  /** Round 20: one shared model-status probe for the footer. Round 21
-   * W1: the probe asks for a FRESH verdict (?fresh=1 — the backend
-   * /ai/status cache is 60 s, per-process, shared by every user, and
-   * used to serve a cached "available" labelled probed:true, so the
-   * 13:22 first open claimed "AI 回答" from a verdict primed at 13:21
-   * while the gateway had already flapped) and applies it ONLY
-   * through freshAiVerdict (lib/aiStatus.ts): "available" counts as
-   * live only when probed===true, i.e. this open's own probe ran;
-   * an available-but-unprobed claim is unconfirmed — it keeps the
-   * checking line and re-probes fresh (bounded), then falls back to
-   * offline, the safe direction. A probe superseded by a newer one
-   * (re-open, devil enable, retry) is ignored via the sequence ref,
-   * so a slow answer cannot overwrite a fresher verdict. Open/devil
-   * probes also hold the checking state visible for at least
-   * AI_CHECKING_MIN_MS (the warm-cache probe used to resolve in a
-   * fraction of a second, so the checking line was never perceived);
-   * the retry path keeps its waking line instead. Callers set
-   * `waking` first (the open/devil paths show the checking line, the
-   * retry button shows the waking line); both outcomes clear it here. */
-  const probeSeqRef = useRef(0);
-  const probeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  /** Unconfirmed-verdict re-probes used by the CURRENT probe only;
-   * reset on every fresh (non-retry) probe start below. */
-  const unconfirmedRetriesRef = useRef(0);
-  /** Round 22 W1 — turn-verdict freshness for the probe guard (see
-   * probeVerdictApplies, lib/aiStatus.ts): a probe verdict is the
-   * weakest evidence and must never overwrite a turn verdict.
-   * turnInFlightRef is true while a user turn (onSend / askSuggest)
-   * is in flight; turnVerdictGenRef is bumped by noteTurnVerdict()
-   * at every turn verdict (goOffline / toOffline and every setAiLive
-   * in onSend and askSuggest). A probe
-   * captures the generation at start; if a turn is in flight or the
-   * generation moved when the probe resolves, the probe verdict is
-   * dropped — the turn's own verdict lands when it ends. */
-  const turnInFlightRef = useRef(false);
-  const turnVerdictGenRef = useRef(0);
-  const noteTurnVerdict = () => { turnVerdictGenRef.current += 1; };
-  const probeAiStatus = (opts?: { minChecking?: boolean; unconfirmedRetry?: boolean }) => {
-    const seq = ++probeSeqRef.current;
-    const genAtStart = turnVerdictGenRef.current;
-    if (probeTimerRef.current) {
-      clearTimeout(probeTimerRef.current);
-      probeTimerRef.current = undefined;
-    }
-    if (!opts?.unconfirmedRetry) unconfirmedRetriesRef.current = 0;
+  /** Round 29, E5 — the probe itself now lives in the shared store
+   * (lib/aiVerdict.ts: one FRESH ?fresh=1 read, applied only
+   * through freshAiVerdict, with the Round 22 turn-guard, the
+   * bounded unconfirmed re-probes and the AI_CHECKING_MIN_MS hold
+   * all in one place). This component only triggers it — on open,
+   * on devil enable, on footer retry, on clear-data — and clears
+   * its own waking line when the shared probe settles. The
+   * `waking` flag is local (it is a UI state about a retry in
+   * flight, not a verdict); the verdict it used to guard is the
+   * shared one now. Callers set `waking` first, exactly as
+   * before; both outcomes clear it here. */
+  const runProbe = (opts?: { minChecking?: boolean }) => {
     beginPatientCall();
-    const startedAt = Date.now();
-    const minChecking = opts?.minChecking ?? false;
-    const applyVerdict = (verdict: boolean | null) => {
-      if (probeSeqRef.current !== seq) return;
-      // Round 22 W1: a stale probe verdict must never overwrite a
-      // turn verdict (see probeVerdictApplies) — drop it, but still
-      // clear waking so the footer falls back to the turn's verdict
-      // (or the checking line), never the waking line.
-      if (!probeVerdictApplies({ turnInFlight: turnInFlightRef.current, turnVerdictGenAtProbeStart: genAtStart, turnVerdictGenNow: turnVerdictGenRef.current })) {
-        setWaking(false);
-        return;
-      }
-      if (verdict === null) {
-        // Available but unprobed: never claim AI on it. One bounded
-        // fresh re-probe (the backend normally never returns this
-        // for ?fresh=1); after that, offline — the safe direction,
-        // with the footer retry available to re-check.
-        if (unconfirmedRetriesRef.current < 2) {
-          unconfirmedRetriesRef.current += 1;
-          probeTimerRef.current = setTimeout(
-            () => probeAiStatus({ minChecking, unconfirmedRetry: true }), 2000);
-        } else {
-          setWaking(false);
-          setAiLive(false);
-          setOffline(true);
-        }
-        return;
-      }
-      setWaking(false);
-      setTimedOut(false);
-      setAiLive(verdict);
-      setOffline(!verdict);
-    };
-    const applyDown = () => {
-      if (probeSeqRef.current !== seq) return;
-      // Round 22 W1: same staleness guard as applyVerdict — a probe
-      // that started before a turn must not overwrite the turn's
-      // verdict in either direction.
-      if (!probeVerdictApplies({ turnInFlight: turnInFlightRef.current, turnVerdictGenAtProbeStart: genAtStart, turnVerdictGenNow: turnVerdictGenRef.current })) {
-        setWaking(false);
-        return;
-      }
-      setWaking(false);
-      setTimedOut(retryFiredRef.current);
-      setAiLive(false);
-      setOffline(true);
-    };
-    const applyAfterMinChecking = (fn: () => void) => {
-      const delay = minChecking ? checkingDelayMs(Date.now() - startedAt) : 0;
-      if (delay > 0) probeTimerRef.current = setTimeout(fn, delay);
-      else fn();
-    };
-    fetchJsonPatient<AiStatusPayload>('/api/ai/status?fresh=1', {}, { onRetry: patientOnRetry })
-      .then((s) => {
-        if (probeSeqRef.current !== seq) return;
-        applyAfterMinChecking(() => applyVerdict(freshAiVerdict(s)));
-      })
-      .catch(() => {
-        if (probeSeqRef.current !== seq) return;
-        applyAfterMinChecking(applyDown);
-      });
+    void probeAiVerdict({ ...opts, onRetry: patientOnRetry }).finally(() => setWaking(false));
   };
 
   /** One cheap status read EVERY time the panel opens, so the footer
@@ -852,30 +759,29 @@ export function CompassPet() {
    * an earlier open (the gateway flaps on a minutes timescale) kept
    * the footer claiming "AI 回答" on later opens while the model was
    * actually down, until a failed turn corrected it. Re-opening now
-   * resets aiLive to unknown (the footer shows the neutral checking
-   * line) and re-probes; "AI 回答" appears only after this open's
-   * confirmed available verdict. Round 21 W1: the re-probe is a
-   * FRESH one (?fresh=1, see probeAiStatus) — a cached "available"
-   * from minutes earlier, primed by any caller, never produces the
-   * claim — and the checking line is held visible for at least
-   * AI_CHECKING_MIN_MS. The patient fetch retries while
+   * resets the shared verdict to unknown (the footer shows the
+   * neutral checking line) and re-probes; "AI 回答" appears only
+   * after this open's confirmed available verdict. Round 21 W1:
+   * the re-probe is a FRESH one (?fresh=1, see lib/aiVerdict.ts)
+   * — a cached "available" from minutes earlier, primed by any
+   * caller, never produces the claim — and the checking line is
+   * held visible for at least AI_CHECKING_MIN_MS. The patient
+   * fetch retries while
    * the backend wakes (round 7, Fix A): offline is declared only
    * after the ~90s budget is spent, and the waking line shows while
    * a retry is in flight. */
   useEffect(() => {
     if (!open) return;
     setWaking(false);
-    setAiLive(null);
-    probeAiStatus({ minChecking: true });
-    // A delayed verdict must not land after the panel closed (or
-    // after a newer probe superseded it — the seq guard covers that
-    // too); clear the pending timer on close/unmount.
-    return () => {
-      if (probeTimerRef.current) {
-        clearTimeout(probeTimerRef.current);
-        probeTimerRef.current = undefined;
-      }
-    };
+    // Round 29, E5: reset the shared verdict to unknown and
+    // re-probe fresh — the gateway flaps, so a verdict from an
+    // earlier open must never carry over. The wizard and the
+    // results banner read the same store, so they see the
+    // checking line too until this open's verdict lands. The
+    // shared probe dedupes concurrent callers, so a probe the
+    // results page already started is joined, not repeated.
+    resetAiVerdict();
+    runProbe({ minChecking: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -892,8 +798,8 @@ export function CompassPet() {
     devilWasOnRef.current = devilMode;
     if (!open || !devilMode || wasOn) return;
     setWaking(false);
-    setAiLive(null);
-    probeAiStatus({ minChecking: true });
+    resetAiVerdict();
+    runProbe({ minChecking: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, devilMode]);
 
@@ -903,7 +809,7 @@ export function CompassPet() {
    * again; a failed check keeps it offline. */
   const retryStatus = () => {
     setWaking(true);
-    probeAiStatus();
+    runProbe();
   };
 
   useEffect(() => {
@@ -979,8 +885,10 @@ export function CompassPet() {
       // aiLive only in the open effect left one frame showing the
       // previous open's "AI 回答" (CompassPet never remounts, so a
       // stale true survived in state across opens in one session).
-      setAiLive(null);
-      setOffline(false);
+      // Round 29, E5: the reset is resetAiVerdict() on the shared
+      // store — the wizard and the results banner read the same
+      // verdict, so they reset with it.
+      resetAiVerdict();
       setWaking(false);
     }
     setOpen(next);
@@ -1205,7 +1113,7 @@ export function CompassPet() {
       return;
     }
     setBusy(true);
-    turnInFlightRef.current = true;
+    beginAiTurn();
     const requestLocale = locale;
     // Round 8: the conversation this call belongs to — a restart
     // (greet bumps convRef) while the call is in flight must not let
@@ -1216,14 +1124,14 @@ export function CompassPet() {
     // (lib/api.ts) — a slow abort falls back at once instead of
     // re-issuing the whole turn for another 40 s.
     const patientOpts = chatOpts;
-    // NOTE: goOffline does not touch timedOut — the caller sets it:
+    // NOTE: goOffline takes the timeout verdict as an argument —
     // a template reply is a fast answer (not a timeout), a thrown
-    // call carries the retry verdict.
-    const goOffline = () => {
+    // call carries the retry verdict — and publishes it to the
+    // SHARED verdict store (Round 29, E5), so the wizard and the
+    // results banner see this turn's verdict too.
+    const goOffline = (timedOutArg = false) => {
       if (convRef.current !== conv) return;
-      noteTurnVerdict();
-      setOffline(true);
-      setAiLive(false);
+      noteAiTurnVerdict(false, { timedOut: timedOutArg });
       const off = suggestOffline(degree, country, band);
       if (off) doCelebrate();
       push({
@@ -1241,9 +1149,8 @@ export function CompassPet() {
     // 'unknown' proceed as before. The verdict is usually cached
     // (SimulatePanel warms it every 45 s), so this is ~ms.
     if ((await modelAvailability()) === 'unavailable') {
-      setTimedOut(false);
-      goOffline();
-      turnInFlightRef.current = false;
+      goOffline(false);
+      endAiTurn();
       // This early return runs before the try's finally, so busy /
       // waking must be cleared here — without this the pet stays
       // stuck thinking (chips hidden, input blocked) after a
@@ -1261,12 +1168,9 @@ export function CompassPet() {
         body: JSON.stringify({ message: suggestMessageFor(degree, country, band), locale: requestLocale }),
       }, patientOpts);
       setWaking(false);
-      if (!isModelReply(r)) { setTimedOut(false); goOffline(); return; }
+      if (!isModelReply(r)) { goOffline(false); return; }
       if (convRef.current !== conv) return;
-      setOffline(false);
-      setTimedOut(false);
-      noteTurnVerdict();
-      setAiLive(true);
+      noteAiTurnVerdict(true);
       if (deriveChatLinks(r.sources).program) doCelebrate();
       push({
         kind: 'suggest', degree, country, band,
@@ -1276,14 +1180,13 @@ export function CompassPet() {
     } catch (err) {
       setWaking(false);
       if (convRef.current === conv) {
-        setTimedOut(callTimedOut(err));
-        goOffline();
+        goOffline(callTimedOut(err));
       }
     } finally {
       // Round 22 W1: the flag mirrors the in-flight lookup, not the
       // conversation — a superseded turn is no longer in flight even
       // when its late reply is ignored below.
-      turnInFlightRef.current = false;
+      endAiTurn();
       if (convRef.current === conv) {
         setWaking(false);
         setBusy(false);
@@ -1393,7 +1296,7 @@ export function CompassPet() {
     if (levelChoice) push({ kind: 'choice', step: 0, value: levelChoice });
     else push({ kind: 'freeText', text: displayText ?? '' });
     setBusy(true);
-    turnInFlightRef.current = true;
+    beginAiTurn();
     setWaking(false);
     const requestLocale = locale;
     // Round 8: the conversation this call belongs to — a restart
@@ -1405,14 +1308,14 @@ export function CompassPet() {
     // (lib/api.ts) — a slow abort falls back at once instead of
     // re-issuing the whole turn for another 40 s.
     const patientOpts = chatOpts;
-    // NOTE: goOffline does not touch timedOut — the caller sets it:
+    // NOTE: goOffline takes the timeout verdict as an argument —
     // a template reply is a fast answer (not a timeout), a thrown
-    // call carries the retry verdict.
-    const goOffline = () => {
+    // call carries the retry verdict — and publishes it to the
+    // SHARED verdict store (Round 29, E5), so the wizard and the
+    // results banner see this turn's verdict too.
+    const goOffline = (timedOutArg = false) => {
       if (convRef.current !== conv) return;
-      noteTurnVerdict();
-      setOffline(true);
-      setAiLive(false);
+      noteAiTurnVerdict(false, { timedOut: timedOutArg });
       const rank = rankOffline(askMessage);
       if (rank) doCelebrate();
       push({ kind: 'ask', message: askMessage, reply: null, replyLocale: null, offline: true, devil: devilTurn, offlineRankId: rank?.institutionId ?? null, offlineCountry: countryFromMessage(askMessage) });
@@ -1459,35 +1362,27 @@ export function CompassPet() {
         // lines at all still falls through to the catalogue.
         if (r.lines?.length) {
           if (convRef.current !== conv) return;
-          noteTurnVerdict();
-          setOffline(true);
-          setTimedOut(false);
-          setAiLive(false);
+          noteAiTurnVerdict(false, { timedOut: false });
           if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
           push({ kind: 'ask', message: askMessage, ...(args.skipContext && sentMessage !== askMessage ? { sentMessage } : {}), reply: r, replyLocale: requestLocale, offline: true, devil: devilTurn, offlineRankId: null, offlineCountry: null });
           return;
         }
-        setTimedOut(false);
-        goOffline();
+        goOffline(false);
         return;
       }
       if (convRef.current !== conv) return;
-      setOffline(false);
-      setTimedOut(false);
-      noteTurnVerdict();
-      setAiLive(true);
+      noteAiTurnVerdict(true);
       if (deriveChatLinks(r.sources).program || deriveChatLinks(r.sources).institution) doCelebrate();
       push({ kind: 'ask', message: askMessage, ...(args.skipContext && sentMessage !== askMessage ? { sentMessage } : {}), reply: r, replyLocale: requestLocale, offline: false, devil: devilTurn, offlineRankId: null, offlineCountry: null });
     } catch (err) {
       setWaking(false);
       if (convRef.current === conv) {
-        setTimedOut(callTimedOut(err));
-        goOffline();
+        goOffline(callTimedOut(err));
       }
     } finally {
       // Round 22 W1: see askSuggest — the flag mirrors the in-flight
       // lookup, not the conversation.
-      turnInFlightRef.current = false;
+      endAiTurn();
       if (convRef.current === conv) {
         setWaking(false);
         setBusy(false);
@@ -1761,7 +1656,7 @@ export function CompassPet() {
               <span>
                 {waking
                   ? tf('pet.wakingElapsed', { seconds: wakingElapsed })
-                  : t(footerAiLineKey({ offline, timedOut, aiLive }))}
+                  : t(aiVerdictLineKey(aiVerdict))}
               </span>
               {/* Round 8: the retry stays available after sending a
                   message (it used to disappear while waking) — it is

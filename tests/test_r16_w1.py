@@ -113,9 +113,16 @@ AUDIT_MODEL_PAYLOAD = {
 # ---------------------------------------------------------------------------
 
 def test_r16_why_withholds_next_question_line_model_up(monkeypatch):
+    # Round 29 W2 (E4) supersede: the audit sentence is a guided
+    # answer, so this turn takes the deterministic route (model never
+    # called) — the WHY-withholding pin holds there, exactly as the
+    # no-key and gateway-error variants already pin. The reason rides
+    # in `extracted.note` / `why_followup`, not in the reply lines
+    # (the old "环境优美" in `lines` pin is superseded with the
+    # routing change).
     provider = _mock_provider(monkeypatch, _fixed_model_handler(AUDIT_MODEL_PAYLOAD))
     r = pref_answer(AUDIT_MSG, "zh-CN", known={}, provider=provider)
-    assert r["ai_status"] == "available"
+    assert r["ai_status"] == "unavailable"
     assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert r["extracted"] == {"countries": ["CH"], "note": "那边环境优美"}
     # The deferred preference still rides in next_question — but the
@@ -124,7 +131,6 @@ def test_r16_why_withholds_next_question_line_model_up(monkeypatch):
     assert r["next_question"] == "climate"
     assert CLIMATE_Q not in r["lines"]
     assert len(r["lines"]) <= 3
-    assert "环境优美" in "\n".join(r["lines"])
 
 
 def test_r16_why_withholds_next_question_line_no_key(monkeypatch):

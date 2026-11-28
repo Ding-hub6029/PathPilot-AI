@@ -155,9 +155,14 @@ def test_r17_first_turn_returns_country_and_why(monkeypatch):
     {countries: [CH], note} with the WHY follow-up riding in the first
     reply (the input fix A splits). The climate question line is
     withheld while the WHY is the turn's question (round 16)."""
+    # Round 29 W2 (E4) supersede: the audit sentence is a guided
+    # answer, so the model-up half of this test now takes the
+    # deterministic route (model never called) — the first-turn
+    # extraction + WHY pin holds there, with ai_status
+    # "unavailable", exactly as the no-key half already pins.
     provider = _mock_provider(monkeypatch, _fixed_model_handler(AUDIT_MODEL_PAYLOAD))
     r = pref_answer(AUDIT_MSG, "zh-CN", known={}, provider=provider)
-    assert r["ai_status"] == "available"
+    assert r["ai_status"] == "unavailable"
     assert r["extracted"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert r["why_followup"] == {"countries": ["CH"], "note": "那边环境优美"}
     assert r["next_question"] == "climate"
@@ -177,9 +182,14 @@ def test_r17_second_turn_after_country_lands_model_up(monkeypatch):
     answer) and the climate answer. The WHY must NOT re-fire for CH,
     the climate extraction lands, and the next question is
     environment — the conversation advances past the country."""
+    # Round 29 W2 (E4) supersede: "凉快一点" is a guided answer
+    # (climate is the first missing preference), so the model-up
+    # half now takes the deterministic route (model never called) —
+    # the climate extraction, no WHY re-fire, and the environment
+    # question last all hold there, with ai_status "unavailable".
     provider = _mock_provider(monkeypatch, _fixed_model_handler(CLIMATE_MODEL_PAYLOAD))
     r = pref_answer("凉快一点", "zh-CN", known=KNOWN_AFTER_WHY, provider=provider)
-    assert r["ai_status"] == "available"
+    assert r["ai_status"] == "unavailable"
     assert r["extracted"] == {"climate": "cool"}
     assert r["why_followup"] is None
     assert r["next_question"] == "environment"
@@ -428,10 +438,14 @@ def test_r17_w1_source_pins():
     assert "remaining ? { extracted: remaining, rawText: prev.rawText } : null" in prefchat
 
     # Finding 1b: the pending extraction is never silently discarded
-    # on a drop or a retry — only confirm / dismiss / restart clear
-    # it (three sites, all explicit user actions or a reset).
-    assert prefchat.count("setPendingExtract(null)") == 3, (
-        "only confirmExtract, dismissExtract and restart may clear a pending extraction")
+    # on a drop or a retry — only confirm / dismiss / restart /
+    # clear-data clear it (four sites, all explicit user actions or
+    # a reset). Round 29 E6 (#304) supersede: the data-clear effect
+    # is the fourth site — it resets the full live set, same as
+    # restart(), so the pending extraction cannot be restored after
+    # a clear.
+    assert prefchat.count("setPendingExtract(null)") == 4, (
+        "only confirmExtract, dismissExtract, restart and the data-clear effect may clear a pending extraction")
     guided = prefchat[prefchat.index("const enterGuidedMode"):]
     guided = guided[:guided.index("const preserveFailedAnswer")]
     assert "setPendingExtract(null)" not in guided

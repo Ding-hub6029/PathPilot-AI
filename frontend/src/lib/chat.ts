@@ -28,7 +28,7 @@
 
 import type { Profile } from './types';
 import { joinList } from './format';
-import { choiceLabelFor, choiceRefsForLabel } from './preferences';
+import { choiceLabelFor, choiceRefsForLabel, NOTE_PHRASE_FORMS } from './preferences';
 
 /** One /assistant/chat reply. */
 export interface ChatReply {
@@ -395,6 +395,18 @@ export interface PrefChatReply {
    * (or null when none was stated/known). Pairs with
    * `evidence_cities`. */
   climate_wanted?: 'warm' | 'cool' | 'four_seasons' | 'mild' | null;
+  /** Round 29 W2 (E3): True exactly when THIS turn stated a
+   * climate class or just answered climate — on BOTH the fallback
+   * and the model path (always present on new replies). The
+   * frontend's cities-line dedupe signal: render the cities line
+   * only on the turn where this is True (see `scopeCitiesLines`
+   * in `prefFallbackLines.ts` + the `answeredClimate` mapping in
+   * `PrefChat.tsx`). Absent on old persisted snapshots, which
+   * fall back to the extraction (`extracted.climate`). Persisted
+   * whole with the reply: `serializePrefChatState` /
+   * `parsePrefChatState` pass `reply` through as one object, so
+   * no whitelist change was needed. */
+  climate_turn?: boolean;
 }
 
 /** True only when the backend actually used a validated model output
@@ -916,9 +928,9 @@ export function extractedSummary(
  *   a single choice ref (choiceRefsForLabel length 1): ambiguous
  *   labels ("新加坡" / "香港", country-vs-city) stay verbatim;
  * - segments with no reverse-map match stay verbatim — that covers
- *   the salary ("80000 CHF") and the WHY reason in the user's own
- *   words ("“环境优美”"), which must NEVER be re-localised, and a
- *   multi-label segment ("瑞士和英国", "瑞士、英国") which stays
+ *   the salary ("80000 CHF") and a QUOTED WHY reason in the user's
+ *   own words ("“环境优美”"), which must NEVER be re-localised, and
+ *   a multi-label segment ("瑞士和英国", "瑞士、英国") which stays
  *   verbatim (documented residual: the countries join is one
  *   segment, not two choices);
  * - a choice label can itself span the separator: the environment
@@ -929,8 +941,18 @@ export function extractedSummary(
  *   both directions. Only the campus labels contain ' · ', so a
  *   two-segment join can only ever match a campus label.
  *
+ * Round 29 E2: a segment that is an exact KNOWN reason phrase also
+ * re-localises, through NOTE_PHRASE_FORMS (the same table
+ * prefSummary's localiseCountryNote uses — see localisedNotePhrase
+ * below). That is what the reason answer needs: a WHY answer of
+ * "环境优美" renders "Beautiful environment" in the English UI,
+ * while a free-text reason the table does not know stays verbatim
+ * (the user's own words, never translated, never dropped). The
+ * quoted form ("“环境优美”") still never matches — the quotes are
+ * part of the segment — so the Round 28 D1 pin on it is unchanged.
+ *
  * Pure; never invents a label — every re-localisation goes through
- * the existing reverse map and choiceLabelFor.
+ * the existing reverse maps (choice + note-phrase tables).
  */
 export function localisedConfirmedNote(note: string, t: (k: string) => string): string {
   const segments = note.split(' · ');
@@ -947,10 +969,55 @@ export function localisedConfirmedNote(note: string, t: (k: string) => string): 
       }
     }
     const refs = choiceRefsForLabel(segments[i]);
-    out.push(refs.length === 1 ? choiceLabelFor(refs[0], t) : segments[i]);
+    if (refs.length === 1) {
+      out.push(choiceLabelFor(refs[0], t));
+      i += 1;
+      continue;
+    }
+    // Round 29 E2: a known reason phrase, unquoted, re-localises;
+    // anything else stays verbatim (see localisedNotePhrase).
+    out.push(localisedNotePhrase(segments[i], t));
     i += 1;
   }
   return out.join(' · ');
+}
+
+/**
+ * Round 29 E2: one segment of a confirmed note / WHY answer, as a
+ * KNOWN reason phrase in the current locale. NOTE_PHRASE_FORMS
+ * (lib/preferences.ts) is the reverse map for reason phrases — the
+ * same table prefSummary's localiseCountryNote uses, with the same
+ * rule: a segment that exactly equals a known form of a phrase
+ * renders through that phrase's locale key, EXCEPT when the segment
+ * is already in the active locale's wording (the user's own wording
+ * is never rewritten — "环境优美" stays "环境优美" in zh, never
+ * normalised to the canonical "环境很美"). Anything the table does
+ * not know stays verbatim — free-text reasons are the user's own
+ * words and are never dropped or translated. The active locale is
+ * probed from t(key) against the table's canonical forms, exactly
+ * as localiseCountryNote does. Quoted segments ("“环境优美”") never
+ * match (the quotes are part of the segment), so the Round 28 D1
+ * pin — a quoted reason stays verbatim — is unchanged. A segment
+ * that is also a choice label never reaches here (the choice check
+ * runs first in localisedConfirmedNote).
+ */
+function localisedNotePhrase(segment: string, t: (k: string) => string): string {
+  for (const { key, forms } of NOTE_PHRASE_FORMS) {
+    let formLocale: string | undefined;
+    for (const [loc, variants] of Object.entries(forms)) {
+      if (variants.some((v) => v.toLowerCase() === segment.toLowerCase())) {
+        formLocale = loc;
+        break;
+      }
+    }
+    if (!formLocale) continue;
+    const rendered = t(key);
+    const renderingLocale = Object.entries(forms)
+      .find(([, variants]) => variants[0] === rendered)?.[0];
+    if (renderingLocale && formLocale === renderingLocale) return segment;
+    return rendered;
+  }
+  return segment;
 }
 
 /** Fold a pending (not yet confirmed) extraction into the known set,

@@ -71,6 +71,9 @@ Deliberately unchanged: the stored turn message (the backend
 re-fetch contract) is untouched; no re-fetch is introduced (Round
 27 W1); no locale keys are added (977 keys in all 6 files, D2's
 two wizard.prefFallback* keys included); the cities line is D2's.
+(Round 29 W3 later added two keys — results.aiOffline and
+wizard.chatPrefAiBack — and Round 29 W1 one more
+(wizard.prefFallbackUnknown), so the count pin below is 980.)
 
 Covers, with no API key and no network:
 
@@ -344,16 +347,18 @@ def test_r28_d1_no_refetch_and_stored_contract():
 
 
 def test_r28_d1_locale_keys_unchanged():
-    """No locale keys are added: 977 keys in every locale file
-    (975 at Round 27 + the Round 28 D2 worker's two
-    wizard.prefFallback* keys), the same key set in all 6, and every
-    key this fix renders through exists in all 6."""
+    """No locale keys are added by THIS fix: 980 keys in every locale
+    file (977 at Round 28 + the Round 29 W3 worker's two keys —
+    results.aiOffline and wizard.chatPrefAiBack — + the Round 29 W1
+    worker's wizard.prefFallbackUnknown), the same key set
+    in all 6, and every key this fix renders through exists in
+    all 6."""
     msgs = {
         loc: json.load(open(FE / "messages" / f"{loc}.json", encoding="utf-8"))
         for loc in LOCALES
     }
     base = set(msgs["en"])
-    assert len(base) == 977, len(base)
+    assert len(base) == 980, len(base)
     for loc in LOCALES:
         assert set(msgs[loc]) == base, (loc, set(msgs[loc]) ^ base)
     for key in (
