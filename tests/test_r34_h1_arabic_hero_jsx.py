@@ -287,7 +287,7 @@ def test_hero_display_ar_class_is_safe_typography():
     assert "animation: none" in rule
     assert "overflow: visible" in rule
     assert "font-style: normal" in rule
-    assert "font-weight: 700" in rule
+    assert "font-weight: 400" in rule
 
 
 def test_hero_display_ar_keeps_display_scale():
