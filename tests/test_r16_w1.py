@@ -272,15 +272,22 @@ check('F1 re-fetch: reply bubble drops the trailing question line',
 check('F1 re-fetch: deferred climate question still renders once',
   bsRefetched.filter((b) => b.kind === 'deferredQuestion'), [{ kind: 'deferredQuestion', question: 'climate' }]);
 
-// --- Finding 1 control: a turn with no WHY keeps its question line --
+// --- Finding 1 control (Round 28 D1 supersedes the old pin): a turn
+// with no WHY no longer keeps its question line in the reply — the
+// line is frozen in the reply's locale, so after a language switch
+// the robot's question stayed Chinese in the English UI (re-test 22
+// item d). The trailing line moves to a `question` bubble, rendered
+// through the current locale's question key (see
+// tests/test_r28_d1.py).
 const climateTurn = { id: 2, question: '凉爽',
   reply: { lines: ['凉爽记下了。', CLIMATE_Q], ai_status: 'available',
     extracted: { climate: 'cool' }, next_question: 'environment' },
   replyLocale: 'zh-CN', offline: false };
-check('F1 control: no-WHY turn keeps the question line in its reply',
+check('F1 control (R28 D1): no-WHY turn moves the question line to a question bubble',
   chat.prefTurnBubbles(climateTurn, null),
   [{ kind: 'user', text: '凉爽' },
-   { kind: 'reply', lines: ['凉爽记下了。', CLIMATE_Q] }]);
+   { kind: 'reply', lines: ['凉爽记下了。'] },
+   { kind: 'question', question: 'environment' }]);
 
 // --- Finding 3: a new extraction folds into a pending confirm -------
 check('F3 merge: pending countries + new climate both survive',

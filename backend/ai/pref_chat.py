@@ -67,7 +67,7 @@ from ai.chat import (_clean_history, _detect_climate_class,
                      _parse_model_json, _render_lines,
                      _resolve_evidence_url, _retrieve,
                      _validate_chat_payload, country_evidence_line,
-                     evidence_cities_line)
+                     evidence_cities_items, evidence_cities_line)
 from ai.grounding import Source
 from ai.prompts import PROMPT_VERSION, pref_chat_system
 from ai.provider import ProviderAdapter, ProviderError
@@ -623,7 +623,9 @@ def _render_pref_lines(payload: dict, locale: str, sources: list[Source],
 def _fallback_result(template: dict, sources: list[Source], known: dict,
                      locale: str, *, force_no_url: bool = False,
                      extracted: dict | None = None,
-                     why: dict | None = None) -> dict:
+                     why: dict | None = None,
+                     climate_wanted: str | None = None,
+                     climate_stated: bool = False) -> dict:
     """The honest offline result: template lines (at most 2) + the
     deterministic next question as the last line, the deterministic
     extraction (round 10 — ``{}`` only when nothing could be matched
@@ -638,6 +640,28 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     the model being unavailable must not erase evidence already in
     hand. Any other template line is left exactly as written.
 
+    Round 28 D2: when the cities line IS placed, the result also
+    carries the structured block ``evidence_cities`` (from
+    ``evidence_cities_items``) and ``climate_wanted`` (the wanted
+    class, or None) — ONLY on the fallback (offline) result, never
+    on a model reply — so the frontend can re-render the cities line
+    and the no-match sentence in the CURRENT locale after a language
+    switch, instead of the stored request-locale string. The block
+    is attached only when the cities line was actually placed into
+    ``lines[0]``, so the helper's "block present ⟺ lines[0] is the
+    cities line" contract always holds.
+
+    Round 28 D2 scoping: the cities line is placed only on a
+    climate-relevant turn — this message states a climate class
+    (``climate_stated``), the turn just answered climate
+    (``extracted`` carries it), or climate is the next question.
+    Before this, it fired on every turn once countries were known,
+    so the identical block repeated verbatim after every later
+    preference answer (re-test 22: 6 times). On a non-climate turn
+    the generic unknown line stays, exactly as the template wrote
+    it; the country line still fires only when there is no cities
+    line at all, as before.
+
     Round 16: when ``why`` is present, the WHY follow-up is the
     turn's question and the next-question line is WITHHELD from
     ``lines`` (same rule as the model path — see
@@ -647,26 +671,42 @@ def _fallback_result(template: dict, sources: list[Source], known: dict,
     nxt = first_missing(known)
     done = nxt is None
     lines = list(template["lines"][:2])
+    placed_cities = False
     if not force_no_url:
         cities = evidence_cities_line(sources, locale)
         country = country_evidence_line(sources, locale)
-        if cities is not None and lines and lines[0] == _t(locale, "unknown"):
-            lines[0] = cities
-        elif country is not None and lines and lines[0] == _t(locale, "unknown"):
-            lines[0] = country
-        elif cities is not None and not lines:
-            lines = [cities]
-        elif country is not None and not lines:
-            lines = [country]
+        climate_relevant = (climate_stated
+                            or "climate" in (extracted or {})
+                            or nxt == "climate")
+        if lines and lines[0] == _t(locale, "unknown"):
+            if cities is not None:
+                if climate_relevant:
+                    lines[0] = cities
+                    placed_cities = True
+                # Else the generic unknown line stays: the cities
+                # block must not repeat on a non-climate turn.
+            elif country is not None:
+                lines[0] = country
+        elif not lines:
+            if cities is not None:
+                if climate_relevant:
+                    lines = [cities]
+                    placed_cities = True
+            elif country is not None:
+                lines = [country]
     if nxt is not None and why is None:
         lines.append(_question_line(nxt, locale))
-    return {"lines": lines[:3],
-            "evidence_url": None if force_no_url else template.get("evidence_url"),
-            "ai_status": "unavailable", "model": None,
-            "sources": [{"id": s.id, "url": s.url, "title": s.title}
-                        for s in sources],
-            "extracted": extracted or {}, "next_question": nxt, "done": done,
-            "why_followup": why}
+    result: dict = {"lines": lines[:3],
+                    "evidence_url": None if force_no_url else template.get("evidence_url"),
+                    "ai_status": "unavailable", "model": None,
+                    "sources": [{"id": s.id, "url": s.url, "title": s.title}
+                                for s in sources],
+                    "extracted": extracted or {}, "next_question": nxt, "done": done,
+                    "why_followup": why}
+    if placed_cities:
+        result["evidence_cities"] = evidence_cities_items(sources)
+        result["climate_wanted"] = climate_wanted
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -729,7 +769,9 @@ def pref_answer(message: str, locale: str = "en",
         merged = merge_known(clean_known, ext)
         return _fallback_result(template, sources, merged, loc,
                                 extracted=ext,
-                                why=why_followup(ext, clean_known))
+                                why=why_followup(ext, clean_known),
+                                climate_wanted=wanted,
+                                climate_stated=_detect_climate_class(msg) is not None)
 
     # (d) Key present: model over the retrieved sources only.
     def fallback() -> dict:
@@ -740,7 +782,9 @@ def pref_answer(message: str, locale: str = "en",
         merged = merge_known(clean_known, ext)
         return _fallback_result(template, sources, merged, loc,
                                 extracted=ext,
-                                why=why_followup(ext, clean_known))
+                                why=why_followup(ext, clean_known),
+                                climate_wanted=wanted,
+                                climate_stated=_detect_climate_class(msg) is not None)
 
     evidence_texts = _evidence_texts(sources, pids)
     missing_before = missing_prefs(clean_known)

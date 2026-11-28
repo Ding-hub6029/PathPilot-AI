@@ -15,6 +15,7 @@ import {
   appendCountryNote, countKnownPrefs, effectiveNextPref, extractedSummary, firstMissingPref, isModelPrefReply,
   isPrefKnown, knownFromProfile, markTurnOffline, mergeExtracted, mergeKnownWithExtracted, nextMissingPrefIndex, normaliseCountryNote,
   parsePrefChatState, prefChatFingerprint, prefQuestionNameKey, prefTurnBubbles, profilePatchFromExtracted,
+  localisedConfirmedNote,
   answerTurnWhy, skipTurnWhy, splitWhyConfirmedCountries,
   serializePrefChatState, shouldAskCountryWhy, whyAnchoredTurnId, whyFollowupFromExtracted,
   PREF_QUESTIONS,
@@ -23,6 +24,7 @@ import {
   type PrefTurnBubble, type PrefTurnWhy,
 } from '../lib/chat';
 import { CompassFace, type PetMood } from './CompassPet';
+import { localisedReplyLines } from '../lib/prefFallbackLines';
 import { useElapsed } from '../lib/useElapsed';
 import enMessages from '../../messages/en.json';
 
@@ -1606,7 +1608,12 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
    * the turn's history after it is answered, the acknowledgement
    * renders attached to the turn (never as a detached bottom bubble),
    * and the deferred question (e.g. climate) renders only after the
-   * WHY is answered or skipped, never ahead of it. */
+   * WHY is answered or skipped, never ahead of it. Round 28 D1: a
+   * turn with no WHY renders its next question as a separate
+   * `question` bubble (same rendering as deferredQuestion) — the
+   * trailing question line left the reply bubble in prefTurnBubbles
+   * so it re-localises through ASK_KEY instead of staying frozen
+   * in the reply's locale. */
   const renderPrefTurns = () => turns.map((turn) => (
     <div key={`pref-${turn.id}`} className="space-y-3">
       {prefTurnBubbles(turn, awaitingReason).map((bubble) => {
@@ -1620,6 +1627,14 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
           );
         }
         if (bubble.kind === 'reply') {
+          // Round 28 integration: an offline fallback turn's stored
+          // deterministic prefix lines (cities + generic suggest) are
+          // re-rendered in the current locale from the structured
+          // evidence block (D2) — bubble.lines already had the
+          // trailing question line moved out by prefTurnBubbles (D1),
+          // so the slice inside localisedReplyLines drops exactly
+          // the replaced prefix, never the question line.
+          const lines = localisedReplyLines(bubble.lines, turn.reply, turn.offline, tf, locale);
           return (
             <div key={`pref-${turn.id}-reply`} className="flex justify-start">
               <div className={`${turn.pending ? 'think-shimmer ' : ''}max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5`}>
@@ -1633,7 +1648,7 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                     {/* Round 10: an offline turn shows its stored template
                         lines led by the offline line, never as an AI answer. */}
                     {turn.offline && (<p>{t('wizard.chatAiOffline')}</p>)}
-                    {bubble.lines.map((line, k) => (<p key={k} className={k > 0 || turn.offline ? 'mt-1' : ''}>{line}</p>))}
+                    {lines.map((line, k) => (<p key={k} className={k > 0 || turn.offline ? 'mt-1' : ''}>{line}</p>))}
                     {turn.reply.evidence_url && (
                       <a href={turn.reply.evidence_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-semibold text-teal underline">
                         {t('pet.evidence')} ↗
@@ -1680,6 +1695,20 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
         }
         // deferredQuestion: the next preference question, asked only
         // after the WHY is answered or skipped.
+        // Round 28 D1: the `question` bubble — a non-WHY turn's next
+        // question, moved out of the reply bubble by prefTurnBubbles
+        // so it renders through the current locale's ASK_KEY. Same
+        // rendering as deferredQuestion, its own key (a turn carries
+        // one or the other, never both).
+        if (bubble.kind === 'question') {
+          return (
+            <div key={`pref-${turn.id}-question`} className="flex justify-start">
+              <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
+                <p>{t(ASK_KEY[bubble.question])}</p>
+              </div>
+            </div>
+          );
+        }
         return (
           <div key={`pref-${turn.id}-deferred`} className="flex justify-start">
             <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
@@ -1882,12 +1911,17 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
                 per noted item, in order (the WHY answer, then each
                 confirm summary). Round 15: a list, persisted across
                 leave-and-return; the old single slot overwrote the
-                WHY answer on confirm and lost it on leave. */}
+                WHY answer on confirm and lost it on leave. Round 28
+                D1: the stored note is rendered through
+                localisedConfirmedNote, so a note confirmed in Chinese
+                re-localises its choice values in the English UI
+                (the "Got it, noted!" prefix already re-localised);
+                the WHY reason in the user's own words stays verbatim. */}
             {confirmedNotes.length > 0 && !pendingExtract && confirmedNotes.map((note, i) => (
               <div key={`noted-${i}`} className="flex justify-start">
                 <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
                   <p>{t('wizard.chatOpThanks')}</p>
-                  <p className="mt-1 text-sm text-navy/70">{note}</p>
+                  <p className="mt-1 text-sm text-navy/70">{localisedConfirmedNote(note, t)}</p>
                 </div>
               </div>
             ))}

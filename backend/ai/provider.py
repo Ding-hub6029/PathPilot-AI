@@ -45,6 +45,8 @@ SUPPORTED_PROVIDERS = ("openai", "deepseek", "gemini")
 # A slow failure (timeout / transport error — the gateway hanging or
 # unreachable, the exact failure mode in the audit — or, since
 # Round 24 W4, a slow HTTP 5xx: the relay answering 502 after its
+# upstream hung, or, since Round 28 D3, a slow HTTP 200 with an
+# empty or unreadable body: the relay answering garbage after its
 # upstream hung) trips the breaker for GATEWAY_BREAKER_COOLDOWN_S:
 # while it is open, chat()/achat() raise immediately without
 # touching the network, so the callers fall back to their templates
@@ -105,7 +107,14 @@ def _clear_gateway_breaker() -> None:
 # relay answers 502 after its upstream hangs, so a 502 that took
 # seconds to arrive is the same sickness as a timeout, and without
 # tripping on it every chat turn paid the full ~12 s wait again.
-_BREAKER_TRIP_KINDS = ("timeout", "transport_error")
+# Round 28 D3 adds the two slow-200 kinds: "empty_reply" (the
+# relay answers 200 with an empty body after seconds) and
+# "bad_reply" (200 with an unreadable body after seconds) — both
+# consumed the whole model budget and neither tripped, so the next
+# turn paid the wait again (re-test 22: the second pref turn took
+# ~15-25 s after a slow first failure). A slow 429 / 4xx still
+# never trips (see _trips_breaker).
+_BREAKER_TRIP_KINDS = ("timeout", "transport_error", "empty_reply", "bad_reply")
 
 # Latency gate (Round 14 fix): the breaker exists to avoid REPEATING
 # a slow wait, so only a failure that actually consumed real time
@@ -143,15 +152,19 @@ def _trips_breaker(exc: ProviderError, started: float,
     """True when a model failure should trip the gateway circuit
     breaker: the failure actually waited (latency-gated — an instant
     raise costs nothing to repeat), and its kind means the gateway
-    hung: a timeout / transport error, or — Round 24 W4 — a slow
-    HTTP 5xx. A 502/503 that took seconds to arrive is the relay
-    reporting its upstream hung; every later turn would pay the
-    same wait, so the breaker must remember it. A fast 5xx still
-    does not trip (the existing test_breaker_does_not_trip_on_fast_500
+    hung: a timeout / transport error, a slow HTTP 200 with an empty
+    or unreadable body (Round 28 D3: the relay answering garbage
+    after its upstream hung is the same sickness as a timeout — the
+    turn already paid the full model budget proving it), or — Round
+    24 W4 — a slow HTTP 5xx. A 502/503 that took seconds to arrive
+    is the relay reporting its upstream hung; every later turn would
+    pay the same wait, so the breaker must remember it. A fast 5xx
+    still does not trip (the existing test_breaker_does_not_trip_on_fast_500
     pins that: one transient 500 is not evidence the gateway is
     down), and a 429 / 4xx never trips however slow — a 429 means
     the gateway is UP but throttling, and a 4xx is our request,
-    not the gateway."""
+    not the gateway. A fast empty / unreadable reply likewise does
+    not trip: it failed fast, so repeating it costs nothing."""
     if not _slow_enough(started, minimum_s):
         return False
     if exc.kind in _BREAKER_TRIP_KINDS:
@@ -281,7 +294,8 @@ class ProviderAdapter:
                       _bypass_breaker=True)
         except ProviderError as exc:
             # chat() itself trips the breaker on a slow timeout /
-            # transport failure (and, since Round 24 W4, a slow 5xx);
+            # transport failure (and, since Round 24 W4, a slow 5xx;
+            # since Round 28 D3, a slow empty / unreadable reply);
             # trip here too for the same kinds so the verdict is
             # consistent even if chat() did not (e.g. a ProviderError
             # raised before the trip logic runs).
@@ -434,8 +448,18 @@ class ProviderAdapter:
                                 retryable=False, kind="bad_url")
         latency_ms = int((time.monotonic() - started) * 1000)
         if not text or not text.strip():
-            raise ProviderError("AI provider returned an empty reply.",
+            # Round 28 D3: this raise used to sit outside the try
+            # block above, so a slow empty reply never tripped the
+            # breaker and the next turn paid the model budget again
+            # (re-test 22, second pref turn ~15-25 s). Route it
+            # through the same trip decision as every other slow
+            # failure — _trips_breaker, latency-gated, 429 / 4xx
+            # pins untouched (an empty reply is neither).
+            exc = ProviderError("AI provider returned an empty reply.",
                                 retryable=True, kind="empty_reply")
+            if _trips_breaker(exc, started, _BREAKER_MIN_LATENCY_S):
+                _trip_gateway_breaker()
+            raise exc
         _clear_gateway_breaker()
         return ChatResult(text=text.strip(), model=self.model or "",
                           provider=self.provider or "", latency_ms=latency_ms,
@@ -509,8 +533,13 @@ class ProviderAdapter:
                                 retryable=False, kind="bad_url")
         latency_ms = int((time.monotonic() - started) * 1000)
         if not text or not text.strip():
-            raise ProviderError("AI provider returned an empty reply.",
+            # Round 28 D3: same trip routing as chat() — a slow
+            # empty reply trips the breaker (see the comment there).
+            exc = ProviderError("AI provider returned an empty reply.",
                                 retryable=True, kind="empty_reply")
+            if _trips_breaker(exc, started, _BREAKER_MIN_LATENCY_S):
+                _trip_gateway_breaker()
+            raise exc
         _clear_gateway_breaker()
         return ChatResult(text=text.strip(), model=self.model or "",
                           provider=self.provider or "", latency_ms=latency_ms,

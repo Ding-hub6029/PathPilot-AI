@@ -127,7 +127,9 @@ def test_locale_key_parity_after_duration_keys():
     # note in prefSummary — parity across locales still holds.
     # Round 24 W3: +2 results.nextSummaryZero* keys (zero + closest
     # lines for the Gaokao-caused "0 meet" headline) — parity holds.
-    assert len(base) == 975, len(base)
+    # Round 28 D2: +2 wizard.prefFallback* keys (cities line + city
+    # item for the localised offline-fallback re-render) — parity holds.
+    assert len(base) == 977, len(base)
     for locale in LOCALES:
         assert sets[locale] == base, (locale, sets[locale] ^ base)
 

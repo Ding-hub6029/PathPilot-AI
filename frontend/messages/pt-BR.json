@@ -746,6 +746,8 @@
  "wizard.chatOpClimateCity": "Em {city} o clima é {climate}, com {count} programas verificados. O que acha?",
  "wizard.chatOpClimateCityLevel": "Em {city} o clima é {climate}, com {count} programas verificados de {level}. O que acha?",
  "wizard.chatOpClimateNoMatch": "Os dados verificados listam estas cidades nos países escolhidos: {cities} — nenhuma tem clima {want}. O clima é só uma preferência: nunca decide a elegibilidade, só ordena os resultados. Quer tentar outro clima ou outro país?",
+ "wizard.prefFallbackCitiesLine": "Os dados verificados listam estas cidades: {cities}.",
+ "wizard.prefFallbackCityItem": "{city} ({climate}, {count} programas, todos os níveis e áreas)",
  "wizard.chatOpCool": "Você gosta de frio: em Edimburgo faz frio o ano todo, com {count} programas verificados. O que acha?",
  "wizard.chatOpFourSeasons": "Quatro estações, né? Em Seul as quatro são bem marcadas, com {count} programas verificados. Animou?",
  "wizard.chatOpGB": "Em Londres ficam {schools}, bem no centro da cidade — dizem que o clima lá é ótimo!",

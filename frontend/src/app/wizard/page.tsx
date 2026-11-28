@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../lib/store';
 import { usePrograms } from '../../lib/usePrograms';
-import { evaluateLocal, matchProfile, mergePrograms } from '../../lib/api';
+import { evaluateLocal, matchProfile, mergePrograms, MODEL_AVAILABILITY_WARM_MS, warmModelAvailability } from '../../lib/api';
 import { programMatchesField } from '../../lib/fields';
 import { sortRecsByPreference } from '../../lib/preferences';
 import { sampleUndergrad, sampleMasters, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
@@ -121,6 +121,36 @@ export default function WizardPage() {
       localStorage.setItem(WIZARD_STEP_KEY, String(step));
     } catch { /* ignore storage errors */ }
   }, [step]);
+
+  // Round 28 D3 — keep the model-availability verdict warm while the
+  // wizard is open (same pattern as SimulatePanel on the results
+  // page, Round 18 W2). The skip verdict that makes pref turns fast
+  // (breaker open within 180 s, or a probe saying "unavailable"
+  // within its 60 s TTL) expires while the user spends minutes on
+  // the academic form (Gaokao, IELTS, budget) before the first
+  // preference answer — re-test 22 (2026-11-28 01:31-01:41, gateway
+  // offline): the countries answer （瑞士） took ~10-12 s and the
+  // climate answer （凉爽） ~15-25 s, while later answers were ~1 s.
+  // Nothing warmed the verdict while the wizard was open: the
+  // SimulatePanel warmer only mounts on the results page, and
+  // PrefChat / CompassPet only read modelAvailability() on demand
+  // per turn, never on an interval. Warming on mount, every 45 s
+  // and on window focus keeps both 60 s caches fresh and re-trips
+  // the backend breaker while the gateway stays down, so the first
+  // pref turn is engine time instead of paying a fresh probe +
+  // model budget. Background only — never on the submit path — and
+  // the interval stops on unmount. A backgrounded tab's throttled
+  // timers are covered by the focus warm on return.
+  useEffect(() => {
+    warmModelAvailability();
+    const timer = setInterval(warmModelAvailability, MODEL_AVAILABILITY_WARM_MS);
+    const onFocus = () => warmModelAvailability();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, []);
 
   // Recommendation state (last step): evaluated matches for the chosen
   // field, ordered by eligibility. Read-only — the user never has to

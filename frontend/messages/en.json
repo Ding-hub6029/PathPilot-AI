@@ -746,6 +746,8 @@
  "wizard.chatOpClimateCity": "{city} has a {climate} climate, with {count} verified programmes there. How does that sound?",
  "wizard.chatOpClimateCityLevel": "{city} has a {climate} climate, with {count} verified {level} programmes there. How does that sound?",
  "wizard.chatOpClimateNoMatch": "The verified data lists these cities in your chosen countries: {cities} — none has a {want} climate. Climate is only a preference — it never decides eligibility, it only orders results. Want to try a different climate, or another country?",
+ "wizard.prefFallbackCitiesLine": "The verified data lists these cities: {cities}.",
+ "wizard.prefFallbackCityItem": "{city} ({climate}, {count} programmes, all levels/fields)",
  "wizard.chatOpCool": "Cool weather fan — Edinburgh is cool all year round, with {count} verified programmes there. How does that sound?",
  "wizard.chatOpFourSeasons": "Four seasons, right? Seoul has all four in full, with {count} verified programmes there. Tempted?",
  "wizard.chatOpGB": "London has {schools}, all right in the city centre — I hear the vibe is great!",

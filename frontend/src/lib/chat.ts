@@ -28,6 +28,7 @@
 
 import type { Profile } from './types';
 import { joinList } from './format';
+import { choiceLabelFor, choiceRefsForLabel } from './preferences';
 
 /** One /assistant/chat reply. */
 export interface ChatReply {
@@ -380,6 +381,20 @@ export interface PrefChatReply {
    * reply of that turn, never gated on confirming the extraction.
    * Absent/null when no new country was recorded. */
   why_followup?: { countries: string[]; note?: string | null } | null;
+  /** Round 28 D2: the structured climate evidence behind the
+   * offline fallback's cities line — present ONLY on a fallback
+   * (``ai_status === 'unavailable'``) result, and only when the
+   * cities line was actually placed into ``lines[0]``. The frontend
+   * re-renders the cities line + no-match sentence in the current
+   * locale from these items (see ``prefFallbackLines.ts``); model
+   * replies never carry them. Persisted whole with the reply:
+   * `serializePrefChatState` / `parsePrefChatState` pass `reply`
+   * through as one object, so no whitelist change was needed. */
+  evidence_cities?: { city: string; climate: 'warm' | 'cool' | 'four_seasons' | 'mild'; count: number }[] | null;
+  /** Round 28 D2: the wanted climate class for the fallback turn
+   * (or null when none was stated/known). Pairs with
+   * `evidence_cities`. */
+  climate_wanted?: 'warm' | 'cool' | 'four_seasons' | 'mild' | null;
 }
 
 /** True only when the backend actually used a validated model output
@@ -625,7 +640,12 @@ export type PrefTurnBubble =
   | { kind: 'reply'; lines: string[] }
   | { kind: 'why'; countries: string[]; note?: string }
   | { kind: 'whyAnswer'; answer: string }
-  | { kind: 'deferredQuestion'; question: Exclude<PrefNextQuestion, null> };
+  | { kind: 'deferredQuestion'; question: Exclude<PrefNextQuestion, null> }
+  /** Round 28 D1: the next preference question, moved out of the
+   * reply bubble (see prefTurnBubbles) so it renders through the
+   * current locale's question key instead of frozen in the reply's
+   * locale. Same rendering as 'deferredQuestion'. */
+  | { kind: 'question'; question: Exclude<PrefNextQuestion, null> };
 
 /** The bubbles of one pref-chat turn, in rendered order:
  * the user's verbatim message, the reply's lines, the WHY question,
@@ -635,7 +655,25 @@ export type PrefTurnBubble =
  * deferred bubble is withheld, and the reply's lines carry no
  * next-question line for a WHY turn (the backend withholds it; see
  * the strip below, retained as defence in depth now the locale
- * re-fetch that used to recompute it is deleted — Round 27 W1). */
+ * re-fetch that used to recompute it is deleted — Round 27 W1).
+ * Round 28 D1: a turn with NO why record carries its next question
+ * as the last line of `lines` (the server appends it); that line is
+ * frozen in the reply's locale, so after a language switch the
+ * robot's question stayed Chinese in the English UI (re-test 22
+ * item d). The trailing line moves out of the reply bubble into a
+ * `question` bubble, which the component renders through the
+ * current locale's question key — render-time localisation of a
+ * structured field, the same class as the Round 27 W4 choice-label
+ * fix; no re-fetch, no storage change. The invariant relied on is
+ * the one in the strip comment below (last line is the question
+ * when next_question is non-null); it is pinned by
+ * tests/test_r28_d1.py and by the backend's own tests
+ * (test_r16_w1.py: no-WHY turns still ask the next question last).
+ * Residual: if a model substance line ever equalled the
+ * deterministic question line verbatim, the backend's dedupe
+ * (ai/pref_chat.py _render_pref_lines) would leave it mid-lines
+ * and the positional drop would take a substance line instead —
+ * the same pre-existing exposure as the WHY strip. */
 export function prefTurnBubbles(
   turn: PrefTurnLike,
   awaitingReason: { countries: string[]; note?: string; turnId?: number } | null,
@@ -655,7 +693,15 @@ export function prefTurnBubbles(
   // substance line is ever dropped.
   const stripQuestion = !!turn.why && !turn.reply?.why_followup
     && !!turn.reply?.next_question && lines.length > 0;
-  out.push({ kind: 'reply', lines: stripQuestion ? lines.slice(0, -1) : lines });
+  // Round 28 D1: the same trailing line, on a turn with no WHY —
+  // it leaves the reply bubble and renders as a `question` bubble
+  // below. Guarded on !why_followup: when the reply carries a WHY
+  // follow-up but the turn has no why record (a pre-round-16 blob),
+  // the backend withheld the line, so there is no trailing line to
+  // move and no question bubble to emit.
+  const moveQuestion = !turn.why && !turn.reply?.why_followup
+    && !!turn.reply?.next_question && lines.length > 0;
+  out.push({ kind: 'reply', lines: (stripQuestion || moveQuestion) ? lines.slice(0, -1) : lines });
   // The WHY question: live when it anchors to this turn, else the
   // turn's own record (resolved or still open).
   const liveHere = awaitingReason?.turnId === turn.id ? awaitingReason : null;
@@ -671,6 +717,16 @@ export function prefTurnBubbles(
     if ((turn.why.answer !== null || turn.why.skipped) && turn.reply?.next_question) {
       out.push({ kind: 'deferredQuestion', question: turn.reply.next_question });
     }
+    return out;
+  }
+  // Round 28 D1: a non-WHY turn's next question, as its own bubble
+  // after the reply — the question the trailing line carried, now
+  // rendered through the current locale. Emitted whenever the reply
+  // names a next question (even with empty lines — the turn cannot
+  // crash on a missing trailing line); a done turn (next_question
+  // null) gets none.
+  if (!turn.reply?.why_followup && turn.reply?.next_question) {
+    out.push({ kind: 'question', question: turn.reply.next_question });
   }
   return out;
 }
@@ -839,6 +895,62 @@ export function extractedSummary(
     }
   }
   return parts.join(' · ');
+}
+
+/**
+ * Round 28 D1: a stored confirmed note, in the CURRENT locale.
+ * confirmExtract stores `extractedSummary(...)` — a ' · '-joined
+ * string built in the confirm-time locale — and saveReason stores
+ * the user's verbatim WHY text; the confirmedNotes render used to
+ * print the stored string verbatim under a re-localised "Got it,
+ * noted!" prefix, so after a zh→en switch the bubbles still read
+ * "苏黎世", "适中", "瑞士 · 凉爽 · …" (re-test 22 item d). This
+ * helper inverts exactly what extractedSummary produces, at render
+ * time only (storage, the backend contract and the persist
+ * whitelist are untouched, so old snapshots benefit too):
+ *
+ * - split on ' · ' (space-dot-space): the environment label itself
+ *   contains '·' WITHOUT spaces ("大学城·校园氛围"), so it stays
+ *   one segment and re-localises;
+ * - a segment re-localises ONLY when it resolves unambiguously to
+ *   a single choice ref (choiceRefsForLabel length 1): ambiguous
+ *   labels ("新加坡" / "香港", country-vs-city) stay verbatim;
+ * - segments with no reverse-map match stay verbatim — that covers
+ *   the salary ("80000 CHF") and the WHY reason in the user's own
+ *   words ("“环境优美”"), which must NEVER be re-localised, and a
+ *   multi-label segment ("瑞士和英国", "瑞士、英国") which stays
+ *   verbatim (documented residual: the countries join is one
+ *   segment, not two choices);
+ * - a choice label can itself span the separator: the environment
+ *   campus label is "University town · campus vibe" in en/es/fr/
+ *   pt-BR/ar (spaced '·'), so a note built in one of those locales
+ *   splits it into two segments — the two-segment join is tried
+ *   first, then the single segment, so the label re-localises in
+ *   both directions. Only the campus labels contain ' · ', so a
+ *   two-segment join can only ever match a campus label.
+ *
+ * Pure; never invents a label — every re-localisation goes through
+ * the existing reverse map and choiceLabelFor.
+ */
+export function localisedConfirmedNote(note: string, t: (k: string) => string): string {
+  const segments = note.split(' · ');
+  const out: string[] = [];
+  let i = 0;
+  while (i < segments.length) {
+    if (i + 1 < segments.length) {
+      const joined = `${segments[i]} · ${segments[i + 1]}`;
+      const joinedRefs = choiceRefsForLabel(joined);
+      if (joinedRefs.length === 1) {
+        out.push(choiceLabelFor(joinedRefs[0], t));
+        i += 2;
+        continue;
+      }
+    }
+    const refs = choiceRefsForLabel(segments[i]);
+    out.push(refs.length === 1 ? choiceLabelFor(refs[0], t) : segments[i]);
+    i += 1;
+  }
+  return out.join(' · ');
 }
 
 /** Fold a pending (not yet confirmed) extraction into the known set,

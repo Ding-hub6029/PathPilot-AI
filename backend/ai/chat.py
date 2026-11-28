@@ -778,11 +778,19 @@ _CITY_ITEM = {
 }
 
 
-def evidence_cities_line(sources: list[Source], locale: str) -> str | None:
-    """One deterministic line stating the retrieved climate cities and
-    their actual classes, or None when no climate source was
-    retrieved. Built only from the verified catalogue excerpts."""
-    items: list[str] = []
+def evidence_cities_items(sources: list[Source]) -> list[dict]:
+    """Structured form of the climate evidence behind
+    ``evidence_cities_line``: ``[{city, climate, count}]`` with the
+    canonical English city name, the climate class (``warm`` /
+    ``cool`` / ``four_seasons`` / ``mild``) and the verified programme
+    count — at most 3 items, in retrieval order. Built only from the
+    verified catalogue excerpts, same parsing as the rendered line.
+
+    Round 28 D2: the rendered line is a stored backend string in the
+    request locale, so it cannot follow a language switch; the
+    frontend re-renders the cities line in the CURRENT locale from
+    these items instead (see ``prefFallbackLines.ts``)."""
+    items: list[dict] = []
     for s in sources:
         if not s.id.startswith("climate:"):
             continue
@@ -790,13 +798,25 @@ def evidence_cities_line(sources: list[Source], locale: str) -> str | None:
         if not m:
             continue
         city, label, count = m.group(1), m.group(2), m.group(3)
-        cls = _CLIMATE_LABEL_TO_CLASS[label]
-        words = _CLASS_WORDS.get(locale) or _CLASS_WORDS["en"]
-        item_t = _CITY_ITEM.get(locale) or _CITY_ITEM["en"]
-        items.append(item_t.format(city=localised_city_name(city, locale),
-                                   cls=words[cls], n=count))
+        items.append({"city": city,
+                      "climate": _CLIMATE_LABEL_TO_CLASS[label],
+                      "count": int(count)})
         if len(items) >= 3:
             break
+    return items
+
+
+def evidence_cities_line(sources: list[Source], locale: str) -> str | None:
+    """One deterministic line stating the retrieved climate cities and
+    their actual classes, or None when no climate source was
+    retrieved. Built only from the verified catalogue excerpts."""
+    items: list[str] = []
+    for item in evidence_cities_items(sources):
+        cls = item["climate"]
+        words = _CLASS_WORDS.get(locale) or _CLASS_WORDS["en"]
+        item_t = _CITY_ITEM.get(locale) or _CITY_ITEM["en"]
+        items.append(item_t.format(city=localised_city_name(item["city"], locale),
+                                   cls=words[cls], n=item["count"]))
     if not items:
         return None
     line_t = (_EVIDENCE_CITIES_LINES.get(locale)
