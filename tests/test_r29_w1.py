@@ -471,9 +471,10 @@ def test_r29_w1_backend_wording_pin():
 
 def test_r29_w1_locale_keys():
     """994 keys in every locale file (981 at Round 30 + Round 31
-    G2's three sample.confirm* keys + Restyle 2 behaviour's ten keys), the
-    same key set in all 6, and every key E1/E2/E3 renders through
-    exists in all 6."""
+    G2's three sample.confirm* keys + Restyle 2 behaviour's ten keys;
+    Round 33 swaps common.languages for home.rankingRecords, net
+    zero), the same key set in all 6, and every key E1/E2/E3 renders
+    through exists in all 6."""
     msgs = {
         loc: json.load(open(FE / "messages" / f"{loc}.json", encoding="utf-8"))
         for loc in LOCALES
@@ -483,7 +484,7 @@ def test_r29_w1_locale_keys():
     for loc in LOCALES:
         assert set(msgs[loc]) == base, (loc, set(msgs[loc]) ^ base)
     for key in (
-        "common.languages",
+        "home.rankingRecords",
         "wizard.prefFallbackUnknown", "pet.suggestUnknown2",
         "wizard.prefFallbackCitiesLine", "wizard.prefFallbackCityItem",
         "wizard.chatOpClimateNoMatch", "wizard.chatOpThanks",

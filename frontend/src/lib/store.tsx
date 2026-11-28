@@ -172,6 +172,36 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setDataClearNonce((n) => n + 1);
     try { localStorage.removeItem('pp-profile'); localStorage.removeItem('pp-check-done'); localStorage.removeItem('pp-wizard-step'); localStorage.removeItem('pp-prefchat'); } catch { /* ignore */ }
   };
+  // Round 34, D1 — cross-tab clear (re-test 29 defect #1): clearData
+  // signals only through in-memory React state (dataClearNonce) plus
+  // the shared-storage wipe, and this app has no `storage` listener —
+  // so a wizard that is alive in ANOTHER tab never hears about a
+  // clear made on this tab's homepage: its mounted step, PrefChat
+  // turns and profile stay exactly as they were, and it keeps showing
+  // the old 7/8 run until somebody clears inside that tab (whose own
+  // nonce then fires). The `storage` event fires in every OTHER tab
+  // when localStorage changes, and `pp-profile` is removed ONLY by
+  // clearData (no other code removes it), so its removal (newValue
+  // null) is an unambiguous "another tab cleared" signal.
+  // pp-prefchat is deliberately NOT a trigger: PrefChat's restart
+  // removes it too, and a chat restart in one tab must never wipe the
+  // profile in another. On the signal, run clearData itself — the
+  // keys are already gone from shared storage, so its removeItems are
+  // no-ops, and the persist effects re-write the empty profile /
+  // checklist exactly like the originating tab's flow; the nonce bump
+  // resets the mounted wizard, PrefChat and pet exactly like a
+  // wizard-page clear. The originating tab never receives its own
+  // event (spec), and the persist-effect re-write carries a non-null
+  // newValue, so no loop is possible.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== 'pp-profile' || e.newValue !== null) return;
+      clearData();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const t = (key: string) => MESSAGES[locale][key] ?? MESSAGES.en[key] ?? key;
   const tf = (key: string, vars?: Record<string, string | number>) => {
     let s = t(key);

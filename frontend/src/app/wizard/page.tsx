@@ -6,7 +6,7 @@ import { usePrograms } from '../../lib/usePrograms';
 import { evaluateLocal, matchProfile, mergePrograms, MODEL_AVAILABILITY_WARM_MS, warmModelAvailability } from '../../lib/api';
 import { programMatchesField } from '../../lib/fields';
 import { sortRecsByPreference } from '../../lib/preferences';
-import { sampleUndergrad, sampleMasters, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
+import { sampleUndergrad, sampleMasters, emptyProfile, Profile, Curriculum, FieldId, MatchResult, Program } from '../../lib/types';
 import { hasProfileData } from '../../lib/sampleConfirm';
 import { SampleConfirmDialog } from '../../components/SampleConfirmDialog';
 import { mergeImportedProfile } from '../../lib/profile';
@@ -33,12 +33,31 @@ const STEPS = ['curriculum', 'track', 'field', 'academic', 'language', 'budget',
 const WIZARD_STEP_KEY = 'pp-wizard-step';
 
 /** The step to resume at: the stored step (clamped to 0..7), or 0
- * when nothing valid was stored — or when no profile was stored at
- * all (cleared data must never resurrect a step for a fresh wizard).
- * Same lazy-initializer pattern as PrefChat's snapshot read. */
+ * when nothing valid was stored — or when the stored profile holds
+ * no data at all (cleared data must never resurrect a step for a
+ * fresh wizard). Same lazy-initializer pattern as PrefChat's snapshot read.
+ * Round 34, D1: "no data" is judged on the stored profile's CONTENT,
+ * not on the key's absence — clearData's removeItem('pp-profile') is
+ * undone on the next commit by the store's profile-persist effect,
+ * which writes the empty profile back, so after ANY in-app clear the
+ * key exists, holding an empty profile, and a key-absence guard never
+ * fires. A stored step for an empty profile is a stale step (another
+ * tab's run, a pre-clear write): never resurrect it. A sample profile
+ * is NOT empty (track / curriculum / field / prefs filled), so a
+ * reloaded sample still resumes at its step. */
 function loadWizardStep(): number {
   try {
-    if (!localStorage.getItem('pp-profile')) return 0;
+    const rawProfile = localStorage.getItem('pp-profile');
+    if (!rawProfile) return 0;
+    const stored = { ...emptyProfile, ...JSON.parse(rawProfile) };
+    const isEmpty = (Object.keys(emptyProfile) as (keyof Profile)[]).every((k) => {
+      const a = stored[k];
+      const b = emptyProfile[k];
+      return Array.isArray(a) || Array.isArray(b)
+        ? JSON.stringify(a ?? []) === JSON.stringify(b ?? [])
+        : a === b;
+    });
+    if (isEmpty) return 0;
     const raw = localStorage.getItem(WIZARD_STEP_KEY);
     if (raw === null) return 0;
     const n = Number.parseInt(raw, 10);

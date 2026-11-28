@@ -8,7 +8,7 @@ hackathon video. The voice is Xiangfeng's own, cloned locally with Qwen3-TTS
 Numbers below are current as of 2026-11-27 16:00 CST: 894 programmes
 (593 matchable), 148 institutions (QS top 100), rankings QS 2027 + THE 2027 +
 ARWU 2026 (300 records), 41 applicants / 53 offers, 18 reviews, 6 locales,
-80 climate cities, 709 pytest passed. Do NOT claim: admission probabilities,
+80 climate cities, 1000+ pytest passed (count-proof — do not chase the exact count). Do NOT claim: admission probabilities,
 full coverage of every programme of every school, or that the AI model is
 always online (the gateway drops out for minutes at a time — see §6).
 
@@ -80,7 +80,7 @@ back to English (mention it in one line); programme browse; cases carousel.
 > "Under the hood: 894 programmes at 148 universities, checked against
 > official requirements in six languages — including Arabic, right to
 > left. Rankings from QS, THE and ARWU for context, never for
-> eligibility. 709 automated tests guard every release."
+> eligibility. Over a thousand automated tests guard every release."
 
 ## 2:50–3:15 — Honest improvements
 

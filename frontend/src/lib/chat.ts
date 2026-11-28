@@ -667,6 +667,10 @@ export interface PrefTurnLike {
   question: string;
   reply: PrefChatReply | null;
   why?: PrefTurnWhy | null;
+  /** Round 34 D2: the "Got it, noted!" confirmation for this turn's
+   * extraction — attached to the turn so it renders in order, inside
+   * the turn, instead of as a detached bottom bubble. */
+  confirmedNote?: string | null;
 }
 
 /** One bubble of a rendered pref-chat turn, in order. The component
@@ -678,6 +682,10 @@ export type PrefTurnBubble =
   | { kind: 'why'; countries: string[]; note?: string }
   | { kind: 'whyAnswer'; answer: string }
   | { kind: 'deferredQuestion'; question: Exclude<PrefNextQuestion, null> }
+  /** Round 34 D2: the "Got it, noted!" confirmation for this turn's
+   * extraction — rendered inside the turn, after the WHY (if any)
+   * and before the next question (see prefTurnBubbles). */
+  | { kind: 'confirmed'; note: string }
   /** Round 28 D1: the next preference question, moved out of the
    * reply bubble (see prefTurnBubbles) so it renders through the
    * current locale's question key instead of frozen in the reply's
@@ -710,7 +718,16 @@ export type PrefTurnBubble =
  * deterministic question line verbatim, the backend's dedupe
  * (ai/pref_chat.py _render_pref_lines) would leave it mid-lines
  * and the positional drop would take a substance line instead —
- * the same pre-existing exposure as the WHY strip. */
+ * the same pre-existing exposure as the WHY strip.
+ * Round 34 D2: the `confirmed` bubble — the "Got it, noted!"
+ * confirmation for this turn's extraction — renders after the WHY
+ * (if any) and before the next question, so each confirmation sits
+ * with the answer it confirms, in order. The pre-fix detached
+ * confirmedNotes block rendered every confirmed answer's value a
+ * second time, as a bottom pile below the whole conversation:
+ * each noted bubble arrived delayed (only after the confirm tap)
+ * and out of order (after all turns, not with its turn), so the
+ * completed Q&A read twice (re-test 29 defect #2). */
 export function prefTurnBubbles(
   turn: PrefTurnLike,
   awaitingReason: { countries: string[]; note?: string; turnId?: number } | null,
@@ -739,11 +756,19 @@ export function prefTurnBubbles(
   const moveQuestion = !turn.why && !turn.reply?.why_followup
     && !!turn.reply?.next_question && lines.length > 0;
   out.push({ kind: 'reply', lines: (stripQuestion || moveQuestion) ? lines.slice(0, -1) : lines });
+  // Round 34 D2: the "Got it, noted!" confirmation for this turn's
+  // extraction, if it was confirmed — one bubble, in this turn, in
+  // order (see the docstring above). A turn with no confirmation
+  // gets none; the note is never duplicated elsewhere.
+  const pushConfirmed = () => {
+    if (turn.confirmedNote?.trim()) out.push({ kind: 'confirmed', note: turn.confirmedNote });
+  };
   // The WHY question: live when it anchors to this turn, else the
   // turn's own record (resolved or still open).
   const liveHere = awaitingReason?.turnId === turn.id ? awaitingReason : null;
   if (liveHere) {
     out.push({ kind: 'why', countries: liveHere.countries, ...(liveHere.note ? { note: liveHere.note } : {}) });
+    pushConfirmed();
     return out;
   }
   if (turn.why) {
@@ -751,6 +776,7 @@ export function prefTurnBubbles(
     if (turn.why.answer !== null) {
       out.push({ kind: 'whyAnswer', answer: turn.why.answer });
     }
+    pushConfirmed();
     if ((turn.why.answer !== null || turn.why.skipped) && turn.reply?.next_question) {
       out.push({ kind: 'deferredQuestion', question: turn.reply.next_question });
     }
@@ -762,6 +788,7 @@ export function prefTurnBubbles(
   // names a next question (even with empty lines — the turn cannot
   // crash on a missing trailing line); a done turn (next_question
   // null) gets none.
+  pushConfirmed();
   if (!turn.reply?.why_followup && turn.reply?.next_question) {
     out.push({ kind: 'question', question: turn.reply.next_question });
   }
@@ -1291,6 +1318,12 @@ export interface PersistedPrefTurn {
    * the WHY question + answer attached to it, never as a detached
    * bottom bubble. Absent on pre-round-16 blobs. */
   why?: PrefTurnWhy | null;
+  /** Round 34 D2: the "Got it, noted!" confirmation for this turn's
+   * extraction — persisted with the turn so leave-and-return keeps
+   * it attached to its turn, in order, never as a detached bottom
+   * bubble (the pre-fix confirmedNotes block). Absent on
+   * pre-round-34 blobs. */
+  confirmedNote?: string | null;
 }
 
 export interface PersistedModelTurn {
@@ -1356,6 +1389,7 @@ export function serializePrefChatState(
     id: x.id, question: x.question, reply: x.reply,
     replyLocale: x.replyLocale ?? null, offline: x.offline || !!x.pending,
     ...(x.why ? { why: x.why } : {}),
+    ...(x.confirmedNote ? { confirmedNote: x.confirmedNote } : {}),
   }));
   const modelTurns = state.modelTurns.map((x: PersistedModelTurn & { pending?: boolean }) => ({
     id: x.id, q: x.q, question: x.question, reply: x.reply,
@@ -1423,6 +1457,7 @@ export function parsePrefChatState(
       replyLocale: _isStr(t.replyLocale) ? t.replyLocale : null,
       offline: t.offline === true,
       ...(why ? { why } : {}),
+      ...(_isStr(t.confirmedNote) && t.confirmedNote.trim() ? { confirmedNote: t.confirmedNote } : {}),
     });
   }
   const modelTurns: PersistedModelTurn[] = [];

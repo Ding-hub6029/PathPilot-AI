@@ -369,3 +369,28 @@ body { background: #F7F5F0; color: #0B1F3A; }
   .aurora-blob, .grad-flow-text, .line-mask > span.grad-flow-text, .aurora-border::before, .think-shimmer::after, .think-dots > span { animation: none !important; }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* Round 34 H1: Arabic hero title, JSX-level fix (re-test 29).
+   Round 32's [dir="rtl"] override IS in the deployed stylesheet
+   (verified live 2026-11-28 ~21:30: the exact rules are in the
+   served CSS chunk, after the base rules, with higher specificity)
+   yet the ar title still rendered garbled: the override can only
+   fire once documentElement.dir flips to "rtl", and dir is set by
+   a post-paint passive effect (store.tsx, gated on [locale,
+   hydrated]) while SSR always ships dir="ltr" + the English hero
+   (verified live: <html lang="en" dir="ltr">) — so the Arabic text
+   is committed into the already-animating line-mask span and
+   painted under the LTR hazards (negative tracking, .98 leading,
+   Fraunces metrics, 32px glow, mid-reveal translateY inside
+   overflow:hidden) before the override can ever apply. This class
+   removes the race at the source: page.tsx renders the ar h1 with
+   ONLY this class (no line-mask, no hero-display, no display-hero,
+   no inner span), so nothing about the ar title depends on dir
+   timing, on the animation lifecycle, or on any [dir="rtl"] rule.
+   Same display size as the LTR hero (clamp(3.2rem, 9.5vw, 6.4rem))
+   so the ar hero keeps its scale, with system-ui (Fraunces is
+   Latin-only), letter-spacing 0, line-height 1.3 for diacritic
+   room, no glow, no entrance animation, no clipping mask (overflow
+   visible). en/zh are untouched: their h1 keeps the byte-identical
+   line-mask / display-hero markup. */
+.hero-display-ar { display: block; overflow: visible; font-family: system-ui, sans-serif; font-style: normal; font-size: clamp(3.2rem, 9.5vw, 6.4rem); line-height: 1.3; letter-spacing: 0; font-weight: 700; text-shadow: none; animation: none; }

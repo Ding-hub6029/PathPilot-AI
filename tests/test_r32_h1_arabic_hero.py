@@ -96,16 +96,24 @@ def _rule(css: str, selector: str) -> str:
 # ---------------------------------------------------------------------------
 
 def test_hero_title_is_a_single_unbroken_text_node():
-    """The h1 holds exactly one span holding exactly one
-    {t('home.heroTitle')} — no per-word / per-line splitting of the
-    Arabic text exists to break letter joining. If anyone re-adds a
-    splitter, this pin fails first."""
+    """Each locale branch holds exactly one span/text node holding
+    exactly one {t('home.heroTitle')} — no per-word / per-line
+    splitting of the Arabic text exists to break letter joining. If
+    anyone re-adds a splitter, this pin fails first.
+    Round 34 (H1, JSX-level fix): the title is now branched — ar
+    renders a plain h1 with no line-mask/display-hero hazards, en/zh
+    keep the old line. So the key occurs twice (once per branch),
+    each occurrence an unbroken text node."""
     assert 'className="hero-display line-mask mt-3"' in PAGE
     assert (
         '<span className="display-hero" style={{ animationDelay: '
         "'.08s' }}>{t('home.heroTitle')}</span>"
     ) in PAGE
-    assert PAGE.count("home.heroTitle") == 1
+    assert (
+        '<h1 className="hero-display-ar mt-3">{t(\'home.heroTitle\')}</h1>'
+        in PAGE
+    )
+    assert PAGE.count("home.heroTitle") == 2
     assert ".split(" not in PAGE
 
 

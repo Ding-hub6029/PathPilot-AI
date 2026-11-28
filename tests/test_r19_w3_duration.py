@@ -136,7 +136,9 @@ def test_locale_key_parity_after_duration_keys():
     # template's generic "unknown" line, re-localised at render for
     # the offline pref-chat fallback) — parity holds.
     # Round 30 F5: +1 common.languages (stats-strip "Languages"
-    # label) — parity holds.
+    # label) — parity holds. Round 33: that key is removed and
+    # home.rankingRecords added (stats-strip 4th card becomes the
+    # live ranking-records count) — net zero, count stays 994.
     # Round 31 G2: +3 sample.confirm* keys (confirm dialog before
     # the sample profile overwrites a filled profile) — parity holds.
     # Restyle 2 behaviour: +10 keys (pet summary/suggestions/

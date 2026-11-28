@@ -26,12 +26,31 @@ import styles from './RouteTransition.module.css';
  *
  * Safety: the overlay is pointer-events-none and aria-hidden and is
  * unmounted 0.8s after each route change, so it can never block a
- * click, trap focus, or linger. Navigation, scroll restoration and
- * the back button are untouched — nothing here scrolls or focuses
- * except the existing focus-to-<main> effect below. Under
+ * click, trap focus, or linger. Navigation and the back button are
+ * untouched — nothing here scrolls or focuses except the existing
+ * focus-to-<main> effect below and the guarded clipped-arrival
+ * reset (Round 34 D3), which fires only when the first heading is
+ * actually under the sticky header on arrival. Under
  * prefers-reduced-motion the sweep is display:none (module CSS) and
  * the entrance collapses to an instant swap via the global rule.
  */
+
+/**
+ * Round 34 D3 — clipped-arrival guard (pure, so it is unit-testable
+ * without a DOM): true exactly when the first heading's top edge is
+ * under the sticky header, i.e. the heading is painted over by the
+ * header and the user sees it clipped. `headerBottom` is the live
+ * bottom edge of the sticky header in viewport coordinates, so a
+ * wrapped (taller) mobile header is covered with no hard-coded
+ * pixel height. Boundary cases: h1Top == headerBottom is fully
+ * visible (false); h1Top < 0 is a restored deep scroll — e.g. a
+ * back/forward arrival — and must never be reset (false); a
+ * scrollY = 0 arrival puts the H1 a full py-8 below the header
+ * bottom (false).
+ */
+export function isClippedArrival(h1Top: number, headerBottom: number): boolean {
+  return h1Top >= 0 && h1Top < headerBottom;
+}
 
 const QUIET_PREFIXES = ['/rankings', '/institutions', '/programs', '/report', '/results', '/cases'];
 
@@ -76,6 +95,39 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const main = document.querySelector('main');
     if (main) (main as HTMLElement).focus({ preventScroll: true });
+  }, [pathname]);
+
+  /**
+   * Round 34 D3 — guarded clipped-arrival scroll reset. Mechanism
+   * (DECISIONS #327): on a client-side <Link> navigation Next
+   * 14.2.35's InnerScrollAndFocusHandler early-exits without
+   * resetting scroll when the new page's top is already in the
+   * viewport, and pushState does not reset scroll either, so a
+   * carried-over scrollY in (32px, headerHeight] leaves the H1 —
+   * py-8 below the page top — under the sticky header (z-50).
+   * The reset runs in requestAnimationFrame, i.e. after paint and
+   * after Next's scroll handler has settled, and ONLY when
+   * isClippedArrival says the first heading is actually under the
+   * header right now: a restored deep scroll (back/forward) puts
+   * the H1 above the viewport, and a scrollY = 0 arrival puts it
+   * below the header, so neither is ever disturbed. Both edges
+   * are measured live (header.getBoundingClientRect().bottom,
+   * h1.getBoundingClientRect().top) — no hard-coded heights, so
+   * the wrapped mobile header is covered. Pages without an h1
+   * are left alone. This is the app's only scroll-to-top call.
+   */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let raf = 0;
+    raf = window.requestAnimationFrame(() => {
+      const header = document.querySelector('header');
+      const h1 = document.querySelector('main h1');
+      if (!header || !h1) return;
+      if (isClippedArrival(h1.getBoundingClientRect().top, header.getBoundingClientRect().bottom)) {
+        window.scrollTo(0, 0);
+      }
+    });
+    return () => window.cancelAnimationFrame(raf);
   }, [pathname]);
 
   const quiet = isQuiet(pathname);

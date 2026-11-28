@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useApp, LOCALES } from '../lib/store';
+import { useApp } from '../lib/store';
 import { hasProfileData } from '../lib/sampleConfirm';
 import { SampleConfirmDialog } from '../components/SampleConfirmDialog';
 import { usePrograms } from '../lib/usePrograms';
@@ -11,7 +11,7 @@ import { useBackendStatus } from '../lib/backendStatus';
 import { sampleUndergrad, sampleMasters } from '../lib/types';
 import { formatProgramLine } from '../lib/format';
 import { displayProgramName } from '../lib/programs';
-import { displayProgramInstitutionName, RANKING_INSTITUTIONS } from '../lib/rankings';
+import { displayProgramInstitutionName, RANKING_ENTRIES, RANKING_INSTITUTIONS } from '../lib/rankings';
 import { RANKING_PROVIDERS } from '../lib/rankings';
 import { WelcomeBanner } from '../components/WelcomeBanner';
 import { Reveal } from '../components/Reveal';
@@ -83,7 +83,25 @@ export default function HomePage() {
             the canvas layer. */}
         <div className="relative md:col-span-7">
           <p className="microcopy hero-eyebrow anim-fade-up text-amber">{t('tagline')}</p>
-          <h1 className="hero-display line-mask mt-3"><span className="display-hero" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
+          {/* Round 34 H1: the Arabic hero title must not go through
+              the line-mask reveal at all. Round 32 neutralised the
+              hazards with [dir="rtl"] CSS, but dir is only flipped by
+              a post-paint passive effect (store.tsx) and SSR always
+              ships dir="ltr" + the English hero — so the Arabic title
+              was committed into the already-animating span and painted
+              at least once under the full LTR hazard stack (negative
+              tracking, .98 leading, Fraunces metrics, glow, mid-reveal
+              mask), and re-test 29 still saw it garbled live.
+              Branching on `locale` (React state, known at render
+              time) removes the race entirely: the ar h1 never carries
+              line-mask / display-hero, never animates, never touches
+              Fraunces. The en/zh branch below is byte-identical to
+              before — pixel-identical by construction. */}
+          {locale === 'ar' ? (
+            <h1 className="hero-display-ar mt-3">{t('home.heroTitle')}</h1>
+          ) : (
+            <h1 className="hero-display line-mask mt-3"><span className="display-hero" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
+          )}
           <p className="anim-fade-up stagger-2 mt-4 max-w-md font-display text-lg text-white/85">{t('home.heroSub')}</p>
           {/* Hero prompt bar (restyle 2026-11-28): the eligibility check
               is the hero — a prompt-styled entry to /wizard. A link, not
@@ -114,8 +132,8 @@ export default function HomePage() {
       </section>
 
       {/* Evidence numbers (restyle 2026-11-28): live counts from the
-          data — programmes, universities, success cases, languages —
-          counted up on scroll. No hard-coded figures, no new copy. */}
+          data — programmes, universities, success cases, ranking
+          records — counted up on scroll. No hard-coded figures, no new copy. */}
       <section className="mt-8">
         <Reveal>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -123,7 +141,7 @@ export default function HomePage() {
               [allPrograms().length, t('home.programsTitle')],
               [RANKING_INSTITUTIONS.length, t('institutions.title')],
               [SUCCESS_CASES.length, t('cases.title')],
-              [LOCALES.length, t('common.languages')],
+              [RANKING_ENTRIES.length, t('home.rankingRecords')],
             ] as const).map(([value, label]) => (
               <div key={label} className="card-hard card-lift rounded-2xl p-5">
                 <p className="stat-num text-5xl font-bold text-navy"><StatCounter value={value} /></p>

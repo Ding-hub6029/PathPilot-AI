@@ -502,6 +502,11 @@ interface PrefTurn {
    * lib/chat): the WHY question + answer render inside this turn's
    * block and persist with it, never as a detached bottom bubble. */
   why?: PrefTurnWhy | null;
+  /** Round 34 D2: the "Got it, noted!" confirmation for this turn's
+   * extraction (the summary confirmExtract computed) — first-class
+   * turn state like the WHY above: it renders inside this turn's
+   * block and persists with it, never as a detached bottom bubble. */
+  confirmedNote?: string | null;
 }
 
 export function PrefChat({ onDone }: { onDone: () => void }) {
@@ -581,11 +586,18 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
   const [pendingExtract, setPendingExtract] = useState<null | {
     extracted: PrefExtracted; rawText: string;
   }>(persistedSnapshot?.pendingExtract ?? null);
-  /** Every "noted" bubble, in order — the WHY answer and each confirm
-   * summary. Round 15: a list, restored from the persisted snapshot.
-   * Round 14 kept only the latest one in a transient slot (answering
-   * WHY and then confirming overwrote the WHY answer even before
-   * leaving, and leaving lost the slot entirely). */
+  /** Every "noted" bubble with NO turn to attach to — a turn-less
+   * WHY answer (guided queue, old blob: saveReason's fallback
+   * below), or a note restored from a snapshot saved before
+   * Round 34 D2. Round 15: a list, restored from the persisted
+   * snapshot. Round 34 D2: confirmExtract no longer appends here —
+   * a confirmation now attaches to its turn (PrefTurn.confirmedNote)
+   * and renders inside that turn, in order; the pre-fix behaviour
+   * (every confirm appended here and rendered as a detached bottom
+   * pile below the whole conversation) re-rendered each confirmed
+   * answer's value a second time, delayed and out of order
+   * (re-test 29 defect #2). A note is never in both places: the
+   * list and the turns are disjoint by construction. */
   const [confirmedNotes, setConfirmedNotes] = useState<string[]>(
     () => [...(persistedSnapshot?.confirmedNotes ?? [])]);
   /** The user text whose pref-chat call failed (kept so the retry
@@ -1016,16 +1028,25 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
     const newCountries = (pendingExtract.extracted.countries ?? []).filter((c) => !knownCountries.includes(c));
     setPendingExtract(null);
     if (patch) updateProfile(patch);
-    // Round 15: append — never overwrite. The old single slot erased
-    // the WHY answer the moment the user confirmed the extraction
-    // (and leaving lost the slot entirely); each noted bubble is its
-    // own entry in the persisted list now.
-    setConfirmedNotes((prev) => [...prev, summary]);
+    // Round 34 D2: the confirmation attaches to the turn it confirms
+    // (the latest turn — the same anchor the WHY backstop below
+    // uses), so it renders inside that turn, in order (see the
+    // 'confirmed' bubble in renderPrefTurns), never as a detached
+    // bottom bubble. A turn already carrying a note keeps its first
+    // one (same guard as the WHY record below). The confirmedNotes
+    // list is NOT appended to here any more — it holds only notes
+    // with no turn to attach to.
+    const anchorId = turns.length ? turns[turns.length - 1].id : undefined;
+    if (anchorId !== undefined) {
+      setTurns((prev) => prev.map((x) => (x.id === anchorId && !x.confirmedNote
+        ? { ...x, confirmedNote: summary }
+        : x)));
+    }
     flashMood('celebrate');
     if (shouldAskCountryWhy(newCountries, profile.prefCountriesNote)) {
       // Round 15: anchor the backstop WHY to the turn this extraction
       // came from (the latest turn), so it renders with that reply.
-      const anchorId = turns.length ? turns[turns.length - 1].id : undefined;
+      // (anchorId was computed above for the confirmation.)
       // Round 16: never re-arm a WHY the user already answered or
       // skipped on that turn (skip-then-confirm used to resurrect
       // it), and record the WHY on the turn when arming it here.
@@ -1845,6 +1866,22 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
             </div>
           );
         }
+        if (bubble.kind === 'confirmed') {
+          // Round 34 D2: the "Got it, noted!" confirmation for this
+          // turn's extraction — rendered inside the turn, in order
+          // (same markup as the legacy noted block below, same
+          // localised value line). One per confirmed turn, never
+          // duplicated: the legacy block below holds only notes with
+          // no turn (restored pre-R34 snapshots, turn-less WHY).
+          return (
+            <div key={`pref-${turn.id}-confirmed`} className="flex justify-start">
+              <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
+                <p>{t('wizard.chatOpThanks')}</p>
+                <p className="mt-1 text-sm text-navy/70">{localisedConfirmedNote(bubble.note, t)}</p>
+              </div>
+            </div>
+          );
+        }
         // deferredQuestion: the next preference question, asked only
         // after the WHY is answered or skipped.
         // Round 28 D1: the `question` bubble — a non-WHY turn's next
@@ -2060,16 +2097,20 @@ export function PrefChat({ onDone }: { onDone: () => void }) {
               </div>
             )}
 
-            {/* What was confirmed, in the user's own words — one bubble
-                per noted item, in order (the WHY answer, then each
-                confirm summary). Round 15: a list, persisted across
-                leave-and-return; the old single slot overwrote the
-                WHY answer on confirm and lost it on leave. Round 28
-                D1: the stored note is rendered through
-                localisedConfirmedNote, so a note confirmed in Chinese
-                re-localises its choice values in the English UI
-                (the "Got it, noted!" prefix already re-localised);
-                the WHY reason in the user's own words stays verbatim. */}
+            {/* Round 34 D2: notes with NO turn to attach to — a
+                turn-less WHY answer, or notes restored from a
+                snapshot saved before this round (see the
+                confirmedNotes state comment). Turn-anchored
+                confirmations render inside their own turns now (the
+                'confirmed' bubble in renderPrefTurns), so this block
+                no longer re-renders every confirmed answer's value
+                below the whole conversation — each note appears
+                exactly once, in order. Round 28 D1: the stored note
+                is rendered through localisedConfirmedNote, so a note
+                confirmed in Chinese re-localises its choice values
+                in the English UI (the "Got it, noted!" prefix already
+                re-localised); the WHY reason in the user's own words
+                stays verbatim. */}
             {confirmedNotes.length > 0 && !pendingExtract && confirmedNotes.map((note, i) => (
               <div key={`noted-${i}`} className="flex justify-start">
                 <div className="max-w-[90%] rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-navy/5 anim-fade-up">
