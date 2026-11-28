@@ -16,6 +16,8 @@ import { RANKING_PROVIDERS } from '../lib/rankings';
 import { WelcomeBanner } from '../components/WelcomeBanner';
 import { Reveal } from '../components/Reveal';
 import { StatCounter } from '../components/StatCounter';
+import { ParticleRing } from '../components/ParticleRing';
+import { GoldObject, GOLD_OBJECT_KINDS } from '../components/GoldObject';
 import { TimelinePanel } from '../components/TimelinePanel';
 import { CaseCard } from '../components/CaseCard';
 import { NewsCard } from '../components/NewsCard';
@@ -73,19 +75,16 @@ export default function HomePage() {
           12-column grid (research move 5): copy spans 7, the compass
           visual spans 5 — deliberate asymmetry instead of a 6/6 split. */}
       <section className="relative grid items-center gap-8 overflow-hidden rounded-3xl bg-navy p-8 text-white md:grid-cols-12">
-        {/* Aurora layer (design upgrade, Worker A): flowing teal/amber/
-            navy blobs behind the content — low opacity, pointer-free,
-            absolutely positioned so there is no layout shift. The two
-            content columns below are `relative` so they paint above it. */}
-        <div className="aurora" aria-hidden="true">
-          <span className="aurora-blob" />
-          <span className="aurora-blob" />
-          <span className="aurora-blob" />
-        </div>
+        {/* Restyle 2 (RAN KV): the particle ring is the hero visual —
+            canvas-drawn stardust + route arcs around a gold compass.
+            The old aurora blobs are gone from the hero; the .aurora
+            CSS stays for other surfaces that still use it. The two
+            content columns below are `relative` so they paint above
+            the canvas layer. */}
         <div className="relative md:col-span-7">
-          <p className="microcopy anim-fade-up text-amber">{t('tagline')}</p>
-          <h1 className="hero-display line-mask mt-3"><span className="display-hero grad-flow-text" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
-          <p className="anim-fade-up stagger-2 mt-4 max-w-md text-white/85">{t('home.heroSub')}</p>
+          <p className="microcopy hero-eyebrow anim-fade-up text-amber">{t('tagline')}</p>
+          <h1 className="hero-display line-mask mt-3"><span className="display-hero" style={{ animationDelay: '.08s' }}>{t('home.heroTitle')}</span></h1>
+          <p className="anim-fade-up stagger-2 mt-4 max-w-md font-display text-lg text-white/85">{t('home.heroSub')}</p>
           {/* Hero prompt bar (restyle 2026-11-28): the eligibility check
               is the hero — a prompt-styled entry to /wizard. A link, not
               an input: nothing typed is lost, and the label reuses the
@@ -109,31 +108,8 @@ export default function HomePage() {
             <span className="microcopy text-white/50">{t('home.heroKicker')}</span>
           </p>
         </div>
-        <div aria-hidden="true" className="relative mx-auto w-full max-w-md md:col-span-5">
-          <svg viewBox="0 0 400 260" className="w-full">
-            <defs>
-              <radialGradient id="sphereGrad" cx="35%" cy="30%" r="75%">
-                <stop offset="0%" stopColor="#F7F5F0" />
-                <stop offset="55%" stopColor="#0E7C7B" />
-                <stop offset="100%" stopColor="#0B1F3A" />
-              </radialGradient>
-            </defs>
-            <path className="anim-route" d="M30 220 C 110 200, 140 120, 200 110 S 320 60, 370 40" fill="none" stroke="#F2A541" strokeWidth="3" strokeLinecap="round" />
-            <circle cx="30" cy="220" r="8" fill="#0E7C7B" stroke="#F7F5F0" strokeWidth="2" />
-            <circle cx="200" cy="110" r="8" fill="#0E7C7B" stroke="#F7F5F0" strokeWidth="2" />
-            <circle cx="370" cy="40" r="10" fill="#F2A541" stroke="#F7F5F0" strokeWidth="2" />
-            {/* 3D compass sphere: orbit ring, concentric rings, gradient sphere, swaying needle */}
-            <g>
-              <circle className="anim-orbit" cx="330" cy="200" r="52" fill="none" stroke="#F7F5F0" strokeWidth="1.5" strokeDasharray="4 7" opacity=".55" />
-              <circle cx="330" cy="200" r="42" fill="none" stroke="#F7F5F0" strokeWidth="1.5" opacity=".7" />
-              <circle cx="330" cy="200" r="34" fill="url(#sphereGrad)" opacity=".95" />
-              <g className="anim-needle">
-                <path d="M330 172 L338 200 L330 228 L322 200 Z" fill="#F2A541" />
-                <path d="M302 200 L330 192 L358 200 L330 208 Z" fill="#F7F5F0" opacity=".9" />
-              </g>
-              <circle cx="330" cy="200" r="3" fill="#F7F5F0" />
-            </g>
-          </svg>
+        <div className="relative mx-auto w-full max-w-md md:col-span-5">
+          <ParticleRing />
         </div>
       </section>
 
@@ -150,7 +126,7 @@ export default function HomePage() {
               [LOCALES.length, t('common.languages')],
             ] as const).map(([value, label]) => (
               <div key={label} className="card-hard card-lift rounded-2xl p-5">
-                <p className="text-4xl font-bold text-navy"><StatCounter value={value} /></p>
+                <p className="stat-num text-5xl font-bold text-navy"><StatCounter value={value} /></p>
                 <p className="mt-1 text-sm font-semibold text-navy/60">{label}</p>
               </div>
             ))}
@@ -216,7 +192,7 @@ export default function HomePage() {
           same copy as before, no programme facts stated. */}
       <section className="section-rule mt-10" aria-labelledby="ba-title">
         <p className="microcopy text-teal-dark">{t('home.beforeAfterTitle')}</p>
-        <h2 id="ba-title" className="line-mask mt-1 text-2xl font-bold tracking-tight"><span>{t('home.beforeAfterTitle')}</span></h2>
+        <h2 id="ba-title" className="line-mask mt-1 font-display text-2xl font-bold tracking-tight"><span>{t('home.beforeAfterTitle')}</span></h2>
         <img src={`/before-after-${locale}.svg`} alt={t('home.beforeAfterTitle')} className="mt-5 w-full rounded-3xl border border-navy/10 shadow-lg" />
       </section>
 
@@ -227,7 +203,7 @@ export default function HomePage() {
       <section className="section-rule mt-10">
         <div className="grid-12">
           <div className="md:col-span-8">
-            <h2 className="line-mask text-2xl font-bold"><span>{t('home.programsTitle')}</span></h2>
+            <h2 className="line-mask font-display text-2xl font-bold"><span>{t('home.programsTitle')}</span></h2>
             <p className="mt-1 text-sm text-navy/70">{t('home.browseSub')}</p>
           </div>
         </div>
@@ -256,34 +232,34 @@ export default function HomePage() {
             const frac = Math.min(srcCount, 5) / 5;
             const dash = 97.4 * (1 - frac);
             return (
-            <article key={p.id} className={`card-lift anim-fan stagger-${(i % 4) + 1} card-black rounded-2xl p-5 md:col-span-6`} style={{ '--fan-rot': `${((i % 4) - 1.5) * 1.2}deg` } as React.CSSProperties}>
+            <article key={p.id} className={`card-lift anim-fan stagger-${(i % 4) + 1} card-paper rounded-2xl p-5 md:col-span-6`} style={{ '--fan-rot': `${((i % 4) - 1.5) * 1.2}deg` } as React.CSSProperties}>
               {/* Restyle 2026-11-28: black card (video: black bg, thin
                   light border, oversized bold number). The number is
                   decorative; the ring keeps its aria-label. */}
               <div className="flex items-start justify-between gap-3">
-                <span className="card-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <span className="flex items-center gap-3"><span className="card-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span><GoldObject kind={GOLD_OBJECT_KINDS[i % GOLD_OBJECT_KINDS.length]} /></span>
                 <span className="flex shrink-0 flex-col items-center" aria-label={`${srcCount} ${t('program.sources')}`}>
                   <svg width="40" height="40" viewBox="0 0 36 36" aria-hidden="true">
-                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#F7F5F0" strokeOpacity=".2" strokeWidth="4" />
+                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#0B1F3A" strokeOpacity=".15" strokeWidth="4" />
                     <circle className="anim-ring" cx="18" cy="18" r="15.5" fill="none" stroke="#F2A541" strokeWidth="4" strokeLinecap="round" transform="rotate(-90 18 18)" style={{ '--ring-dash': dash } as React.CSSProperties} />
-                    <text x="18" y="22" textAnchor="middle" fontSize="11" fontWeight="800" fill="#F7F5F0">{srcCount}</text>
+                    <text x="18" y="22" textAnchor="middle" fontSize="11" fontWeight="800" fill="#0B1F3A">{srcCount}</text>
                   </svg>
-                  <span className="microcopy mt-0.5 text-white/50">{t('program.sources')}</span>
+                  <span className="microcopy mt-0.5 text-navy/50">{t('program.sources')}</span>
                 </span>
               </div>
               <div className="mt-3 min-w-0">
-                <p className="text-sm font-semibold text-amber">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
+                <p className="text-sm font-semibold text-amber-dark">{displayProgramInstitutionName(p.institution, locale)} · {p.country}</p>
                 {/* Shared element (research move 4): this title morphs
                     into the programme detail header on navigation. */}
                 <h3 className="mt-1 text-lg font-bold" ref={vtRef(`program-title-${p.id}`)}>{displayProgramName(p, locale)}</h3>
               </div>
-              <p className="mt-2 text-sm text-white/75">
+              <p className="mt-2 text-sm text-navy/75">
                 {formatProgramLine(p, t, locale)}
                 {p.ucasCode ? ` · UCAS ${p.ucasCode}` : ''}
               </p>
               <div className="mt-4 flex gap-2">
                 <ViewTransitionLink href={`/programs/${p.id}`} className="btn-press rounded-full bg-amber px-4 py-2 text-sm font-semibold text-navy">{t('results.viewDetail')}</ViewTransitionLink>
-                <button type="button" onClick={() => trySample(p.degreeLevel === 'undergraduate' ? 'ug' : 'pg')} className="btn-press rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white">
+                <button type="button" onClick={() => trySample(p.degreeLevel === 'undergraduate' ? 'ug' : 'pg')} className="btn-press rounded-full border border-navy/30 px-4 py-2 text-sm font-semibold text-navy">
                   {t('home.ctaSample')} · <span className="text-xs font-normal">({t('common.synthetic')})</span>
                 </button>
               </div>
@@ -291,7 +267,13 @@ export default function HomePage() {
             );
           })}
         </div>
-        <p className="mt-3 text-sm text-navy/60">{t('home.sampleNote')}</p>
+        {/* Restyle 2, G3: the sample note was rendered unconditionally —
+            the homepage never read `profile.sample`, so the Round 31
+            state-layer fix (which only clears the flag) could never
+            clear this line. Gate it on the flag exactly like the
+            results/report/wizard banners, so it clears on any user
+            edit, profile replace, or own-file import. */}
+        {profile.sample && <p className="mt-3 text-sm text-navy/60">{t('home.sampleNote')}</p>}
         <p className="mt-3 flex flex-wrap gap-3">
           {/* P0 (re-test task 6): click timing for the browser re-test
               — this plain Link timed out 3 times across two sessions
@@ -308,7 +290,7 @@ export default function HomePage() {
           carries its exact attribution notice; THE and ARWU carry their
           not-licensed warnings — the warnings are kept, never dropped. */}
       <section className="section-rule mt-10" aria-labelledby="home-src-title">
-        <h2 id="home-src-title" className="line-mask text-2xl font-bold"><span>{t('home.sourcesTitle')}</span></h2>
+        <h2 id="home-src-title" className="line-mask font-display text-2xl font-bold"><span>{t('home.sourcesTitle')}</span></h2>
         <ul className="mt-4 space-y-2">
           {RANKING_PROVIDERS.map((p) => (
             <li key={p.id} className="card-hard rounded-2xl p-4 text-sm">

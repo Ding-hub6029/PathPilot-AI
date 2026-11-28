@@ -35,7 +35,8 @@ Fix, frontend only (no data or programme facts changed):
   alertdialog (title + body + Replace / Close). Cancel reuses the
   existing common.close key; only three keys are new:
   sample.confirmTitle / sample.confirmBody / sample.confirmReplace
-  (984 keys in all 6 locales, up from 981).
+  (984 keys in all 6 locales at the time, up from 981;
+  994 after Restyle 2 behaviour's ten keys).
 - Both call sites gate on hasProfileData: with data filled in the
   click opens the dialog and only Confirm loads the sample (the
   homepage keeps the pending UG/PG choice until Confirm, so the
@@ -55,7 +56,8 @@ Covers, with no API key and no network:
   exactly two trySample call sites (hero + programme cards); the
   dialog renders the three new keys, reuses common.close, and
   returns null when closed;
-- locale keys: 984 in all 6 locales, same set, new keys non-empty,
+- locale keys: 994 in all 6 locales (984 at the time + Restyle 2
+  behaviour's ten keys), same set, new keys non-empty,
   the en body names the preference answers and says it cannot be
   undone.
 
@@ -155,12 +157,13 @@ checkTrue('dialog Cancel reuses common.close (no new cancel key)', dialog.includ
 checkTrue('dialog overlay click cancels', dialog.includes('onClick={onCancel}'));
 checkTrue('dialog card click does not cancel', dialog.includes('onClick={(e) => e.stopPropagation()}'));
 
-// --- 10. Locale keys: three new keys, 984 in all 6, same set ---
+// --- 10. Locale keys: three new keys, 994 in all 6 (984 at the time
+// + Restyle 2 behaviour's ten keys), same set ---
 const locales = ['en', 'zh-CN', 'es', 'fr', 'pt-BR', 'ar'];
 const msgs = {};
 for (const loc of locales) msgs[loc] = JSON.parse(fs.readFileSync(path.join(__MSG__, loc + '.json'), 'utf8'));
 const base = new Set(Object.keys(msgs.en));
-check('locale key count is 984 (981 + R31 G2 sample.confirm x3)', base.size, 984);
+check('locale key count is 994 (981 + R31 G2 sample.confirm x3 + Restyle 2 behaviour x10)', base.size, 994);
 for (const loc of locales) {
   check(loc + ' key set matches en', JSON.stringify(Object.keys(msgs[loc]).sort()), JSON.stringify([...base].sort()));
   for (const key of ['sample.confirmTitle', 'sample.confirmBody', 'sample.confirmReplace']) {

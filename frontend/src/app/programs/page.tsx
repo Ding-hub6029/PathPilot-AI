@@ -115,7 +115,7 @@ export default function ProgramsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="line-mask text-2xl font-bold"><span>{t('programs.title')}</span></h1>
+      <h1 className="line-mask font-display text-2xl font-bold"><span>{t('programs.title')}</span></h1>
       <p className="mt-2 text-navy/70">{t('programs.subtitle')}</p>
       <p className="mt-2 text-sm text-navy/60" role="status">
         {tf('programs.resultsCount', { count: filtered.length })}

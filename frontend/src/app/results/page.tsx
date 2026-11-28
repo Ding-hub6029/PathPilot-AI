@@ -21,6 +21,7 @@ import { ViewTransitionLink } from '../../components/ViewTransitionLink';
 import { vtRef } from '../../lib/viewTransition';
 import { useBackendStatus } from '../../lib/backendStatus';
 import { useAiVerdict } from '../../lib/aiVerdict';
+import { parseDeadline } from '../../lib/tracking';
 import { GaokaoPanel } from '../../components/GaokaoPanel';
 import { SimulatePanel } from '../../components/SimulatePanel';
 import { chipLabel, formatFeeSentence, formatObserved, ruleExpected, ruleName } from '../../lib/ruleText';
@@ -29,7 +30,7 @@ import { formatDuration, joinList } from '../../lib/format';
 type Filter = 'all' | 'met' | 'notmet' | 'unknown';
 
 export default function ResultsPage() {
-  const { t, tf, locale, profile } = useApp();
+  const { t, tf, locale, profile, hydrated, checklist, toggleChecklistItem, refreshChecklist } = useApp();
   const f = { t, tf, locale, budgetCurrency: profile.budgetCurrency };
   const { programs: livePrograms } = usePrograms();
   // Round 9 (R9): backend status comes from the one shared probe
@@ -87,6 +88,17 @@ export default function ResultsPage() {
       try { localStorage.setItem('pp-check-done', '1'); } catch { /* ignore */ }
     }
   }, [data]);
+
+  // Restyle 2: the follow-up checklist re-derives whenever the
+  // tracked targets change (a confirmed plan change can change the
+  // countries / programmes tracked). Done flags survive by id
+  // (mergeChecklist in the store); derivation itself uses only the
+  // stored profile + verified programme data.
+  useEffect(() => {
+    if (!hydrated) return;
+    refreshChecklist(profile, EXPANSION_PROGRAMS);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, JSON.stringify(profile.targetProgramIds), JSON.stringify(profile.prefCountries)]);
 
   // Why-not verification (W2): one batched /whynot call for the
   // programmes with a failing rule, once the backend is live. Single
@@ -245,6 +257,123 @@ export default function ResultsPage() {
           </section>
         );
       })()}
+
+      {/* Restyle 2 (Gen UI behaviour): follow-up tracking — the
+          comparison, deadline countdowns and checkable steps from
+          the Gen UI follow-up page, as a section on /results (no new
+          route). Everything derives from the stored profile +
+          verified programme data: the comparison table uses the
+          evaluated results, the timeline uses published deadlines
+          only (unpublished / unparseable deadlines show unknown,
+          never a guessed date), the checklist is the store's derived
+          list (deadline / documents / visa steps — no interview step
+          exists in the verified data, so it stays unknown), and
+          "continue the conversation" re-opens the pet. */}
+      <section id="tracking" className="mt-4 scroll-mt-4 rounded-2xl border border-navy/10 bg-white p-5" aria-labelledby="tracking-title">
+        <h2 id="tracking-title" className="text-lg font-bold">{t('results.trackingTitle')}</h2>
+        {data && shown.length > 0 && (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-navy/60">
+                  <th className="py-1 pe-3 font-semibold">{t('report.tableProgram')}</th>
+                  <th className="py-1 pe-3 font-semibold">{t('program.duration')}</th>
+                  <th className="py-1 pe-3 font-semibold">{t('program.fee')}</th>
+                  <th className="py-1 font-semibold">{t('institution.deadline')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shown.slice(0, 3).map((r) => {
+                  const p = programs.find((x) => x.id === r.programId);
+                  if (!p) return null;
+                  const ep = EXPANSION_PROGRAMS.find((x) => x.id === p.id);
+                  const fee = p.feeItems[0];
+                  return (
+                    <tr key={r.programId} className="border-t border-navy/10 align-top">
+                      <td className="py-2 pe-3 font-semibold">
+                        <Link href={`/programs/${p.id}`} className="text-teal underline">{displayProgramTitle(p, locale)}</Link>
+                      </td>
+                      <td className="py-2 pe-3">{p.duration || t('results.unknown')}</td>
+                      <td className="py-2 pe-3">{fee ? `${fee.currency} ${fee.amount.toLocaleString('en-US')} ${fee.period}` : t('results.unknown')}</td>
+                      <td className="py-2">{ep?.applicationDeadline ?? t('results.unknown')}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {/* Deadline timeline: published deadlines first, soonest
+            first; unpublished deadlines stay unknown at the end. */}
+        {(() => {
+          const entries = (profile.targetProgramIds ?? []).map((id) => {
+            const p = programs.find((x) => x.id === id);
+            const ep = EXPANSION_PROGRAMS.find((x) => x.id === id);
+            return { id, title: p ? displayProgramTitle(p, locale) : id, raw: ep?.applicationDeadline ?? null, parsed: parseDeadline(ep?.applicationDeadline ?? null) };
+          });
+          if (!entries.length) return null;
+          const dated = entries.filter((e) => e.parsed).sort((a, b) => (a.parsed?.dateMs ?? 0) - (b.parsed?.dateMs ?? 0));
+          const undated = entries.filter((e) => !e.parsed);
+          return (
+            <ul className="mt-3 space-y-2 text-sm">
+              {[...dated, ...undated].map((e) => (
+                <li key={e.id} className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-semibold">{e.title}</span>
+                  <span className="text-navy/70">{e.raw ?? t('results.unknown')}</span>
+                  {e.parsed && e.parsed.daysLeft >= 0 && (
+                    <span className="rounded-full bg-amber/25 px-2 py-0.5 text-xs font-bold">{tf('results.trackingDaysLeft', { days: e.parsed.daysLeft })}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          );
+        })()}
+        {/* Checkable follow-up steps (store checklist). */}
+        <h3 className="mt-4 font-bold">{t('plan.tasksTitle')}: {checklist.filter((i) => i.done).length} / {checklist.length}</h3>
+        {checklist.length === 0 ? (
+          <p className="mt-1 text-sm text-navy/70">{t('plan.noTasks')}</p>
+        ) : (
+          <ul className="mt-2 space-y-2 text-sm">
+            {checklist.map((item) => {
+              const p = item.programId ? programs.find((x) => x.id === item.programId) : undefined;
+              const ep = item.programId ? EXPANSION_PROGRAMS.find((x) => x.id === item.programId) : undefined;
+              const label = item.kind === 'deadline'
+                ? `${t('institution.deadline')}: ${p ? displayProgramTitle(p, locale) : item.programId} — ${ep?.applicationDeadline ?? t('results.unknown')}`
+                : item.kind === 'documents'
+                  ? `${t('program.requirements')}: ${p ? displayProgramTitle(p, locale) : item.programId}`
+                  : `${t('home.policyTitle')}: ${item.country ? t(`country.${item.country}`) : ''}`;
+              return (
+                <li key={item.id} className="flex items-start gap-2">
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={item.done}
+                    aria-label={label}
+                    onClick={() => toggleChecklistItem(item.id)}
+                    className={`btn-press mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs font-bold ${item.done ? 'border-teal bg-teal text-white' : 'border-navy/30 bg-white'}`}
+                  >
+                    {item.done ? '✓' : ''}
+                  </button>
+                  <span className={item.done ? 'text-navy/50 line-through' : ''}>{label}</span>
+                  {item.kind === 'deadline' && ep?.sources[0]?.url && (
+                    <a href={ep.sources[0].url} target="_blank" rel="noreferrer" className="shrink-0 text-xs font-semibold text-teal underline">{t('pet.evidence')} ↗</a>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {/* No verified interview data exists for any programme, so
+            the interview step stays unknown — never invented. */}
+        <p className="mt-3 text-sm text-navy/70">{t('results.trackingInterview')}: {t('results.unknown')}</p>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('pp-open-pet'))}
+          className="btn-press mt-3 rounded-full bg-teal px-5 py-2 text-sm font-semibold text-white"
+        >
+          {t('pet.openLabel')}
+        </button>
+      </section>
 
       {/* Round 9 (R11): "0 个课程符合所有已知要求" with no explanation
           reads as a verdict on the applicant. For a Gaokao applicant it

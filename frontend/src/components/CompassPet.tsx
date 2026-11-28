@@ -3,13 +3,19 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp, type Locale } from '../lib/store';
-import type { Profile } from '../lib/types';
+import type { ExpansionProgram, Profile } from '../lib/types';
 import { fetchJsonChat, modelAvailability, allPrograms, findProgram } from '../lib/api';
 import { aiVerdictLineKey, beginAiTurn, endAiTurn, getAiVerdict, noteAiTurnVerdict, probeAiVerdict, resetAiVerdict, useAiVerdict } from '../lib/aiVerdict';
 import { useElapsed } from '../lib/useElapsed';
 import { deriveChatLinks, detectLevelWord, disambiguationFollowupMessage, disambiguationLevels, isModelReply, looksLikeQuestion, pendingDisambiguation, petKnownSteps, savedPrefsContext, suggestMessage, type ChatHistoryTurn, type ChatReply } from '../lib/chat';
 import { hasPreferences, prefSummary } from '../lib/preferences';
 import { PROGRAMS, displayProgramTitle } from '../lib/programs';
+import { EXPANSION_PROGRAMS } from '../lib/expansion';
+import { joinList } from '../lib/format';
+import {
+  detectPlanChange, planChangePatch, profileProgress,
+  type CountryNameEntry, type PlanChange,
+} from '../lib/tracking';
 import { RANKING_ENTRIES, RANKING_INSTITUTIONS } from '../lib/rankings';
 import enMessages from '../../messages/en.json';
 
@@ -185,6 +191,26 @@ type ChatTurn =
   | {
       kind: 'noProgrammes';
       degree: Degree; country: string;
+    }
+  /** Restyle 2 (Gen UI behaviour): the proactive greeting — a
+      selection-progress summary from the real stored profile
+      (filled / still missing, rendered at render time, never
+      invented) plus 3 quick suggestions rendered under it. */
+  | { kind: 'summary' }
+  /** Restyle 2: one-tap verified answers — deadlines / documents
+      for the stored target programmes, from the verified expansion
+      data only. Rendered at render time; no model call. */
+  | { kind: 'deadlines' }
+  | { kind: 'documents' }
+  /** Restyle 2: one user sentence changing the plan (country /
+      budget / timing). The proposal is stored as structured data
+      and NOTHING is applied until the user confirms — Confirm
+      applies the patch + refreshes the checklist, Skip discards it.
+      The Gen UI "Selected N + Skip" pattern, for one change. */
+  | {
+      kind: 'planChange';
+      change: PlanChange;
+      status: 'pending' | 'confirmed' | 'skipped';
     };
 
 /** Budget-band ceilings, mirrored from backend/ai/assistant.py _BANDS.
@@ -423,7 +449,7 @@ function devilProfileFor(p: Profile): Record<string, unknown> | null {
 }
 
 export function CompassPet() {
-  const { t, tf, locale, profile, dataClearNonce } = useApp();
+  const { t, tf, locale, profile, dataClearNonce, updateProfile, refreshChecklist } = useApp();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -599,6 +625,10 @@ export function CompassPet() {
     // greeting + Q1.
     const knownSteps = petKnownSteps(profile, BAND_CEILING);
     const msgs: ChatTurn[] = [];
+    // Restyle 2: the proactive greeting leads with the
+    // selection-progress summary (real stored profile only) — the 3
+    // quick suggestions render under it in the message list.
+    msgs.push({ kind: 'summary' });
     if (hasPreferences(profile)) msgs.push({ kind: 'prefNote' });
     else msgs.push({ kind: 'prompt', key: 'pet.greeting' });
     const answersNext: { degree?: Degree; country?: Country; budget?: Band } = {};
@@ -946,6 +976,51 @@ export function CompassPet() {
     setOpen(false);
   };
 
+  /** Restyle 2: the "continue the conversation" entry on the
+   * results tracking section dispatches this event; the panel opens
+   * (its greeting re-runs against the current profile). */
+  useEffect(() => {
+    const onOpenPet = () => toggle(true);
+    window.addEventListener('pp-open-pet', onOpenPet);
+    return () => window.removeEventListener('pp-open-pet', onOpenPet);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Restyle 2: country names for plan-change detection — the
+   * current-locale name plus the English name for every code the
+   * verified data knows. */
+  const countryNameList = (): CountryNameEntry[] =>
+    PET_COUNTRY_CODES.map((code) => ({
+      code,
+      names: [...new Set([t(`country.${code}`), (enMessages as Record<string, string>)[`country.${code}`] ?? ''])].filter(Boolean),
+    }));
+
+  /** The stored target programmes, from the verified expansion
+   * data — the only place deadlines + requirements survive, since
+   * the merged Program shape drops both. */
+  const targetExpansionPrograms = (): ExpansionProgram[] => {
+    const wanted = new Set(profile.targetProgramIds ?? []);
+    return EXPANSION_PROGRAMS.filter((p) => wanted.has(p.id));
+  };
+
+  /** Restyle 2: resolve a pending plan-change proposal. Confirm
+   * applies the patch as a user edit (updateProfile) and refreshes
+   * the follow-up checklist from the new profile; Skip discards
+   * the proposal. Either way the turn records the outcome, so a
+   * language switch never resurrects a pending proposal. */
+  const resolvePlanChange = (index: number, confirmed: boolean) => {
+    const turn = messages[index];
+    if (!turn || turn.kind !== 'planChange' || turn.status !== 'pending') return;
+    if (confirmed) {
+      const patch = planChangePatch(turn.change);
+      const nextProfile = { ...profile, ...patch, sample: false };
+      updateProfile(patch);
+      refreshChecklist(nextProfile, EXPANSION_PROGRAMS);
+    }
+    setMessages((prev) => prev.map((m, j) =>
+      j === index && m.kind === 'planChange' ? { ...m, status: confirmed ? 'confirmed' : 'skipped' } : m));
+  };
+
   const push = (msg: ChatTurn) => setMessages((prev) => [...prev, msg]);
 
   /** Label for a stored quick-reply choice, localised at render time. */
@@ -1045,6 +1120,93 @@ export function CompassPet() {
       case 'freeText':
         // The user's own words, verbatim — not a localised string.
         return { lines: [turn.text] };
+      case 'summary': {
+        // Restyle 2: the proactive summary, rendered at render time
+        // from the CURRENT stored profile — what is filled, and what
+        // is still missing. Never invented: a missing field is listed
+        // as missing, and an empty profile says so plainly.
+        const progress = profileProgress(profile, t, locale);
+        const lines = [t('report.profileTitle')];
+        if (!progress.filled.length) lines.push(t('report.profileEmpty'));
+        for (const entry of progress.filled) {
+          lines.push(`${t(entry.labelKey)}: ${entry.text}`);
+        }
+        if (progress.missing.length) {
+          lines.push(`${t('pet.summaryMissing')}: ${joinList(progress.missing.map((k) => t(k)), locale)}`);
+        }
+        return { lines };
+      }
+      case 'deadlines': {
+        // Restyle 2: verified deadlines for the stored target
+        // programmes, from the official pages only. A programme with
+        // no published deadline says unknown — never a guessed date.
+        // v2 targets carry no deadline data at all, so they render
+        // unknown too; with no targets at all the pet offers the
+        // eligibility check instead.
+        if (!profile.targetProgramIds.length) {
+          return { lines: [t('pet.suggestUnknown2')], nextSteps: { wizard: '/wizard' } };
+        }
+        const lines: string[] = [];
+        for (const id of profile.targetProgramIds.slice(0, 3)) {
+          const ep = EXPANSION_PROGRAMS.find((p) => p.id === id);
+          const merged = findProgram(id);
+          const title = merged ? displayProgramTitle(merged, locale) : id;
+          lines.push(`${title} — ${t('institution.deadline')}: ${ep?.applicationDeadline ?? t('results.unknown')}`);
+        }
+        const firstEp = targetExpansionPrograms()[0];
+        return {
+          lines,
+          evidenceUrl: firstEp?.sources[0]?.url ?? findProgram(profile.targetProgramIds[0])?.sources[0]?.url ?? null,
+          nextSteps: { wizard: '/wizard', program: `/programs/${profile.targetProgramIds[0]}` },
+        };
+      }
+      case 'documents': {
+        // Restyle 2: the verified document requirements for the
+        // stored target programmes, verbatim from the official
+        // pages (at most 2 per programme, 3 programmes). Targets
+        // with no verified requirements say so honestly instead of
+        // gaining an invented documents list.
+        if (!profile.targetProgramIds.length) {
+          return { lines: [t('pet.suggestUnknown2')], nextSteps: { wizard: '/wizard' } };
+        }
+        const targets = targetExpansionPrograms().slice(0, 3);
+        if (!targets.length) {
+          return { lines: [t('program.unknownNote')], nextSteps: { wizard: '/wizard' } };
+        }
+        const lines: string[] = [];
+        for (const p of targets) {
+          const merged = findProgram(p.id);
+          lines.push(merged ? displayProgramTitle(merged, locale) : p.officialName);
+          const reqs = p.requirements.slice(0, 2);
+          if (!reqs.length) lines.push(t('results.unknown'));
+          for (const r of reqs) lines.push(r.description);
+        }
+        return {
+          lines,
+          evidenceUrl: targets[0]?.sources[0]?.url ?? null,
+          nextSteps: { wizard: '/wizard', program: `/programs/${targets[0].id}` },
+        };
+      }
+      case 'planChange': {
+        // Restyle 2: the proposed change, as one line (old → new),
+        // plus the ask / the recorded outcome. The Confirm / Skip
+        // buttons render in the message list, not here.
+        const c = turn.change;
+        let changeLine: string;
+        if (c.kind === 'country' && c.country) {
+          const from = (c.fromCountries ?? []).map((code) => t(`country.${code}`));
+          changeLine = `${from.length ? joinList(from, locale) : t('results.unknown')} → ${t(`country.${c.country}`)}`;
+        } else if (c.kind === 'budget' && typeof c.budget === 'number') {
+          changeLine = `${c.fromBudget ?? t('results.unknown')} → ${c.budget} ${c.budgetCurrency ?? ''}`.trim();
+        } else if (c.kind === 'intake' && typeof c.intakeYear === 'number') {
+          changeLine = `${c.fromIntakeYear === '' || c.fromIntakeYear === undefined ? t('results.unknown') : c.fromIntakeYear} → ${c.intakeYear}`;
+        } else {
+          changeLine = t('pet.planChangeAsk');
+        }
+        if (turn.status === 'confirmed') return { lines: [changeLine, t('plan.statusDone')] };
+        if (turn.status === 'skipped') return { lines: [changeLine, t('pet.planSkip')] };
+        return { lines: [changeLine, t('pet.planChangeAsk')] };
+      }
       case 'noProgrammes': {
         // Honest unknown, rendered at render time from the current
         // locale (needs pet.suggestNone / pet.noProgrammesRank /
@@ -1498,6 +1660,17 @@ export function CompassPet() {
       // A new question: fall through to the normal send — the new
       // ask turn supersedes the pending disambiguation.
     }
+    // Restyle 2: one user sentence changing the plan (country /
+    // budget / timing) proposes the change and asks to confirm — it
+    // never goes to the model and nothing is applied here. The
+    // confirm bubble is the Gen UI follow-up; Skip discards it.
+    const planChange = detectPlanChange(text, profile, countryNameList());
+    if (planChange) {
+      setInput('');
+      push({ kind: 'freeText', text });
+      push({ kind: 'planChange', change: planChange, status: 'pending' });
+      return;
+    }
     setInput('');
     // Round 23 W4 — one-shot devil: the toggle applies to at most
     // THIS turn. Capture it now and switch it off as the turn is
@@ -1599,7 +1772,7 @@ export function CompassPet() {
               const rendered = renderTurn(m);
               const isUser = m.kind === 'choice' || m.kind === 'freeText';
               return (
-                <div key={i} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+                <div key={i} className={`flex flex-col gap-2 ${isUser ? 'items-end' : 'items-start'}`}>
                   <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${isUser ? 'bg-teal text-white' : rendered.devil ? 'bg-amber/10 text-navy shadow-sm ring-2 ring-amber' : 'bg-white text-navy shadow-sm ring-1 ring-navy/5'}`}>
                     {rendered.devil && (
                       <>
@@ -1633,6 +1806,37 @@ export function CompassPet() {
                       </div>
                     )}
                   </div>
+                  {/* Restyle 2: the 3 quick suggestions under the
+                      proactive summary — one tap each. Deadlines and
+                      documents answer locally from verified data;
+                      compare opens the tracking section on /results. */}
+                  {m.kind === 'summary' && !busy && (
+                    <div className="flex max-w-[85%] flex-wrap gap-2">
+                      <button type="button" onClick={() => push({ kind: 'deadlines' })} className="btn-press anim-chip rounded-full bg-teal px-3 py-1.5 text-xs font-semibold text-white">
+                        {t('pet.suggestDeadlines')}
+                      </button>
+                      <Link href="/results#tracking" onClick={closeForNavigation} className="btn-press anim-chip rounded-full bg-teal px-3 py-1.5 text-xs font-semibold text-white">
+                        {t('pet.suggestCompare')}
+                      </Link>
+                      <button type="button" onClick={() => push({ kind: 'documents' })} className="btn-press anim-chip rounded-full bg-teal px-3 py-1.5 text-xs font-semibold text-white">
+                        {t('pet.suggestDocuments')}
+                      </button>
+                    </div>
+                  )}
+                  {/* Restyle 2: the plan-change confirm — Gen UI
+                      "Selected N + Skip" pattern for one change.
+                      Confirm applies the patch + refreshes the
+                      checklist; Skip discards the proposal. */}
+                  {m.kind === 'planChange' && m.status === 'pending' && (
+                    <div className="flex max-w-[85%] flex-wrap gap-2">
+                      <button type="button" onClick={() => resolvePlanChange(i, true)} className="btn-press rounded-full bg-amber px-3 py-1.5 text-xs font-bold text-navy">
+                        {t('pet.planConfirm')}
+                      </button>
+                      <button type="button" onClick={() => resolvePlanChange(i, false)} className="btn-press rounded-full border border-navy/25 bg-white px-3 py-1.5 text-xs font-semibold text-navy">
+                        {t('pet.planSkip')}
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}

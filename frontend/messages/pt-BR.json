@@ -982,5 +982,15 @@
  "wizard.usaNote": "Nota: a Imperial publica um padrão de AP; a UCL não publica nenhuma equivalência americana para estes programas, por isso essa verificação será marcada como desconhecida.",
  "sample.confirmTitle": "Substituir suas respostas pelo perfil de exemplo?",
  "sample.confirmBody": "Carregar o perfil de exemplo substitui o que você preencheu, incluindo suas respostas de preferências. Não é possível desfazer.",
- "sample.confirmReplace": "Substituir pelo exemplo"
+ "sample.confirmReplace": "Substituir pelo exemplo",
+ "pet.suggestDeadlines": "Verificar os prazos",
+ "pet.suggestCompare": "Comparar universidades",
+ "pet.suggestDocuments": "Preparar os documentos",
+ "pet.planChangeAsk": "Atualizar seu plano com esta mudança?",
+ "pet.planConfirm": "Confirmar a alteração",
+ "pet.planSkip": "Pular",
+ "pet.summaryMissing": "Ainda falta",
+ "results.trackingTitle": "Acompanhamento",
+ "results.trackingDaysLeft": "Faltam {days} dias",
+ "results.trackingInterview": "Etapas da entrevista"
 }

@@ -237,13 +237,14 @@ def test_r29_w3_climate_turn_source_pins():
 
 
 def test_r29_w3_climate_turn_locale_counts():
-    """No new locale keys for this change (984 x 6 — 981 at Round 30
-    + Round 31 G2's three sample.confirm* keys, unchanged by this change)."""
+    """No new locale keys for this change (994 x 6 — 981 at Round 30
+    + Round 31 G2's three sample.confirm* keys + Restyle 2 behaviour's
+    ten keys, unchanged by this change)."""
     msgs = {}
     for loc in LOCALES:
         msgs[loc] = json.loads(
             (FE / "messages" / f"{loc}.json").read_text(encoding="utf-8"))
     base = set(msgs["en"])
-    assert len(base) == 984, len(base)
+    assert len(base) == 994, len(base)
     for loc in LOCALES:
         assert set(msgs[loc]) == base, (loc, set(msgs[loc]) ^ base)

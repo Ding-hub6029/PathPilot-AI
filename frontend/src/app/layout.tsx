@@ -1,17 +1,20 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk } from 'next/font/google';
+import { Fraunces } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '../lib/store';
 import Header from '../components/Header';
 import { CompassPet } from '../components/CompassPet';
 import { RouteTransition } from '../components/RouteTransition';
 
-/* Display face (restyle 2026-11-28): Space Grotesk — a slightly
-   geometric sans, deliberately NOT Inter — for display headings only.
+/* Display face (Restyle 2, aureon 2026-11-28): Fraunces — a
+   high-contrast Didone-style serif — for display headings only.
    Latin-only, so CJK/Arabic fall back to the system stack via the
    font-family fallbacks in globals.css. next/font self-hosts it at
-   build time, so there is no runtime font request. */
-const displayFont = Space_Grotesk({
+   build time, so there is no runtime font request. No oblique /
+   italic anywhere on display type (Round 30 F4: synthetic slant
+   breaks Arabic joining) — the variable font is loaded upright
+   only, and globals.css pins font-style: normal on display classes. */
+const displayFont = Fraunces({
   subsets: ['latin'],
   weight: ['500', '700'],
   variable: '--font-display',
@@ -35,8 +38,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <RouteTransition>{children}</RouteTransition>
           </main>
           <CompassPet />
-          <footer className="mx-auto max-w-6xl px-4 pb-10 pt-6 text-center text-sm text-navy/70">
-            PathPilot AI — Global AI Builder&apos;s Challenge 2026 · Day 1
+          <footer className="bg-navy pb-10 pt-8 text-center text-sm text-white/75">
+            <div className="mx-auto max-w-6xl px-4">
+              PathPilot AI — Global AI Builder&apos;s Challenge 2026 · Day 1
+            </div>
           </footer>
         </AppProvider>
       </body>

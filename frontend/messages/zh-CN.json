@@ -982,5 +982,15 @@
  "wizard.usaNote": "注意：帝国理工公布了 AP 标准；UCL 未公布这些课程的美国成绩对等标准，相关检查将标记为未知。",
  "sample.confirmTitle": "要用示例资料替换你已填写的内容吗？",
  "sample.confirmBody": "加载示例资料会替换你已填写的内容，包括偏好问答，且无法撤销。",
- "sample.confirmReplace": "替换为示例"
+ "sample.confirmReplace": "替换为示例",
+ "pet.suggestDeadlines": "查截止日期",
+ "pet.suggestCompare": "比较学校",
+ "pet.suggestDocuments": "准备申请材料",
+ "pet.planChangeAsk": "要按这个变化更新你的计划吗？",
+ "pet.planConfirm": "确认更改",
+ "pet.planSkip": "跳过",
+ "pet.summaryMissing": "尚未填写",
+ "results.trackingTitle": "申请跟进",
+ "results.trackingDaysLeft": "还剩 {days} 天",
+ "results.trackingInterview": "面试环节"
 }

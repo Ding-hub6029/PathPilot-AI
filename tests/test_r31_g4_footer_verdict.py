@@ -62,8 +62,9 @@ Covers, with no API key and no network:
   gated on the current verdict, the stored flag still selects
   content, the footer still renders the shared line key, the
   devil boundary is unchanged, the old ungated expressions are
-  gone, and the locale key count is still 984 (981 at Round 30
-  + 3 Round 31 G2 sample.confirm keys — this fix adds none).
+  gone, and the locale key count is 994 (981 at Round 30
+  + 3 Round 31 G2 sample.confirm keys + 10 Restyle 2 behaviour keys
+  — this fix adds none).
 
 Run: .venv/bin/pytest -q -p no:cacheprovider tests/test_r31_g4_footer_verdict.py
 """
@@ -220,9 +221,10 @@ const footerKey = () => aiVerdictLineKey(getAiVerdict());
   checkTrue('devil boundary still keyed on the turn (provenance)',
     pet.includes('devilOffline: turn.devil && turn.offline'));
   // No new locale keys: the fix reuses pet.offline /
-  // pet.offlineTimeout, so the count stays 984 (981 at Round 30
-  // + 3 Round 31 G2 sample.confirm keys — this fix adds none).
-  check('locale key count is still 984 (no new keys)', Object.keys(en).length, 984);
+  // pet.offlineTimeout, so the count is 994 (981 at Round 30
+  // + 3 Round 31 G2 sample.confirm keys + 10 Restyle 2 behaviour keys
+  // — this fix adds none).
+  check('locale key count is 994 (no new keys from this fix)', Object.keys(en).length, 994);
 
   console.log(fail ? 'HARNESS FAILURES: ' + fail : 'HARNESS OK');
   process.exit(fail ? 1 : 0);

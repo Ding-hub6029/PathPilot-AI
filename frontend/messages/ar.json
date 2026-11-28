@@ -982,5 +982,15 @@
  "wizard.usaNote": "ملاحظة: تنشر Imperial معيارًا لـ AP؛ بينما لا تنشر UCL أي معادلة أمريكية لهذه البرامج، لذا ستُعلَّم نتيجة ذلك التحقق كغير معروفة.",
  "sample.confirmTitle": "هل تريد استبدال إجاباتك بالملف النموذجي؟",
  "sample.confirmBody": "تحميل الملف النموذجي يستبدل ما أدخلته، بما في ذلك إجابات التفضيلات. لا يمكن التراجع عن ذلك.",
- "sample.confirmReplace": "استبدال بالنموذج"
+ "sample.confirmReplace": "استبدال بالنموذج",
+ "pet.suggestDeadlines": "التحقق من المواعيد النهائية",
+ "pet.suggestCompare": "مقارنة الجامعات",
+ "pet.suggestDocuments": "تجهيز المستندات",
+ "pet.planChangeAsk": "هل أُحدِث خطتك بهذا التغيير؟",
+ "pet.planConfirm": "تأكيد التغيير",
+ "pet.planSkip": "تخطَّ",
+ "pet.summaryMissing": "ما زال ناقصًا",
+ "results.trackingTitle": "المتابعة",
+ "results.trackingDaysLeft": "متبقٍ {days} يوم",
+ "results.trackingInterview": "خطوات المقابلة"
 }

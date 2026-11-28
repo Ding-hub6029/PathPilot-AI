@@ -276,36 +276,55 @@ body { background: #F7F5F0; color: #0B1F3A; }
    #F2A541 / paper #F7F5F0. No new hues, no new copy, no logic
    changes — CSS/Tailwind and layout polish only. */
 
-/* Display face on every display heading (Space Grotesk via
-   next/font, --font-display; CJK/Arabic fall back to system). */
-.hero-display { font-family: var(--font-display), system-ui, sans-serif; }
+/* Display face on every display heading (Fraunces via
+   next/font, --font-display; CJK/Arabic fall back to system).
+   font-style: normal is pinned here — NO oblique/italic on display
+   type anywhere (Round 30 F4: synthetic slant breaks Arabic
+   joining). */
+.hero-display { font-family: var(--font-display), system-ui, sans-serif; font-style: normal; }
 
-/* Hero display: oversized viewport-scaled type, extra-bold, tight
-   tracking, slight oblique slant (the Xiaohongshu template's slanted
-   display type), soft amber-white glow. The h1 span keeps its
-   line-mask entrance + gradient flow (see .line-mask rules above). */
-.display-hero { font-family: var(--font-display), system-ui, sans-serif; font-size: clamp(3.2rem, 9.5vw, 6.4rem); line-height: .98; letter-spacing: -.04em; font-weight: 700; text-shadow: 0 0 32px rgba(242,165,65,.35), 0 2px 24px rgba(255,255,255,.12); }
+/* Hero display: oversized viewport-scaled serif type, tight
+   tracking, soft amber-white glow. Upright only — the old comment
+   here once claimed a slanted display face; there is no slant in
+   the rule and there must never be one. The h1 span keeps its
+   line-mask entrance (see .line-mask rules above). */
+.display-hero { font-family: var(--font-display), system-ui, sans-serif; font-style: normal; font-size: clamp(3.2rem, 9.5vw, 6.4rem); line-height: .98; letter-spacing: -.02em; font-weight: 700; text-shadow: 0 0 32px rgba(242,165,65,.35), 0 2px 24px rgba(255,255,255,.12); }
+
+/* Aureon eyebrow: small caps with a `//` prefix (visual only, no
+   copy change — the prefix is CSS, not an i18n string). */
+.hero-eyebrow::before { content: "// "; color: #F2A541; }
 
 /* Numbered nav (video: 创作 01 / 关于 02): small amber index before
    each label. */
-.nav-num { font-family: var(--font-display), system-ui, sans-serif; font-size: .62rem; font-weight: 700; letter-spacing: .08em; color: #F2A541; margin-inline-end: .3rem; vertical-align: super; font-variant-numeric: tabular-nums; }
+.nav-num { font-family: var(--font-display), system-ui, sans-serif; font-style: normal; font-size: .62rem; font-weight: 700; letter-spacing: .08em; color: #F2A541; margin-inline-end: .3rem; vertical-align: super; font-variant-numeric: tabular-nums; }
 
 /* Hard 1px border card (Vercel tactile brutalism): edge from the
    border, not from a shadow. */
 .card-hard { border: 1px solid rgba(11,31,58,.22); background: #fff; }
 .card-hard:hover { border-color: rgba(242,165,65,.65); }
 
+/* White programme card (Restyle 2, aureon): white paper card, 1px
+   hairline border, navy text — replaces the Restyle-1 black card.
+   .card-black is kept for the dark embedded product panel only. */
+.card-paper { border: 1px solid rgba(11,31,58,.18); background: #fff; color: #0B1F3A; }
+.card-paper:hover { border-color: rgba(242,165,65,.65); }
 /* Black programme card (video: black bg, thin light border,
    oversized bold number). */
 .card-black { border: 1px solid rgba(255,255,255,.16); background: #0B1F3A; color: #fff; }
 .card-black:hover { border-color: rgba(242,165,65,.6); }
-/* Oversized index number on a black card: display face, amber,
+/* Oversized index number on a card: display face, amber,
    tabular figures. Decorative (aria-hidden in markup). */
-.card-num { font-family: var(--font-display), system-ui, sans-serif; font-size: 2.6rem; line-height: 1; font-weight: 700; letter-spacing: -.03em; color: #F2A541; font-variant-numeric: tabular-nums; }
+.card-num { font-family: var(--font-display), system-ui, sans-serif; font-style: normal; font-size: 2.6rem; line-height: 1; font-weight: 700; letter-spacing: -.03em; color: #F2A541; font-variant-numeric: tabular-nums; }
 
 /* Stat number: display face, tabular figures so the count-up does
    not jitter horizontally. */
-.stat-num { font-family: var(--font-display), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+.stat-num { font-family: var(--font-display), system-ui, sans-serif; font-style: normal; font-variant-numeric: tabular-nums; }
+
+/* Particle ring (Restyle 2, RAN KV): the canvas is JS-driven; its
+   reduced-motion / offscreen behaviour lives in ParticleRing.tsx
+   (matchMedia + IntersectionObserver), not in CSS. The wrapper only
+   reserves the hero's right-hand space. */
+.particle-ring { min-height: 220px; }
 
 /* RTL: a directional arrow glyph mirrors. */
 [dir="rtl"] .arrow-rtl { transform: scaleX(-1); }

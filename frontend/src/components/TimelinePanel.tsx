@@ -102,7 +102,7 @@ export function TimelinePanel() {
   return (
     <section className="section-rule mt-10" aria-labelledby="timeline-title">
       <p className="microcopy text-teal-dark">{t('home.timelineTitle')}</p>
-      <h2 id="timeline-title" className="line-mask mt-1 text-2xl font-bold tracking-tight"><span>{t('home.timelineTitle')}</span></h2>
+      <h2 id="timeline-title" className="line-mask mt-1 font-display text-2xl font-bold tracking-tight"><span>{t('home.timelineTitle')}</span></h2>
       <p className="mt-2 text-sm text-navy/70">{t('home.timelineNote')}</p>
 
       <div className="perspective-1200 mt-5">

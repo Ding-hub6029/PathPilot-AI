@@ -115,7 +115,7 @@ export function Destinations() {
   return (
     <section className="section-rule mt-10" aria-labelledby="home-dest-title">
       <Reveal>
-        <h2 id="home-dest-title" className="line-mask text-2xl font-bold">
+        <h2 id="home-dest-title" className="line-mask font-display text-2xl font-bold">
           <span>{t('home.destTitle')}</span>
         </h2>
         <p className="mt-1 text-sm text-navy/70">{t('home.destSub')}</p>

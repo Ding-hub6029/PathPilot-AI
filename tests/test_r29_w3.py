@@ -62,8 +62,9 @@ Covers, with no API key and no network:
   the full set + guards the persist write; the results banner
   gates "Live backend connected" on the shared AI verdict;
 - locale keys: results.aiOffline + wizard.chatPrefAiBack exist
-  in all 6 locales (984 keys total = 981 at Round 30 + Round 31
-  G2's three sample.confirm* keys), non-empty, same set in all 6.
+  in all 6 locales (994 keys total = 981 at Round 30 + Round 31
+  G2's three sample.confirm* keys + Restyle 2 behaviour's ten keys),
+  non-empty, same set in all 6.
 
 Run: .venv/bin/pytest -q -p no:cacheprovider tests/test_r29_w3.py
 """
@@ -315,7 +316,7 @@ function checkTrue(name, cond) { check(name, !!cond, true); }
   const msgs = {};
   for (const loc of locales) msgs[loc] = JSON.parse(fs.readFileSync(path.join(__MSG__, loc + '.json'), 'utf8'));
   const base = new Set(Object.keys(msgs.en));
-  check('locale key count is 984 (981 + R31 G2 sample.confirm x3)', base.size, 984);
+  check('locale key count is 994 (981 + R31 G2 sample.confirm x3 + Restyle 2 behaviour x10)', base.size, 994);
   for (const loc of locales) {
     check(loc + ' key set matches en', JSON.stringify(Object.keys(msgs[loc]).sort()), JSON.stringify([...base].sort()));
     check(loc + ' results.aiOffline present', typeof msgs[loc]['results.aiOffline'], 'string');

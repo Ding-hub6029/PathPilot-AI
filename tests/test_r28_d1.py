@@ -347,8 +347,9 @@ def test_r28_d1_no_refetch_and_stored_contract():
 
 
 def test_r28_d1_locale_keys_unchanged():
-    """No locale keys are added by THIS fix: 984 keys in every locale
-    file (981 at Round 30 + Round 31 G2's three sample.confirm* keys),
+    """No locale keys are added by THIS fix: 994 keys in every locale
+    file (981 at Round 30 + Round 31 G2's three sample.confirm* keys
+    + Restyle 2 behaviour's ten keys),
     the same key set in all 6, and every key this fix renders through exists in
     all 6."""
     msgs = {
@@ -356,7 +357,7 @@ def test_r28_d1_locale_keys_unchanged():
         for loc in LOCALES
     }
     base = set(msgs["en"])
-    assert len(base) == 984, len(base)
+    assert len(base) == 994, len(base)
     for loc in LOCALES:
         assert set(msgs[loc]) == base, (loc, set(msgs[loc]) ^ base)
     for key in (

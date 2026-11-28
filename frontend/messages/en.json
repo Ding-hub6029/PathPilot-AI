@@ -982,5 +982,15 @@
  "wizard.usaNote": "Note: Imperial publishes an AP standard; UCL publishes no US equivalence for these programmes, so that check will be marked unknown.",
  "sample.confirmTitle": "Replace your answers with the sample profile?",
  "sample.confirmBody": "Loading the sample profile replaces what you have entered, including your preference answers. This cannot be undone.",
- "sample.confirmReplace": "Replace with sample"
+ "sample.confirmReplace": "Replace with sample",
+ "pet.suggestDeadlines": "Check deadlines",
+ "pet.suggestCompare": "Compare schools",
+ "pet.suggestDocuments": "Prepare documents",
+ "pet.planChangeAsk": "Update your plan with this change?",
+ "pet.planConfirm": "Confirm change",
+ "pet.planSkip": "Skip",
+ "pet.summaryMissing": "Still missing",
+ "results.trackingTitle": "Follow-up tracking",
+ "results.trackingDaysLeft": "{days} days left",
+ "results.trackingInterview": "Interview steps"
 }

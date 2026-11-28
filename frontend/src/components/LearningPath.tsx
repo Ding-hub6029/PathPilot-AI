@@ -68,7 +68,7 @@ export function LearningPath() {
 
   return (
     <section ref={sectionRef} className="section-rule mt-10" aria-labelledby="how-title">
-      <h2 id="how-title" className="line-mask text-2xl font-bold"><span>{t('home.howTitle')}</span></h2>
+      <h2 id="how-title" className="line-mask font-display text-2xl font-bold"><span>{t('home.howTitle')}</span></h2>
 
       {/* Node rail (md+ only): the numbered nodes sit on the route line,
           each with a paper ring so the line reads as passing behind

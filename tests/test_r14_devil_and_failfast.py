@@ -505,9 +505,9 @@ def test_navigation_link_closes_keep_open_memory():
     assert "setOpen(false)" in nav_fn
     assert "pp-pet-open" not in nav_fn
     assert "pp-pet-dismissed" not in nav_fn
-    assert src.count("onClick={closeForNavigation}") == 4, (
-        "all four pet links (prefEdit + wizard/programme/institution "
-        "next steps) must use closeForNavigation")
+    assert src.count("onClick={closeForNavigation}") == 5, (
+        "all five pet links (prefEdit + wizard/programme/institution "
+        "next steps + the Restyle 2 compare suggestion) must use closeForNavigation")
     # The explicit closes (x button, Escape, floating button) still
     # go through toggle(false) and therefore record the dismiss.
     assert "toggle(false)" in src

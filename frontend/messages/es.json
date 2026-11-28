@@ -982,5 +982,15 @@
  "wizard.usaNote": "Nota: Imperial publica un estándar de AP; UCL no publica ninguna equivalencia estadounidense para estos programas, por lo que esa comprobación se marcará como desconocida.",
  "sample.confirmTitle": "¿Reemplazar tus respuestas con el perfil de ejemplo?",
  "sample.confirmBody": "Cargar el perfil de ejemplo reemplaza lo que has introducido, incluidas tus respuestas de preferencias. No se puede deshacer.",
- "sample.confirmReplace": "Reemplazar con el ejemplo"
+ "sample.confirmReplace": "Reemplazar con el ejemplo",
+ "pet.suggestDeadlines": "Revisar los plazos",
+ "pet.suggestCompare": "Comparar universidades",
+ "pet.suggestDocuments": "Preparar los documentos",
+ "pet.planChangeAsk": "¿Actualizo tu plan con este cambio?",
+ "pet.planConfirm": "Confirmar el cambio",
+ "pet.planSkip": "Omitir",
+ "pet.summaryMissing": "Aún falta",
+ "results.trackingTitle": "Seguimiento",
+ "results.trackingDaysLeft": "Quedan {days} días",
+ "results.trackingInterview": "Pasos de la entrevista"
 }
